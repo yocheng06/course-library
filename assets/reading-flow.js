@@ -9,6 +9,9 @@
   const searchScope = document.getElementById('searchScopeSelect');
   const unit = document.getElementById(config.course === 'os' ? 'unitPicker' : 'lessonPicker');
   const tools = document.querySelector('.learning-tools');
+  const filterDetails = document.querySelector('.filter-details');
+  const modeHint = document.getElementById('modeHint');
+  filterDetails.append(modeHint);
   const settings = document.createElement('details');
   settings.className = 'reading-settings';
   settings.innerHTML = '<summary>閱讀設定</summary><div class="reading-settings-body"></div>';
@@ -24,13 +27,13 @@
   chips.className = 'active-filters'; chips.setAttribute('aria-label', '目前套用的篩選');
   tools.after(chips);
 
-  // Compact navigation remains available while reading on a phone.
+  // Compact navigation leaves room for reading on phones and tablets.
   const navigation = document.createElement('details');
   navigation.className = 'mobile-navigation';
   navigation.innerHTML = '<summary>課程／單元</summary><div class="mobile-navigation-panel"></div>';
   const panel = navigation.querySelector('div');
   const courseLinks = config.sidebar.querySelector('.site-nav').cloneNode(true);
-  courseLinks.setAttribute('aria-label', '手機科目與首頁'); panel.append(courseLinks);
+  courseLinks.setAttribute('aria-label', '科目與首頁'); panel.append(courseLinks);
   const unitLabel = document.createElement('label'); unitLabel.textContent = '切換課程單元';
   const unitSelect = document.createElement('select'); unitSelect.setAttribute('aria-label', '切換課程單元');
   unitLabel.append(unitSelect); panel.append(unitLabel);
@@ -67,7 +70,7 @@
   const switchUnit = document.createElement('button'); switchUnit.type = 'button';
   switchUnit.className = 'plain'; switchUnit.textContent = '切換單元'; empty.append(switchUnit);
   switchUnit.addEventListener('click', () => {
-    if (matchMedia('(max-width:720px)').matches) { navigation.open = true; unitSelect.focus(); }
+    if (matchMedia('(max-width:1000px)').matches) { navigation.open = true; unitSelect.focus(); }
     else {
       const active = config.sidebar.querySelector('.course-nav.active');
       active?.scrollIntoView({block:'nearest'}); active?.focus();
@@ -82,6 +85,7 @@
   function clearSelect(select) { select.selectedIndex = 0; select.dispatchEvent(new Event('change', {bubbles:true})); }
   function refresh() {
     const label = config.scopeLabel();
+    filterDetails.querySelector('summary').textContent = modeHint.hidden ? '篩選設定' : '篩選／說明';
     scope.textContent = '搜尋範圍：' + label;
     search.placeholder = '搜尋題目、答案或解析…';
     search.setAttribute('aria-label', `搜尋${label}的題目、答案與解析`);
@@ -118,5 +122,19 @@
   const readingInput = element => element?.matches('textarea,input[type="search"]');
   document.addEventListener('focusin', event => document.body.classList.toggle('reading-input-focus', readingInput(event.target)));
   document.addEventListener('focusout', () => setTimeout(() => document.body.classList.toggle('reading-input-focus', readingInput(document.activeElement)), 0));
+  // Long formulas can scroll independently without widening the page.
+  const refreshMath = () => config.list.querySelectorAll('.math-expression').forEach(formula => {
+    const scrollable = formula.scrollWidth > formula.clientWidth + 1;
+    if (scrollable) {
+      formula.tabIndex = 0;
+      formula.setAttribute('role', 'region');
+      formula.setAttribute('aria-label', '公式，可左右捲動');
+      formula.title = '公式，可左右捲動';
+    } else {
+      formula.removeAttribute('tabindex'); formula.removeAttribute('role');
+      formula.removeAttribute('aria-label'); formula.removeAttribute('title');
+    }
+  });
+  new ResizeObserver(refreshMath).observe(config.list);
   refresh();
 })();

@@ -96,7 +96,7 @@ body[data-course="os"] { --ui-accent:#38678f; --ui-soft:#e4f1fc; --ui-line:#c8dc
 }
 /* Original question diagrams remain visible before revealing answers. */
 .question-figure{margin:16px 0;max-width:100%;}
-.question-figure a{display:block;max-width:100%;color:inherit;text-decoration:none;}
-.question-figure img{display:block;width:100%;height:auto;box-sizing:border-box;border:1px solid #d6dce4;border-radius:10px;background:#fff;}
+.question-image-open{display:block;max-width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:left;font:inherit;cursor:zoom-in;}
+.question-figure img{display:block;width:auto;max-width:100%;height:auto;box-sizing:border-box;border:1px solid #d6dce4;border-radius:10px;background:#fff;}
 .question-figure span{display:block;margin-top:8px;font-size:14px;text-decoration:underline;text-underline-offset:3px;}
-.question-figure a:focus-visible{outline:3px solid currentColor;outline-offset:4px;border-radius:10px;}
+.question-image-open:focus-visible{outline:3px solid currentColor;outline-offset:4px;border-radius:10px;}

@@ -91,7 +91,7 @@
   sizeSelect.addEventListener('change', () => {
     document.body.classList.toggle('large-reading', sizeSelect.value === 'large'); write();
   });
-  const compact = matchMedia(`(max-width:720px)`);
+  const compact = matchMedia('(max-width:1000px)');
   const foldControls = () => document.querySelectorAll('.filter-details').forEach(details => { details.open = !compact.matches; });
   document.getElementById('conceptGuide').open = false;
   foldControls(); compact.addEventListener('change', foldControls);

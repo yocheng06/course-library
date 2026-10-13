@@ -34,13 +34,25 @@
     return labels.length ? `<p class="search-match">命中：${labels.map(escape).join('、')}</p>` : '';
   }
 
+  function mathMarkup(text, format) {
+    const candidates = /[A-Za-z0-9Α-Ωα-ωΣ√][A-Za-z0-9Α-Ωα-ωΣ√²³¹ᵢⱼ\u2070-\u209f()\[\]{}^=+*×÷\/−<>≤≥→∞-]*(?:[ \t]+[A-Za-z0-9Α-Ωα-ωΣ√][A-Za-z0-9Α-Ωα-ωΣ√²³¹ᵢⱼ\u2070-\u209f()\[\]{}^=+*×÷\/−<>≤≥→∞-]*)*/gu;
+    let markup = '', previous = 0;
+    for (const match of text.matchAll(candidates)) {
+      const expression = match[0];
+      if (expression.length < 3 || !/[=+*×÷\/^≤≥<>→Σ√−]/.test(expression) && !(/-/.test(expression) && /\d/.test(expression))) continue;
+      markup += format(text.slice(previous, match.index));
+      markup += `<span class="math-expression">${format(expression)}</span>`;
+      previous = match.index + expression.length;
+    }
+    return markup + format(text.slice(previous));
+  }
   function explanationMarkup(question, format = escape) {
     const text = String(question.explanation ?? question.ex ?? '');
     return text.split(/\n\s*\n/).filter(Boolean).map(block => {
       const section = block.match(/^(核心觀念|解題步驟|判讀步驟|適用條件|選項判讀)：\s*([\s\S]*)$/);
       return section
-        ? `<div class="explanation-section"><strong>${escape(section[1])}</strong><p>${format(section[2])}</p></div>`
-        : `<p>${format(block)}</p>`;
+        ? `<div class="explanation-section"><strong>${escape(section[1])}</strong><p>${mathMarkup(section[2], format)}</p></div>`
+        : `<p>${mathMarkup(block, format)}</p>`;
     }).join('');
   }
   function qualityReasons(question, course) {
