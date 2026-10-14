@@ -6,9 +6,10 @@
   const read = () => { try { return JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch { return {}; } };
   const initial = read();
   const initialBookmarks = Array.isArray(initial.bookmarks) ? initial.bookmarks : [];
+  const communityId = id => /^community-[0-9a-f-]{36}-[1-9]\d*$/.test(id);
   const saved = new Set(initialBookmarks.filter(x => typeof x === 'string')
-    .map(id => config.resolveId ? config.resolveId(id) : id)
-    .filter(id => typeof id === 'string' && config.validId(id)));
+    .map(id => config.resolveId ? (config.resolveId(id) || (communityId(id) ? id : null)) : id)
+    .filter(id => typeof id === 'string' && (config.validId(id) || communityId(id))));
   let reviewOnly = false;
   const tools = document.createElement('div');
   tools.className = 'learning-tools';

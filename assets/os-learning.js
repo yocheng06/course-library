@@ -39,17 +39,18 @@ function matches() {
     ($('qualitySelect').value !== 'pending' || window.courseQuestionTools.qualityReasons(q, 'os').length > 0) &&
     window.courseQuestionTools.matchesSearch(q, $('search').value));
 }
-function switchUnit(i) {
-  active = i; page = 1; revealed.clear();
-  if (!allUnits()) $('search').value = '';
-  const u = UNITS[i];
+function refreshUnitNavigation() {
+  const i = active, u = UNITS[i];
   $('unitPicker').innerHTML = UNITS.map((v,j) => `<option value="${j}">UNIT ${unitNumber(j)} · ${esc(v.label)} · ${v.questions.length} 題</option>`).join('');
   $('unitPicker').value = i;
   $('title').textContent=u.label; $('unitEn').textContent=u.en; $('description').textContent=u.desc; $('unitCount').textContent=u.questions.length;
   $('guideText').textContent = guides[u.id] || '先理解本單元的概念，再用題目練習，對照原答案與解析。';
   $('units').innerHTML = UNITS.map((v,j) => `<button class="course-nav ${j===i?'active':''}" data-unit="${j}" aria-pressed="${j===i}"><span class="course-copy"><span class="unit-number">UNIT ${unitNumber(j)}</span><span class="unit-row"><strong>${esc(v.label)}</strong><span class="unit-count">${v.questions.length} 題</span></span><small class="unit-en">${esc(v.en)}</small></span></button>`).join('');
-  refreshFilters();
-  render();
+}
+function switchUnit(i) {
+  active = i; page = 1; revealed.clear();
+  if (!allUnits()) $('search').value = '';
+  refreshUnitNavigation(); refreshFilters(); render();
 }
 function answerMarkup(q) {
   return `<div class="answer" id="answer-${q.id}"><div><strong>${window.courseQuestionTools.answerLabel(q)}</strong><br><span class="answer-value">${highlighted(q.answer)}</span></div>${q.note?`<div class="warning"><strong>題目備註</strong><br>${highlighted(q.note)}</div>`:''}${q.explanation?`<div class="explain"><strong>解析</strong><div class="explanation-text">${window.courseQuestionTools.explanationMarkup(q, highlighted)}</div></div>`:q.terms?.length?`<div class="explain"><strong>相關名詞與作用</strong>${q.terms.map(t=>`<div class="term"><b>${highlighted(t.label)}</b><br>${highlighted(t.text)}</div>`).join('')}</div>`:'<div class="explain">原始題庫尚未提供本題詳細解析。</div>'}${window.courseQuestionTools.reviewMarkup(q)}</div>`;
@@ -61,13 +62,16 @@ function cardMarkup({q, unit, unitIndex, i}) {
   const pending = window.courseQuestionTools.qualityReasons(q, 'os').length > 0;
   return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">UNIT ${unitNumber(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(i+1).padStart(3,'0')}</span></div><h3 class="question" tabindex="-1">${highlighted(q.stem)}</h3>${q.translation?`<p class="translation">${highlighted(q.translation)}</p>`:''}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${practice&&!q.options?.length?`<textarea class="entry" data-draft="${q.id}" aria-label="${q.id} 你的答案" placeholder="先寫下你的答案或解題想法…">${esc(drafts.get(q.id)||'')}</textarea>`:''}${practice||!$('showAnswers').checked?`<button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${open?'收起答案':practice?'對照答案與解析':'查看答案與解析'}</button>`:''}${practice&&result&&open?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
 }
-function render() {
+function render(preserveCards = false) {
   const filtered=matches(), entries=scopedEntries(), pages=Math.max(1,Math.ceil(filtered.length/pageSize)); page=Math.min(page,pages); totalPages=pages;
   const start=(page-1)*pageSize;
   $('qualitySelect').options[1].textContent=`待確認（${entries.filter(({q})=>window.courseQuestionTools.qualityReasons(q,'os').length).length} 題）`;
   $('resultCount').innerHTML=`<strong>${allUnits()?'全部單元':'目前單元'} · ${$('chapter').value==='all'?'全部章節':esc($('chapter').value)}</strong> · ${filtered.length} / ${entries.length} 題`;
   $('pageRange').textContent=filtered.length?`${start+1}–${Math.min(start+pageSize,filtered.length)} · 第 ${page} / ${pages} 頁`:'0 題';
-  $('cards').innerHTML=filtered.slice(start,start+pageSize).map(cardMarkup).join(''); $('empty').hidden=filtered.length!==0;
+  const visible=filtered.slice(start,start+pageSize), cards=[...$('cards').children];
+  if (!preserveCards || visible.length!==cards.length || visible.some(({q},index)=>q.id!==cards[index].dataset.id))
+    $('cards').innerHTML=visible.map(cardMarkup).join('');
+  $('empty').hidden=filtered.length!==0;
   $('pager').innerHTML=pages>1?`<button data-page="${page-1}" aria-label="上一頁" ${page===1?'disabled':''}>←</button>`+Array.from({length:pages},(_,i)=>`<button data-page="${i+1}" ${page===i+1?'class="active" aria-current="page"':''} aria-label="第 ${i+1} 頁">${i+1}</button>`).join('')+`<button data-page="${page+1}" aria-label="下一頁" ${page===pages?'disabled':''}>→</button>`:'';
   $('studyMode').classList.toggle('active',mode==='study'); $('practiceMode').classList.toggle('active',mode==='practice');
   $('studyMode').setAttribute('aria-pressed',mode==='study'); $('practiceMode').setAttribute('aria-pressed',mode==='practice');
@@ -116,8 +120,30 @@ const linkedQuestion = new URLSearchParams(location.search).get('question');
 const linkedEntry = findEntry(linkedQuestion);
 switchUnit(linkedEntry?.unitIndex ?? 0);
 if (linkedEntry) { page=Math.floor(linkedEntry.i/pageSize)+1; render(); window.courseQuestionTools.focusLinkedQuestion(linkedEntry.q.id); }
+let waitingForLinkedQuestion = !linkedEntry && /^community-/.test(linkedQuestion || '');
+function mergeCommunityQuestions(entries, {openLinkedQuestion = false} = {}) {
+  let added = 0;
+  for (const entry of entries) {
+    if (!entry || typeof entry!=='object') continue;
+    const {unit:unitId, question:q}=entry;
+    const unitIndex=UNITS.findIndex(unit=>unit.id===unitId), unit=UNITS[unitIndex];
+    if (!unit || !q || !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(q.id) ||
+        typeof q.stem!=='string' || typeof q.answer!=='string' || findEntry(q.id)) continue;
+    const i=unit.questions.length; unit.questions.push(q);
+    questionEntries.push({q,unit,unitIndex,i}); added++;
+  }
+  if (!added) return {added:0, openedLinkedQuestion:false};
+  document.querySelector('[data-course-total]').textContent=`${UNITS.length} 個單元 · ${questionEntries.length} 道題目`;
+  const linked=waitingForLinkedQuestion && openLinkedQuestion && findEntry(linkedQuestion);
+  if (linked) {
+    waitingForLinkedQuestion=false; switchUnit(linked.unitIndex);
+    page=Math.floor(linked.i/pageSize)+1; render();
+    window.courseQuestionTools.focusLinkedQuestion(linked.q.id);
+  } else { refreshUnitNavigation(); refreshFilters(); render(true); }
+  return {added, openedLinkedQuestion:Boolean(linked)};
+}
 window.courseLearning={
-  course:'os',toolbar:document.querySelector('.toolbar'),sidebar:document.querySelector('.sidebar'),list:$('cards'),
+  mergeCommunityQuestions, course:'os',toolbar:document.querySelector('.toolbar'),sidebar:document.querySelector('.sidebar'),list:$('cards'),
   unitIds:()=>UNITS[active].questions.map(q=>q.id),
   scopeIds:()=>scopedEntries().map(({q})=>q.id), allUnits,
   scopeLabel:()=>allUnits()?`作業系統 · 全部 ${UNITS.length} 個單元`:`目前單元 · ${UNITS[active].label}`,
