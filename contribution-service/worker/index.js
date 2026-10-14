@@ -487,6 +487,8 @@ async function route(request, env) {
   }
   if (request.method === "GET") {
     if (path === "/") return Response.redirect(SITE_ORIGIN + "/submit", 302);
+    if (path === "/index.html")
+      return Response.redirect(LIBRARY_ORIGIN + "/course-library/", 302);
     const key =
       path === "/submit"
         ? "/submit.html"
