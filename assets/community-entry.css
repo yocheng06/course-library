@@ -1,0 +1,55 @@
+.community-entry {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 20px;
+  margin-top: 24px;
+  border: 1px solid #c7bac2;
+  background: #fff;
+  border-radius: 15px;
+}
+.community-entry h2 {
+  font-size: 20px;
+  margin: 0 0 6px;
+  color: #292a2f;
+}
+.community-entry p {
+  color: #655c64;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.75;
+}
+.community-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.community-links a {
+  color: #85475e;
+  font-weight: 650;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+.community-course-link {
+  font-size: 14px !important;
+}
+.site-nav .community-course-link {
+  grid-column: 1/-1;
+}
+.api-notice {
+  font-size: 14px;
+  margin: 12px 0;
+  color: var(--muted, #655c64);
+  line-height: 1.7;
+}
+.api-notice button {
+  margin-left: 8px;
+}
+@media (max-width: 640px) {
+  .community-entry {
+    padding: 18px;
+  }
+}

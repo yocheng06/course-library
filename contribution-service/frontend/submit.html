@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="補充課程題庫：免登入投稿，經站主審核後加入題庫。"
+    />
+    <title>投稿題庫｜課程學習站</title>
+    <link rel="icon" href="assets/icons/course-mascot.png" />
+    <link rel="stylesheet" href="assets/contributions.css?v=20261014" />
+  </head>
+  <body>
+    <header class="contribution-nav">
+      <a class="brand" href="index.html">課程學習站</a>
+      <nav aria-label="網站導覽">
+        <a href="index.html">課程首頁</a><a href="review.html">管理者審核</a>
+      </nav>
+    </header>
+    <main class="contribution-page">
+      <div class="page-heading">
+        <span class="eyebrow">一起補充題庫</span>
+        <h1>投稿題庫</h1>
+        <p>把整理好的題目分享給同學。送出後由站主審核，通過才會加入題庫。</p>
+      </div>
+      <ol class="flow-steps" aria-label="投稿流程">
+        <li>1 填寫或匯入</li>
+        <li>2 預覽並送出</li>
+        <li>3 等待站主審核</li>
+      </ol>
+      <p class="notice">
+        同學投稿不需要登入。投稿內容會交給站主；審核通過的題目、答案與解析會公開。
+      </p>
+      <section class="panel" aria-labelledby="batchHeading">
+        <h2 id="batchHeading">這份題庫</h2>
+        <div class="field-grid">
+          <label>科目<select id="course" required></select></label
+          ><label>單元<select id="unit" required></select></label
+          ><label
+            >題庫名稱<input
+              id="batchTitle"
+              maxlength="100"
+              placeholder="例如：L4 課堂補充題"
+              required /></label
+          ><label
+            >投稿者稱呼（選填）<input
+              id="submitter"
+              maxlength="60"
+              autocomplete="nickname"
+              placeholder="你的名字或暱稱"
+          /></label>
+        </div>
+        <label
+          >來源說明（選填）<textarea
+            id="source"
+            rows="2"
+            maxlength="2000"
+            placeholder="例如：課堂講義第 12 頁、自行整理的練習題"
+          ></textarea>
+        </label>
+        <div class="import-row">
+          <label class="button secondary"
+            >匯入 JSON／HTML 題庫<input
+              type="file"
+              id="importFile"
+              accept=".json,.html,.htm,application/json,text/html"
+              hidden /></label
+          ><button class="text-button" id="downloadExample" type="button">
+            下載匯入範例</button
+          ><span class="muted"
+            >一次最多 200 題。HTML 須含結構化題目資料，也可逐題填寫。</span
+          >
+        </div>
+      </section>
+      <form id="questionForm" class="panel">
+        <h2 id="editorHeading">新增一題</h2>
+        <div class="field-grid">
+          <label
+            >分類<input
+              name="category"
+              required
+              maxlength="100"
+              placeholder="例如：CPU 排程" /></label
+          ><label
+            >題型<select name="type">
+              <option>單選題</option>
+              <option>多選題</option>
+              <option>填空題</option>
+              <option>簡答題</option>
+            </select></label
+          >
+        </div>
+        <label
+          >題目<textarea
+            name="stem"
+            required
+            maxlength="10000"
+            rows="4"
+            placeholder="照原題寫出題幹；有程式碼時可以附題圖。"
+          ></textarea></label
+        ><label id="optionsField"
+          >選項（一行一個）<textarea
+            name="options"
+            rows="4"
+            maxlength="16000"
+            placeholder="A. 第一個選項&#10;B. 第二個選項"
+          ></textarea></label
+        ><label
+          >答案<textarea
+            name="answer"
+            required
+            maxlength="4000"
+            rows="2"
+            placeholder="例如：B，或填空／簡答題的完整答案"
+          ></textarea></label
+        ><label
+          >解析（選填）<textarea
+            name="explanation"
+            maxlength="16000"
+            rows="4"
+            placeholder="說明答案的原因、計算過程與適用條件。"
+          ></textarea></label
+        ><label
+          >題圖（選填，最多兩張）<input
+            id="questionImages"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            multiple
+          /><span class="muted"
+            >每張最多 1 MB；整份投稿的題圖最多 6 MB。</span
+          ></label
+        >
+        <div id="imagePreviews" class="image-previews"></div>
+        <div class="actions">
+          <button class="button" type="submit" id="addQuestion">
+            加入投稿清單</button
+          ><button
+            class="button secondary"
+            type="button"
+            id="cancelEdit"
+            hidden
+          >
+            取消編輯
+          </button>
+        </div>
+      </form>
+      <section class="panel" aria-labelledby="draftHeading">
+        <div class="section-heading">
+          <h2 id="draftHeading">投稿清單 <span id="draftCount">0 題</span></h2>
+          <button id="exportDraft" class="text-button" type="button">
+            下載草稿
+          </button>
+        </div>
+        <p id="emptyDraft" class="muted">加入題目後，可以在這裡預覽與修改。</p>
+        <div id="draftList"></div>
+        <p class="muted">
+          草稿會保存在這台裝置；清除瀏覽器資料會一併刪除。也可下載備份。
+        </p>
+        <label class="honeypot" aria-hidden="true"
+          >網站<input id="website" tabindex="-1" autocomplete="off" /></label
+        ><label class="consent"
+          ><input
+            id="consent"
+            type="checkbox"
+          />我已確認題目附有答案，並同意站主審核、編輯與公開通過的內容。</label
+        >
+        <div class="actions">
+          <button id="submitBatch" class="button" type="button" disabled>
+            送出，等待審核</button
+          ><span class="muted">送出不會立即發布。</span>
+        </div>
+      </section>
+      <p
+        id="message"
+        class="message"
+        role="status"
+        aria-live="polite"
+        tabindex="-1"
+      ></p>
+      <section id="success" class="panel" hidden>
+        <h2>投稿已送出</h2>
+        <p>投稿編號：<strong id="receipt"></strong></p>
+        <p>這份題庫正在等待站主審核。請保留編號；你可以在下方查詢審核狀態。</p>
+      </section>
+      <section class="panel" aria-labelledby="statusHeading">
+        <h2 id="statusHeading">查詢投稿狀態</h2>
+        <form id="statusForm" class="status-form">
+          <label
+            >投稿編號<input
+              id="statusId"
+              required
+              maxlength="36"
+              placeholder="貼上送出後取得的編號" /></label
+          ><button type="submit" class="button secondary">查詢</button>
+        </form>
+        <p id="statusResult" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+    <script src="assets/contributions-config.js?v=20261014"></script>
+    <script
+      type="module"
+      src="assets/contributions-submit.js?v=20261014"
+    ></script>
+    <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
+  </body>
+</html>
