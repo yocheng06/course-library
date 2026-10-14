@@ -21,7 +21,7 @@ function git(args, authenticated = false) {
   });
   if (r.status !== 0)
     throw new Error(
-      "Git operation failed: " + args[0] + " (exit " + r.status + ")",
+      "Git operation failed: " + args[0] + " (exit " + r.status + "): " + (r.stderr||"").replaceAll(credential.token,"[redacted]"),
     );
   return r.stdout.trim();
 }
