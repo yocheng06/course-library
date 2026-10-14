@@ -1,4 +1,4 @@
-import { COURSE_UNITS, TYPES, normalizeBatch } from "./contribution-model.js";
+import { COURSE_UNITS, TYPES, normalizeBatch } from "./contribution-model.js?v=os-unit-labels-20261014";
 import {
   esc,
   api,

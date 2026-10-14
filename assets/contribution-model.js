@@ -2,11 +2,11 @@ export const COURSE_UNITS = {
   os: {
     name: "作業系統",
     units: {
-      basics: "作業系統基礎",
-      architecture: "作業系統架構",
-      process: "程序與 IPC",
-      threads: "執行緒與多執行緒",
-      scheduling: "CPU 排程",
+      basics: "L2 · 作業系統基礎",
+      architecture: "L3 · 作業系統架構",
+      process: "L4 · 程序與 IPC",
+      threads: "L5 · 執行緒與多執行緒",
+      scheduling: "L6 · CPU 排程",
     },
   },
   algorithms: {
