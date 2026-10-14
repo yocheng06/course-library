@@ -3,13 +3,13 @@
   'use strict';
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const clean = value => String(value ?? '').normalize('NFKC').toLowerCase()
-    .replace(/^[a-d][.、．:：]\s*/i, '').replace(/，/g, ',').replace(/；/g, ';').replace(/\s+/g, '');
+    .replace(/^[a-h][.、．:：]\s*/i, '').replace(/，/g, ',').replace(/；/g, ';').replace(/\s+/g, '');
 
   function expectedChoiceKey(answer, options) {
     const raw = String(answer ?? '').normalize('NFKC').trim()
       .replace(/\s*\(依本題庫(?:標準答案|分類)\)$/, '');
-    if (/^[A-D](?:\s*[,、，/＋+&及與和]\s*[A-D])*(?:[.、．])?$/i.test(raw)) {
-      const letters = raw.match(/[A-D]/gi).map(letter => letter.toUpperCase());
+    if (/^[A-H](?:\s*[,、，/＋+&及與和]\s*[A-H])*(?:[.、．])?$/i.test(raw)) {
+      const letters = raw.match(/[A-H]/gi).map(letter => letter.toUpperCase());
       if (new Set(letters).size !== letters.length || letters.some(letter => letter.charCodeAt(0) - 65 >= options.length)) return null;
       return letters.sort().join('');
     }

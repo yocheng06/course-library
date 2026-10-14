@@ -125,5 +125,10 @@
     });
   }
 
-  window.courseQuestionTools = { hasProvidedAnswer, matchesSearch, searchMatchMarkup, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion };
+  function questionImagesMarkup(q) {
+    const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    return (q.images||[]).filter(img=>/^assets\/questions\/[a-z0-9/_-]+\.(png|jpe?g)$/i.test(img.src)||/^https:\/\//.test(img.src)).map(img=>`<figure class="question-figure"><button type="button" class="question-image-open" data-image-viewer aria-haspopup="dialog" aria-controls="question-image-viewer"><img src="${esc(img.src)}" alt="${esc(img.alt||q.stem||q.q)}" ${img.width&&img.height?`width="${Number(img.width)}" height="${Number(img.height)}"`:''} loading="lazy"><span>放大題圖（可縮放）</span></button></figure>`).join('');
+  }
+
+  window.courseQuestionTools = { questionImagesMarkup, hasProvidedAnswer, matchesSearch, searchMatchMarkup, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion };
 })();

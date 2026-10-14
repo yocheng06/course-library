@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>審核題庫｜課程學習站</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="assets/icons/course-mascot.png" />
+    <link rel="stylesheet" href="assets/contributions.css?v=20261014" />
+  </head>
+  <body>
+    <header class="contribution-nav">
+      <a class="brand" href="https://yocheng06.github.io/course-library/"
+        >課程學習站</a
+      >
+      <nav aria-label="網站導覽">
+        <a href="https://yocheng06.github.io/course-library/submit.html"
+          >同學投稿</a
+        ><a href="https://yocheng06.github.io/course-library/">課程首頁</a>
+      </nav>
+    </header>
+    <main class="contribution-page">
+      <div class="page-heading">
+        <span class="eyebrow">管理者專區</span>
+        <h1>審核題庫</h1>
+        <p>確認題目、答案與解析，核准後才會出現在課程題庫。</p>
+      </div>
+      <section class="panel" id="loginPanel">
+        <h2>管理者登入</h2>
+        <p id="loginHint">使用綁定的 ChatGPT 帳號登入後，即可審核投稿。</p>
+        <a
+          class="button"
+          id="signIn"
+          href="/signin-with-chatgpt?return_to=%2Freview"
+          target="_top"
+          >登入後審核</a
+        >
+      </section>
+      <section id="reviewWorkspace" hidden>
+        <div class="panel review-controls">
+          <label
+            >審核狀態<select id="statusFilter">
+              <option value="pending">待審核</option>
+              <option value="approved">已核准</option>
+              <option value="rejected">已退回</option>
+            </select></label
+          ><button class="button secondary" id="refresh" type="button">
+            重新載入</button
+          ><a
+            class="text-button"
+            href="/signout-with-chatgpt?return_to=%2Freview"
+            target="_top"
+            >登出</a
+          >
+        </div>
+        <p id="reviewCount" class="muted"></p>
+        <div id="reviewList"></div>
+        <button id="loadMore" class="button secondary" type="button" hidden>
+          載入更多投稿
+        </button>
+      </section>
+      <p
+        id="message"
+        class="message"
+        role="status"
+        aria-live="polite"
+        tabindex="-1"
+      ></p>
+    </main>
+    <script src="assets/contributions-config.js?v=20261014"></script>
+    <script
+      type="module"
+      src="assets/contributions-review.js?v=20261014"
+    ></script>
+    <noscript>請開啟 JavaScript 使用題庫審核功能。</noscript>
+  </body>
+</html>
