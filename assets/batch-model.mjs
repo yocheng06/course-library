@@ -44,6 +44,8 @@ function questionHeader(line) {
 const option =
   /^(?:[-*+]\s+)?(?:\(([A-H])\)|\[([A-H])\]|([A-H])[.)、:])\s*(.*)$/i;
 const metadata = /^(?:正確答案|參考答案|答案|解答|解析|詳解|說明)\s*[:：]/;
+const stemLabel = /^(?:題目|題幹|Question|Stem)\s*[:：]\s*/i;
+const optionsLabel = /^(?:選項|Options|Choices)\s*[:：]\s*/i;
 const typePattern =
   /^(?:[【\[(（]\s*)?(單選題?|多選題?|複選題?|填空題?|圖片題?)(?:\s*[】\])）]|\s*[:：])\s*/;
 
@@ -100,7 +102,12 @@ export const optionText = (value) =>
   normalizeUnicode(value)
     .replace(/^(?:\([A-H]\)|\[[A-H]\]|[A-H][.)、:])\s*/i, "")
     .trim();
-export const optionKey = (value) => normalizeText(optionText(value));
+export const optionKey = (value) => {
+  const text = optionText(value);
+  // A known spelling of the same technical term; keep the pasted text for
+  // display, and do not apply general typo/fuzzy corrections to choices.
+  return normalizeText(text === "Disk formating" ? "Disk formatting" : text);
+};
 
 function inlineOptions(line) {
   const matches = [...line.matchAll(/(?:^|\s)([A-H])[.)、:]\s*/g)];
@@ -116,7 +123,7 @@ export function parseQuestions(text) {
     throw new Error("請先貼上題目與選項。");
   if (text.length > MAX_TEXT)
     throw new Error("文字超過 80,000 字，請分批貼上。");
-  const lines = text
+  const cleanedLines = text
     .replace(/\r\n?/g, "\n")
     .split("\n")
     .map((line) =>
@@ -124,6 +131,15 @@ export function parseQuestions(text) {
         .replace(/^#{1,6}\s*/, "")
         .normalize("NFKC"),
     );
+  const lines = cleanedLines.flatMap((line, i) => {
+    // Recover "D. option text  第 21 題\n題目：..." only with both
+    // an actual option before it and an explicitly labelled question after it.
+    // Ordinary references to another question are not question boundaries.
+    const joined = line.match(/^(.*\S)[ \t]+(第\s*\d{1,4}\s*題\s*[:.)、]?)$/);
+    if (!joined || !joined[1].match(option)?.[4]?.trim()) return [line];
+    const following = cleanedLines.slice(i + 1).find((l) => l.trim()) || "";
+    return stemLabel.test(following) ? [joined[1], joined[2]] : [line];
+  });
   const numbered = lines.some((line) => questionHeader(line));
   const questions = [];
   let current,
@@ -146,6 +162,16 @@ export function parseQuestions(text) {
   function append(raw) {
     let line = raw.trim();
     if (!line || /^```(?:\w+)?$/.test(line) || /^[-*_]{3,}$/.test(line)) return;
+    line = line.replace(stemLabel, "");
+    const choicesHeading = line.match(optionsLabel);
+    if (choicesHeading) {
+      const rest = line.slice(choicesHeading[0].length);
+      if (!rest || option.test(rest)) {
+        current.expectsOptions = true;
+        line = rest;
+      }
+    }
+    if (!line) return;
     if (metadata.test(line)) {
       trailing = true;
       return;
@@ -203,7 +229,7 @@ export function parseQuestions(text) {
     )
       q.issues.push("選項代號重複或不完整，請確認多題是否已分開並補齊選項。");
     if (q.options.some((o) => !o.text.trim())) q.issues.push("選項內容為空。");
-    if (/選/.test(q.type) && !q.options.length)
+    if ((/選/.test(q.type) || q.expectsOptions) && !q.options.length)
       q.issues.push("選擇題尚未附上選項。");
     if (
       /圖片/.test(q.type) ||
@@ -437,7 +463,10 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       answer: answers[0].answer,
       reason: textAnswerBridge
         ? "題幹符合，題庫的文字答案唯一對應本次選項。"
-        : "題幹與選項符合題庫，答案已依貼上的選項代號對應。",
+        : "題幹與選項符合題庫，答案已依貼上的選項代號對應。" +
+          (question.options.some((o) => optionText(o.text) === "Disk formating")
+            ? "已將 Disk formating 的常見拼字辨識為 Disk formatting，保留貼上原文。"
+            : ""),
       references: references(exact),
     };
   }

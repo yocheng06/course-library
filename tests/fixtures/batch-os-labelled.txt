@@ -1,0 +1,80 @@
+第 11 題
+​題目：在 Von Neumann 架構中，________ 可以允許裝置傳輸資料至記憶體而不需 CPU 介入 (請用小寫英文回答)。
+​第 12 題
+​題目：下列何者為作業系統的常見目標？
+​選項：
+​A. 僅僅執行程式
+​B. 最小化記憶體
+​C. 便利性與效率
+​D. 僅僅保護硬體
+​第 13 題
+​題目：作業系統主要扮演什麼角色？
+​選項：
+​A. 網路伺服器
+​B. 使用者與硬體的中介者
+​C. 應用程式開發工具
+​D. 硬體控制中心
+​第 14 題
+​題目：To prevent programs from entering infinite loops, the system uses a ________ to interrupt periodically (please answer in lowercase english).
+​第 15 題
+​題目：下列哪些屬於作業系統的資源管理功能？
+​選項：
+​A. Memory management
+​B. File generation
+​C. CPU scheduling
+​D. User management
+​第 16 題
+​題目：Process 管理包含哪些活動？
+​選項：
+​A. Disk formating
+​B. Creating/deleting processes
+​C. Deadlock handling
+​D. Memory management
+​第 17 題
+​題目：P2P 運算環境中，節點之間的關係是？
+​選項：
+​A. 無關係
+​B. 主從關係 (Client-Server)
+​C. 對等關係 (Peers)
+​D. 階層關係
+​第 18 題
+​題目：核心常用的資料結構包含？
+​選項：
+​A. Singly linked list
+​B. Binary search tree
+​C. Doubly linked list
+​D. Circular linked list
+​第 19 題
+​題目：快取 (Cache) 管理問題包含？
+​選項：
+​A. Replacement policy
+​B. Cache coherency
+​C. Cache size
+​D. Interrupt handling
+​第 20 題
+​題目：保護與安全性涉及？
+​選項：
+​A. Denial-of-service
+​B. Privilege escalation
+​C. User IDs/Group IDs
+​D. Identity theft  第 21 題
+​題目：儲存體單位包含？
+​選項：
+​A. System call
+​B. Bit
+​C. Word
+​D. Byte
+​第 22 題
+​題目：儲存管理活動包含？
+​選項：
+​A. Caching
+​B. File-system management
+​C. I/O subsystem management
+​D. Mass-storage management
+​第 23 題
+​題目：在 Von Neumann 架構中，CPU 與裝置之間的記憶體存取可以透過什麼來減輕 CPU 負擔？
+​選項：
+​A. Interrupt
+​B. System call
+​C. DMA
+​D. Cache

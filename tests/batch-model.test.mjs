@@ -624,3 +624,134 @@ test("recognized answer hints validate the actual bank answer and never change i
   assert.notEqual(normalizeText("n^(log_b(a))"), normalizeText("n^(log_a(b))"));
   assert.notEqual(normalizeText("n^(log_b(a))"), normalizeText("N^(log_b(a))"));
 });
+
+test("user's labelled OS batch recovers question 21 and returns all 13 answers with the pasted choice order", async () => {
+  const text = await readFile(
+    new URL("./fixtures/batch-os-labelled.txt", import.meta.url),
+    "utf8",
+  );
+  const questions = parseQuestions(text);
+  assert.deepEqual(
+    questions.map((q) => q.number),
+    Array.from({ length: 13 }, (_, i) => String(i + 11)),
+  );
+  for (const q of questions) {
+    assert(!q.stem.startsWith("題目:"));
+    assert(!q.stem.includes("選項:"));
+    assert.equal(q.issues.length, 0, q.number);
+    assert.equal(
+      q.options.length,
+      ["11", "14"].includes(q.number) ? 0 : 4,
+      q.number,
+    );
+  }
+  assert.equal(
+    questions.find((q) => q.number === "20").options[3].text,
+    "Identity theft",
+  );
+  const data = JSON.parse(
+    await readFile(
+      new URL("../assets/batch-library.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const rows = matchQuestions(questions, buildIndex(data.entries), {
+    course: "os",
+  });
+  assert(rows.every((r) => r.status === "matched"));
+  assert.deepEqual(
+    rows.map((r) =>
+      r.question.options.length
+        ? [...r.answer.matchAll(/(?:^|；)([A-H])\./g)].map((m) => m[1]).join("")
+        : r.answer,
+    ),
+    [
+      "dma",
+      "C",
+      "B",
+      "timer",
+      "AC",
+      "BC",
+      "C",
+      "ABCD",
+      "ABC",
+      "ABCD",
+      "BCD",
+      "ABCD",
+      "C",
+    ],
+  );
+  assert(rows[5].reason.includes("Disk formating"));
+  assert.equal(questions[5].options[0].text, "Disk formating");
+  assert.equal(rows[7].references[0].id, "basics-31");
+});
+
+test("labelled questions accept inline/separate English or Chinese field labels and still require complete choices", () => {
+  const rows = lookup(
+    "第 31 題\n題目：CPU 排程器是哪一種類型的排程器？\n選項：A. 長程排程器\nB. 中程排程器\nC. 短程排程器\nD. 巨集排程器",
+  );
+  assert.equal(rows[0].answer, "C. 短程排程器");
+  assert.equal(
+    lookup(
+      "Q31\nQuestion: CPU 排程器是哪一種類型的排程器？\nChoices:\nA. 長程排程器\nB. 中程排程器\nC. 短程排程器\nD. 巨集排程器",
+    )[0].answer,
+    "C. 短程排程器",
+  );
+  assert.equal(
+    parseQuestions("第 31 題\n題目：\n請填寫內容\n選項：")[0].issues.length,
+    1,
+  );
+  const q = parseQuestions(
+    "第 31 題\n題幹：請判斷內容\n選項：前兩項必須同時符合\nA. 一\nB. 二",
+  )[0];
+  assert(q.stem.includes("前兩項必須同時符合"));
+});
+
+test("joined headings require option content and a following labelled stem; limits and duplicate numbers remain enforced", () => {
+  const text =
+    "第 1 題\n題目：第一題\n選項：\nA. 一\nB. 二  第 2 題\n\n題目：第二題\nA. 三\nB. 四";
+  assert.deepEqual(
+    parseQuestions(text).map((q) => q.number),
+    ["1", "2"],
+  );
+  const reference = parseQuestions(
+    "1. 請閱讀以下選項\nA. 參照 第 21 題\nB. 無關\n補充條件：保留文字",
+  );
+  assert.equal(reference.length, 1);
+  assert(reference[0].options[0].text.includes("第 21 題"));
+  assert.equal(
+    parseQuestions("1. 請閱讀選項\nA. 第 21 題\n題目：這是選項的補充\nB. 無關")
+      .length,
+    1,
+  );
+  const duplicate = parseQuestions(text.replace("第 2 題", "第 1 題"));
+  assert(duplicate[1].issues.some((issue) => issue.includes("題號重複")));
+  const thirty = Array.from(
+    { length: 30 },
+    (_, i) => `第 ${i + 1} 題\n題目：題幹\nA. 一\nB. 二`,
+  ).join("\n");
+  assert.throws(
+    () => parseQuestions(thirty + "  第 31 題\n題目：不能截掉的題目"),
+    /最多比對 30 題/,
+  );
+});
+
+test("known technical spelling is limited to the complete option term, while other spelling and meaning changes require review", () => {
+  const bank = make({
+    options: ["A. Disk formatting", "B. Memory management"],
+    answer: "B",
+  });
+  const text =
+    "1. CPU 排程器是哪一種類型的排程器？\nA. Disk formating\nB. Memory management";
+  assert.equal(lookup(text, [bank])[0].answer, "B. Memory management");
+  for (const option of [
+    "Disk format",
+    "Disk formating()",
+    "Disk formattng",
+    "Disk NOT formatting",
+  ])
+    assert.equal(
+      lookup(text.replace("Disk formating", option), [bank])[0].status,
+      "review",
+    );
+});
