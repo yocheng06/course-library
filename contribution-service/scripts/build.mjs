@@ -1,7 +1,7 @@
 import { readFile, writeFile, mkdir, rm, cp } from "node:fs/promises";
 import { resolve } from "node:path";
 import { createHash } from "node:crypto";
-import { questionKey } from "../worker/model.js";
+import { questionKey, COURSE_UNITS } from "../worker/model.js";
 const root = resolve(import.meta.dirname, ".."),
   library = resolve(root, "frontend");
 await rm(resolve(root, "dist"), { recursive: true, force: true });
@@ -15,6 +15,22 @@ const fingerprints = entries.map((q) =>
     .update(questionKey(q.course, q.unit, q))
     .digest("hex"),
 );
+const reviewed = JSON.parse(await readFile(resolve(root, "content/approved-explanations.json"), "utf8"));
+const explanations = {};
+for (const entry of reviewed.entries) {
+  if (!/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(entry.id) || explanations[entry.id] ||
+      !COURSE_UNITS[entry.course]?.units[entry.unit] ||
+      typeof entry.stem !== "string" || !Array.isArray(entry.options) ||
+      typeof entry.answer !== "string" || !entry.answer.trim() ||
+      typeof entry.explanation !== "string" || !entry.explanation.trim() || entry.explanation.length > 16000 ||
+      !entry.sources?.length || entry.sources.some(key => !reviewed.sources[key])) {
+    throw new Error("Invalid reviewed explanation: " + entry.id);
+  }
+  explanations[entry.id] = {
+    course: entry.course, unit: entry.unit, key: questionKey(entry.course, entry.unit, entry),
+    answer: entry.answer, explanation: entry.explanation,
+  };
+}
 const paths = [
   "submit.html",
   "review.html",
@@ -54,7 +70,7 @@ worker =
   "\n" +
   worker.replace(
     "/* BUILD_DATA */",
-    `const BASE_FINGERPRINTS=${JSON.stringify(fingerprints)};\nconst STATIC_ASSETS=${JSON.stringify(assets)};`,
+    `const BASE_FINGERPRINTS=${JSON.stringify(fingerprints)};\nconst STATIC_ASSETS=${JSON.stringify(assets)};\nconst REVIEWED_EXPLANATIONS=${JSON.stringify(explanations)};`,
   );
 await writeFile(resolve(root, "dist/server/index.js"), worker);
 await cp(

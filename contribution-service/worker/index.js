@@ -244,10 +244,25 @@ async function submit(request, env) {
   }
   return json({ id, status: "pending", ...report }, 201);
 }
+function supplementApprovedQuestion(question, course, unit, id = question.id ?? question.bookmarkId) {
+  const supplement = REVIEWED_EXPLANATIONS[id];
+  if (!supplement || String(question.explanation ?? question.ex ?? "").trim()) return question;
+  if (supplement.course !== course || supplement.unit !== unit ||
+      supplement.answer !== (question.answer ?? question.a) ||
+      supplement.key !== questionKey(course, unit, {
+        stem: question.stem ?? question.q, options: question.options ?? question.opts ?? [],
+      })) return question;
+  return { ...question, [course === "algorithms" ? "ex" : "explanation"]: supplement.explanation };
+}
 function submissionRow(row) {
+  const payload = JSON.parse(row.payload);
+  if (row.status === "approved") {
+    payload.questions = payload.questions.map((q, i) =>
+      supplementApprovedQuestion(q, payload.course, payload.unit, `community-${row.id}-${i + 1}`));
+  }
   return {
     id: row.id,
-    payload: JSON.parse(row.payload),
+    payload,
     status: row.status,
     revision: row.revision,
     createdAt: row.created_at,
@@ -499,7 +514,7 @@ async function route(request, env) {
     return json({
       questions: result.results.map((row) => ({
         unit: row.unit,
-        question: JSON.parse(row.data),
+        question: supplementApprovedQuestion(JSON.parse(row.data), course, row.unit),
       })),
     });
   }

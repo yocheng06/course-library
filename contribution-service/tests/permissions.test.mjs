@@ -467,3 +467,54 @@ test("approval retries a publication collision and publishes only the remaining 
   assert.equal(questions.filter(q => q.question.stem === novel.stem).length, 1);
   assert.match((await call(env, "/api/status/" + two.data.id)).data.note, /新增 1 題.*略過 1 題/);
 });
+
+test("all 76 approved explanations appear in the public API and reviewer view without changing questions or answers", async () => {
+  const env = await setup();
+  const content = JSON.parse(await readFile(new URL("../content/approved-explanations.json", import.meta.url), "utf8"));
+  assert.equal(content.entries.length, 76);
+  const submissionId = "65307e6c-1612-4c30-b48f-0489756453b5";
+  const questions = content.entries.map(entry => ({
+    id: entry.id, category: "課堂投稿", type: "填空題", stem: entry.stem,
+    options: entry.options, answer: entry.answer, explanation: "", answerProvided: true,
+  }));
+  for (const [i, q] of questions.entries()) {
+    env.sql.prepare("INSERT INTO public_questions (id,fingerprint,submission_id,course,unit,data,created_at) VALUES (?,?,?,?,?,?,?)")
+      .run(q.id, "reviewed-fixture-" + i, submissionId, "os", "scheduling", JSON.stringify(q), i);
+  }
+  const batch = { course: "os", unit: "scheduling", title: "已核准課堂題庫", questions };
+  env.sql.prepare("INSERT INTO submissions (id,course,unit,title,payload,status,revision,created_at,note) VALUES (?,?,?,?,?,'approved',2,0,'')")
+    .run(submissionId, batch.course, batch.unit, batch.title, JSON.stringify(batch));
+  const publicResult = await call(env, "/api/questions?course=os");
+  assert.equal(publicResult.response.status, 200);
+  assert.equal(publicResult.data.questions.length, 76);
+  for (const [i, row] of publicResult.data.questions.entries()) {
+    assert.deepEqual(row.question, { ...questions[i], explanation: content.entries[i].explanation });
+    assert(row.question.explanation.length >= 70);
+  }
+  const reviewed = await call(env, "/api/review?status=approved", { reviewer: true });
+  assert.equal(reviewed.data.items.length, 1);
+  assert.deepEqual(reviewed.data.items[0].payload.questions, publicResult.data.questions.map(q => q.question));
+  assert.equal(JSON.parse(env.sql.prepare("SELECT data FROM public_questions WHERE id=?").get(questions[0].id).data).explanation, "");
+  env.sql.prepare("UPDATE submissions SET status='pending' WHERE id=?").run(submissionId);
+  assert((await call(env, "/api/review", { reviewer: true })).data.items[0].payload.questions.every(q => !q.explanation));
+});
+
+test("reviewed explanations preserve later edits and require the matching id, question, answer and unit", async () => {
+  const content = JSON.parse(await readFile(new URL("../content/approved-explanations.json", import.meta.url), "utf8"));
+  const entry = content.entries[0];
+  for (const change of [
+    { explanation: "站主之後補寫的完整解析" },
+    { id: "community-00000000-0000-4000-8000-000000000000-1" },
+    { stem: "已改成其他問題" },
+    { options: ["A. 已修改選項", "B. 另一選項"] },
+    { answer: "B" },
+    { unit: "basics" },
+  ]) {
+    const env = await setup();
+    const question = { id: entry.id, stem: entry.stem, options: entry.options, answer: entry.answer, explanation: "", ...change };
+    env.sql.prepare("INSERT INTO public_questions (id,fingerprint,submission_id,course,unit,data,created_at) VALUES (?,?,?,?,?,?,0)")
+      .run(question.id, "guard-fixture", "fixture", "os", change.unit || entry.unit, JSON.stringify(question));
+    const result = await call(env, "/api/questions?course=os");
+    assert.deepEqual(result.data.questions[0].question, question);
+  }
+});

@@ -343,3 +343,19 @@ Two-level 綁定題與 Max-Heap 的 greater 填空仍需確認題幹限定；雖
 - 同步投稿服務的正式題庫索引，讓新版題庫參與重複投稿檢查。
 
 驗證：300 筆來源皆映射到正式題卡，114 題固定 ID 唯一；保留原有 113 個 ID 與所有別名，其餘四個作業系統單元逐筆不變。66 題選擇題依目前答案核對通過，新題文字作答、更新答案格式、跨單元搜尋、舊別名連結與待複習標記正常；390px 手機沒有整頁水平溢出或 JavaScript 錯誤。投稿服務 6 項權限測試通過，新 aging 題再次投稿會被新版索引攔下。
+
+
+## 2026-10-16：已核准 L6 投稿解析補充
+
+為已核准投稿 `65307e6c-1612-4c30-b48f-0489756453b5` 的 76 題補上解析，涵蓋 CPU 排程基礎、評估指標、FCFS／SJF、RR、優先權與多層級佇列、多處理器、即時排程、Linux／Windows／Solaris、效能評估及虛擬化。原題、題目 ID、答案與核准狀態保留。
+
+較長的 RR 執行順序題列出 A～H 時間區間及剩餘量，依答案使用同時到達、初始佇列 P1/P2/P3、忽略切換成本的前提。SJF 最佳性區分同時可執行、已知 burst 的模型；RR 退化為 FCFS 的條件須比較時間片與 burst，不能只比較切換成本。題庫答案對選項範圍的限制直接在解析中說明，不以缺圖、選項疑點或教材版本差異重新標為待確認。
+
+傳統 CFS 與 EEVDF、Windows UMS 的支援版本、動態優先權提升與衰減，以及 Solaris 四個選項與六種排程類別的差別，均在對應題目交代。完整解析與各題來源對應見 `contribution-service/content/approved-explanations.json`，題目畫面不顯示參考連結。
+
+查核資料：
+
+- [CPU Scheduling 課程筆記（UIC）](https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/6_CPU_Scheduling.html)
+- [Linux CFS 設計](https://www.kernel.org/doc/html/v6.6/scheduler/sched-design-CFS.html)與 [EEVDF](https://docs.kernel.org/scheduler/sched-eevdf.html)
+- [Windows 優先權](https://learn.microsoft.com/en-us/windows/win32/procthread/scheduling-priorities)、[優先權提升](https://learn.microsoft.com/en-us/windows/win32/procthread/priority-boosts)與 [UMS](https://learn.microsoft.com/en-us/windows/win32/procthread/user-mode-scheduling)
+- [Solaris 排程器](https://docs.oracle.com/cd/E53394_01/html/E54815/psched-82475.html)

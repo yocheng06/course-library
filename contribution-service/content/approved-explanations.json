@@ -1,0 +1,1098 @@
+{
+  "reviewedOn": "2026-10-16",
+  "sources": {
+    "cpu-basics": "https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/6_CPU_Scheduling.html",
+    "cfs": "https://www.kernel.org/doc/html/v6.6/scheduler/sched-design-CFS.html",
+    "eevdf": "https://docs.kernel.org/scheduler/sched-eevdf.html",
+    "win-priorities": "https://learn.microsoft.com/en-us/windows/win32/procthread/scheduling-priorities",
+    "win-boosts": "https://learn.microsoft.com/en-us/windows/win32/procthread/priority-boosts",
+    "ums": "https://learn.microsoft.com/en-us/windows/win32/procthread/user-mode-scheduling",
+    "solaris": "https://docs.oracle.com/cd/E53394_01/html/E54815/psched-82475.html",
+    "solaris-classes": "https://docs.oracle.com/cd/E26502_01/html/E35303/gen-51573.html",
+    "posix": "https://pubs.opengroup.org/onlinepubs/9799919799/functions/V2_chap02.html"
+  },
+  "entries": [
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-1",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "CPU排程器是哪一種類型的排程器？\nWhat type of scheduler is the CPU scheduler?",
+      "options": [
+        "A. 中程排程器",
+        "B. 巨集排程器",
+        "C. 短程排程器",
+        "D. 長程排程器"
+      ],
+      "answer": "C",
+      "explanation": "CPU 排程器屬於短程排程器（short-term scheduler），負責從就緒佇列挑選下一個取得 CPU 的程序。它在程序阻塞、終止或需要重新排程時頻繁運作，因此決策必須迅速。\n\n長程排程器決定哪些工作進入系統；中程排程器主要處理暫停、換出與恢復，職責不同。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-2",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "一個程序的執行由CPU執行和I/O等待的交替週期組成，這被稱為 cpu-i/o [__1__]。(Please answer in lowercase English, leaving a space between each word)",
+      "options": [],
+      "answer": "burst cycle",
+      "explanation": "程序通常先執行一段 CPU burst，再因讀寫裝置等需求進入 I/O 等待，I/O 完成後又回到 CPU 執行；這種交替稱為 CPU–I/O burst cycle。\n\nCPU 密集型程序的 CPU burst 往往較長；I/O 密集型程序則常有較短的 CPU burst。程序等待 I/O 時，排程器可讓另一個就緒程序使用 CPU。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-3",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "下列哪些排程決策屬於非搶佔式？",
+      "options": [
+        "A. 程序從等待狀態切換到就緒狀態",
+        "B. 程序從執行中狀態切換到就緒狀態",
+        "C. 行程終止",
+        "D. 程序從執行中狀態切換到等待中狀態"
+      ],
+      "answer": "C,D",
+      "explanation": "程序終止（C）或由 running 轉為 waiting（D）時，會主動或必然放棄 CPU，排程器才需要選擇接替者，這兩種時機不必強行奪走仍可執行程序的 CPU。\n\nA 是其他程序重新就緒，可能觸發搶佔；B 是原程序仍可執行卻被移回就緒佇列，屬於搶佔情境。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-4",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "在非搶佔式排程(no-preemption)中，一旦CPU被分配給一個程序，該程序會持續運行直到它[__1__]或[__2__]。(請用小寫英文回答)",
+      "options": [],
+      "answer": "terminated/released",
+      "explanation": "非搶佔式排程一旦把 CPU 交給程序，就讓它持續執行，直到程序終止，或因等待 I/O 等原因釋放 CPU。答案中的 released 指釋放 CPU 控制權，不是刪除程序本身。\n\n只要原程序仍可執行，即使新的高優先權程序進入就緒佇列，也不會立即把它換下。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-5",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "When a process switches from a 'running' to a 'waiting' state, what type of scheduling decision is it?\n當一個程序從「執行中」狀態切換到「等待中」狀態時，排程決策屬於哪種類型？",
+      "options": [
+        "A. Nonpreemptive",
+        "B. Preemptive",
+        "C. Interrupt-driven",
+        "D. Irrelevant"
+      ],
+      "answer": "A",
+      "explanation": "running → waiting 表示程序目前無法繼續執行，例如必須等待磁碟讀取完成，因此自行離開 CPU。此時換下一個程序不需要搶走它的執行權，對應 nonpreemptive 的排程時機。\n\n這種事件在搶佔式系統也會發生；本題分類的是切換時機，不能僅憑這個事件判定整個系統只採非搶佔式排程。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-6",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "When a process switches from the running to the waiting state, the CPU scheduler is [__1__].",
+      "options": [],
+      "answer": "wakeup",
+      "explanation": "執行中的程序進入 waiting 後，CPU 需要交給另一個就緒程序，因此會喚起排程器進行選擇；題庫用 wakeup 表達這個動作。\n\n這裡被喚起的是排程機制。原程序仍在等待 I/O 或事件，必須等條件滿足後才會由 waiting 回到 ready，兩者不要混淆。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-7",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "下列哪一項是分派器（Dispatcher）的工作？\nWhich of the following is a task of the Dispatcher?",
+      "options": [
+        "A. 將行程從等待狀態轉換為就緒狀態",
+        "B. 將程序從就緒佇列中移除",
+        "C. 將中斷發送給程序",
+        "D. 將CPU控制權交給排程器選擇的程序"
+      ],
+      "answer": "D",
+      "explanation": "排程器先決定「誰接著執行」，分派器再負責把 CPU 控制權實際交給該程序，因此選 D。分派包含保存與恢復執行狀態、切換模式，以及恢復程式的執行位置。\n\n等待中的程序何時重新就緒，通常取決於 I/O 或等待事件完成，不是分派器單獨決定。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-8",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "分派器（Dispatcher）模組的工作包含將CPU控制權交給排程器所選擇的程序，這涉及[__1__]、切換到使用者模式，以及跳轉到使用者程式的適當位置。(請用小寫英文回答 字母間留一個空白)",
+      "options": [],
+      "answer": "context switch",
+      "explanation": "context switch 會保存原程序的暫存器、程式計數器等狀態，並恢復下一個程序的狀態。之後切換到適當的使用者模式，從下一個程序原本應執行的位置繼續。\n\n切換期間 CPU 在做管理工作，沒有推進使用者程序的運算，因此頻繁切換會產生額外成本。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-9",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "當一個程序從執行中狀態切換到就緒狀態時，排程是屬於 [__1__] 類型。(請用小寫英文回答)",
+      "options": [],
+      "answer": "preemptive",
+      "explanation": "running → ready 表示程序仍有執行能力，卻因時間片用完或較高優先權工作到達而被移回就緒佇列。CPU 被系統收回，因此屬於 preemptive（搶佔式）情境。\n\n若是 running → waiting，則是程序暫時無法執行而放棄 CPU，性質不同。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-10",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "[__1__] is the time it takes for the scheduler in a real-time system to take the current process off the CPU and switch to another.(Please answer in lowercase English, leaving a space between each word)",
+      "options": [],
+      "answer": "dispatch latency",
+      "explanation": "dispatch latency 是停止目前程序、完成必要的執行狀態切換，並讓下一個程序開始執行所需的延遲。即時工作即使已被選中，也要等待這段切換完成。\n\n它與 interrupt latency 不同：後者衡量中斷到達至中斷服務常式開始執行的延遲。即時系統需要控制兩者的最壞情況。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-11",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "什麼是 Little's Formula (n = λ x W) 中的 n？\nIn Little's Formula (n = λ x W), what does n represent?",
+      "options": [
+        "A. 平均服務時間(Average service time)",
+        "B. 平均到達率",
+        "C. 平均佇列長度",
+        "D. 平均等待時間"
+      ],
+      "answer": "C",
+      "explanation": "Little 定律 n = λW 中，n 是長期平均佇列長度，λ 是平均進入該佇列的速率，W 是在同一佇列中的平均等待時間，因此選 C。\n\n例如每秒平均到達 3 個程序、平均等待 2 秒，平均佇列長度就是 6。使用公式時要保持穩態，並讓三個量採用一致的觀察範圍；若 n 包含服務中的工作，W 也要包含服務時間。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-12",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "[__1__]是每單位時間完成執行的程序數量，用於衡量排程演算法的效率。(請用小寫英文回答)\n________ is the number of processes that complete their execution per time unit, used to measure the efficiency of a scheduling algorithm.",
+      "options": [],
+      "answer": "throughput",
+      "explanation": "throughput（吞吐量）衡量單位時間內完成多少個程序。例如 10 秒完成 40 個程序，吞吐量就是每秒 4 個程序。\n\n它衡量完成工作的速率，與 CPU 忙碌比例的 utilization，以及單一程序等待多久的 waiting time 不同。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-13",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "What is throughput as a measure of a scheduling algorithm?\n衡量排程演算法的吞吐量（Throughput）是指什麼？",
+      "options": [
+        "A. The time from when a request was submitted until the first response is produced",
+        "B. The percentage of time the CPU is busy",
+        "C. The number of processes that complete their execution per time unit",
+        "D. The time a process has been waiting in the ready queue"
+      ],
+      "answer": "C",
+      "explanation": "吞吐量的單位通常是「程序數／秒」，因此選 C。A 是請求到第一個回應的 response time；B 是 CPU utilization；D 是程序停留在就緒佇列中的 waiting time。\n\n提高吞吐量是常見目標，但不一定同時改善每個程序的回應速度，仍要看工作負載與排程政策。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-14",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "吞吐量是單位時間內完成的[__1__]數量。(請用小寫英文回答)",
+      "options": [],
+      "answer": "process",
+      "explanation": "吞吐量統計的是已完成執行的程序數量，所以空格填 process。尚在就緒佇列中等待、仍在 CPU 上執行，或暫停等待 I/O 的程序，都不能算成已完成。\n\n例如觀察區間內有 8 個程序到達、只有 5 個完成，吞吐量的分子應取 5，而不是 8。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-15",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "周轉時間是從程序提交到[__1__]的總時間。(請用小寫英文回答)",
+      "options": [],
+      "answer": "terminated",
+      "explanation": "turnaround time 的終點是程序完成、進入 terminated 狀態的時刻。若到達時間為 A、完成時間為 C，周轉時間為 C − A。\n\n它包含從提交到完成之間的等待、CPU 執行與 I/O 等時間，不只是在 CPU 上實際執行的長度。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-16",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "回應時間是從提交請求到第一次[__1__]產生的時間。(請用小寫英文回答)",
+      "options": [],
+      "answer": "response",
+      "explanation": "response time 的終點是第一次回應出現，因此填 response。互動系統常用這個指標衡量使用者是否很快獲得回饋。\n\n在簡化的 CPU 排程題中，通常以「首次取得 CPU 的時間 − 到達時間」計算；實際應用若要等到畫面或資料輸出，應以真正產生第一個回應的時刻為準。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-17",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "[__1__]時間是從提交請求到產生第一個回應所需的時間，而不是完整的輸出。(請用小寫英文回答 字母間留一個空白)",
+      "options": [],
+      "answer": "response",
+      "explanation": "response time 關心請求送出後多久開始得到回應，不必等全部工作結束。例如 0 秒提出請求、2 秒先顯示結果、10 秒全部完成，回應時間是 2 秒，完整周轉則是 10 秒。\n\n因此本題填 response；不要把第一個回應與最後完成輸出當成同一個事件。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-18",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "Which of the following are optimization goals for scheduling algorithms?\n下列哪些是排程演算法的優化目標？",
+      "options": [
+        "A. Maximize throughput",
+        "B. Minimize turnaround time",
+        "C. Maximize CPU utilization",
+        "D. Minimize response time"
+      ],
+      "answer": "A,B,C,D",
+      "explanation": "A 的吞吐量與 C 的 CPU 利用率通常希望提高；B 的周轉時間與 D 的回應時間通常希望降低，因此四項都是常見的排程優化目標。\n\n這些目標可能互相取捨。例如讓短工作較快完成，可改善平均等待時間，但仍須考慮長工作公平性與互動工作回應。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-19",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "CPU 排程的目的是在[__1__]系統中最大化CPU利用率。(請用小寫英文回答)\nThe goal of CPU scheduling is to maximize CPU utilization in a [__1__] system.(Please answer in lowercase English)",
+      "options": [],
+      "answer": "multiprogramming",
+      "explanation": "multiprogramming 讓多個程序同時留在系統中。某個程序等待 I/O 時，排程器可切換到其他就緒程序，使 CPU 不必隨它一起閒置。\n\n提升利用率依賴系統當時仍有可執行的工作；若所有程序都在等待，或切換成本過高，CPU 仍可能閒置或花時間處理額外管理工作。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-20",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "Which scheduling algorithm can lead to the 'convoy effect'?\n哪一個排程演算法會導致「護航效應」(convoy effect) ？",
+      "options": [
+        "A. First-Come, First-Served (FCFS)",
+        "B. Round Robin (RR)",
+        "C. Shortest-Job-First (SJF)",
+        "D. Priority scheduling"
+      ],
+      "answer": "A",
+      "explanation": "FCFS 按到達順序執行，而且通常是非搶佔式。若長 CPU 工作排在前面，後面的多個短工作就必須一路等候，形成 convoy effect，因此選 A。\n\n例如 burst 為 20、1、1 的三個工作依此到達，兩個短工作要先等長工作完成，即使它們各只需要 1 單位 CPU 時間。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-21",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "先到先服務（FCFS）排程的特性是什麼？\nWhat are the characteristics of First-Come, First-Served (FCFS) scheduling?",
+      "options": [
+        "A. 簡單且易於理解",
+        "B. 可能導致「護航效應」",
+        "C. 適用於即時系統",
+        "D. 等待時間總是最小的"
+      ],
+      "answer": "A,B",
+      "explanation": "FCFS 用 FIFO 佇列即可實作，規則直觀，故 A 正確。長工作若位於隊首，短工作可能長時間被擋住，故 B 正確。\n\n它不檢查工作長短，因此無法保證最小平均等待時間；也不直接按照 deadline 做可排程性保證，不能據此視為適合硬即時需求的演算法。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-22",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "[__1__]排程演算法可能導致護航效應，即所有其他程序都等待一個長程序完成。(請用英文縮寫回答 且用大寫字母)\n________ scheduling can lead to the convoy effect, where all other processes wait for one long process to finish.",
+      "options": [],
+      "answer": "FCFS",
+      "explanation": "FCFS 會讓較早到達的工作先執行。當一個長 CPU burst 的程序先取得 CPU，後面的短程序不能插隊，只能等它完成或阻塞，因而形成護航效應。\n\n這也可能讓 I/O 裝置一度閒置，等 CPU 長工作結束後又集中出現 I/O 請求，降低整體資源協調效率。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-23",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "The [__1__] effect occurs when a short process is blocked by one or more long processes.(Please answer in lowercase English)\n________ 效應是指一個短程序被一個或多個長程序阻塞。",
+      "options": [],
+      "answer": "convoy",
+      "explanation": "convoy effect 的核心是多個較短工作被前面的長工作拖住，像一隊車跟在慢車後方。它是排程次序造成的等待現象，不必涉及鎖或資源死結。\n\nFCFS 的非搶佔執行方式特別容易呈現這種情況，因此常用來說明它的缺點。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-24",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "The [__1__] scheduling algorithm is widely used for its simplicity but can lead to the \"convoy effect.\" (Please answer in lowercase English with full name, connecting letters with hyphens)",
+      "options": [],
+      "answer": "first-come first-served",
+      "explanation": "first-come first-served 依到達先後分配 CPU，通常使用先進先出的就緒佇列。它不需要預測 CPU burst，也不必比較工作優先權，因此容易實作。\n\n但簡單不代表平均等待最小；長工作排在前面時，後面的短工作仍可能遭遇 convoy effect。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-25",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "Which scheduling algorithm is considered optimal because it provides the minimum average waiting time for a given set of processes?\n哪一個排程演算法被認為是最佳的，因為它能提供給定程序集的最小平均等待時間？",
+      "options": [
+        "A. Shortest-Job-First (SJF)",
+        "B. First-Come, First-Served (FCFS)",
+        "C. Round Robin (RR)",
+        "D. Priority scheduling"
+      ],
+      "answer": "A",
+      "explanation": "SJF 優先執行較短的 CPU burst。對同時可執行、burst 長度已知的一組工作，先完成短工作能降低其他工作累積的等待總和，因此選 A。\n\n例如 burst 為 6、2：先跑 6 的等待總和是 6，先跑 2 則是 2。這個最佳性有模型前提，不能直接推廣為任意到達時間下的非搶佔 SJF 都是全域最佳。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-26",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "最短工作優先（SJF）排程演算法的優點是它能最小化平均[__1__]時間。(請用小寫英文回答)",
+      "options": [],
+      "answer": "waiting",
+      "explanation": "SJF 要最小化的是平均 waiting time。短工作先完成，可以讓它們不必因少數長工作而累積大量等待。\n\n實務困難是下一段 CPU burst 通常無法事先精確得知，需要用歷史資料估計。平均等待較小也不代表每個工作都公平，長工作仍可能被持續到達的短工作延後。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-27",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "The [__1__] scheduling algorithm is optimal because it provides the minimum average waiting time for a given set of processes.(Please answer in lowercase English, connecting letters with hyphens)",
+      "options": [],
+      "answer": "shortest-job-first",
+      "explanation": "shortest-job-first 每次從就緒工作中挑選預估 CPU burst 最短者。其降低平均等待的理由，是把較短的執行段放前面，減少排在後方的累積等待。\n\n教材的最佳性通常建立在 burst 已知、工作同時可執行等簡化條件。若新工作會陸續到達，還要區分非搶佔 SJF 與搶佔版本 SRTF。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-28",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "最短剩餘時間優先（SRTF）是 [__1__] 演算法的搶佔式版本。(請用英文縮寫回答 且用大寫字母)",
+      "options": [],
+      "answer": "SJF",
+      "explanation": "SRTF 是 SJF 的搶佔式版本。SJF 比較下一段 CPU burst 的長度；SRTF 在新工作到達等時機，會比較各工作的剩餘執行時間。\n\n例如目前工作還剩 8 單位，新工作只需 2 單位，SRTF 可先切換去做新工作；非搶佔 SJF 則不會中途收回目前工作的 CPU。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-29",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "迴圈排程（RR）演算法中，每個程序獲得一小段CPU時間的單位稱為？\nIn the Round Robin (RR) scheduling algorithm, what is the unit of a small amount of CPU time given to each process?",
+      "options": [
+        "A. 時間單位",
+        "B. 時間區塊",
+        "C. 時間片 (Time quantum)",
+        "D. 時間週期"
+      ],
+      "answer": "C",
+      "explanation": "time quantum 是 RR 每次最多交給一個程序的 CPU 時間上限，因此選 C。程序若提早完成或阻塞，可以在時間片用完前離開 CPU。\n\n若時間片到期仍有工作，程序通常被放回就緒佇列尾端，讓下一個程序獲得執行機會。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-30",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "In the Round Robin (RR) algorithm, the unit of a small amount of CPU time given to each process is called a [__1__].(Please answer in lowercase English, leaving a space between each word)\n迴圈排程 (RR) 演算法中，每個程序獲得一小段CPU時間的單位稱為 ________。",
+      "options": [],
+      "answer": "time quantum",
+      "explanation": "RR 的 time quantum 把 CPU 執行切成輪流使用的小段。若 q = 4、某程序需要 10 單位 CPU 時間且沒有提前阻塞，它會分成最多 4、4、2 的三次執行。\n\n最後一次不足 q 時，完成後即可離開，不必把剩下的時間片用滿。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-31",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "When the time quantum (q) is very large relative to the context switch time, the Round Robin (RR) algorithm's behavior approaches [__1__].(Please answer using lowercase English letters; connect related letters with a hyphen and separate unrelated letters with a space.)",
+      "options": [],
+      "answer": "first-come first-served",
+      "explanation": "RR 真正退化成 FCFS 的關鍵，是時間片大到各程序的 CPU burst 都能在一次輪到時完成，不再因時間片到期而插入輪轉。\n\n只知道 q 遠大於 context switch time，僅能推得切換成本比例較小，還不足以保證接近 FCFS；仍須比較 q 與 CPU burst 長度。本題答案採時間片相對工作長度也足夠大的情境。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-32",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "迴圈排程（RR）的性能與哪些因素相關？\nThe performance of Round Robin (RR) scheduling is related to which factors?",
+      "options": [
+        "A. 行程類型 (CPU 密集型或 I/O 密集型)",
+        "B. 上下文切換（context switch）的時間",
+        "C. 程序在就緒佇列中的數量",
+        "D. 時間片（q）的大小"
+      ],
+      "answer": "B,C,D",
+      "explanation": "題庫答案 B、C、D 聚焦 RR 的排程參數：切換成本影響有效 CPU 比例；就緒程序數影響等多久再輪到；時間片大小影響輪轉頻率與回應。\n\n若有 n 個持續就緒的程序，忽略切換成本時，一輪約需 nq。實際效能也會受 A 所述的 CPU／I/O 工作型態影響，因此不能把 A 解讀成在所有效能分析中都無關。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-33",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "When the time quantum (TQ) is very small relative to the context switch time, what are the disadvantages of Round Robin (RR) scheduling?\n當時間片（TQ）相對於上下文切換時間非常小時，迴圈排程（RR）的缺點是什麼？",
+      "options": [
+        "A. CPU utilization will decrease",
+        "B. Turnaround time will become extremely long",
+        "C. Response time will worsen",
+        "D. System overhead will be very high"
+      ],
+      "answer": "A,D",
+      "explanation": "時間片 q 很小、而一次切換成本 c 相對很大時，CPU 會反覆切換而少做實際工作。對持續執行滿時間片的工作，有效運算比例可粗估為 q／(q+c)，所以 A、D 是直接的成本問題。\n\n額外成本也可能拉長完成與回應時間，但 B 的「極長」與 C 的變化仍取決於工作負載，不能只靠時間片大小就對所有程序下同樣結論。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-34",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "RR 排程：P1 的 CPU burst 為 20、P2 為 3、P3 為 7，時間片 TQ = 4。請依序填出 A～H 八個執行區段的程序；H 之後的區段不需作答。\nRound Robin (RR): burst times P1 = 20, P2 = 3, P3 = 7; time quantum = 4. What is the execution order for blocks A–H? Ignore blocks after H. Answer format: P0->P2->P4 (no spaces).",
+      "options": [],
+      "answer": "P1->P2->P3->P1->P3->P1->P1->P1",
+      "explanation": "解題步驟：依題庫答案採三個程序都在時間 0 就緒、初始順序 P1、P2、P3，且忽略切換成本。每次執行最多 4，未完成者排回隊尾。\n\nA：P1，0–4，剩 16；B：P2，4–7，完成；C：P3，7–11，剩 3；D：P1，11–15，剩 12；E：P3，15–18，完成；F：P1，18–22，剩 8；G：P1，22–26，剩 4；H：P1，26–30，完成。\n\n因此 A～H 為 P1→P2→P3→P1→P3→P1→P1→P1。最後只剩 P1，仍可按時間片劃成三格，不代表每格之間都必須切換到另一個程序。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-35",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "優先權排程可能會導致[__1__]，即低優先權程序永遠無法執行。(請用小寫英文回答)",
+      "options": [],
+      "answer": "starvation",
+      "explanation": "starvation 指程序一直處於可以執行的狀態，卻因其他工作持續被優先選中而長期拿不到 CPU。優先權排程若不調整低優先權工作的待遇，就可能發生這個問題。\n\n它不同於 deadlock：飢餓時系統中的其他程序通常仍能繼續前進，只是某些程序一直被延後。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-36",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "在優先權排程中，解決「飢餓」問題的方法是什麼？\nIn priority scheduling, what is the solution to the problem of 'starvation'?",
+      "options": [
+        "A. 增加時間量",
+        "B. 將所有優先權設定為相同",
+        "C. 老化 (Aging)",
+        "D. 使用迴圈排程"
+      ],
+      "answer": "C",
+      "explanation": "aging 會隨程序等待時間增加，逐步提高它的優先權，使原本低優先權的工作最後也有機會被選中，因此選 C。\n\n它保留優先權排程的差異化服務，同時減少無限期等待。增加時間片本身並不能保證低優先權程序一定輪得到 CPU。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-37",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "多層級佇列（Multilevel Queue）排程的特性包含哪些？\nWhat are the characteristics of Multilevel Queue scheduling?",
+      "options": [
+        "A. 每個佇列可以有自己的排程演算法",
+        "B. 可能導致低優先權隊列的飢餓問題",
+        "C. 程序通常永久地固定在一個佇列中",
+        "D. 就緒佇列被劃分為獨立的佇列"
+      ],
+      "answer": "A,B,C,D",
+      "explanation": "Multilevel Queue 把就緒工作分到不同佇列，例如互動工作與批次工作；每個佇列可使用不同演算法，因此 A、D 正確。傳統模型中程序通常固定所屬佇列，故 C 正確。\n\n若佇列間採嚴格優先權，高層一直有工作就可能使低層飢餓，故 B 也正確；若另外分配各佇列的 CPU 比例，結果則會不同。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-38",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "在[__1__]佇列排程中，就緒佇列被劃分為多個獨立的佇列，且程序通常永久地固定在一個佇列中。(請用小寫英文回答 字母間用空白)",
+      "options": [],
+      "answer": "multilevel queue",
+      "explanation": "multilevel queue 把就緒佇列切成多個獨立佇列，並依程序的固定屬性分派所屬位置。各佇列內部與佇列之間，都還需要各自的排程規則。\n\n題目中「通常永久固定」是辨識重點；允許程序依執行行為在佇列間升降的，才是 multilevel feedback queue。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-39",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "多層級回饋佇列（Multilevel Feedback Queue）排程的定義參數包含哪些？\nWhat are the defining parameters of a Multilevel Feedback Queue scheduler?",
+      "options": [
+        "A. 用於確定行程進入哪個佇列的方法",
+        "B. 佇列的數量",
+        "C. 每個佇列的排程演算法",
+        "D. 升級和降級程序的方法"
+      ],
+      "answer": "A,B,C,D",
+      "explanation": "完整的 MLFQ 規則需要定義佇列數量、每層的排程演算法、新工作從哪一層進入，以及哪些條件會使工作升級或降級，因此 A、B、C、D 都是必要的設計參數。\n\n例如新工作先進高層、用滿時間片就降級、等待過久則提升，這些規則共同決定系統如何兼顧互動反應與公平性。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-40",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "[__1__]允許程序根據其服務的時間長短在不同佇列之間移動。(請用小寫英文回答 字母間留一個空白)",
+      "options": [],
+      "answer": "multilevel feedback queue",
+      "explanation": "multilevel feedback queue 會觀察工作的執行與等待行為，讓程序在佇列之間移動。例如經常用完整個時間片的 CPU 密集型工作可被降到較低層。\n\n是否升降級、每層時間片多長，必須由具體政策定義；不是只要有多個佇列就一定會自動移動。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-41",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "In a [__1__] scheduling, a process can move between the various queues, which helps to implement aging.(Please answer in lowercase English, leaving a space between each word)\n在 ________ 排程中，程序可以在不同的佇列之間移動，這有助於實現老化。",
+      "options": [],
+      "answer": "multilevel feedback queue",
+      "explanation": "MLFQ 允許改變程序所在的佇列，因此可把等待太久的程序提升到較高優先權層，實現 aging，減少低層工作飢餓。\n\n相對地，傳統 multilevel queue 通常固定程序的所屬佇列，缺少這種依等待或執行歷史動態調整的位置回饋。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-42",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "在多層級回饋佇列 (Multilevel Feedback Queue) 排程中，老化 (aging) 是如何實現的？",
+      "options": [
+        "A. 通過讓程序在佇列之間移動",
+        "B. 通過減少程序的佇列數量",
+        "C. 透過為每個行程分配固定的時間量",
+        "D. 通過增加等待時間"
+      ],
+      "answer": "A",
+      "explanation": "MLFQ 可藉由把等待過久的程序移到較高優先權佇列，讓它重新取得較早的執行機會，因此選 A。\n\n等待時間是觸發提升的依據；單純「增加等待時間」並沒有改變程序待遇，不能單獨算成 aging 的實作方法。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-43",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "在對稱多處理（SMP）中，每個處理器都[__1__]地進行排程。(請用小寫英文回答)\nIn Symmetric Multiprocessing (SMP), each processor [__1__] schedules itself.(Please answer in lowercase English)",
+      "options": [],
+      "answer": "independent",
+      "explanation": "SMP 中，各處理器都能執行排程邏輯，為自己挑選接下來要執行的工作，不必由唯一主處理器代替所有 CPU 作決定。\n\n獨立決策不代表完全不協調：若共用就緒佇列，仍需同步保護；若各 CPU 有自己的佇列，還要處理負載平衡與遷移。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-44",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "CPU[__1__]是指將一個程序保持在同一處理器上執行的傾向。(請用小寫英文回答)\nCPU [__1__] is the tendency of a process to run on the same processor.(Please answer in lowercase English)",
+      "options": [],
+      "answer": "affinity",
+      "explanation": "processor affinity 是希望程序繼續留在原 CPU 執行的傾向，因為原 CPU 的快取可能已保存它常用的程式與資料。\n\nsoft affinity 是排程器盡量維持的位置偏好；hard affinity 則限制允許執行的 CPU 集合。親和性可減少快取重建成本，但也須與負載平衡取捨。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-45",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "在多處理器系統中，下列哪些排程方法屬於負載平衡？\nIn a multiprocessor system, which of the following scheduling methods are part of load balancing?",
+      "options": [
+        "A. 處理器親和性 (Processor affinity)",
+        "B. 拉取式遷移 (Pull migration)",
+        "C. 對稱多處理 (SMP)",
+        "D. 推動式遷移 (Push migration)"
+      ],
+      "answer": "B,D",
+      "explanation": "Push migration 由負載較重的一方或平衡工作主動把程序送到其他 CPU；pull migration 則由空閒或較輕載的 CPU 主動取得工作，因此選 B、D。\n\nProcessor affinity 著重維持程序的位置，SMP 描述多處理器的管理架構；它們都可能與負載平衡一起使用，但不是這兩種遷移方向本身。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-46",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "In a symmetric multiprocessing (SMP) system, [__1__] is a periodic task that checks the load on each processor and pushes tasks from overloaded CPUs to other CPUs.(Please answer in lowercase English, leaving a space between each word)",
+      "options": [],
+      "answer": "push migration",
+      "explanation": "push migration 會檢查不同 CPU 的工作量，將過載 CPU 上的部分工作主動推送出去，以降低閒忙不均。\n\n比較方向即可辨識：忙的一方把工作送走是 push；空閒的一方去其他佇列取工作是 pull。遷移仍須考慮快取與 NUMA 記憶體位置的成本。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-47",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "在多處理器排程中，________ 是指只有一個處理器存取系統資料結構，從而避免了資料共享的需求。\nIn multiple-processor scheduling, ________ is where only one processor accesses the system data structures, alleviating the need for data sharing.",
+      "options": [],
+      "answer": "asymmetric multiprocessing",
+      "explanation": "asymmetric multiprocessing 通常由主處理器負責排程、I/O 與主要系統資料結構，其他處理器執行分配給它們的工作，藉此集中部分核心管理責任。\n\n這可減少多個 CPU 同時管理那些結構所需的協調，但不能推論系統完全沒有共享資料；集中管理也可能使主處理器成為瓶頸。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-48",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "[__1__]排程是根據週期的倒數來分配優先權的演算法。(請用小寫英文回答 字母間留一個空白)",
+      "options": [],
+      "answer": "rate monotonic scheduling",
+      "explanation": "Rate Monotonic Scheduling 依工作週期配置固定優先權：週期越短、每單位時間需要被服務的頻率越高，優先權就越高。\n\n典型分析假設週期性、可搶佔、工作彼此獨立，且相對截止時間等於週期。它不是每次都按照最近一次絕對截止時間重新排名；後者是 EDF 的概念。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-49",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "Hard real-time systems require a task to be serviced by its ________.\n硬即時系統服務完成與什麼有關？",
+      "options": [],
+      "answer": "deadline",
+      "explanation": "硬即時工作的正確性不只取決於算出的值，也取決於能否在 deadline 前完成。超過截止時間，即使最後算對，也可能已無法滿足系統需求。\n\n因此不能只讓工作在 deadline 前「開始」就算達成要求；還必須把所需 CPU 時間與可預期的阻塞、切換等延遲納入完成時間分析。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-50",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "What challenges does real-time CPU scheduling face?\n即時CPU排程面臨哪些挑戰？",
+      "options": [
+        "A. Dispatch latency can affect performance",
+        "B. Interrupt latency can affect performance",
+        "C. Tasks in hard real-time systems must be completed within their deadline",
+        "D. Soft real-time systems have no scheduling guarantee"
+      ],
+      "answer": "A,B,C,D",
+      "explanation": "即時排程既要選擇工作順序，也要控制 interrupt latency 與 dispatch latency，因為這些延遲都會消耗截止時間前的可用時間。硬即時工作需要可分析的期限保證。\n\nD 的「沒有保證」指軟即時通常不提供每次都準時完成的硬性承諾，不代表它完全沒有排程政策或效能目標；系統仍會努力減少延遲與逾期。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-51",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "從中斷到達的時間到服務該中斷的函式(ISR)開始執行的時間，這段時間被稱為？\nThe time from the arrival of an interrupt to the start of the routine that services the interrupt is called?",
+      "options": [
+        "A. 分派延遲",
+        "B. 等待時間",
+        "C. 中斷延遲",
+        "D. 回應時間"
+      ],
+      "answer": "C",
+      "explanation": "interrupt latency 的起點是中斷到達，終點是對應 ISR 開始執行，因此選 C。這段時間可能包含中斷暫時被遮蔽，或等待目前不可中斷區段結束的時間。\n\nDispatch latency 則是在排程切換時把 CPU 交給下一個執行單位的延遲，觀察起點與終點不同。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-52",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "The POSIX.1b standard defines two scheduling classes for real-time threads: SCHED_FIFO and [__1__].(Please answer in lowercase English)\nPOSIX.1b標準定義了兩種即時排程類別：SCHED_FIFO和 ________。",
+      "options": [],
+      "answer": "sched_rr",
+      "explanation": "SCHED_FIFO 與 SCHED_RR 都是 POSIX 即時排程政策。RR 在同一優先權內加入時間片輪轉；FIFO 則不因同層的固定時間片用盡而自動輪到下一個工作。\n\n兩者仍會受更高優先權工作影響。題目要求填 sched_rr，但 API 常數的正式拼寫是 SCHED_RR；概念重點是同優先權內是否使用時間片。",
+      "sources": [
+        "posix"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-53",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "________ is a scheduling algorithm where priorities are assigned according to deadlines: the earlier the deadline, the higher the priority.\n________ 是根據截止時間分配優先權的演算法：截止時間越早，優先權越高。",
+      "options": [],
+      "answer": "earliest deadline first scheduling",
+      "explanation": "Earliest Deadline First 依目前工作的絕對截止時間動態排序，最早到期的工作優先，新的更早截止工作到達時可以觸發搶佔。\n\n例如一項工作 deadline 為 20、另一項為 12，EDF 先選 12 的工作；這與只按週期決定固定優先權的 RMS 不同。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-54",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "What are the characteristics of Rate Monotonic Scheduling?\nRate Monotonic Scheduling 關於週期與優先權的關係？",
+      "options": [
+        "A. Priority is assigned based on the inverse of the period",
+        "B. Tasks with longer periods have lower priority",
+        "C. Tasks with shorter periods have higher priority",
+        "D. It is only suitable for hard real-time systems"
+      ],
+      "answer": "A,B,C",
+      "explanation": "RMS 依週期倒數分配固定優先權，因此週期短者優先、週期長者較低，A、B、C 是同一規則的不同表達。\n\n它可用於符合模型的週期工作，並非只能出現在硬即時系統；是否能提供期限保證，還要驗證負載與可排程條件，所以不能只用 D 概括其適用範圍。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-55",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "The [__1__] scheduling algorithm in real-time scheduling assigns priorities based on the expiration time of the data.(Please answer in lowercase English, leaving a space between each word)",
+      "options": [],
+      "answer": "earliest deadline first",
+      "explanation": "EDF 會優先選擇最早到期的工作。本題把資料的 expiration time 當作相關工作的截止時間，因此對應 earliest deadline first。\n\n重點是期限越近，動態優先權越高。若是在討論資料庫新鮮度，資料過期與工作完成期限仍可能是不同限制，必須先定義兩者的關係。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-56",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "Linux的CFS（Completely Fair Scheduler）的目標是提供完全[__1__]的CPU分配。(請用小寫英文回答)\nThe goal of Linux's CFS (Completely Fair Scheduler) is to provide a completely ________ CPU allocation.",
+      "options": [],
+      "answer": "fair",
+      "explanation": "CFS 的公平是按照各工作的權重分配 CPU 份額：相同權重的持續就緒工作，長期應獲得接近的 CPU 服務；不同 nice 值則可對應不同份額。\n\n因此 fair 不等於所有工作不分條件都拿到相同的固定時間片。本題描述的是傳統 CFS 的設計，與後來 Linux 公平排程的 EEVDF 選擇規則要分開理解。",
+      "sources": [
+        "cfs",
+        "eevdf"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-57",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "完全公平排程器（CFS）有哪些特性？\nWhat are the characteristics of the Completely Fair Scheduler (CFS)?",
+      "options": [
+        "A. 選擇虛擬運行時間最短的任務運行",
+        "B. 優先權基於nice值",
+        "C. 維護一個每個任務的虛擬運行時間（vruntime）",
+        "D. 基於固定的時間片分配"
+      ],
+      "answer": "A,B,C",
+      "explanation": "傳統 CFS 為每個工作累計 vruntime，並優先選擇較小者；nice 值影響權重與虛擬時間的累計速度，因此 A、B、C 正確。\n\n它不是替每個工作永久指定同樣的固定時間片。服務長度會受權重、可執行工作數與排程參數影響；這些描述限定於 CFS 的教材模型。",
+      "sources": [
+        "cfs",
+        "eevdf"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-58",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "在Linux核心版本2.6.23之後，排程器選擇下一個要執行的任務是基於最低的[__1__]值。(請用小寫英文回答 字母間留一個空白)\nAfter Linux kernel version 2.6.23, the scheduler picks the next task to run based on the lowest ________ value.",
+      "options": [],
+      "answer": "vruntime",
+      "explanation": "vruntime 表示依權重換算後，工作已獲得多少虛擬 CPU 服務。傳統 CFS 優先選取 vruntime 較小的工作，以補足它相對較少的執行份額。\n\n題幹的版本敘述應理解為 Linux 2.6.23 引入的 CFS 模型，不能概括所有較新核心。Linux 6.6 起的 EEVDF 改以合格工作中的虛擬截止時間等條件選擇。",
+      "sources": [
+        "cfs",
+        "eevdf"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-59",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "Windows排程器使用了[__1__]個優先級層級。(fill a number)\nThe Windows scheduler uses ________ priority levels.",
+      "options": [],
+      "answer": "32",
+      "explanation": "Windows 的排程優先權編號為 0～31，包含兩個端點，所以共有 32 個層級。一般教材把 1～15 視為可變優先權範圍，16～31 視為即時範圍，0 保留給特殊系統執行緒。\n\n這裡計算的是數值層級，不是 NORMAL、HIGH 等程序 priority class 的種類數量。",
+      "sources": [
+        "win-priorities",
+        "win-boosts"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-60",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "In the Windows system, a thread's priority is [__1__] when it returns from a waiting state.(Please answer in lowercase English)\n在Windows系統中，當一個執行緒從等待狀態返回時，它的優先權會被 ________。",
+      "options": [],
+      "answer": "boosted",
+      "explanation": "執行緒結束某些等待、例如 I/O 完成時，Windows 可以暫時提高它的動態優先權，讓它較快取得 CPU、處理剛到達的資料，因此填 boosted。\n\n這是特定條件下的動態提升，不是每種等待結束都無條件提升；即時優先權範圍或停用提升的設定，也會改變這個行為。",
+      "sources": [
+        "win-boosts"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-61",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "Windows中，下列哪些是可變（Variable）優先權類別？\nIn Windows, which of the following are Variable priority classes?",
+      "options": [
+        "A. REALTIME_PRIORITY_CLASS",
+        "B. NORMAL_PRIORITY_CLASS",
+        "C. IDLE_PRIORITY_CLASS",
+        "D. HIGH_PRIORITY_CLASS"
+      ],
+      "answer": "B,C,D",
+      "explanation": "NORMAL、IDLE、HIGH 都屬於非即時程序優先權類別，所以在本題選 B、C、D。REALTIME_PRIORITY_CLASS 對應即時範圍，與一般動態優先權提升的規則不同。\n\n程序的 priority class 與執行緒的相對優先權，會共同決定執行緒的基礎優先權；類別名稱本身不是單一固定的執行緒優先權數字。",
+      "sources": [
+        "win-priorities",
+        "win-boosts"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-62",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "In the Windows system, threads in the [__1__] priority class cannot have their priority boosted.(Please answer in lowercase English, connecting letters with underscores)\n在Windows系統中，[__1__] 優先權類別的執行緒無法被提升優先權。(請用小寫英文回答 字母間用_連接)",
+      "options": [],
+      "answer": "realtime_priority_class",
+      "explanation": "Windows 不會對基礎優先權在 16～31 的即時執行緒施加一般的動態 priority boost，避免這種額外調整干擾即時優先權安排。\n\n題目用 realtime_priority_class 指向這個範圍。不能把「不接受一般動態提升」理解成程式或管理者永遠無法明確改設其優先權。",
+      "sources": [
+        "win-priorities",
+        "win-boosts"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-63",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "In Windows scheduling, what feature allows applications to create and manage threads independently of the kernel?\n在Windows排程中，哪個功能允許應用程式獨立於核心來創建和管理執行緒？",
+      "options": [
+        "A. User-mode scheduling (UMS)",
+        "B. Multilevel queue",
+        "C. Processor affinity",
+        "D. Completely Fair Scheduler"
+      ],
+      "answer": "A",
+      "explanation": "UMS 允許應用程式在使用者模式選擇與切換自己的 UMS 工作執行緒，因此選 A。它讓應用程式對工作安排有更多控制，並非使用 CFS、親和性或多層級佇列就能達成同一機制。\n\n「獨立於核心」不是完全繞過核心：UMS 排程執行緒何時真正取得 CPU，仍由系統決定。這是舊版 Windows 功能，Windows 11 已不支援。",
+      "sources": [
+        "ums"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-64",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "[__1__]是 Windows 7 中引入的一項功能，允許應用程式獨立於核心來創建和管理執行緒。(請用小寫英文回答 字母間留一個空白)\n________ is a feature introduced in Windows 7 that allows applications to create and manage threads independently of the kernel.",
+      "options": [],
+      "answer": "user mode scheduling",
+      "explanation": "user mode scheduling 讓應用程式建立自己的排程元件，決定哪個 UMS 工作執行緒接著執行，並在使用者模式完成部分切換。\n\n本題對應 Windows 7 時期的 UMS；它有架構與版本限制，不能視為所有 Windows 都提供的通用功能。Windows 11 已停止支援，核心仍負責底層 CPU 分派。",
+      "sources": [
+        "ums"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-65",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "在Solaris作業系統中，預設的排程類別是什麼？\nIn the Solaris operating system, what is the default scheduling class?",
+      "options": [
+        "A. 系統(System)",
+        "B. 即時 (Real Time)",
+        "C. 互動式 (Interactive)",
+        "D. 時程共享 (Time Sharing)"
+      ],
+      "answer": "D",
+      "explanation": "教材所述 Solaris 一般預設類別是 Time Sharing（TS），因此選 D。TS 會動態調整優先權與時間配額，以兼顧互動工作及較長的 CPU 工作。\n\nSYS 主要服務核心工作；RT 用於即時排程；IA 著重互動行為。實際系統可調整預設類別，所以應把題目放在其教材與系統設定前提下判讀。",
+      "sources": [
+        "solaris",
+        "solaris-classes"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-66",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "[__1__]是一個可以被系統管理員載入和設定的表格，用於管理Solaris中的多層級回饋佇列。(請用小寫英文回答 字母間留一個空白)",
+      "options": [],
+      "answer": "dispatch table",
+      "explanation": "dispatch table 把不同優先權對應到時間配額，以及時間片用完、從睡眠返回等事件發生後的新優先權。這使多層級回饋規則能以表格參數表達。\n\n管理員可依系統提供的介面查看或調整相關分派參數；它是排程政策資料，不是儲存目前所有就緒程序的佇列。",
+      "sources": [
+        "solaris",
+        "solaris-classes"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-67",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "What are the six classes of scheduling in the Solaris operating system?\nSolaris作業系統的排程有哪六個類別？",
+      "options": [
+        "A. System",
+        "B. Real time",
+        "C. Time sharing",
+        "D. Interactive"
+      ],
+      "answer": "A,B,C,D",
+      "explanation": "A、B、C、D 列出的 SYS、RT、TS、IA 都是 Solaris 排程類別，所以本題四個選項皆選。題幹說的六類還包含 FSS（Fair Share）與 FX（Fixed Priority，部分教材寫 FP）。\n\n因此「選完四項」不等於系統只有四類。各類別使用不同的優先權與服務規則，同一執行緒在同一時間隸屬其中一類。",
+      "sources": [
+        "solaris",
+        "solaris-classes"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-68",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "在Windows系統中，當一個執行緒的時限（quantum）用完後，它的優先權會如何？\nIn the Windows system, what happens to a thread's priority when its quantum expires?",
+      "options": [
+        "A. 提升",
+        "B. 降低",
+        "C. 隨機變化",
+        "D. 保持不變"
+      ],
+      "answer": "B",
+      "explanation": "題庫的「降低」對應動態優先權提升的逐步衰減：曾被 boost 的一般執行緒用完時間片後，優先權可逐級回到 base priority。\n\n它不會因此降到基礎優先權以下。若執行緒本來就在基礎值，或屬於不採這種動態提升的即時範圍，不能斷言每次 quantum 到期都一定降低。",
+      "sources": [
+        "win-boosts"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-69",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "In the Linux system, how does the nice value affect scheduling?\n在Linux系統中，nice 值如何影響排程？",
+      "options": [
+        "A. A lower value means a higher priority",
+        "B. A higher value means a higher priority",
+        "C. A nice value of -20 corresponds to the highest priority",
+        "D. A nice value of +19 corresponds to the lowest priority"
+      ],
+      "answer": "A,C,D",
+      "explanation": "一般 Linux 工作的 nice 範圍是 −20～+19；值越小，排程權重通常越高，所以 A、C、D 正確。較高 nice 值表示願意讓出較多 CPU 份額，不是獲得更高待遇。\n\n它主要影響公平排程中的相對 CPU 份額，不等同於即時排程優先權，也不保證每次決策都立刻先執行 nice 較低的工作。",
+      "sources": [
+        "cfs",
+        "eevdf"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-70",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "[__1__]模型是數學分析的工具，通常假設已知的到達和服務時間分佈。(請用小寫英文回答)\n[__1__] models are a mathematical analysis tool that usually assume known arrival and service time distributions.(Please answer in lowercase English)",
+      "options": [],
+      "answer": "queueing",
+      "explanation": "queueing 模型以到達率、服務率及其分布等資訊，分析工作在佇列與服務系統中的長期平均行為，例如等待與利用率。\n\n這種分析要先說明輸入分布、伺服器數量及排程規則；若實際工作不符合假設，推得的平均值就可能與真實系統有差距。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-71",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "在排程演算法評估中，[__1__]模型通過使用概率來描述程序的到來和CPU爆發。(請用小寫英文回答 字母間留一個空白)",
+      "options": [],
+      "answer": "queueing models",
+      "explanation": "queueing models 用機率分布描述工作何時到達、每次 CPU burst 或服務需要多久，再推算排程系統的平均表現。\n\n它不同於拿一組固定到達時間與 burst 逐步畫甘特圖的 deterministic modeling。分析時還須注意負載是否能維持穩態，否則長期平均等待可能無界。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-72",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "佇列模型（Queueing models）通常用來計算哪些平均值？\nWhat averages are typically computed using queueing models?",
+      "options": [
+        "A. 平均等待時間",
+        "B. 平均利用率",
+        "C. 平均 CPU 突發時間",
+        "D. 平均吞吐量"
+      ],
+      "answer": "A,B,D",
+      "explanation": "佇列分析常把平均等待時間、資源利用率與吞吐量當作評估結果，因此本題選 A、B、D。\n\n平均 CPU burst 通常作為服務時間分布的一部分，先提供給模型。這不代表任何模型都不能估計它，而是本題區分「描述工作負載的輸入」與「評估排程效能的輸出」。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-73",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "[__1__] is a method for evaluating schedulers that involves creating a programmed model of a computer system and is more accurate than queueing models.(Please answer in lowercase English)",
+      "options": [],
+      "answer": "simulations",
+      "explanation": "simulations 會用程式建立系統模型，以模擬時鐘推進程序到達、阻塞、完成與切換等事件，並蒐集排程統計資料。\n\n它能容納比簡單佇列公式更多的細節，因此可能更貼近實際系統；但準確度仍取決於模型與輸入資料，不能保證所有模擬都一定比解析模型準確。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-74",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "In simulations, what can be the sources of data used to drive the simulation?\n在模擬 (Simulations) 中，用於驅動模擬的資料來源可以是哪些？",
+      "options": [
+        "A. Mathematically or empirically defined distributions",
+        "B. Trace tapes of real event sequences in real systems",
+        "C. Fixed values input by the user",
+        "D. Random number generator"
+      ],
+      "answer": "A,B,D",
+      "explanation": "本題採 A、B、D：可以用數學或實測分布描述負載，用亂數依分布產生事件，或重播真實系統的 trace，讓各演算法接受相同輸入比較。\n\n三者可以搭配使用，亂數通常要配合明確的機率分布。固定輸入也能用於可重現測試，只是本題聚焦教材列出的工作負載產生與蒐集方式，不能據此說 C 在任何模擬中都不合法。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-75",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "實作新排程器的缺點是什麼？\nWhat are the disadvantages of implementing a new scheduler?",
+      "options": [
+        "A. 在不同環境中結果可能不同",
+        "B. 高成本",
+        "C. 缺乏靈活性",
+        "D. 高風險"
+      ],
+      "answer": "A,B,D",
+      "explanation": "把新排程器放進真實系統，需要開發、整合與測試成本；錯誤可能影響效能或穩定性；硬體、負載與設定不同時結果也可能改變，因此 A、B、D 是本題重點。\n\nC 不能當成所有實作都必然具備的性質，因為排程器仍可透過參數、策略或介面設計保留調整彈性。",
+      "sources": [
+        "cpu-basics"
+      ]
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-76",
+      "course": "os",
+      "unit": "scheduling",
+      "stem": "虛擬化（Virtualization）環境中的排程有什麼潛在問題？",
+      "options": [
+        "A. 可能導致不良的回應時間",
+        "B. 可能抵消客戶端良好排程演算法的努力",
+        "C. 虛擬機無法執行 CPU 密集型任務",
+        "D. 可能影響客戶端 (guests) 中的時鐘"
+      ],
+      "answer": "A,B,D",
+      "explanation": "虛擬化存在兩層分派：guest 先挑選自己的程序，hypervisor 再決定對應 vCPU 何時真正使用實體 CPU。若 vCPU 暫時沒被排到，guest 內的重要工作也只能等，可能拉長回應並抵消 guest 的排程安排。\n\n延後的計時器或 vCPU 暫停也可能影響 guest 對時間的觀察，因此選 A、B、D。CPU 密集型任務仍可在 VM 中執行；虛擬時鐘等機制能緩解問題，但不是完全沒有這些影響。",
+      "sources": [
+        "cpu-basics"
+      ]
+    }
+  ]
+}
