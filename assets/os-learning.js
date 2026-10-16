@@ -11,8 +11,7 @@ const guides = {
 };
 let active = 0, page = 1, totalPages = 1, mode = 'study';
 const pageSize = 20, drafts = new Map(), selections = new Map(), revealed = new Set(), feedback = new Map();
-const answerLetters = q => [...new Set(q.answer.match(/[A-D](?=[.、，,\s]|$)/g) || [])].sort();
-const kind = q => q.type || (!q.options?.length ? '填空／簡答' : answerLetters(q).length > 1 ? '多選題' : '單選題');
+const kind = window.courseQuestionTools.questionType;
 const unitNumber = i => String(i + 2).padStart(2, '0');
 const questionEntries = UNITS.flatMap((unit, unitIndex) => unit.questions.map((q, i) => ({q, unit, unitIndex, i})));
 document.querySelector('[data-course-total]').textContent = `${UNITS.length} 個單元 · ${questionEntries.length} 道題目`;

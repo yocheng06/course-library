@@ -1,11 +1,11 @@
-import { COURSE_UNITS, TYPES, normalizeBatch } from "./contribution-model.js?v=os-unit-labels-20261014";
+import { COURSE_UNITS, TYPES, normalizeType, normalizeBatch } from "./contribution-model.js?v=question-types-20261016";
 import {
   esc,
   api,
   message,
   questionPreview,
   statusLabel,
-} from "./contributions-ui.js";
+} from "./contributions-ui.js?v=question-types-20261016";
 const $ = (id) => document.getElementById(id),
   origin = window.courseContributions.apiOrigin;
 if (location.origin !== origin) {
@@ -25,7 +25,7 @@ function unitOptions(course, selected) {
     .join("");
 }
 function fields(q, i) {
-  return `<div class="review-question" data-question-index="${i}"><div class="section-heading"><h3>第 ${i + 1} 題</h3><button class="text-button remove-question" type="button" data-remove-question="${i}">移除此題</button></div><div class="field-grid"><label>分類<input data-field="category" maxlength="100" value="${esc(q.category)}"></label><label>題型<select data-field="type">${TYPES.map((t) => `<option ${t === q.type ? "selected" : ""}>${t}</option>`).join("")}</select></label></div><label>題目<textarea data-field="stem" rows="4" maxlength="10000">${esc(q.stem)}</textarea></label><label>選項（一行一個）<textarea data-field="options" rows="4">${esc(q.options.join("\n"))}</textarea></label><label>答案<textarea data-field="answer" rows="2" maxlength="4000">${esc(q.answer)}</textarea></label><label>解析<textarea data-field="explanation" rows="4" maxlength="16000">${esc(q.explanation)}</textarea></label>${q.images.map((src, j) => `<div class="image-previews"><img src="${esc(src)}" alt="第 ${i + 1} 題的題圖 ${j + 1}"><label class="consent"><input type="checkbox" data-keep-image="${j}" checked>保留此題圖</label></div>`).join("")}</div>`;
+  return `<div class="review-question" data-question-index="${i}"><div class="section-heading"><h3>第 ${i + 1} 題</h3><button class="text-button remove-question" type="button" data-remove-question="${i}">移除此題</button></div><div class="field-grid"><label>分類<input data-field="category" maxlength="100" value="${esc(q.category)}"></label><label>題型<select data-field="type">${TYPES.map((t) => `<option ${t === normalizeType(q.type) ? "selected" : ""}>${t}</option>`).join("")}</select></label></div><label>題目<textarea data-field="stem" rows="4" maxlength="10000">${esc(q.stem)}</textarea></label><label>選項（一行一個）<textarea data-field="options" rows="4">${esc(q.options.join("\n"))}</textarea></label><label>答案<textarea data-field="answer" rows="2" maxlength="4000">${esc(q.answer)}</textarea></label><label>解析<textarea data-field="explanation" rows="4" maxlength="16000">${esc(q.explanation)}</textarea></label>${q.images.map((src, j) => `<div class="image-previews"><img src="${esc(src)}" alt="第 ${i + 1} 題的題圖 ${j + 1}"><label class="consent"><input type="checkbox" data-keep-image="${j}" checked>保留此題圖</label></div>`).join("")}</div>`;
 }
 function entryMarkup(entry) {
   const p = entry.payload,

@@ -18,7 +18,12 @@ export const COURSE_UNITS = {
     },
   },
 };
-export const TYPES = ["單選題", "多選題", "填空題", "簡答題"];
+export const TYPES = ["單選題", "多選題", "填空題"];
+export function normalizeType(type) {
+  if (type === "單選題") return "單選題";
+  if (type === "多選題" || type === "複選題") return "多選題";
+  return "填空題";
+}
 export function questionKey(course, unit, question) {
   const clean = (value) =>
     String(value).normalize("NFKC").replace(/\s+/g, "").trim();
@@ -57,11 +62,7 @@ export function normalizeBatch(input, { allowImages = true } = {}) {
     const options = q.options ?? q.opts ?? [];
     if (!Array.isArray(options) || options.length > 8)
       throw new Error(`第 ${index + 1} 題最多 8 個選項。`);
-    const type = text(q.type, "題型", 20, true)
-      .replace("複選題", "多選題")
-      .replace("填空／簡答", "簡答題");
-    if (!TYPES.includes(type))
-      throw new Error(`第 ${index + 1} 題的題型不支援。`);
+    const type = normalizeType(text(q.type, "題型", 20, true));
     const item = {
       category: text(q.category, "分類", 100, true),
       type,

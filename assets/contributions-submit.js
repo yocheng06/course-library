@@ -1,11 +1,11 @@
-import { COURSE_UNITS, normalizeBatch } from "./contribution-model.js?v=os-unit-labels-20261014";
+import { COURSE_UNITS, normalizeType, normalizeBatch } from "./contribution-model.js?v=question-types-20261016";
 import {
   esc,
   api,
   message,
   questionPreview,
   statusLabel,
-} from "./contributions-ui.js";
+} from "./contributions-ui.js?v=question-types-20261016";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
@@ -134,7 +134,7 @@ try {
       : [];
     for (const [name, value] of Object.entries(draft.editor || {})) {
       if (form.elements[name] && typeof value === "string")
-        form.elements[name].value = value;
+        form.elements[name].value = name === "type" ? normalizeType(value) : value;
     }
     images = draft.images || [];
     editIndex =
@@ -352,7 +352,7 @@ $("importFile").addEventListener("change", async (event) => {
       source: data.source ?? $("source").value,
       questions: importedQuestions(data)?.map((q) => ({
         ...q,
-        type: q.type || ((q.options ?? q.opts)?.length ? "單選題" : "簡答題"),
+        type: (q.options ?? q.opts)?.length ? normalizeType(q.type || "單選題") : "填空題",
         images: (q.images || []).map((image) =>
           typeof image === "string" ? image : image.src,
         ),

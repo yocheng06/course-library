@@ -7,6 +7,16 @@
 
   const normalize = value => String(value ?? '').normalize('NFKC').toLowerCase();
   const searchTokens = query => [...new Set(normalize(query).trim().split(/\s+/).filter(Boolean))];
+  function questionType(question) {
+    const options = question.options ?? question.opts ?? [];
+    if (!options.length) return '填空題';
+    if (question.type === '多選題' || question.type === '複選題') return '多選題';
+    if (question.type === '單選題') return '單選題';
+    if (question.type) return '填空題';
+    const letters = new Set(String(question.answer ?? question.a ?? '').match(/[A-H](?=[.、，,\s]|$)/g) || []);
+    return letters.size > 1 ? '多選題' : '單選題';
+  }
+
   function searchFields(question) {
     return [
       { label:'題幹', values:[question.stem ?? question.q, question.translation] },
@@ -15,7 +25,7 @@
       { label:'修正前答案', values:[question.originalAnswer] },
       { label:'解析', values:[question.explanation ?? question.ex, ...(question.terms || []).map(term => `${term.label} ${term.text}`)] },
       { label:'備註', values:[question.note, ...(!hasProvidedAnswer(question) ? [question.reviewIssue, question.missingContext] : [])] },
-      { label:'分類', values:[question.category, question.type] }
+      { label:'分類', values:[question.category, questionType(question)] }
     ];
   }
 
@@ -130,5 +140,5 @@
     return (q.images||[]).filter(img=>/^assets\/questions\/[a-z0-9/_-]+\.(png|jpe?g)$/i.test(img.src)||/^https:\/\//.test(img.src)).map(img=>`<figure class="question-figure"><button type="button" class="question-image-open" data-image-viewer aria-haspopup="dialog" aria-controls="question-image-viewer"><img src="${esc(img.src)}" alt="${esc(img.alt||q.stem||q.q)}" ${img.width&&img.height?`width="${Number(img.width)}" height="${Number(img.height)}"`:''} loading="lazy"><span>放大題圖（可縮放）</span></button></figure>`).join('');
   }
 
-  window.courseQuestionTools = { questionImagesMarkup, hasProvidedAnswer, matchesSearch, searchMatchMarkup, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion };
+  window.courseQuestionTools = { questionType, questionImagesMarkup, hasProvidedAnswer, matchesSearch, searchMatchMarkup, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion };
 })();
