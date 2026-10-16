@@ -33,13 +33,13 @@
     const prefix = card ? `article[data-id="${CSS.escape(card.dataset.id)}"] ` : parent ? `#${CSS.escape(parent.id)} ` : '';
     return prefix + element.tagName.toLowerCase() + selected.map(name => `[${name}="${CSS.escape(element.getAttribute(name))}"]`).join('');
   }
-  function merge(entries) {
+  function merge(entries, aliases) {
     const focused = document.activeElement, selector = focusedSelector(focused);
     const selection = typeof focused?.selectionStart === 'number' ? [focused.selectionStart, focused.selectionEnd, focused.selectionDirection] : null;
     const anchor = [...config.list.children].find(card => { const r=card.getBoundingClientRect();return r.bottom>0 && r.top<innerHeight; });
     const anchorTop = anchor?.getBoundingClientRect().top;
     const scroll = {x:scrollX,y:scrollY}, menu = config.sidebar.querySelector('.course-menu'), menuScroll = menu?.scrollTop;
-    const result = config.mergeCommunityQuestions(entries, {openLinkedQuestion:linkedSubmission && !interacted});
+    const result = config.mergeCommunityQuestions(entries, {openLinkedQuestion:linkedSubmission && !interacted, aliases});
     if (!result.openedLinkedQuestion) {
       if (menu) menu.scrollTop = menuScroll;
       if (!focused?.isConnected && selector) {
@@ -66,7 +66,7 @@
       if (!response.ok) throw new Error('unavailable');
       const data = await response.json();
       if (!Array.isArray(data.questions)) throw new Error('invalid');
-      merge(data.questions);
+      merge(data.questions, data.aliases);
       if (linkedSubmission && !config.validId(linkedId)) showNotice('這個投稿題目連結暫時沒有可用內容，已顯示原有題庫。',true);
       else { notice?.remove(); notice = null; }
     } catch {

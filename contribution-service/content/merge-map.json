@@ -1,0 +1,515 @@
+{
+  "date": "2026-10-16",
+  "merges": [
+    {
+      "course": "algorithms",
+      "unit": "L2",
+      "id": "L2-040",
+      "canonicalId": "L2-039"
+    },
+    {
+      "course": "algorithms",
+      "unit": "L2",
+      "id": "L2-051",
+      "canonicalId": "L2-050"
+    },
+    {
+      "course": "os",
+      "unit": "threads",
+      "id": "threads-089",
+      "canonicalId": "threads-002"
+    },
+    {
+      "course": "os",
+      "unit": "threads",
+      "id": "threads-088",
+      "canonicalId": "threads-003"
+    },
+    {
+      "course": "os",
+      "unit": "threads",
+      "id": "threads-080",
+      "canonicalId": "threads-013"
+    },
+    {
+      "course": "os",
+      "unit": "threads",
+      "id": "threads-090",
+      "canonicalId": "threads-014"
+    },
+    {
+      "course": "os",
+      "unit": "threads",
+      "id": "threads-084",
+      "canonicalId": "threads-018"
+    },
+    {
+      "course": "os",
+      "unit": "process",
+      "id": "process-29",
+      "canonicalId": "process-28"
+    },
+    {
+      "course": "os",
+      "unit": "process",
+      "id": "process-53",
+      "canonicalId": "process-52"
+    },
+    {
+      "course": "os",
+      "unit": "process",
+      "id": "process-104",
+      "canonicalId": "process-70"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-1",
+      "canonicalId": "os6-014",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-10",
+      "canonicalId": "os6-116",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-11",
+      "canonicalId": "os6-001",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-12",
+      "canonicalId": "os6-003",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-13",
+      "canonicalId": "os6-004",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-14",
+      "canonicalId": "os6-005",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-15",
+      "canonicalId": "os6-006",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-16",
+      "canonicalId": "os6-007",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-17",
+      "canonicalId": "os6-008",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-18",
+      "canonicalId": "os6-011",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-19",
+      "canonicalId": "os6-013",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-2",
+      "canonicalId": "os6-015",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-20",
+      "canonicalId": "os6-025",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-21",
+      "canonicalId": "os6-026",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-22",
+      "canonicalId": "os6-027",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-23",
+      "canonicalId": "os6-029",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-24",
+      "canonicalId": "os6-030",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-25",
+      "canonicalId": "os6-031",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-26",
+      "canonicalId": "os6-033",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-27",
+      "canonicalId": "os6-034",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-29",
+      "canonicalId": "os6-036",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-3",
+      "canonicalId": "os6-017",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-30",
+      "canonicalId": "os6-037",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-31",
+      "canonicalId": "os6-039",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-32",
+      "canonicalId": "os6-040",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-33",
+      "canonicalId": "os6-041",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-34",
+      "canonicalId": "os6-042",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-35",
+      "canonicalId": "os6-045",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-36",
+      "canonicalId": "os6-046",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-37",
+      "canonicalId": "os6-048",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-38",
+      "canonicalId": "os6-049",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-39",
+      "canonicalId": "os6-051",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-4",
+      "canonicalId": "os6-018",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-40",
+      "canonicalId": "os6-052",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-41",
+      "canonicalId": "os6-053",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-42",
+      "canonicalId": "os6-109",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-43",
+      "canonicalId": "os6-055",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-44",
+      "canonicalId": "os6-057",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-45",
+      "canonicalId": "os6-058",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-46",
+      "canonicalId": "os6-059",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-47",
+      "canonicalId": "os6-105",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-48",
+      "canonicalId": "os6-063",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-49",
+      "canonicalId": "os6-064",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-5",
+      "canonicalId": "os6-019",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-50",
+      "canonicalId": "os6-067",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-51",
+      "canonicalId": "os6-068",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-52",
+      "canonicalId": "os6-071",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-53",
+      "canonicalId": "os6-072",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-54",
+      "canonicalId": "os6-073",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-55",
+      "canonicalId": "os6-112",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-56",
+      "canonicalId": "os6-074",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-57",
+      "canonicalId": "os6-075",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-58",
+      "canonicalId": "os6-077",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-59",
+      "canonicalId": "os6-079",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-6",
+      "canonicalId": "os6-020",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-60",
+      "canonicalId": "os6-081",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-61",
+      "canonicalId": "os6-083",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-62",
+      "canonicalId": "os6-085",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-63",
+      "canonicalId": "os6-086",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-64",
+      "canonicalId": "os6-087",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-65",
+      "canonicalId": "os6-088",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-66",
+      "canonicalId": "os6-090",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-67",
+      "canonicalId": "os6-091",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-68",
+      "canonicalId": "os6-102",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-69",
+      "canonicalId": "os6-103",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-7",
+      "canonicalId": "os6-021",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-70",
+      "canonicalId": "os6-092",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-71",
+      "canonicalId": "os6-094",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-72",
+      "canonicalId": "os6-095",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-73",
+      "canonicalId": "os6-097",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-74",
+      "canonicalId": "os6-098",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-75",
+      "canonicalId": "os6-099",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-76",
+      "canonicalId": "os6-101",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-8",
+      "canonicalId": "os6-023",
+      "course": "os",
+      "unit": "scheduling"
+    },
+    {
+      "id": "community-65307e6c-1612-4c30-b48f-0489756453b5-9",
+      "canonicalId": "os6-111",
+      "course": "os",
+      "unit": "scheduling"
+    }
+  ]
+}

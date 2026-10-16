@@ -624,7 +624,7 @@ test("all 76 approved explanations appear in the public API and reviewer view wi
   );
   assert.equal(
     env.sql.prepare("SELECT count(*) AS n FROM content_updates").get().n,
-    1,
+    2,
   );
   assert.equal(
     env.sql.prepare("SELECT count(*) AS n FROM question_history").get().n,
@@ -635,10 +635,17 @@ test("all 76 approved explanations appear in the public API and reviewer view wi
     env.sql.prepare("SELECT count(*) AS n FROM question_history").get().n,
     76,
   );
-  const first = questions[0];
+  const first = questions[27];
   const cleared = {
     ...batch,
-    questions: [{ ...first, type: "單選題", images: [], explanation: "" }],
+    questions: [
+      {
+        ...first,
+        type: first.options.length ? "單選題" : "填空題",
+        images: [],
+        explanation: "",
+      },
+    ],
   };
   const saved = await call(env, "/api/manage/questions/" + first.id, {
     method: "POST",
@@ -765,12 +772,12 @@ test("submission validation rejects impossible single-choice and out-of-range an
   p.questions[0].answer = "A,B";
   assert.equal(normalizeBatch(p).questions[0].choiceKey, "AB");
 });
-test("relabeled options are flagged for confirmation without automatic deletion", async () => {
+test("option order and relabeling automatically skip duplicates across all units; punctuation differences require review", async () => {
   const env = await setup(),
     p = payload();
   p.questions[0].options = ["A. Alpha", "B. Beta"];
-  const one = await call(env, "/api/submissions", { method: "POST", body: p });
-  await call(env, "/api/review/" + one.data.id, {
+  const sent = await call(env, "/api/submissions", { method: "POST", body: p });
+  await call(env, "/api/review/" + sent.data.id, {
     method: "POST",
     reviewer: true,
     body: { action: "approve", revision: 1, payload: p, note: "" },
@@ -781,39 +788,35 @@ test("relabeled options are flagged for confirmation without automatic deletion"
       { ...p.questions[0], options: ["A. Beta", "B. Alpha"], answer: "B" },
     ],
   };
-  const check = await call(env, "/api/submissions", {
+  const skipped = await call(env, "/api/submissions", {
     method: "POST",
     body: q,
   });
-  assert.equal(check.response.status, 409);
-  assert.equal(check.data.code, "similar_questions");
-  assert.equal(check.data.possibleDuplicates.length, 1);
-  const confirmed = await call(env, "/api/submissions", {
-    method: "POST",
-    body: { ...q, confirmSimilar: true },
-  });
-  assert.equal(confirmed.response.status, 201);
-  const review = await call(env, "/api/review/" + confirmed.data.id, {
-    method: "POST",
-    reviewer: true,
-    body: { action: "approve", revision: 1, payload: q, note: "" },
-  });
-  assert.equal(review.data.code, "similar_questions");
+  assert.equal(skipped.data.status, "duplicates_only");
+  assert.equal(skipped.data.skippedCount, 1);
   assert.equal(
     (
-      await call(env, "/api/review/" + confirmed.data.id, {
+      await call(env, "/api/submissions", {
         method: "POST",
-        reviewer: true,
-        body: {
-          action: "approve",
-          revision: 1,
-          payload: q,
-          note: "",
-          confirmSimilar: true,
-        },
+        body: { ...q, confirmSimilar: true },
+      })
+    ).data.status,
+    "duplicates_only",
+  );
+  q.questions[0].stem = q.questions[0].stem.replace(/？$/, "");
+  const similar = await call(env, "/api/submissions", {
+    method: "POST",
+    body: q,
+  });
+  assert.equal(similar.data.code, "similar_questions");
+  assert.equal(
+    (
+      await call(env, "/api/submissions", {
+        method: "POST",
+        body: { ...q, confirmSimilar: true },
       })
     ).response.status,
-    200,
+    201,
   );
 });
 test("published management enforces permissions, revisions, history, hide/restore and complete exports", async () => {
@@ -1006,22 +1009,288 @@ test("L7 merges option-order duplicates and recognizes every reviewed source ver
   for (let start = 0; start < l7.length; start += 200) {
     const batch = {
       ...p,
-      questions: l7
-        .slice(start, start + 200)
-        .map((q) => ({
-          ...p.questions[0],
-          stem: q.stem,
-          options: q.options,
-          type: q.options.length ? "單選題" : "填空題",
-          answer: q.options.length ? "A" : "來源答案",
-        })),
+      questions: l7.slice(start, start + 200).map((q) => ({
+        ...p.questions[0],
+        stem: q.stem,
+        options: q.options,
+        type: q.options.length ? "單選題" : "填空題",
+        answer: q.options.length ? "A" : "來源答案",
+      })),
     };
     const result = await call(env, "/api/submissions", {
       method: "POST",
       body: batch,
     });
-    assert.equal(result.response.status, 200);
+    assert.equal(result.response.status, 200, JSON.stringify(result.data));
     assert.equal(result.data.status, "duplicates_only");
     assert.equal(result.data.skippedCount, batch.questions.length);
+  }
+});
+
+test("different diagrams stay separate; identical image bytes deduplicate after upload and legacy fingerprints are recomputed", async () => {
+  const env = await setup(),
+    p = payload();
+  const png =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j1ioAAAAASUVORK5CYII=";
+  const other =
+    "data:image/png;base64," +
+    btoa(atob(png.split(",")[1]) + "different-test-bytes");
+  p.questions = [png, other].map((image) => ({
+    ...p.questions[0],
+    type: "圖片題",
+    images: [image],
+    imageKeys: ["forged-same-key"],
+  }));
+  assert.equal(normalizeBatch(p).questions.length, 2);
+  assert.equal(
+    normalizeBatch({ ...p, questions: [p.questions[0], p.questions[0]] })
+      .questions.length,
+    1,
+  );
+  const sent = await call(env, "/api/submissions", { method: "POST", body: p });
+  assert.equal(sent.response.status, 201);
+  const stored = (await call(env, "/api/review", { reviewer: true })).data
+    .items[0];
+  assert.notEqual(
+    stored.payload.questions[0].imageKeys[0],
+    stored.payload.questions[1].imageKeys[0],
+  );
+  assert(
+    stored.payload.questions.every((q) => q.imageKeys[0].startsWith("sha256:")),
+  );
+  const approved = await call(env, "/api/review/" + sent.data.id, {
+    method: "POST",
+    reviewer: true,
+    body: { action: "approve", revision: 1, payload: stored.payload, note: "" },
+  });
+  assert.equal(approved.data.acceptedCount, 2);
+  let live = await call(env, "/api/questions?course=os");
+  assert.equal(live.data.questions.length, 2);
+  for (const row of live.data.questions)
+    assert.equal(
+      (await call(env, new URL(row.question.images[0].src).pathname)).response
+        .status,
+      200,
+    );
+  // Emulate a legacy publication without stable image identity or the new hash.
+  const first = env.sql
+    .prepare("SELECT * FROM public_questions ORDER BY id")
+    .get();
+  const raw = JSON.parse(first.data);
+  delete raw.imageKeys;
+  env.sql
+    .prepare("UPDATE public_questions SET data=?,fingerprint=? WHERE id=?")
+    .run(JSON.stringify(raw), "legacy-old-hash", first.id);
+  const repeated = await call(env, "/api/submissions", {
+    method: "POST",
+    body: p,
+  });
+  assert.equal(repeated.data.status, "duplicates_only");
+  assert.equal(repeated.data.skippedCount, 2);
+  assert.deepEqual(
+    repeated.data.skipped.map((q) => q.index),
+    [1, 2],
+  );
+  const legacy = {
+    ...raw,
+    id: "community-11111111-1111-4111-8111-111111111111-1",
+    type: "單選題",
+    images: [],
+  };
+  env.sql
+    .prepare(
+      "INSERT INTO public_questions (id,fingerprint,submission_id,course,unit,data,created_at) VALUES (?,?,?,?,?,?,0)",
+    )
+    .run(
+      legacy.id,
+      "text-legacy-hash",
+      first.submission_id,
+      "os",
+      "basics",
+      JSON.stringify(legacy),
+    );
+  const edit = {
+    ...payload(),
+    questions: [{ ...p.questions[0], type: "單選題", images: [] }],
+  };
+  const second = env.sql
+    .prepare("SELECT * FROM public_questions WHERE id<>? AND id<>?")
+    .get(first.id, legacy.id);
+  const collision = await call(env, "/api/manage/questions/" + second.id, {
+    method: "POST",
+    reviewer: true,
+    body: { action: "update", revision: 1, payload: edit },
+  });
+  assert.equal(collision.response.status, 409);
+});
+
+test("reviewed merges archive 75 exact snapshots, retain the abbreviation question, preserve originals and history, and redirect old IDs", async () => {
+  const env = await setup(),
+    spec = JSON.parse(
+      await readFile(
+        new URL("../content/approved-merges.json", import.meta.url),
+        "utf8",
+      ),
+    ).entries;
+  const keptId = "community-65307e6c-1612-4c30-b48f-0489756453b5-28",
+    submissionId = "65307e6c-1612-4c30-b48f-0489756453b5";
+  const kept = {
+    id: keptId,
+    category: "排程",
+    type: "填空題",
+    stem: "請填寫 SJF 的大寫縮寫",
+    options: [],
+    answer: "SJF",
+    explanation: "保留格式要求。",
+    images: [],
+  };
+  const all = [...spec.map((q) => q.data), kept];
+  env.sql
+    .prepare(
+      "INSERT INTO submissions (id,course,unit,title,payload,status,revision,created_at,note) VALUES (?,?,?,?,?,'approved',2,0,'原始審核說明')",
+    )
+    .run(
+      submissionId,
+      "os",
+      "scheduling",
+      "L6",
+      JSON.stringify({ ...payload(), unit: "scheduling", questions: all }),
+    );
+  for (const [i, q] of all.entries())
+    env.sql
+      .prepare(
+        "INSERT INTO public_questions (id,fingerprint,submission_id,course,unit,data,created_at) VALUES (?,?,?,?,?,?,?)",
+      )
+      .run(
+        q.id,
+        "legacy-" + i,
+        submissionId,
+        "os",
+        "scheduling",
+        JSON.stringify(q),
+        i,
+      );
+  const live = await call(env, "/api/questions?course=os");
+  assert.equal(live.data.questions.length, 1);
+  assert.equal(live.data.questions[0].question.id, keptId);
+  assert.equal(live.data.aliases.length, 75);
+  assert.equal(
+    live.data.aliases.find((a) => a.id === spec[0].id).target,
+    spec[0].canonicalId,
+  );
+  assert.equal(
+    env.sql
+      .prepare(
+        "SELECT count(*) AS n FROM question_history WHERE action='merge'",
+      )
+      .get().n,
+    75,
+  );
+  for (const item of spec) {
+    const row = env.sql
+      .prepare("SELECT * FROM public_questions WHERE id=?")
+      .get(item.id);
+    const raw = JSON.parse(row.data);
+    assert.equal(row.is_published, 0);
+    assert.equal(row.revision, 2);
+    assert.equal(raw.mergedInto, item.canonicalId);
+    delete raw.mergedInto;
+    assert.deepEqual(raw, item.data);
+  }
+  await call(env, "/api/session", { reviewer: true });
+  await call(env, "/api/questions?course=os");
+  assert.equal(
+    env.sql
+      .prepare(
+        "SELECT count(*) AS n FROM question_history WHERE action='merge'",
+      )
+      .get().n,
+    75,
+  );
+  const manage = await call(
+    env,
+    "/api/manage/questions?course=os&state=hidden",
+    { reviewer: true },
+  );
+  assert(manage.data.items.every((q) => q.mergedInto));
+  const restore = await call(env, "/api/manage/questions/" + spec[0].id, {
+    method: "POST",
+    reviewer: true,
+    body: { action: "restore", revision: 2 },
+  });
+  assert.equal(restore.response.status, 409);
+  const backup = await call(env, "/api/manage/export", { reviewer: true });
+  assert.equal(backup.data.questions.length, 76);
+  assert.equal(backup.data.history.length, 75);
+  assert(backup.data.submissions[0].note.includes("原始審核說明"));
+  assert(backup.data.submissions[0].note.includes("75 題"));
+  assert.deepEqual(backup.data.submissions[0].payload.questions, all);
+});
+
+test("reviewed merge guards preserve questions edited since the review snapshot", async () => {
+  const env = await setup();
+  const item = JSON.parse(
+    await readFile(
+      new URL("../content/approved-merges.json", import.meta.url),
+      "utf8",
+    ),
+  ).entries[0];
+  const edited = { ...item.data, stem: item.data.stem + " 新增條件" };
+  env.sql
+    .prepare(
+      "INSERT INTO public_questions (id,fingerprint,submission_id,course,unit,data,created_at) VALUES (?,?,?,?,?,?,0)",
+    )
+    .run(
+      item.id,
+      "oldhash",
+      "65307e6c-1612-4c30-b48f-0489756453b5",
+      item.course,
+      item.unit,
+      JSON.stringify(edited),
+    );
+  const live = await call(env, "/api/questions?course=os");
+  assert.equal(live.data.questions.length, 1);
+  assert.equal(live.data.aliases.length, 0);
+  assert.deepEqual(live.data.questions[0].question, edited);
+});
+
+test("all course keys normalize placeholders and option labels while preserving mathematics, images and format instructions", () => {
+  const a = {
+    stem: "A[__1__] + N ≤ n？",
+    options: ["A. θ(N)", "B. θ(n)"],
+    images: [],
+  };
+  for (const [course, unit] of [
+    ["os", "scheduling"],
+    ["os", "threads"],
+    ["algorithms", "L2"],
+  ]) {
+    assert.equal(
+      questionKey(course, unit, a),
+      questionKey(course, unit, {
+        ...a,
+        stem: "A_____ + N ≤ n？",
+        options: ["A. θ(n)", "B. θ(N)"],
+      }),
+    );
+    assert.notEqual(
+      questionKey(course, unit, a),
+      questionKey(course, unit, { ...a, stem: "A_____ + n ≤ n？" }),
+    );
+    assert.notEqual(
+      questionKey(course, unit, a),
+      questionKey(course, unit, { ...a, stem: a.stem + "（大寫縮寫）" }),
+    );
+    assert.notEqual(
+      questionKey(course, unit, a),
+      questionKey(course, unit, {
+        ...a,
+        images: ["https://example.test/figure.png"],
+      }),
+    );
+    assert.notEqual(
+      questionKey(course, unit, { ...a, images: ["one", "two"] }),
+      questionKey(course, unit, { ...a, images: ["two", "one"] }),
+    );
   }
 });

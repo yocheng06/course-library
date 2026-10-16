@@ -1,5 +1,6 @@
 import { readFile, writeFile, mkdir, cp } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
+import { createHash } from "node:crypto";
 const root = resolve(import.meta.dirname, ".."),
   library = resolve(process.argv[2] || dirname(root));
 const paths = [
@@ -48,17 +49,41 @@ for (const [course, units] of [
   for (const unit of units)
     for (const q of unit.questions) {
       displayedQuestions++;
-      const variants =
-        unit.id === "synchronization" ? [q, ...(q.sourceVariants || [])] : [q];
+      const variants = [q, ...(q.sourceVariants || [])];
       for (const variant of variants) {
         const entry = {
           course,
           unit: unit.id,
           stem: variant.stem ?? variant.q,
           options: variant.options ?? variant.opts ?? [],
-          ...(unit.id === "synchronization" ? { canonicalId: q.id } : {}),
+          canonicalId: q.id ?? q.bookmarkId,
+          images: variant.images || [],
         };
+        entry.imageKeys = await Promise.all(
+          entry.images.map(async (image) => {
+            const src = typeof image === "string" ? image : image.src;
+            if (!src.startsWith("assets/") || src.includes("..")) return src;
+            return (
+              "sha256:" +
+              createHash("sha256")
+                .update(await readFile(resolve(library, src)))
+                .digest("hex")
+            );
+          }),
+        );
         entries.set(questionKey(course, unit.id, entry), entry);
+        if (variant.translation) {
+          const translated = {
+            ...entry,
+            stem: variant.translation,
+            options:
+              variant.optionTranslations?.length === entry.options.length &&
+              variant.optionTranslations.every((o) => String(o).trim())
+                ? variant.optionTranslations
+                : entry.options,
+          };
+          entries.set(questionKey(course, unit.id, translated), translated);
+        }
       }
     }
 await writeFile(

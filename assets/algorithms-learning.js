@@ -24,13 +24,14 @@ const isMissing=window.courseQuestionTools.missingSource;
 const questionEntries=COURSES.flatMap(unit=>unit.questions.map((q,i)=>({q,i,id:questionId(unit,i),unit})));
 const allUnits=()=>$('searchScopeSelect').value==='all';
 const scopedEntries=()=>allUnits()?questionEntries:questionEntries.filter(entry=>entry.unit.id===lesson);
-const findEntry=id=>questionEntries.find(entry=>entry.id===id);
+const communityAliases=new Map();
+const findEntry=id=>questionEntries.find(entry=>entry.id===(communityAliases.get(id)||id)||entry.q.aliases?.includes(id));
 function refreshFilters(){const entries=scopedEntries();window.courseQuestionTools.populateSelect($('chapterSelect'),entries.map(({q})=>q.category),'全部','全部章節');window.courseQuestionTools.populateSelect($('typeSelect'),entries.map(({q})=>kind(q)),'全部','全部題型');chapter=$('chapterSelect').value;type=$('typeSelect').value;}
 function searchTerms(){return $('search').value.trim().split(/\s+/).filter(Boolean);}
 function highlighted(value){const text=String(value??''),terms=[...new Set(searchTerms())];if(!terms.length)return esc(text);const re=new RegExp(terms.sort((a,b)=>b.length-a.length).map(term=>term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'gi');let result='',last=0;for(const match of text.matchAll(re)){result+=esc(text.slice(last,match.index))+'<mark>'+esc(match[0])+'</mark>';last=match.index+match[0].length;}return result+esc(text.slice(last));}
 function selectedItems(){return scopedEntries().filter(({q,id})=>(!window.learningUI?.reviewOnly||window.learningUI.isSaved(id))&&(chapter==='全部'||q.category===chapter)&&(type==='全部'||kind(q)===type)&&($('qualitySelect').value!=='pending'||window.courseQuestionTools.qualityReasons(q,'algorithms').length>0)&&window.courseQuestionTools.matchesSearch(q, $('search').value));}
 function unitNumber(id){return id.replace(/^L/,'').padStart(2,'0')}
-function setupLesson(preserveCards=false){const c=current(),m=meta[lesson];$('lessonPicker').innerHTML=COURSES.map(item=>`<option value="${item.id}">UNIT ${unitNumber(item.id)} · ${meta[item.id].short} · ${item.questions.length} 題</option>`).join('');$('lessonPicker').value=lesson;$('crumb').textContent='UNIT '+unitNumber(lesson)+' / '+m.short;$('eyebrow').textContent=m.en;$('lessonTitle').textContent=m.title;$('lessonSub').textContent=m.sub;$('lessonCount').textContent=c.questions.length;$('guideText').textContent=m.guide;$('sourceLabel').textContent='目前來源：'+c.source;refreshFilters();
+function setupLesson(preserveCards=false){document.querySelectorAll('.community-course-link').forEach(link=>{link.href=`submit.html?course=algorithms&unit=${encodeURIComponent(lesson)}`;});const c=current(),m=meta[lesson];$('lessonPicker').innerHTML=COURSES.map(item=>`<option value="${item.id}">UNIT ${unitNumber(item.id)} · ${meta[item.id].short} · ${item.questions.length} 題</option>`).join('');$('lessonPicker').value=lesson;$('crumb').textContent='UNIT '+unitNumber(lesson)+' / '+m.short;$('eyebrow').textContent=m.en;$('lessonTitle').textContent=m.title;$('lessonSub').textContent=m.sub;$('lessonCount').textContent=c.questions.length;$('guideText').textContent=m.guide;$('sourceLabel').textContent='目前來源：'+c.source;refreshFilters();
  $('courseMenu').innerHTML=COURSES.map(item=>`<button class="course-nav ${item.id===lesson?'active':''}" data-lesson="${item.id}" aria-pressed="${item.id===lesson}"><span class="course-copy"><span class="unit-number">UNIT ${unitNumber(item.id)}</span><span class="unit-row"><strong>${meta[item.id].short}</strong><span class="unit-count">${item.questions.length} 題</span></span><small class="unit-en">${meta[item.id].en}</small></span></button>`).join('');
  $('lessonTabs').innerHTML=COURSES.map(item=>`<button class="lesson-tab ${item.id===lesson?'active':''}" data-lesson="${item.id}" aria-pressed="${item.id===lesson}"><span class="tabtop"><span>${item.id}</span><small>${item.questions.length} 題</small></span><strong>${meta[item.id].short}</strong></button>`).join('');
  render(preserveCards);}
@@ -67,9 +68,10 @@ const linkedQuestion=new URLSearchParams(location.search).get('question');
 const linkedEntry=findEntry(linkedQuestion);
 if(linkedEntry)lesson=linkedEntry.unit.id;
 setupLesson();
-if(linkedEntry){page=Math.floor(linkedEntry.i/PAGE_SIZE)+1;render();window.courseQuestionTools.focusLinkedQuestion(linkedQuestion);}
+if(linkedEntry){page=Math.floor(linkedEntry.i/PAGE_SIZE)+1;render();window.courseQuestionTools.focusLinkedQuestion(linkedEntry.id);}
 let waitingForLinkedQuestion=!linkedEntry && /^community-/.test(linkedQuestion||'');
-function mergeCommunityQuestions(entries,{openLinkedQuestion=false}={}){
+function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[]}={}){
+ for(const alias of Array.isArray(aliases)?aliases:[])if(/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(alias?.id)&&questionEntries.some(e=>e.id===alias.target))communityAliases.set(alias.id,alias.target);
  let added=0;
  for(const entry of entries){
   if(!entry||typeof entry!=='object')continue;
@@ -78,7 +80,8 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false}={}){
   if(!unit||!q||!/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(q.bookmarkId)||typeof q.q!=='string'||typeof q.a!=='string'||findEntry(q.bookmarkId))continue;
   const i=unit.questions.length;unit.questions.push(q);questionEntries.push({q,i,id:q.bookmarkId,unit});added++;
  }
- if(!added)return {added:0,openedLinkedQuestion:false};
+ window.learningUI?.refresh();
+ if(!added&&!communityAliases.size)return {added:0,openedLinkedQuestion:false};
  refreshCourseSummary();
  const linked=waitingForLinkedQuestion&&openLinkedQuestion&&findEntry(linkedQuestion);
  if(linked){waitingForLinkedQuestion=false;lesson=linked.unit.id;setupLesson();page=Math.floor(linked.i/PAGE_SIZE)+1;render();window.courseQuestionTools.focusLinkedQuestion(linked.id);}
@@ -92,8 +95,9 @@ window.courseLearning={
  scopeLabel:()=>allUnits()?`演算法 · 全部 ${COURSES.length} 個單元`:`目前單元 · ${meta[lesson].short}`,
  course:'algorithms', toolbar:document.querySelector('.toolbar'), sidebar:document.querySelector('.sidebar'), list:$('list'),
  cardTop:card=>card.querySelector('.cardtop'), render, resetPage:()=>{page=1;},
- validId:id=>COURSES.some(c=>c.questions.some((q,i)=>questionId(c,i)===id)),
- questionLabel:id=>{const course=COURSES.find(item=>item.questions.some((q,i)=>questionId(item,i)===id));if(!course)return'題目';const index=course.questions.findIndex((q,i)=>questionId(course,i)===id);return meta[course.id].short+' 第 '+String(index+1).padStart(3,'0')+' 題';},
+ resolveId:id=>findEntry(id)?.id,
+ validId:id=>Boolean(findEntry(id)),
+ questionLabel:id=>{const entry=findEntry(id);return entry?meta[entry.unit.id].short+' 第 '+String(entry.i+1).padStart(3,'0')+' 題':'題目';},
  questionDetails:id=>{const {q,unit,i}=findEntry(id);return {course:'algorithms',id,unit:meta[unit.id].short,number:i+1,question:q.q,answer:q.a};},
  currentPage:()=>page,pageCount:()=>totalPages
 };

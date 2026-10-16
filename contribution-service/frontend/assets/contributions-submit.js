@@ -3,7 +3,7 @@ import {
   normalizeType,
   normalizeBatch,
   uniqueQuestions,
-} from "./contribution-model.js?v=os-l7-dedup-20261016";
+} from "./contribution-model.js?v=global-dedup-20261016";
 import {
   esc,
   api,
@@ -14,7 +14,7 @@ import {
   showSimilar,
   downloadJSON,
   copyText,
-} from "./contributions-ui.js?v=os-l7-dedup-20261016";
+} from "./contributions-ui.js?v=global-dedup-20261016";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
@@ -122,6 +122,9 @@ function download(value, name) {
 const initialCourse = new URL(location.href).searchParams.get("course");
 if (COURSE_UNITS[initialCourse]) $("course").value = initialCourse;
 units();
+const initialUnit = new URL(location.href).searchParams.get("unit");
+if (COURSE_UNITS[initialCourse]?.units[initialUnit])
+  $("unit").value = initialUnit;
 try {
   const draft = JSON.parse(localStorage.getItem(key) || "null");
   if (draft) {
@@ -147,6 +150,46 @@ try {
           name === "type" ? normalizeType(value) : value;
     }
     images = draft.images || [];
+    if (
+      COURSE_UNITS[initialCourse]?.units[initialUnit] &&
+      (draft.course !== initialCourse || draft.unit !== initialUnit)
+    ) {
+      const banner = document.createElement("div");
+      banner.className = "panel";
+      banner.setAttribute("role", "status");
+      const text = document.createElement("p");
+      text.textContent = `已保留 ${COURSE_UNITS[draft.course]?.name || "原課程"}／${COURSE_UNITS[draft.course]?.units[draft.unit] || "原單元"} 的草稿。你剛從 ${COURSE_UNITS[initialCourse].name}／${COURSE_UNITS[initialCourse].units[initialUnit]} 進入投稿。`;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "button secondary";
+      button.textContent = "下載原草稿並開始此單元";
+      button.addEventListener("click", () => {
+        if (imageReadPending || submitPending) return;
+        download(
+          {
+            ...metadata(),
+            questions,
+            editor: Object.fromEntries(new FormData(form)),
+            images,
+            editIndex,
+          },
+          "題庫投稿原草稿備份.json",
+        );
+        $("course").value = initialCourse;
+        units();
+        $("unit").value = initialUnit;
+        questions = [];
+        $("batchTitle").value = "";
+        $("source").value = "";
+        clearEditor();
+        render();
+        save();
+        banner.remove();
+        message("已切換到連結指定的單元，原草稿已下載備份。");
+      });
+      banner.append(text, button);
+      form.before(banner);
+    }
     if (images.length) form.elements.type.value = "圖片題";
     editIndex =
       Number.isInteger(draft.editIndex) &&

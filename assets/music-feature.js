@@ -27,16 +27,16 @@
 
   try {
     if (player) {
-      await loadStyles('assets/music-player.css?v=7');
-      await loadScript('assets/music-playlist.js?v=2');
-      await loadScript('assets/music-player.js?v=5');
+      await loadStyles('assets/music-player.css?v=global-dedup-20261016');
+      await loadScript('assets/music-playlist.js?v=global-dedup-20261016');
+      await loadScript('assets/music-player.js?v=global-dedup-20261016');
       document.getElementById('radioUnavailable').hidden = true;
       player.hidden = false;
     } else {
       document.body.classList.add('has-music-radio');
-      await loadStyles('assets/music-launcher.css?v=6');
-      await loadScript('assets/course-navigation.js?v=1');
-      await loadScript('assets/music-launcher.js?v=5');
+      await loadStyles('assets/music-launcher.css?v=global-dedup-20261016');
+      await loadScript('assets/course-navigation.js?v=global-dedup-20261016');
+      await loadScript('assets/music-launcher.js?v=global-dedup-20261016');
     }
   } catch (error) {
     console.error(error);

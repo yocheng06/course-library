@@ -44,6 +44,32 @@ for (const entry of reviewed.entries) {
     explanation: entry.explanation,
   };
 }
+const merges = JSON.parse(
+  await readFile(resolve(root, "content/approved-merges.json"), "utf8"),
+).entries;
+const mergeCatalog = {};
+for (const item of merges) {
+  if (
+    mergeCatalog[item.id] ||
+    !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(item.id) ||
+    item.data.id !== item.id ||
+    !entries.some(
+      (q) =>
+        q.course === item.course &&
+        q.unit === item.unit &&
+        q.canonicalId === item.canonicalId,
+    )
+  )
+    throw new Error("Invalid reviewed merge: " + item.id);
+  mergeCatalog[item.id] = {
+    course: item.course,
+    unit: item.unit,
+    target: item.canonicalId,
+    snapshot: createHash("sha256")
+      .update(JSON.stringify(item.data))
+      .digest("hex"),
+  };
+}
 const paths = [
   "submit.html",
   "review.html",
@@ -89,7 +115,7 @@ worker =
   "\n" +
   worker.replace(
     "/* BUILD_DATA */",
-    `const BASE_FINGERPRINTS=${JSON.stringify(fingerprints)};\nconst BASE_QUESTIONS=${JSON.stringify(entries)};\nconst STATIC_ASSETS=${JSON.stringify(assets)};\nconst REVIEWED_EXPLANATIONS=${JSON.stringify(explanations)};\nconst REVIEWED_CONTENT_VERSION=${JSON.stringify(createHash("sha256").update(JSON.stringify(explanations)).digest("hex"))};`,
+    `const BASE_FINGERPRINTS=${JSON.stringify(fingerprints)};\nconst BASE_QUESTIONS=${JSON.stringify(entries)};\nconst STATIC_ASSETS=${JSON.stringify(assets)};\nconst REVIEWED_MERGES=${JSON.stringify(mergeCatalog)};\nconst MERGE_VERSION=${JSON.stringify(createHash("sha256").update(JSON.stringify(mergeCatalog)).digest("hex"))};\nconst REVIEWED_EXPLANATIONS=${JSON.stringify(explanations)};\nconst REVIEWED_CONTENT_VERSION=${JSON.stringify(createHash("sha256").update(JSON.stringify(explanations)).digest("hex"))};`,
   );
 await writeFile(resolve(root, "dist/server/index.js"), worker);
 await cp(

@@ -33,6 +33,9 @@
   if (Object.prototype.hasOwnProperty.call(initial, 'state') ||
       initialBookmarks.length !== saved.size || initialBookmarks.some(id => !saved.has(id))) write();
   function refresh() {
+    let migrated=false;
+    for (const id of [...saved]) { const target=config.resolveId?.(id); if(target && target!==id){saved.delete(id);saved.add(target);migrated=true;} }
+    if(migrated) write();
     config.list.querySelectorAll('article[data-id]').forEach(card => {
       let button = card.querySelector('.review-button');
       if (!button) {

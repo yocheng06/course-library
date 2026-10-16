@@ -3,7 +3,7 @@ import {
   TYPES,
   normalizeType,
   normalizeBatch,
-} from "./contribution-model.js?v=os-l7-dedup-20261016";
+} from "./contribution-model.js?v=global-dedup-20261016";
 import {
   esc,
   api,
@@ -12,7 +12,7 @@ import {
   statusLabel,
   showSimilar,
   downloadJSON,
-} from "./contributions-ui.js?v=os-l7-dedup-20261016";
+} from "./contributions-ui.js?v=global-dedup-20261016";
 const $ = (id) => document.getElementById(id),
   origin = window.courseContributions.apiOrigin;
 if (location.origin !== origin) {
@@ -353,7 +353,15 @@ let publications = new Map(),
 $("manageCourse").innerHTML = Object.entries(COURSE_UNITS)
   .map(([id, c]) => `<option value="${id}">${esc(c.name)}</option>`)
   .join("");
+function libraryPage(course) {
+  return (
+    "https://yocheng06.github.io/course-library/" +
+    (course === "os" ? "os.html" : "algorithms.html")
+  );
+}
 function managedMarkup(row) {
+  if (row.mergedInto)
+    return `<details class="panel management-entry" data-id="${esc(row.id)}"><summary>${esc(row.question.stem.slice(0, 100))} · 已合併</summary><p>原稿已封存，收錄於 <a href="${libraryPage(row.course)}?question=${encodeURIComponent(row.mergedInto)}">${esc(row.mergedInto)}</a>；完整資料仍可匯出備份。</p><p>${esc(row.question.explanation)}</p><button class="text-button" type="button" data-manage-action="history">查看修改紀錄</button><div class="history-list" hidden></div></details>`;
   return `<details class="panel management-entry draft-entry" data-id="${esc(row.id)}" data-draft-id="manage:${esc(row.id)}" data-revision="${row.revision}"><summary>${esc(row.question.stem.slice(0, 100))} · ${row.published ? "上架中" : "已下架"} · 版本 ${row.revision}</summary><p class="muted">題目 ID：${esc(row.id)}</p><div class="field-grid"><label>科目<select data-batch="course">${Object.entries(
     COURSE_UNITS,
   )

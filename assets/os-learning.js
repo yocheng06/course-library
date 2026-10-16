@@ -18,7 +18,8 @@ const questionEntries = UNITS.flatMap((unit, unitIndex) => unit.questions.map((q
 document.querySelector('[data-course-total]').textContent = `${UNITS.length} 個單元 · ${questionEntries.length} 道題目`;
 const allUnits = () => $('searchScopeSelect').value === 'all';
 const scopedEntries = () => allUnits() ? questionEntries : questionEntries.filter(entry => entry.unitIndex === active);
-const findEntry = id => questionEntries.find(entry => entry.q.id === id || entry.q.aliases?.includes(id));
+const communityAliases = new Map();
+const findEntry = id => questionEntries.find(entry => entry.q.id === (communityAliases.get(id) || id) || entry.q.aliases?.includes(id));
 function refreshFilters() {
   const entries = scopedEntries();
   window.courseQuestionTools.populateSelect($('chapter'), entries.map(({q}) => q.category), 'all', '全部章節');
@@ -41,6 +42,7 @@ function matches() {
 }
 function refreshUnitNavigation() {
   const i = active, u = UNITS[i];
+  document.querySelectorAll(".community-course-link").forEach(link => { link.href = `submit.html?course=os&unit=${encodeURIComponent(u.id)}`; });
   $('unitPicker').innerHTML = UNITS.map((v,j) => `<option value="${j}">UNIT ${unitNumber(j)} · ${esc(v.label)} · ${v.questions.length} 題</option>`).join('');
   $('unitPicker').value = i;
   $('title').textContent=u.label; $('unitEn').textContent=u.en; $('description').textContent=u.desc; $('unitCount').textContent=u.questions.length;
@@ -125,7 +127,8 @@ const linkedEntry = findEntry(linkedQuestion);
 switchUnit(linkedEntry?.unitIndex ?? 0);
 if (linkedEntry) { page=Math.floor(linkedEntry.i/pageSize)+1; render(); window.courseQuestionTools.focusLinkedQuestion(linkedEntry.q.id); }
 let waitingForLinkedQuestion = !linkedEntry && /^community-/.test(linkedQuestion || '');
-function mergeCommunityQuestions(entries, {openLinkedQuestion = false} = {}) {
+function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases = []} = {}) {
+  for (const alias of Array.isArray(aliases) ? aliases : []) if (/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(alias?.id) && questionEntries.some(e=>e.q.id===alias.target)) communityAliases.set(alias.id,alias.target);
   let added = 0;
   for (const entry of entries) {
     if (!entry || typeof entry!=='object') continue;
@@ -136,7 +139,8 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false} = {}) {
     const i=unit.questions.length; unit.questions.push(q);
     questionEntries.push({q,unit,unitIndex,i}); added++;
   }
-  if (!added) return {added:0, openedLinkedQuestion:false};
+  window.learningUI?.refresh();
+  if (!added && !communityAliases.size) return {added:0, openedLinkedQuestion:false};
   document.querySelector('[data-course-total]').textContent=`${UNITS.length} 個單元 · ${questionEntries.length} 道題目`;
   const linked=waitingForLinkedQuestion && openLinkedQuestion && findEntry(linkedQuestion);
   if (linked) {

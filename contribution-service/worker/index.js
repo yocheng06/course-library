@@ -28,12 +28,13 @@ function json(value, status = 200) {
 }
 async function removePublished(env, payload, skipped, input) {
   const keys = await fingerprints(payload);
-  const duplicateIndexes = new Set(await duplicates(env, keys));
+  const duplicateIndexes = new Set(await duplicates(env, keys, payload));
   const sourceIndexes = new Map();
   input.questions.forEach((q, i) => {
     const key = questionKey(payload.course, payload.unit, {
       stem: q.stem ?? q.q,
       options: q.options ?? q.opts ?? [],
+      images: q.images || [],
     });
     if (!sourceIndexes.has(key)) sourceIndexes.set(key, i + 1);
   });
@@ -41,7 +42,12 @@ async function removePublished(env, payload, skipped, input) {
   const questions = payload.questions.filter((q, i) => {
     if (duplicateIndexes.has(i + 1)) {
       skipped.push({
-        index: sourceIndexes.get(questionKey(payload.course, payload.unit, q)),
+        index: sourceIndexes.get(
+          questionKey(payload.course, payload.unit, {
+            ...q,
+            imageKeys: undefined,
+          }),
+        ),
         stem: q.stem.slice(0, 200),
         reason: "published",
       });
@@ -109,7 +115,7 @@ async function readBody(request) {
 async function hash(value) {
   const data = await crypto.subtle.digest(
     "SHA-256",
-    new TextEncoder().encode(value),
+    typeof value === "string" ? new TextEncoder().encode(value) : value,
   );
   return [...new Uint8Array(data)]
     .map((n) => n.toString(16).padStart(2, "0"))
@@ -122,21 +128,56 @@ async function fingerprints(payload) {
     ),
   );
 }
-async function duplicates(env, keys) {
+async function duplicates(env, keys, payload, excludeId = null) {
   const found = new Set(keys.filter((k) => BASE_FINGERPRINTS.includes(k)));
-  for (let start = 0; start < keys.length; start += 50) {
-    const chunk = keys.slice(start, start + 50),
-      marks = chunk.map(() => "?").join(",");
-    const result = await env.DB.prepare(
-      `SELECT fingerprint FROM public_questions WHERE fingerprint IN (${marks})`,
-    )
-      .bind(...chunk)
-      .all();
-    for (const row of result.results) found.add(row.fingerprint);
+  const result = await env.DB.prepare(
+    "SELECT id,course,unit,data,fingerprint FROM public_questions WHERE course=? AND unit=?",
+  )
+    .bind(payload.course, payload.unit)
+    .all();
+  for (const row of result.results) {
+    if (row.id === excludeId) continue;
+    const raw = JSON.parse(row.data),
+      q = canonicalQuestion(raw);
+    await attachImageKeys(env, { questions: [q] }, { questions: [raw] });
+    found.add(await hash(questionKey(row.course, row.unit, q)));
+    found.add(row.fingerprint);
   }
-  return keys
-    .map((key, index) => (found.has(key) ? index + 1 : null))
-    .filter(Boolean);
+  return keys.map((key, i) => (found.has(key) ? i + 1 : null)).filter(Boolean);
+}
+async function attachImageKeys(env, payload, original = { questions: [] }) {
+  const trusted = new Map();
+  for (const q of original.questions)
+    (q.images || []).forEach((img, i) => {
+      const src = typeof img === "string" ? img : img.src;
+      if (q.imageKeys?.[i]) trusted.set(src, q.imageKeys[i]);
+    });
+  for (const q of payload.questions)
+    q.imageKeys = await Promise.all(
+      (q.images || []).map(async (image) => {
+        const src = typeof image === "string" ? image : image.src;
+        const decoded = decodeImage(src);
+        if (decoded) return "sha256:" + (await hash(decoded.bytes));
+        if (trusted.has(src)) return trusted.get(src);
+        if (src.startsWith(SITE_ORIGIN + "/api/image/")) {
+          const match =
+            /^\/api\/image\/([0-9a-f-]{36})\/((?:[0-9]|[1-9][0-9]|1[0-9]{2})-[01])$/.exec(
+              new URL(src).pathname,
+            );
+          if (match) {
+            const object = await env.BUCKET.get(
+              `submissions/${match[1]}/${match[2]}`,
+            );
+            if (object)
+              return (
+                "sha256:" +
+                (await hash(await new Response(object.body).arrayBuffer()))
+              );
+          }
+        }
+        return src;
+      }),
+    );
 }
 async function limit(request, env) {
   if (!env.RATE_HASH_KEY) throw new HttpError(503, "投稿服務尚未完成設定。");
@@ -198,6 +239,7 @@ async function submit(request, env) {
   } catch (error) {
     throw new HttpError(400, error.message);
   }
+  await attachImageKeys(env, payload);
   ({ payload } = await removePublished(env, payload, skipped, body));
   const report = duplicateReport(body, payload, skipped);
   await checkSimilar(env, payload, body.confirmSimilar);
@@ -381,6 +423,7 @@ async function decide(request, env, id) {
         throw new HttpError(400, error.message);
       }
       storedImagesOnly(original, payload, id);
+      await attachImageKeys(env, payload, original);
       let keys;
       ({ payload, keys } = await removePublished(
         env,
@@ -410,6 +453,7 @@ async function decide(request, env, id) {
                 answer: q.answer,
                 explanation: q.explanation,
                 choiceKey: q.choiceKey,
+                imageKeys: q.imageKeys,
                 answerProvided: true,
                 images: q.images.map((src) => ({ src, alt: q.stem })),
                 translation: "",
@@ -425,6 +469,7 @@ async function decide(request, env, id) {
                 a: q.answer,
                 ex: q.explanation,
                 choiceKey: q.choiceKey,
+                imageKeys: q.imageKeys,
                 answerProvided: true,
                 images: q.images.map((src) => ({ src, alt: q.stem })),
                 warn: false,
@@ -486,6 +531,100 @@ async function decide(request, env, id) {
       throw new HttpError(409, "投稿狀態已改變，請重新載入。");
   }
   return json({ status: body.action === "approve" ? "approved" : "rejected" });
+}
+async function ensureReviewedContent(env) {
+  await materializeReviewedExplanations(env);
+  if (
+    await env.DB.prepare("SELECT id FROM content_updates WHERE id=?")
+      .bind(MERGE_VERSION)
+      .first()
+  )
+    return;
+  const ids = Object.keys(REVIEWED_MERGES);
+  let found = 0;
+  const affected = new Set();
+  for (let start = 0; start < ids.length; start += 25) {
+    const chunk = ids.slice(start, start + 25);
+    const rows = await env.DB.prepare(
+      `SELECT * FROM public_questions WHERE id IN (${chunk.map(() => "?").join(",")})`,
+    )
+      .bind(...chunk)
+      .all();
+    found += rows.results.length;
+    const statements = [];
+    for (const row of rows.results) {
+      const spec = REVIEWED_MERGES[row.id],
+        raw = JSON.parse(row.data);
+      if (raw.mergedInto === spec.target) affected.add(row.submission_id);
+      if (
+        raw.mergedInto ||
+        row.course !== spec.course ||
+        row.unit !== spec.unit ||
+        !row.is_published ||
+        (await hash(JSON.stringify(raw))) !== spec.snapshot
+      )
+        continue;
+      affected.add(row.submission_id);
+      const now = Date.now();
+      statements.push(
+        historyStatement(
+          env,
+          row,
+          "reviewed-content",
+          "merge",
+          "已核對重複題，合併至 " + spec.target,
+          now,
+        ),
+      );
+      statements.push(
+        env.DB.prepare(
+          "UPDATE public_questions SET data=?,is_published=0,revision=revision+1,updated_at=? WHERE id=? AND revision=? AND data=?",
+        ).bind(
+          JSON.stringify({ ...raw, mergedInto: spec.target }),
+          now,
+          row.id,
+          row.revision,
+          row.data,
+        ),
+      );
+    }
+    if (statements.length) await env.DB.batch(statements);
+  }
+  for (const id of affected) {
+    const submission = await env.DB.prepare(
+      "SELECT * FROM submissions WHERE id=? AND status='approved'",
+    )
+      .bind(id)
+      .first();
+    if (!submission || submission.note.includes("已核對並合併重複投稿"))
+      continue;
+    const archived = await env.DB.prepare(
+      "SELECT id,data FROM public_questions WHERE submission_id=? AND is_published=0",
+    )
+      .bind(id)
+      .all();
+    const count = archived.results.filter(
+      (row) =>
+        REVIEWED_MERGES[row.id] &&
+        JSON.parse(row.data).mergedInto === REVIEWED_MERGES[row.id].target,
+    ).length;
+    const note = `2026-10-16 已核對並合併重複投稿 ${count} 題；原稿與解析保留，舊連結會開啟收錄題目。`;
+    await env.DB.prepare(
+      "UPDATE submissions SET note=?,revision=revision+1 WHERE id=? AND note=? AND status='approved'",
+    )
+      .bind(
+        (submission.note.slice(0, 1800) + "\n" + note).trim(),
+        id,
+        submission.note,
+      )
+      .run();
+  }
+  if (found === ids.length)
+    await env.DB.prepare(
+      "INSERT OR IGNORE INTO content_updates (id,applied_at) VALUES (?,?)",
+    )
+      .bind(MERGE_VERSION, Date.now())
+      .run();
 }
 // A bounded, idempotent content backfill, separate from schema migrations.
 async function materializeReviewedExplanations(env) {
@@ -598,6 +737,7 @@ function publicationRow(row) {
     question: canonicalQuestion(JSON.parse(row.data)),
     revision: row.revision,
     published: Boolean(row.is_published),
+    mergedInto: JSON.parse(row.data).mergedInto || null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -631,13 +771,13 @@ async function checkSimilar(env, payload, confirmed, excludeId = null) {
   if (possibleDuplicates.length)
     throw new HttpError(
       409,
-      "發現選項次序或代號不同的疑似重複題，請確認後再送出。",
+      "發現題幹僅有標點差異的疑似重複題，請確認後再送出。",
       { code: "similar_questions", possibleDuplicates },
     );
 }
 async function listPublications(request, env, url) {
   owner(request, env);
-  await materializeReviewedExplanations(env);
+  await ensureReviewedContent(env);
   const course = url.searchParams.get("course") || "os",
     state = url.searchParams.get("state") || "published";
   if (!COURSE_UNITS[course] || !["published", "hidden", "all"].includes(state))
@@ -674,12 +814,17 @@ async function listPublications(request, env, url) {
 async function editPublication(request, env, id) {
   const actor = owner(request, env);
   requireOrigin(request, true);
-  await materializeReviewedExplanations(env);
+  await ensureReviewedContent(env);
   const body = await readBody(request),
     row = await env.DB.prepare("SELECT * FROM public_questions WHERE id=?")
       .bind(id)
       .first();
   if (!row) throw new HttpError(404, "找不到題目。");
+  if (JSON.parse(row.data).mergedInto)
+    throw new HttpError(
+      409,
+      "此題已合併，請修改對應的收錄題目；原稿保留於紀錄與備份。",
+    );
   if (body.revision !== row.revision)
     throw new HttpError(
       409,
@@ -708,17 +853,10 @@ async function editPublication(request, env, id) {
       batch,
       row.submission_id,
     );
+    await attachImageKeys(env, batch, { questions: [raw] });
     await checkSimilar(env, batch, body.confirmSimilar, id);
     [fingerprint] = await fingerprints(batch);
-    if (
-      fingerprint !== row.fingerprint &&
-      (BASE_FINGERPRINTS.includes(fingerprint) ||
-        (await env.DB.prepare(
-          "SELECT id FROM public_questions WHERE fingerprint=? AND id<>?",
-        )
-          .bind(fingerprint, id)
-          .first()))
-    )
+    if ((await duplicates(env, [fingerprint], batch, id)).length)
       throw new HttpError(409, "修改後與既有題目完全重複，請調整內容。");
     const q = batch.questions[0];
     course = batch.course;
@@ -739,6 +877,7 @@ async function editPublication(request, env, id) {
             images,
             answerProvided: true,
             choiceKey: q.choiceKey,
+            imageKeys: q.imageKeys,
           }
         : {
             ...retained,
@@ -752,6 +891,7 @@ async function editPublication(request, env, id) {
             images,
             answerProvided: true,
             choiceKey: q.choiceKey,
+            imageKeys: q.imageKeys,
           };
   }
   const published =
@@ -811,7 +951,7 @@ async function publicationHistory(request, env, id) {
 }
 async function exportBackup(request, env) {
   owner(request, env);
-  await materializeReviewedExplanations(env);
+  await ensureReviewedContent(env);
   const [questions, submissions, history] = await Promise.all([
     env.DB.prepare("SELECT * FROM public_questions ORDER BY id").all(),
     env.DB.prepare("SELECT * FROM submissions ORDER BY created_at,id").all(),
@@ -871,7 +1011,7 @@ async function route(request, env) {
     return submit(request, env);
   if (path === "/api/session" && request.method === "GET") {
     const userId = owner(request, env);
-    await materializeReviewedExplanations(env);
+    await ensureReviewedContent(env);
     return json({ isReviewer: true, userId });
   }
   if (path === "/api/review" && request.method === "GET")
@@ -919,13 +1059,24 @@ async function route(request, env) {
   if (path === "/api/questions" && request.method === "GET") {
     const course = url.searchParams.get("course");
     if (!COURSE_UNITS[course]) throw new HttpError(400, "請指定科目。");
-    await materializeReviewedExplanations(env);
+    await ensureReviewedContent(env);
     const result = await env.DB.prepare(
       "SELECT unit,data FROM public_questions WHERE course=? AND is_published=1 ORDER BY created_at,id",
     )
       .bind(course)
       .all();
+    const archived = await env.DB.prepare(
+      "SELECT id,data FROM public_questions WHERE course=? AND is_published=0",
+    )
+      .bind(course)
+      .all();
     return json({
+      aliases: archived.results
+        .filter((row) => JSON.parse(row.data).mergedInto)
+        .map((row) => ({
+          id: row.id,
+          target: JSON.parse(row.data).mergedInto,
+        })),
       questions: result.results.map((row) => ({
         unit: row.unit,
         question: JSON.parse(row.data),

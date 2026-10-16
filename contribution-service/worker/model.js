@@ -1,4 +1,4 @@
-import "./choice-answers.js?v=site-fixes-20261016";
+import "./choice-answers.js?v=global-dedup-20261016";
 export const COURSE_UNITS = {
   os: {
     name: "作業系統",
@@ -27,45 +27,39 @@ export function normalizeType(type, images = []) {
   if (type === "多選題" || type === "複選題") return "多選題";
   return "填空題";
 }
-export function questionKey(course, unit, question) {
-  const clean = (value) =>
-    String(value).normalize("NFKC").replace(/\s+/g, "").trim();
-  const mergeOptionOrder = course === "os" && unit === "synchronization";
-  return JSON.stringify([
-    course,
-    unit,
-    clean(
-      mergeOptionOrder ? question.stem.replace(/_{2,}/g, "___") : question.stem,
-    ),
-    question.options
-      .map((option) =>
-        clean(
-          mergeOptionOrder
-            ? String(option)
-                .normalize("NFKC")
-                .replace(/^[A-H][.、．:：]\s*/i, "")
-            : option,
-        ),
-      )
-      .sort(),
-  ]);
+const cleanKey = (value) =>
+  String(value ?? "")
+    .normalize("NFKC")
+    .replace(/\s+/g, "");
+const stemKey = (value) =>
+  cleanKey(String(value ?? "").replace(/\[_{2,}\d*_{0,}\]|_{2,}/g, "___"));
+function imageKey(question) {
+  return (question.imageKeys || question.images || [])
+    .map((image) => (typeof image === "string" ? image : image.src))
+    .filter(Boolean);
 }
-export function similarityKey(course, unit, question) {
-  const clean = (value) => String(value).normalize("NFKC").replace(/\s+/g, "");
+export function questionKey(course, unit, question) {
   return JSON.stringify([
     course,
     unit,
-    clean(question.stem),
-    question.options
-      .map((o) =>
-        clean(
-          String(o)
+    stemKey(question.stem ?? question.q),
+    (question.options ?? question.opts ?? [])
+      .map((option) =>
+        cleanKey(
+          String(option)
             .normalize("NFKC")
             .replace(/^[A-H][.、．:：]\s*/i, ""),
         ),
       )
       .sort(),
+    imageKey(question),
   ]);
+}
+export function similarityKey(course, unit, question) {
+  const parts = JSON.parse(questionKey(course, unit, question));
+  // A punctuation-only difference prompts review; mathematical operators and case remain intact.
+  parts[2] = parts[2].replace(/[?？。]+$/, "");
+  return JSON.stringify(parts);
 }
 export function possibleMatches(course, unit, questions, known) {
   const matches = [],
@@ -87,7 +81,7 @@ export function possibleMatches(course, unit, questions, known) {
         index: i + 1,
         stem: q.stem.slice(0, 200),
         reference: other.id || "同批題目",
-        reason: "題幹相同，選項次序或代號不同",
+        reason: "題幹僅有標點差異，請核對是否同一題",
       });
     if (!seen.has(key)) seen.set(key, []);
     seen.get(key).push({ ...q, course, unit, id: "同批第 " + (i + 1) + " 題" });
