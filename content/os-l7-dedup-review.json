@@ -1,0 +1,2804 @@
+{
+  "sourceRecords": 390,
+  "previousQuestions": 322,
+  "afterOrderMerge": 217,
+  "retained": 137,
+  "removedFromPrevious": 185,
+  "mergedSourceRecords": 253,
+  "types": {
+    "單選題": 54,
+    "多選題": 41,
+    "填空題": 42
+  },
+  "groups": [
+    {
+      "questionId": "os7-001",
+      "sourceRecords": [
+        1,
+        99,
+        232,
+        250,
+        341
+      ],
+      "originalQuestionIds": [
+        "os7-001",
+        "os7-099",
+        "os7-341"
+      ],
+      "reviewedGroups": [
+        1,
+        99,
+        341
+      ],
+      "primaryOriginalId": "os7-099",
+      "sourceStems": [
+        "___________ is a scheduling problem that occurs when a low-priority process holds a lock needed by a higher-priority process.(Please answer in lowercase English, leaving a space between each word)",
+        "_________ 是一種排程問題，發生在低優先權程序持有所需鎖時，高優先權程序無法執行。（請用小寫英文回答 字母間留一個空白）",
+        "_________ is a scheduling problem that occurs when a low-priority process holds a lock needed by a higher-priority process.(Please answer in lowercase English, leaving a space between each word)"
+      ]
+    },
+    {
+      "questionId": "os7-002",
+      "sourceRecords": [
+        2,
+        57,
+        130,
+        179,
+        205
+      ],
+      "originalQuestionIds": [
+        "os7-002",
+        "os7-057",
+        "os7-130",
+        "os7-179",
+        "os7-205"
+      ],
+      "reviewedGroups": [
+        2,
+        57
+      ],
+      "primaryOriginalId": "os7-057",
+      "sourceStems": [
+        "Which of the following are locking techniques that can be used to implement a critical section?",
+        "哪些是可以用於實現臨界區的鎖定技術？"
+      ]
+    },
+    {
+      "questionId": "os7-003",
+      "sourceRecords": [
+        3,
+        151,
+        186,
+        381
+      ],
+      "originalQuestionIds": [
+        "os7-003",
+        "os7-151",
+        "os7-186",
+        "os7-381"
+      ],
+      "reviewedGroups": [
+        3,
+        151
+      ],
+      "primaryOriginalId": "os7-003",
+      "sourceStems": [
+        "哪一種同步問題允許多個讀者同時存取共享資料集，但只允許一個寫者存取？",
+        "Which synchronization problem allows multiple readers to access a shared dataset at the same time, but only one writer?"
+      ]
+    },
+    {
+      "questionId": "os7-004",
+      "sourceRecords": [
+        4,
+        122,
+        230,
+        288
+      ],
+      "originalQuestionIds": [
+        "os7-004",
+        "os7-122",
+        "os7-230",
+        "os7-288"
+      ],
+      "reviewedGroups": [
+        4
+      ],
+      "primaryOriginalId": "os7-004",
+      "sourceStems": [
+        "In a uniprocessor system, which method can be used to prevent preemption by disabling interrupts when implementing a critical section?"
+      ]
+    },
+    {
+      "questionId": "os7-005",
+      "sourceRecords": [
+        5,
+        224,
+        247,
+        323,
+        378
+      ],
+      "originalQuestionIds": [
+        "os7-005",
+        "os7-323"
+      ],
+      "reviewedGroups": [
+        5,
+        323
+      ],
+      "primaryOriginalId": "os7-005",
+      "sourceStems": [
+        "讀者-寫者問題（Readers-Writers Problem）允許 _________ 個讀者同時存取共享資料集，但只允許 _________ 個寫者存取。（請用小寫英文回答）",
+        "The Readers-Writers Problem allows _________ readers to access the shared dataset at the same time, but only a _________ writer.(Please answer in lowercase English)"
+      ]
+    },
+    {
+      "questionId": "os7-006",
+      "sourceRecords": [
+        6,
+        34,
+        226,
+        314,
+        346
+      ],
+      "originalQuestionIds": [
+        "os7-006",
+        "os7-034",
+        "os7-226",
+        "os7-314",
+        "os7-346"
+      ],
+      "reviewedGroups": [
+        6,
+        314
+      ],
+      "primaryOriginalId": "os7-314",
+      "sourceStems": [
+        "Regarding synchronization in the Linux kernel, which of the following statements are correct?",
+        "關於 Linux 核心中的同步，以下哪些陳述是正確的？"
+      ]
+    },
+    {
+      "questionId": "os7-007",
+      "sourceRecords": [
+        7
+      ],
+      "originalQuestionIds": [
+        "os7-007"
+      ],
+      "reviewedGroups": [
+        7
+      ],
+      "primaryOriginalId": "os7-007",
+      "sourceStems": [
+        "飢餓（Starvation）指的是程序被無限期地 _________ 。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-008",
+      "sourceRecords": [
+        8,
+        77,
+        264
+      ],
+      "originalQuestionIds": [
+        "os7-008",
+        "os7-077",
+        "os7-264"
+      ],
+      "reviewedGroups": [
+        8,
+        77
+      ],
+      "primaryOriginalId": "os7-008",
+      "sourceStems": [
+        "在 Windows 作業系統中，哪種同步機制使用了一個整數的計數器？",
+        "In the Windows operating system, which synchronization mechanism uses an integer counter?"
+      ]
+    },
+    {
+      "questionId": "os7-009",
+      "sourceRecords": [
+        9,
+        201,
+        296
+      ],
+      "originalQuestionIds": [
+        "os7-009",
+        "os7-201"
+      ],
+      "reviewedGroups": [
+        9,
+        201
+      ],
+      "primaryOriginalId": "os7-009",
+      "sourceStems": [
+        "在哲學家進餐問題中，每個哲學家會交替地進行 _________ 和 _________ 的動作。（請用小寫英文回答）",
+        "In the Dining Philosophers Problem, each philosopher spends their life alternating between _________ and _________.(Please answer in lowercase English)"
+      ]
+    },
+    {
+      "questionId": "os7-010",
+      "sourceRecords": [
+        10,
+        39,
+        189,
+        212,
+        289,
+        311,
+        363
+      ],
+      "originalQuestionIds": [
+        "os7-010",
+        "os7-189",
+        "os7-212",
+        "os7-289",
+        "os7-311",
+        "os7-363"
+      ],
+      "reviewedGroups": [
+        10,
+        212
+      ],
+      "primaryOriginalId": "os7-212",
+      "sourceStems": [
+        "Which problems can occur when using semaphores?",
+        "哪些問題可能在使用信號量（Semaphore）時發生？"
+      ]
+    },
+    {
+      "questionId": "os7-011",
+      "sourceRecords": [
+        11,
+        36,
+        199,
+        213,
+        342
+      ],
+      "originalQuestionIds": [
+        "os7-011",
+        "os7-036",
+        "os7-199",
+        "os7-213",
+        "os7-342"
+      ],
+      "reviewedGroups": [
+        11,
+        199
+      ],
+      "primaryOriginalId": "os7-011",
+      "sourceStems": [
+        "哪種同步工具可用於解決多種同步問題，而不僅僅是互斥？",
+        "Which synchronization tool can be used to solve various synchronization problems, not just mutual exclusion?"
+      ]
+    },
+    {
+      "questionId": "os7-012",
+      "sourceRecords": [
+        12,
+        240,
+        385
+      ],
+      "originalQuestionIds": [
+        "os7-012",
+        "os7-240",
+        "os7-385"
+      ],
+      "reviewedGroups": [
+        12,
+        240
+      ],
+      "primaryOriginalId": "os7-240",
+      "sourceStems": [
+        "In Peterson's Solution, which variable is used to indicate whose turn it is to enter the critical section?",
+        "在 Peterson's Solution 中，哪個變數用來指示輪到哪個程序進入臨界區？"
+      ]
+    },
+    {
+      "questionId": "os7-013",
+      "sourceRecords": [
+        13,
+        100,
+        219,
+        306
+      ],
+      "originalQuestionIds": [
+        "os7-013",
+        "os7-100",
+        "os7-219",
+        "os7-306"
+      ],
+      "reviewedGroups": [
+        13,
+        219,
+        306
+      ],
+      "primaryOriginalId": "os7-013",
+      "sourceStems": [
+        "在忙碌等待（busy waiting）中，一個程序會做什麼來等待鎖定？",
+        "In busy waiting, what does a process do to wait for a lock?"
+      ]
+    },
+    {
+      "questionId": "os7-014",
+      "sourceRecords": [
+        14
+      ],
+      "originalQuestionIds": [
+        "os7-014"
+      ],
+      "reviewedGroups": [
+        14
+      ],
+      "primaryOriginalId": "os7-014",
+      "sourceStems": [
+        "在哲學家進餐問題的監視器解決方案中，每個哲學家在嘗試進食時會呼叫哪些方法？"
+      ]
+    },
+    {
+      "questionId": "os7-015",
+      "sourceRecords": [
+        15,
+        239,
+        310
+      ],
+      "originalQuestionIds": [
+        "os7-015",
+        "os7-239",
+        "os7-310"
+      ],
+      "reviewedGroups": [
+        15,
+        310
+      ],
+      "primaryOriginalId": "os7-310",
+      "sourceStems": [
+        "What does the compare_and_swap instruction return on a successful swap?",
+        "compare_and_swap 指令在成功交換時會返回什麼？"
+      ]
+    },
+    {
+      "questionId": "os7-016",
+      "sourceRecords": [
+        16,
+        45,
+        153
+      ],
+      "originalQuestionIds": [
+        "os7-016",
+        "os7-045",
+        "os7-153"
+      ],
+      "reviewedGroups": [
+        16,
+        45
+      ],
+      "primaryOriginalId": "os7-045",
+      "sourceStems": [
+        "What are the challenges of synchronized programming?",
+        "哪些是同步化程式設計的挑戰？"
+      ]
+    },
+    {
+      "questionId": "os7-017",
+      "sourceRecords": [
+        17,
+        110,
+        127,
+        282
+      ],
+      "originalQuestionIds": [
+        "os7-017",
+        "os7-110",
+        "os7-127",
+        "os7-282"
+      ],
+      "reviewedGroups": [
+        17,
+        282
+      ],
+      "primaryOriginalId": "os7-282",
+      "sourceStems": [
+        "Which shared variables does Peterson's Solution use?",
+        "Peterson's Solution 使用哪些共享變數？"
+      ]
+    },
+    {
+      "questionId": "os7-018",
+      "sourceRecords": [
+        18,
+        307
+      ],
+      "originalQuestionIds": [
+        "os7-018",
+        "os7-307"
+      ],
+      "reviewedGroups": [
+        18
+      ],
+      "primaryOriginalId": "os7-018",
+      "sourceStems": [
+        "哪種鎖定機制使用硬體原子指令來實施？"
+      ]
+    },
+    {
+      "questionId": "os7-019",
+      "sourceRecords": [
+        19
+      ],
+      "originalQuestionIds": [
+        "os7-019"
+      ],
+      "reviewedGroups": [
+        19
+      ],
+      "primaryOriginalId": "os7-019",
+      "sourceStems": [
+        "當一個程序調用 x.wait() 操作時，它會被掛起直到另一個程序調用 x._________()。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-020",
+      "sourceRecords": [
+        20,
+        32,
+        131,
+        233
+      ],
+      "originalQuestionIds": [
+        "os7-020",
+        "os7-233"
+      ],
+      "reviewedGroups": [
+        20,
+        233
+      ],
+      "primaryOriginalId": "os7-020",
+      "sourceStems": [
+        "Solaris 使用一種名為 _________ 的互斥鎖來提高效率，它會先作為自旋鎖，如果鎖被另一顆CPU上的執行緒持有，則會自旋。（請用小寫英文回答）",
+        "Solaris uses a type of mutex called an _________ mutex for efficiency, which starts as a spinlock and spins if the lock is held by a thread on another CPU.(Please answer in lowercase English)"
+      ]
+    },
+    {
+      "questionId": "os7-021",
+      "sourceRecords": [
+        21,
+        41,
+        141,
+        319
+      ],
+      "originalQuestionIds": [
+        "os7-021",
+        "os7-041",
+        "os7-141",
+        "os7-319"
+      ],
+      "reviewedGroups": [
+        21,
+        319
+      ],
+      "primaryOriginalId": "os7-021",
+      "sourceStems": [
+        "哪兩種同步工具通常會導致忙碌等待（busy waiting）？",
+        "Which two synchronization tools typically lead to busy waiting?"
+      ]
+    },
+    {
+      "questionId": "os7-022",
+      "sourceRecords": [
+        22,
+        52,
+        85,
+        273
+      ],
+      "originalQuestionIds": [
+        "os7-022",
+        "os7-052",
+        "os7-085",
+        "os7-273"
+      ],
+      "reviewedGroups": [
+        22,
+        273
+      ],
+      "primaryOriginalId": "os7-273",
+      "sourceStems": [
+        "When does the compare_and_swap instruction return a value different from the expected value?",
+        "compare_and_swap 指令在什麼情況下會返回與預期值不同的值？"
+      ]
+    },
+    {
+      "questionId": "os7-023",
+      "sourceRecords": [
+        23
+      ],
+      "originalQuestionIds": [
+        "os7-023"
+      ],
+      "reviewedGroups": [
+        23
+      ],
+      "primaryOriginalId": "os7-023",
+      "sourceStems": [
+        "Which is one of the solutions to the Dining Philosophers Problem?"
+      ]
+    },
+    {
+      "questionId": "os7-024",
+      "sourceRecords": [
+        24,
+        44,
+        114,
+        256
+      ],
+      "originalQuestionIds": [
+        "os7-024",
+        "os7-044",
+        "os7-114",
+        "os7-256"
+      ],
+      "reviewedGroups": [
+        24,
+        44
+      ],
+      "primaryOriginalId": "os7-024",
+      "sourceStems": [
+        "信號（Semaphore）的 wait() 和 signal() 操作必須是不可分割的（indivisible），這是為了什麼？",
+        "The wait() and signal() operations of a semaphore must be indivisible. Why?"
+      ]
+    },
+    {
+      "questionId": "os7-025",
+      "sourceRecords": [
+        25,
+        37,
+        79,
+        198,
+        241
+      ],
+      "originalQuestionIds": [
+        "os7-025",
+        "os7-037",
+        "os7-079",
+        "os7-198",
+        "os7-241"
+      ],
+      "reviewedGroups": [
+        25,
+        198
+      ],
+      "primaryOriginalId": "os7-025",
+      "sourceStems": [
+        "在一個非搶佔式核心（non-preemptive kernel）中，臨界區的問題會變得如何？",
+        "In a non-preemptive kernel, what happens to the critical-section problem?"
+      ]
+    },
+    {
+      "questionId": "os7-026",
+      "sourceRecords": [
+        26,
+        123,
+        269,
+        389
+      ],
+      "originalQuestionIds": [
+        "os7-026",
+        "os7-123",
+        "os7-269",
+        "os7-389"
+      ],
+      "reviewedGroups": [
+        26,
+        123
+      ],
+      "primaryOriginalId": "os7-026",
+      "sourceStems": [
+        "signal(mutex) 和 signal(full) 都是在有界緩衝區問題的哪一個程序中使用的？",
+        "signal(mutex) and signal(full) are both used in which process of the Bounded-Buffer Problem?"
+      ]
+    },
+    {
+      "questionId": "os7-027",
+      "sourceRecords": [
+        27,
+        178,
+        202,
+        301
+      ],
+      "originalQuestionIds": [
+        "os7-027",
+        "os7-301"
+      ],
+      "reviewedGroups": [
+        27,
+        301
+      ],
+      "primaryOriginalId": "os7-027",
+      "sourceStems": [
+        "解決臨界區問題的軟體解決方案之一是 _________ 。（請用小寫英文回答 字母間留一個空白）",
+        "One of the software solutions to the critical-section problem is _________ .(Please answer in lowercase English, leaving a space between each word)"
+      ]
+    },
+    {
+      "questionId": "os7-028",
+      "sourceRecords": [
+        28,
+        98,
+        170,
+        210,
+        359
+      ],
+      "originalQuestionIds": [
+        "os7-028",
+        "os7-098"
+      ],
+      "reviewedGroups": [
+        28,
+        98
+      ],
+      "primaryOriginalId": "os7-028",
+      "sourceStems": [
+        "功能性程式設計語言的變數是 _________ 的，這意味著它們一旦被賦值就不能改變狀態。（請用小寫英文回答）",
+        "Variables in functional programming languages are _________ , which means they cannot change state once they have been assigned a value.(Please answer in lowercase English)"
+      ]
+    },
+    {
+      "questionId": "os7-029",
+      "sourceRecords": [
+        29,
+        108,
+        308
+      ],
+      "originalQuestionIds": [
+        "os7-029",
+        "os7-108"
+      ],
+      "reviewedGroups": [
+        29,
+        108
+      ],
+      "primaryOriginalId": "os7-029",
+      "sourceStems": [
+        "在無忙碌等待的信號量實施中，block() 操作會將調用它的程序放入一個適當的 _________ 佇列。（請用小寫英文回答）",
+        "In a semaphore implementation with no busy waiting, the block() operation places the process invoking the operation on the appropriate _________ queue.(Please answer in lowercase English)"
+      ]
+    },
+    {
+      "questionId": "os7-030",
+      "sourceRecords": [
+        30,
+        74,
+        174,
+        228
+      ],
+      "originalQuestionIds": [
+        "os7-030",
+        "os7-074"
+      ],
+      "reviewedGroups": [
+        30,
+        74
+      ],
+      "primaryOriginalId": "os7-074",
+      "sourceStems": [
+        "The critical section is a _________ of code in a process that changes common variables, updates tables, or writes to a file.(Please answer in lowercase English)",
+        "臨界區是程序中改變共同變數、更新表格或寫入檔案的 _________ 段程式碼。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-031",
+      "sourceRecords": [
+        31,
+        276,
+        313
+      ],
+      "originalQuestionIds": [
+        "os7-031",
+        "os7-276",
+        "os7-313"
+      ],
+      "reviewedGroups": [
+        31,
+        276
+      ],
+      "primaryOriginalId": "os7-276",
+      "sourceStems": [
+        "Which is one of the three basic requirements for solving the critical-section problem?",
+        "哪一項是解決臨界區問題的三個基本要求之一？"
+      ]
+    },
+    {
+      "questionId": "os7-033",
+      "sourceRecords": [
+        33,
+        113,
+        190,
+        262,
+        290,
+        340
+      ],
+      "originalQuestionIds": [
+        "os7-033",
+        "os7-113",
+        "os7-190",
+        "os7-262",
+        "os7-290",
+        "os7-340"
+      ],
+      "reviewedGroups": [
+        33,
+        113
+      ],
+      "primaryOriginalId": "os7-113",
+      "sourceStems": [
+        "In the Bounded-Buffer Problem, which semaphores are initialized to a non-zero value?",
+        "在有界緩衝區問題中，哪些信號量被初始化為非零值？"
+      ]
+    },
+    {
+      "questionId": "os7-035",
+      "sourceRecords": [
+        35,
+        142,
+        275,
+        312
+      ],
+      "originalQuestionIds": [
+        "os7-035",
+        "os7-142",
+        "os7-275"
+      ],
+      "reviewedGroups": [
+        35,
+        142
+      ],
+      "primaryOriginalId": "os7-142",
+      "sourceStems": [
+        "What are the ways to solve the priority inversion problem?",
+        "解決優先權反轉（priority inversion）問題的方法有哪些？"
+      ]
+    },
+    {
+      "questionId": "os7-038",
+      "sourceRecords": [
+        38,
+        270,
+        367
+      ],
+      "originalQuestionIds": [
+        "os7-038",
+        "os7-270",
+        "os7-367"
+      ],
+      "reviewedGroups": [
+        38,
+        367
+      ],
+      "primaryOriginalId": "os7-038",
+      "sourceStems": [
+        "在Reader-Writer問題的解決方案中，哪些Semaphores被使用？",
+        "In the solution to the Readers-Writers Problem, which semaphores are used?"
+      ]
+    },
+    {
+      "questionId": "os7-040",
+      "sourceRecords": [
+        40,
+        101,
+        251
+      ],
+      "originalQuestionIds": [
+        "os7-040",
+        "os7-101",
+        "os7-251"
+      ],
+      "reviewedGroups": [
+        40,
+        101
+      ],
+      "primaryOriginalId": "os7-040",
+      "sourceStems": [
+        "在 Peterson's Solution 中，兩個共享變數分別是什麼？",
+        "In Peterson's Solution, what are the two shared variables?"
+      ]
+    },
+    {
+      "questionId": "os7-042",
+      "sourceRecords": [
+        42,
+        136,
+        352,
+        383
+      ],
+      "originalQuestionIds": [
+        "os7-042",
+        "os7-352"
+      ],
+      "reviewedGroups": [
+        42,
+        352
+      ],
+      "primaryOriginalId": "os7-042",
+      "sourceStems": [
+        "在test_and_set 指令中，*target 的新值總是會被設定為 _________ 。（請用數字回答）",
+        "In the test_and_set instruction, the new value of *target is always set to _________ .(Please answer in Number)"
+      ]
+    },
+    {
+      "questionId": "os7-043",
+      "sourceRecords": [
+        43,
+        112,
+        344
+      ],
+      "originalQuestionIds": [
+        "os7-043",
+        "os7-112"
+      ],
+      "reviewedGroups": [
+        43,
+        112
+      ],
+      "primaryOriginalId": "os7-112",
+      "sourceStems": [
+        "A monitor solution to the dining philosophers problem, while deadlock-free, may lead to _________ .(Please answer in lowercase English)",
+        "哲學家進餐問題的一個監視器解決方案，雖然沒有死鎖，但可能會導致 _________ 。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-046",
+      "sourceRecords": [
+        46,
+        355
+      ],
+      "originalQuestionIds": [
+        "os7-046",
+        "os7-355"
+      ],
+      "reviewedGroups": [
+        46
+      ],
+      "primaryOriginalId": "os7-046",
+      "sourceStems": [
+        "Which algorithm is one of the software solutions to the critical-section problem?"
+      ]
+    },
+    {
+      "questionId": "os7-047",
+      "sourceRecords": [
+        47,
+        252,
+        372
+      ],
+      "originalQuestionIds": [
+        "os7-047"
+      ],
+      "reviewedGroups": [
+        47
+      ],
+      "primaryOriginalId": "os7-047",
+      "sourceStems": [
+        "在 Linux 中， _________ 是一種混合的同步機制，它在使用者空間和核心之間提供高效的互斥。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-048",
+      "sourceRecords": [
+        48
+      ],
+      "originalQuestionIds": [
+        "os7-048"
+      ],
+      "reviewedGroups": [
+        48
+      ],
+      "primaryOriginalId": "os7-048",
+      "sourceStems": [
+        "Windows 排程器使用了 dispatcher 物件，例如 mutexes、semaphores 和 _________ 來進行同步。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-049",
+      "sourceRecords": [
+        49,
+        373
+      ],
+      "originalQuestionIds": [
+        "os7-049",
+        "os7-373"
+      ],
+      "reviewedGroups": [
+        49
+      ],
+      "primaryOriginalId": "os7-049",
+      "sourceStems": [
+        "在 Java 中，哪一個關鍵字可以用來確保方法或程式碼區塊的原子性？"
+      ]
+    },
+    {
+      "questionId": "os7-050",
+      "sourceRecords": [
+        50,
+        148,
+        261,
+        286
+      ],
+      "originalQuestionIds": [
+        "os7-050"
+      ],
+      "reviewedGroups": [
+        50
+      ],
+      "primaryOriginalId": "os7-050",
+      "sourceStems": [
+        "哲學家進餐問題的一個簡單信號量解決方案可能導致 _________ 。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-051",
+      "sourceRecords": [
+        51,
+        194,
+        329
+      ],
+      "originalQuestionIds": [
+        "os7-051",
+        "os7-194"
+      ],
+      "reviewedGroups": [
+        51,
+        194
+      ],
+      "primaryOriginalId": "os7-194",
+      "sourceStems": [
+        "Peterson's Solution is a _________ solution to the critical-section problem for two processes.(Please answer in lowercase English)",
+        "Peterson's Solution 是一種針對兩個程序解決臨界區問題的 _________ 解決方案。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-053",
+      "sourceRecords": [
+        53
+      ],
+      "originalQuestionIds": [
+        "os7-053"
+      ],
+      "reviewedGroups": [
+        53
+      ],
+      "primaryOriginalId": "os7-053",
+      "sourceStems": [
+        "wait(full) 和 signal(empty) 是在有界緩衝區問題的哪一個程序中使用的？"
+      ]
+    },
+    {
+      "questionId": "os7-054",
+      "sourceRecords": [
+        54,
+        88,
+        115,
+        150,
+        184,
+        235,
+        293
+      ],
+      "originalQuestionIds": [
+        "os7-054",
+        "os7-088",
+        "os7-115",
+        "os7-150",
+        "os7-184",
+        "os7-235",
+        "os7-293"
+      ],
+      "reviewedGroups": [
+        54,
+        150
+      ],
+      "primaryOriginalId": "os7-054",
+      "sourceStems": [
+        "一個二元信號（binary semaphore）的值只能在什麼範圍內變動？",
+        "A binary semaphore's value can only range between what values?"
+      ]
+    },
+    {
+      "questionId": "os7-055",
+      "sourceRecords": [
+        55,
+        89,
+        146,
+        211,
+        263
+      ],
+      "originalQuestionIds": [
+        "os7-055",
+        "os7-263"
+      ],
+      "reviewedGroups": [
+        55,
+        263
+      ],
+      "primaryOriginalId": "os7-055",
+      "sourceStems": [
+        "一個二元信號量的值只能在 _________ 和 _________ 之間變化。（數字請用\"\"包起來 如\"9\"）",
+        "The value of a binary semaphore can only range between _________ and _________ .(Please enclose numbers in quotation marks, e.g., \"9\")"
+      ]
+    },
+    {
+      "questionId": "os7-056",
+      "sourceRecords": [
+        56
+      ],
+      "originalQuestionIds": [
+        "os7-056"
+      ],
+      "reviewedGroups": [
+        56
+      ],
+      "primaryOriginalId": "os7-056",
+      "sourceStems": [
+        "哲學家進餐問題（Dining-Philosophers Problem）是用來測試什麼的經典同步問題？"
+      ]
+    },
+    {
+      "questionId": "os7-058",
+      "sourceRecords": [
+        58
+      ],
+      "originalQuestionIds": [
+        "os7-058"
+      ],
+      "reviewedGroups": [
+        58
+      ],
+      "primaryOriginalId": "os7-058",
+      "sourceStems": [
+        "在 Peterson's Solution 中，哪個變數用來指示一個程序是否準備好進入臨界區？"
+      ]
+    },
+    {
+      "questionId": "os7-059",
+      "sourceRecords": [
+        59,
+        92,
+        152,
+        195,
+        337,
+        362
+      ],
+      "originalQuestionIds": [
+        "os7-059",
+        "os7-195"
+      ],
+      "reviewedGroups": [
+        59,
+        195
+      ],
+      "primaryOriginalId": "os7-195",
+      "sourceStems": [
+        "Process execution consists of a cycle of CPU execution and _________ waiting.(Please answer in lowercase English)",
+        "程序的執行由一個CPU執行和一個 _________ 等待的週期組成。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-060",
+      "sourceRecords": [
+        60,
+        138,
+        159,
+        221,
+        336
+      ],
+      "originalQuestionIds": [
+        "os7-060",
+        "os7-138"
+      ],
+      "reviewedGroups": [
+        60,
+        138
+      ],
+      "primaryOriginalId": "os7-138",
+      "sourceStems": [
+        "The signal(empty) operation is used in the _________ process of the Bounded-Buffer Problem.(Please answer in lowercase English)",
+        "signal(empty) 是在有界緩衝區問題的 _________ 程序中使用的。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-061",
+      "sourceRecords": [
+        61,
+        167
+      ],
+      "originalQuestionIds": [
+        "os7-061",
+        "os7-167"
+      ],
+      "reviewedGroups": [
+        61
+      ],
+      "primaryOriginalId": "os7-061",
+      "sourceStems": [
+        "關於「餓死」（starvation），以下哪些陳述是正確的？"
+      ]
+    },
+    {
+      "questionId": "os7-062",
+      "sourceRecords": [
+        62,
+        165,
+        216,
+        320
+      ],
+      "originalQuestionIds": [
+        "os7-062",
+        "os7-216"
+      ],
+      "reviewedGroups": [
+        62,
+        216
+      ],
+      "primaryOriginalId": "os7-216",
+      "sourceStems": [
+        "Pthreads provides an API for synchronization, including mutexes and _________ .(Please answer in lowercase English)",
+        "Pthreads 提供了用於同步的 API，包括互斥鎖和 _________ 。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-063",
+      "sourceRecords": [
+        63
+      ],
+      "originalQuestionIds": [
+        "os7-063"
+      ],
+      "reviewedGroups": [
+        63
+      ],
+      "primaryOriginalId": "os7-063",
+      "sourceStems": [
+        "Which situations can lead to a deadlock?"
+      ]
+    },
+    {
+      "questionId": "os7-064",
+      "sourceRecords": [
+        64
+      ],
+      "originalQuestionIds": [
+        "os7-064"
+      ],
+      "reviewedGroups": [
+        64
+      ],
+      "primaryOriginalId": "os7-064",
+      "sourceStems": [
+        "哪種硬體指令可以原子地（atomically）測試一個記憶體字並設定其值？"
+      ]
+    },
+    {
+      "questionId": "os7-065",
+      "sourceRecords": [
+        65,
+        279
+      ],
+      "originalQuestionIds": [
+        "os7-065",
+        "os7-279"
+      ],
+      "reviewedGroups": [
+        65,
+        279
+      ],
+      "primaryOriginalId": "os7-279",
+      "sourceStems": [
+        "A _________ is a competitive situation that can result in data inconsistency and occurs when multiple processes access and manipulate shared data at the same time.(Please answer in lowercase English, leaving a space between each word)",
+        "_________ 是一種可能導致資料不一致的競爭情況，它發生在多個程序同時存取和操作共享資料時。（請用小寫英文回答 字母間留一個空白）"
+      ]
+    },
+    {
+      "questionId": "os7-066",
+      "sourceRecords": [
+        66,
+        95,
+        145,
+        214,
+        258
+      ],
+      "originalQuestionIds": [
+        "os7-066",
+        "os7-095"
+      ],
+      "reviewedGroups": [
+        66,
+        95
+      ],
+      "primaryOriginalId": "os7-095",
+      "sourceStems": [
+        "One way to implement a semaphore is to use a _________ queue where each entry contains a value and a pointer to the next record in the list.(Please answer in lowercase English)",
+        "信號量實施的一種方式是使用一個 _________ 佇列，其中每個項目包含一個值和一個指向列表中下一個記錄的指標。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-067",
+      "sourceRecords": [
+        67,
+        260,
+        370
+      ],
+      "originalQuestionIds": [
+        "os7-067",
+        "os7-260",
+        "os7-370"
+      ],
+      "reviewedGroups": [
+        67,
+        260
+      ],
+      "primaryOriginalId": "os7-260",
+      "sourceStems": [
+        "In Peterson's Solution, what is the purpose of the turn variable and flag array?",
+        "在 Peterson's Solution 中，turn 變數和 flag 陣列有什麼用途？"
+      ]
+    },
+    {
+      "questionId": "os7-068",
+      "sourceRecords": [
+        68,
+        118
+      ],
+      "originalQuestionIds": [
+        "os7-068"
+      ],
+      "reviewedGroups": [
+        68
+      ],
+      "primaryOriginalId": "os7-068",
+      "sourceStems": [
+        "_________ 要求，如果沒有程序在臨界區內執行，且有些程序希望進入，那麼選擇下一個進入臨界區的程序不能被無限期推遲。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-069",
+      "sourceRecords": [
+        69,
+        326,
+        380
+      ],
+      "originalQuestionIds": [
+        "os7-069",
+        "os7-326",
+        "os7-380"
+      ],
+      "reviewedGroups": [
+        69,
+        380
+      ],
+      "primaryOriginalId": "os7-069",
+      "sourceStems": [
+        "哪些陳述是關於「競爭條件」（race condition）的？",
+        "Which statements are about a \"race condition\"?"
+      ]
+    },
+    {
+      "questionId": "os7-070",
+      "sourceRecords": [
+        70,
+        154,
+        244,
+        361
+      ],
+      "originalQuestionIds": [
+        "os7-070",
+        "os7-154",
+        "os7-244"
+      ],
+      "reviewedGroups": [
+        70,
+        244
+      ],
+      "primaryOriginalId": "os7-070",
+      "sourceStems": [
+        "哪種同步工具提供了 wait() 和 signal() 操作？",
+        "Which synchronization tools provide wait() and signal() operations?"
+      ]
+    },
+    {
+      "questionId": "os7-071",
+      "sourceRecords": [
+        71,
+        299
+      ],
+      "originalQuestionIds": [
+        "os7-071",
+        "os7-299"
+      ],
+      "reviewedGroups": [
+        71,
+        299
+      ],
+      "primaryOriginalId": "os7-071",
+      "sourceStems": [
+        "Bounded-buffer problem（有界緩衝區問題）中，mutex semaphore的初始值是多少？",
+        "In the Bounded-buffer problem, what is the initial value of the mutex semaphore?"
+      ]
+    },
+    {
+      "questionId": "os7-072",
+      "sourceRecords": [
+        72,
+        102,
+        185
+      ],
+      "originalQuestionIds": [
+        "os7-072",
+        "os7-102",
+        "os7-185"
+      ],
+      "reviewedGroups": [
+        72,
+        185
+      ],
+      "primaryOriginalId": "os7-185",
+      "sourceStems": [
+        "Regarding Monitors, which of the following statements are correct?",
+        "關於監視器（Monitors），以下哪些陳述是正確的？"
+      ]
+    },
+    {
+      "questionId": "os7-073",
+      "sourceRecords": [
+        73,
+        330,
+        347,
+        388
+      ],
+      "originalQuestionIds": [
+        "os7-073",
+        "os7-347"
+      ],
+      "reviewedGroups": [
+        73,
+        347
+      ],
+      "primaryOriginalId": "os7-347",
+      "sourceStems": [
+        "In a non-preemptive kernel, the critical-section problem does not occur because a process will run until it _________ or _________ .(Please answer in lowercase English, leaving a space between each word)",
+        "在非搶佔式核心中，由於程序會執行直到它 _________ 或 _________ ，所以臨界區問題不會發生。（請用小寫英文回答 字母間留一個空白）"
+      ]
+    },
+    {
+      "questionId": "os7-075",
+      "sourceRecords": [
+        75,
+        105,
+        204,
+        338
+      ],
+      "originalQuestionIds": [
+        "os7-075",
+        "os7-105"
+      ],
+      "reviewedGroups": [
+        75,
+        105
+      ],
+      "primaryOriginalId": "os7-075",
+      "sourceStems": [
+        "acquire() 和 release() 都是在哪些同步工具中使用的操作？",
+        "acquire() and release() are operations used in which synchronization tools?"
+      ]
+    },
+    {
+      "questionId": "os7-076",
+      "sourceRecords": [
+        76,
+        317
+      ],
+      "originalQuestionIds": [
+        "os7-076",
+        "os7-317"
+      ],
+      "reviewedGroups": [
+        76,
+        317
+      ],
+      "primaryOriginalId": "os7-076",
+      "sourceStems": [
+        "信號量是一種同步工具，它提供了比互斥鎖更 _________ 的方式來同步程序的活動。（請用小寫英文回答）",
+        "A semaphore is a synchronization tool that provides more _________ ways than mutex locks for processes to synchronize their activities.(Please answer in lowercase English)"
+      ]
+    },
+    {
+      "questionId": "os7-078",
+      "sourceRecords": [
+        78
+      ],
+      "originalQuestionIds": [
+        "os7-078"
+      ],
+      "reviewedGroups": [
+        78
+      ],
+      "primaryOriginalId": "os7-078",
+      "sourceStems": [
+        "In the Bounded-Buffer Problem, which semaphore does the consumer wait on?"
+      ]
+    },
+    {
+      "questionId": "os7-080",
+      "sourceRecords": [
+        80,
+        277,
+        327,
+        333,
+        387
+      ],
+      "originalQuestionIds": [
+        "os7-080",
+        "os7-277",
+        "os7-327",
+        "os7-333"
+      ],
+      "reviewedGroups": [
+        80,
+        277
+      ],
+      "primaryOriginalId": "os7-080",
+      "sourceStems": [
+        "在Reader-Writer問題的解決方案中，read_count 變數的作用是什麼？",
+        "In the solution to the Readers-Writers Problem, what is the purpose of the read_count variable?"
+      ]
+    },
+    {
+      "questionId": "os7-081",
+      "sourceRecords": [
+        81,
+        106,
+        196,
+        238,
+        245,
+        316,
+        343
+      ],
+      "originalQuestionIds": [
+        "os7-081",
+        "os7-106"
+      ],
+      "reviewedGroups": [
+        81,
+        106
+      ],
+      "primaryOriginalId": "os7-106",
+      "sourceStems": [
+        "When a process calls wait(mutex) and the lock is not available, it enters _________ waiting.(Please answer in lowercase English)",
+        "當一個程序調用 wait(mutex) 且鎖不可用時，它會進入 _________ 等待。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-082",
+      "sourceRecords": [
+        82
+      ],
+      "originalQuestionIds": [
+        "os7-082"
+      ],
+      "reviewedGroups": [
+        82
+      ],
+      "primaryOriginalId": "os7-082",
+      "sourceStems": [
+        "在有界緩衝區問題（Bounded-Buffer Problem）中，wait() 操作用於哪些信號量？"
+      ]
+    },
+    {
+      "questionId": "os7-083",
+      "sourceRecords": [
+        83,
+        121,
+        171,
+        255,
+        364
+      ],
+      "originalQuestionIds": [
+        "os7-083",
+        "os7-121",
+        "os7-171",
+        "os7-255",
+        "os7-364"
+      ],
+      "reviewedGroups": [
+        83,
+        121
+      ],
+      "primaryOriginalId": "os7-083",
+      "sourceStems": [
+        "wait(empty) 和 wait(mutex) 都是在有界緩衝區問題的哪一個程序中使用的？",
+        "wait(empty) and wait(mutex) are both used in which process of the Bounded-Buffer Problem?"
+      ]
+    },
+    {
+      "questionId": "os7-084",
+      "sourceRecords": [
+        84,
+        133,
+        369
+      ],
+      "originalQuestionIds": [
+        "os7-084"
+      ],
+      "reviewedGroups": [
+        84
+      ],
+      "primaryOriginalId": "os7-084",
+      "sourceStems": [
+        "acquire() 和 release() 操作必須是 _________ 的，以避免競爭條件。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-086",
+      "sourceRecords": [
+        86,
+        322
+      ],
+      "originalQuestionIds": [
+        "os7-086",
+        "os7-322"
+      ],
+      "reviewedGroups": [
+        86,
+        322
+      ],
+      "primaryOriginalId": "os7-322",
+      "sourceStems": [
+        "Which problem describes a scheduling issue where a high-priority process cannot run because a lower-priority process holds a required lock?",
+        "哪一種問題描述了當低優先權程序持有所需的鎖定時，高優先權程序無法執行的排程問題？"
+      ]
+    },
+    {
+      "questionId": "os7-087",
+      "sourceRecords": [
+        87
+      ],
+      "originalQuestionIds": [
+        "os7-087"
+      ],
+      "reviewedGroups": [
+        87
+      ],
+      "primaryOriginalId": "os7-087",
+      "sourceStems": [
+        "Solaris 的同步機制，例如自適應互斥鎖，主要是為了解決什麼問題？"
+      ]
+    },
+    {
+      "questionId": "os7-090",
+      "sourceRecords": [
+        90,
+        135,
+        266,
+        292,
+        351,
+        386
+      ],
+      "originalQuestionIds": [
+        "os7-090",
+        "os7-135",
+        "os7-266",
+        "os7-292",
+        "os7-351",
+        "os7-386"
+      ],
+      "reviewedGroups": [
+        90,
+        135
+      ],
+      "primaryOriginalId": "os7-090",
+      "sourceStems": [
+        "在哲學家進餐問題的解決方案中，為了避免死鎖，可以採取哪些方法？",
+        "In the solution to the Dining Philosophers Problem, which methods can be adopted to prevent deadlock?"
+      ]
+    },
+    {
+      "questionId": "os7-091",
+      "sourceRecords": [
+        91,
+        125,
+        331
+      ],
+      "originalQuestionIds": [
+        "os7-091",
+        "os7-125",
+        "os7-331"
+      ],
+      "reviewedGroups": [
+        91,
+        331
+      ],
+      "primaryOriginalId": "os7-091",
+      "sourceStems": [
+        "下列哪種情況不會導致競爭條件（race condition）？",
+        "Which of the following situations will NOT result in a race condition?"
+      ]
+    },
+    {
+      "questionId": "os7-093",
+      "sourceRecords": [
+        93
+      ],
+      "originalQuestionIds": [
+        "os7-093"
+      ],
+      "reviewedGroups": [
+        93
+      ],
+      "primaryOriginalId": "os7-093",
+      "sourceStems": [
+        "關於 test_and_set() 指令，以下哪些陳述是正確的？"
+      ]
+    },
+    {
+      "questionId": "os7-094",
+      "sourceRecords": [
+        94,
+        144,
+        207,
+        229
+      ],
+      "originalQuestionIds": [
+        "os7-094",
+        "os7-144",
+        "os7-207",
+        "os7-229"
+      ],
+      "reviewedGroups": [
+        94,
+        144
+      ],
+      "primaryOriginalId": "os7-094",
+      "sourceStems": [
+        "在哲學家進餐問題的Semaphore解決方案中，每個哲學家需要取得幾根筷子才能開始進食？",
+        "In the semaphore solution to the Dining Philosophers Problem, how many chopsticks does each philosopher need to pick up to start eating?"
+      ]
+    },
+    {
+      "questionId": "os7-096",
+      "sourceRecords": [
+        96
+      ],
+      "originalQuestionIds": [
+        "os7-096"
+      ],
+      "reviewedGroups": [
+        96
+      ],
+      "primaryOriginalId": "os7-096",
+      "sourceStems": [
+        "Solaris 作業系統中的自適應互斥鎖（adaptive mutex）在什麼情況下會從忙碌等待轉換為阻塞？"
+      ]
+    },
+    {
+      "questionId": "os7-097",
+      "sourceRecords": [
+        97,
+        139,
+        157,
+        302
+      ],
+      "originalQuestionIds": [
+        "os7-097",
+        "os7-139",
+        "os7-157",
+        "os7-302"
+      ],
+      "reviewedGroups": [
+        97,
+        157
+      ],
+      "primaryOriginalId": "os7-097",
+      "sourceStems": [
+        "哪幾種同步工具可以透過忙碌等待（busy waiting）或阻塞（blocking）來實現？",
+        "Which synchronization tools can be implemented with either busy waiting or blocking?"
+      ]
+    },
+    {
+      "questionId": "os7-103",
+      "sourceRecords": [
+        103,
+        164,
+        223,
+        295
+      ],
+      "originalQuestionIds": [
+        "os7-103",
+        "os7-164",
+        "os7-223",
+        "os7-295"
+      ],
+      "reviewedGroups": [
+        103,
+        223
+      ],
+      "primaryOriginalId": "os7-103",
+      "sourceStems": [
+        "哪些是解決同步問題的替代方法？",
+        "Which are alternative approaches to solving synchronization problems?"
+      ]
+    },
+    {
+      "questionId": "os7-104",
+      "sourceRecords": [
+        104,
+        259
+      ],
+      "originalQuestionIds": [
+        "os7-104",
+        "os7-259"
+      ],
+      "reviewedGroups": [
+        104,
+        259
+      ],
+      "primaryOriginalId": "os7-104",
+      "sourceStems": [
+        "Reader-Writer問題的解決方案可能會有什麼問題？",
+        "Reader-Writer問題的解決方案可能會影響什麼問題？"
+      ]
+    },
+    {
+      "questionId": "os7-107",
+      "sourceRecords": [
+        107,
+        271
+      ],
+      "originalQuestionIds": [
+        "os7-107"
+      ],
+      "reviewedGroups": [
+        107
+      ],
+      "primaryOriginalId": "os7-107",
+      "sourceStems": [
+        "事務記憶體（Transactional Memory）中的讀寫操作序列會以 _________ 方式執行。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-109",
+      "sourceRecords": [
+        109,
+        193,
+        297,
+        365
+      ],
+      "originalQuestionIds": [
+        "os7-109",
+        "os7-365"
+      ],
+      "reviewedGroups": [
+        109,
+        365
+      ],
+      "primaryOriginalId": "os7-109",
+      "sourceStems": [
+        "監視器中的條件變數（condition variable）允許程序在滿足特定 _________ 之前暫停執行。（請用小寫英文回答）",
+        "A condition variable in a monitor allows a process to suspend its execution until a specific _________ is met.(Please answer in lowercase English)"
+      ]
+    },
+    {
+      "questionId": "os7-111",
+      "sourceRecords": [
+        111,
+        246,
+        390
+      ],
+      "originalQuestionIds": [
+        "os7-111",
+        "os7-246",
+        "os7-390"
+      ],
+      "reviewedGroups": [
+        111,
+        390
+      ],
+      "primaryOriginalId": "os7-390",
+      "sourceStems": [
+        "The signal(full) operation is used in which process of the Bounded-Buffer Problem?",
+        "signal(full) 是在有界緩衝區問題的哪一個程序中使用的？"
+      ]
+    },
+    {
+      "questionId": "os7-116",
+      "sourceRecords": [
+        116,
+        192,
+        357
+      ],
+      "originalQuestionIds": [
+        "os7-116",
+        "os7-192",
+        "os7-357"
+      ],
+      "reviewedGroups": [
+        116,
+        192
+      ],
+      "primaryOriginalId": "os7-192",
+      "sourceStems": [
+        "Which synchronization mechanism is also known as a \"spinlock\"?",
+        "下列哪種同步工具屬於一種忙碌等待（busy waiting）的鎖定機制？"
+      ]
+    },
+    {
+      "questionId": "os7-117",
+      "sourceRecords": [
+        117,
+        283,
+        309
+      ],
+      "originalQuestionIds": [
+        "os7-117",
+        "os7-283",
+        "os7-309"
+      ],
+      "reviewedGroups": [
+        117,
+        283
+      ],
+      "primaryOriginalId": "os7-283",
+      "sourceStems": [
+        "What is the main purpose of a condition variable in a monitor?",
+        "監視器中的條件變數（condition variable）主要用於什麼目的？"
+      ]
+    },
+    {
+      "questionId": "os7-119",
+      "sourceRecords": [
+        119,
+        180,
+        225,
+        305,
+        356
+      ],
+      "originalQuestionIds": [
+        "os7-119",
+        "os7-180",
+        "os7-225",
+        "os7-305",
+        "os7-356"
+      ],
+      "reviewedGroups": [
+        119,
+        305
+      ],
+      "primaryOriginalId": "os7-305",
+      "sourceStems": [
+        "What are the three requirements for solving the critical-section problem?",
+        "解決臨界區問題的三個要求是什麼？"
+      ]
+    },
+    {
+      "questionId": "os7-120",
+      "sourceRecords": [
+        120,
+        324
+      ],
+      "originalQuestionIds": [
+        "os7-120",
+        "os7-324"
+      ],
+      "reviewedGroups": [
+        120,
+        324
+      ],
+      "primaryOriginalId": "os7-324",
+      "sourceStems": [
+        "Which synchronization mechanisms are implemented in the Solaris operating system?",
+        "哪些是 Solaris 作業系統中實施的同步機制？"
+      ]
+    },
+    {
+      "questionId": "os7-124",
+      "sourceRecords": [
+        124,
+        155,
+        368
+      ],
+      "originalQuestionIds": [
+        "os7-124",
+        "os7-368"
+      ],
+      "reviewedGroups": [
+        124,
+        368
+      ],
+      "primaryOriginalId": "os7-124",
+      "sourceStems": [
+        "在哲學家進餐問題的信號量解決方案中，每個哲學家會拿取編號為 i 和 (i + 1) % 5 的 _________ 。（請用小寫英文回答）",
+        "In the semaphore solution to the Dining Philosophers Problem, each philosopher picks up the _________ with indices i and (i + 1) % 5.(Please answer in lowercase English)"
+      ]
+    },
+    {
+      "questionId": "os7-126",
+      "sourceRecords": [
+        126,
+        200,
+        218
+      ],
+      "originalQuestionIds": [
+        "os7-126",
+        "os7-200",
+        "os7-218"
+      ],
+      "reviewedGroups": [
+        126,
+        200
+      ],
+      "primaryOriginalId": "os7-126",
+      "sourceStems": [
+        "哪些是作業系統中用來解決同步問題的經典範例？",
+        "Which are classic examples used to solve synchronization problems in operating systems?"
+      ]
+    },
+    {
+      "questionId": "os7-128",
+      "sourceRecords": [
+        128,
+        158,
+        237
+      ],
+      "originalQuestionIds": [
+        "os7-128",
+        "os7-158",
+        "os7-237"
+      ],
+      "reviewedGroups": [
+        128
+      ],
+      "primaryOriginalId": "os7-128",
+      "sourceStems": [
+        "在界限緩衝區問題（Bounded-Buffer Problem）中，empty 信號量的初始值是多少？"
+      ]
+    },
+    {
+      "questionId": "os7-129",
+      "sourceRecords": [
+        129
+      ],
+      "originalQuestionIds": [
+        "os7-129"
+      ],
+      "reviewedGroups": [
+        129
+      ],
+      "primaryOriginalId": "os7-129",
+      "sourceStems": [
+        "在Reader-Writer問題中，允許多個Reader同時存取共享資料集，但Writer則如何？"
+      ]
+    },
+    {
+      "questionId": "os7-132",
+      "sourceRecords": [
+        132,
+        182,
+        280,
+        335
+      ],
+      "originalQuestionIds": [
+        "os7-132",
+        "os7-182",
+        "os7-280",
+        "os7-335"
+      ],
+      "reviewedGroups": [
+        132,
+        182
+      ],
+      "primaryOriginalId": "os7-182",
+      "sourceStems": [
+        "Which type of programming language's variables are immutable, helping to avoid data races?",
+        "哪種程式設計語言的變數是不可變的（immutable），有助於避免資料競爭？"
+      ]
+    },
+    {
+      "questionId": "os7-134",
+      "sourceRecords": [
+        134,
+        156
+      ],
+      "originalQuestionIds": [
+        "os7-134"
+      ],
+      "reviewedGroups": [
+        134
+      ],
+      "primaryOriginalId": "os7-134",
+      "sourceStems": [
+        "互斥鎖（Mutex Lock）是一種保護臨界區的簡單工具，透過先 _________ 鎖然後 _________ 鎖來實現。（請用英文小寫回答）"
+      ]
+    },
+    {
+      "questionId": "os7-137",
+      "sourceRecords": [
+        137,
+        206
+      ],
+      "originalQuestionIds": [
+        "os7-137"
+      ],
+      "reviewedGroups": [
+        137
+      ],
+      "primaryOriginalId": "os7-137",
+      "sourceStems": [
+        "If process Pi is executing in its _________ , then no other processes can be executing in their _________ .(Please answer in lowercase English, leaving a space between each word)"
+      ]
+    },
+    {
+      "questionId": "os7-140",
+      "sourceRecords": [
+        140,
+        173,
+        375
+      ],
+      "originalQuestionIds": [
+        "os7-140",
+        "os7-173",
+        "os7-375"
+      ],
+      "reviewedGroups": [
+        140
+      ],
+      "primaryOriginalId": "os7-140",
+      "sourceStems": [
+        "compare_and_swap 硬體指令在什麼條件下才會進行交換？"
+      ]
+    },
+    {
+      "questionId": "os7-143",
+      "sourceRecords": [
+        143,
+        304
+      ],
+      "originalQuestionIds": [
+        "os7-143",
+        "os7-304"
+      ],
+      "reviewedGroups": [
+        143
+      ],
+      "primaryOriginalId": "os7-143",
+      "sourceStems": [
+        "When a process is executing in its critical section, no other process can be in its critical section. This describes which requirement for solving the critical-section problem?"
+      ]
+    },
+    {
+      "questionId": "os7-147",
+      "sourceRecords": [
+        147
+      ],
+      "originalQuestionIds": [
+        "os7-147"
+      ],
+      "reviewedGroups": [
+        147
+      ],
+      "primaryOriginalId": "os7-147",
+      "sourceStems": [
+        "The critical-section refers to which part of a process's code?"
+      ]
+    },
+    {
+      "questionId": "os7-149",
+      "sourceRecords": [
+        149,
+        191
+      ],
+      "originalQuestionIds": [
+        "os7-149",
+        "os7-191"
+      ],
+      "reviewedGroups": [
+        149
+      ],
+      "primaryOriginalId": "os7-149",
+      "sourceStems": [
+        "What are the two main operations of a condition variable in a monitor?"
+      ]
+    },
+    {
+      "questionId": "os7-160",
+      "sourceRecords": [
+        160,
+        349,
+        366
+      ],
+      "originalQuestionIds": [
+        "os7-160",
+        "os7-349"
+      ],
+      "reviewedGroups": [
+        160,
+        349
+      ],
+      "primaryOriginalId": "os7-160",
+      "sourceStems": [
+        "哲學家進餐問題中的共享資料集是 _________ 。（請用小寫英文回答 字母間留一個空白）",
+        "The shared dataset in the Dining-Philosophers Problem is the _________ .(Please answer in lowercase English, leaving a space between each word)"
+      ]
+    },
+    {
+      "questionId": "os7-161",
+      "sourceRecords": [
+        161
+      ],
+      "originalQuestionIds": [
+        "os7-161"
+      ],
+      "reviewedGroups": [
+        161
+      ],
+      "primaryOriginalId": "os7-161",
+      "sourceStems": [
+        "下列哪種機制確保只有一個程序可以同時在監視器（monitor）內活躍？"
+      ]
+    },
+    {
+      "questionId": "os7-162",
+      "sourceRecords": [
+        162,
+        222,
+        328,
+        376
+      ],
+      "originalQuestionIds": [
+        "os7-162",
+        "os7-222",
+        "os7-328",
+        "os7-376"
+      ],
+      "reviewedGroups": [
+        162,
+        222
+      ],
+      "primaryOriginalId": "os7-222",
+      "sourceStems": [
+        "When solving the Bounded-Buffer Problem with semaphores, which operation does the producer execute before adding an item to the buffer?",
+        "在使用semaphore解決 Bounded-Buffer Problem 時，生產者在將項目加入緩衝區前會執行哪一個操作？"
+      ]
+    },
+    {
+      "questionId": "os7-163",
+      "sourceRecords": [
+        163,
+        181,
+        267
+      ],
+      "originalQuestionIds": [
+        "os7-163",
+        "os7-181",
+        "os7-267"
+      ],
+      "reviewedGroups": [
+        163
+      ],
+      "primaryOriginalId": "os7-163",
+      "sourceStems": [
+        "在哲學家進餐問題中，共享的資料集是什麼？"
+      ]
+    },
+    {
+      "questionId": "os7-166",
+      "sourceRecords": [
+        166,
+        242
+      ],
+      "originalQuestionIds": [
+        "os7-166",
+        "os7-242"
+      ],
+      "reviewedGroups": [
+        166,
+        242
+      ],
+      "primaryOriginalId": "os7-242",
+      "sourceStems": [
+        "Which of the following are synchronization mechanisms defined in the POSIX standard?",
+        "哪些是 POSIX 標準中定義的同步機制？"
+      ]
+    },
+    {
+      "questionId": "os7-168",
+      "sourceRecords": [
+        168,
+        253
+      ],
+      "originalQuestionIds": [
+        "os7-168",
+        "os7-253"
+      ],
+      "reviewedGroups": [
+        168
+      ],
+      "primaryOriginalId": "os7-168",
+      "sourceStems": [
+        "What is the definition of the signal(S) operation?"
+      ]
+    },
+    {
+      "questionId": "os7-169",
+      "sourceRecords": [
+        169,
+        203
+      ],
+      "originalQuestionIds": [
+        "os7-169",
+        "os7-203"
+      ],
+      "reviewedGroups": [
+        169
+      ],
+      "primaryOriginalId": "os7-169",
+      "sourceStems": [
+        "Which of the following is not a classic synchronization problem in operating systems?"
+      ]
+    },
+    {
+      "questionId": "os7-172",
+      "sourceRecords": [
+        172,
+        354
+      ],
+      "originalQuestionIds": [
+        "os7-172",
+        "os7-354"
+      ],
+      "reviewedGroups": [
+        172
+      ],
+      "primaryOriginalId": "os7-172",
+      "sourceStems": [
+        "哪些是使用硬體原子指令實現的同步機制？"
+      ]
+    },
+    {
+      "questionId": "os7-175",
+      "sourceRecords": [
+        175,
+        334
+      ],
+      "originalQuestionIds": [
+        "os7-175",
+        "os7-334"
+      ],
+      "reviewedGroups": [
+        175,
+        334
+      ],
+      "primaryOriginalId": "os7-334",
+      "sourceStems": [
+        "What does the \"Progress\" requirement of the critical-section problem refer to?",
+        "臨界區問題的「進度」要求指的是什麼？"
+      ]
+    },
+    {
+      "questionId": "os7-176",
+      "sourceRecords": [
+        176,
+        208,
+        325
+      ],
+      "originalQuestionIds": [
+        "os7-176",
+        "os7-208"
+      ],
+      "reviewedGroups": [
+        176,
+        208
+      ],
+      "primaryOriginalId": "os7-176",
+      "sourceStems": [
+        "_________ 是一個高階的平行程式設計API，它使用編譯器指令來處理臨界區。（請用小寫英文回答）",
+        "_________ is a high-level parallel programming API that uses compiler directives to handle critical sections.(Please answer in lowercase English)"
+      ]
+    },
+    {
+      "questionId": "os7-177",
+      "sourceRecords": [
+        177,
+        360
+      ],
+      "originalQuestionIds": [
+        "os7-177",
+        "os7-360"
+      ],
+      "reviewedGroups": [
+        177,
+        360
+      ],
+      "primaryOriginalId": "os7-360",
+      "sourceStems": [
+        "The x.wait() operation in a monitor suspends a process until what happens?",
+        "監視器（Monitor）中的 x.wait() 操作會將程序掛起直到什麼情況發生？"
+      ]
+    },
+    {
+      "questionId": "os7-183",
+      "sourceRecords": [
+        183,
+        220
+      ],
+      "originalQuestionIds": [
+        "os7-183",
+        "os7-220"
+      ],
+      "reviewedGroups": [
+        183
+      ],
+      "primaryOriginalId": "os7-183",
+      "sourceStems": [
+        "Windows 核心的同步機制包括哪些？"
+      ]
+    },
+    {
+      "questionId": "os7-187",
+      "sourceRecords": [
+        187,
+        248
+      ],
+      "originalQuestionIds": [
+        "os7-187",
+        "os7-248"
+      ],
+      "reviewedGroups": [
+        187
+      ],
+      "primaryOriginalId": "os7-187",
+      "sourceStems": [
+        "關於信號量（Semaphore），以下哪些陳述是正確的？"
+      ]
+    },
+    {
+      "questionId": "os7-188",
+      "sourceRecords": [
+        188,
+        298,
+        377
+      ],
+      "originalQuestionIds": [
+        "os7-188",
+        "os7-298"
+      ],
+      "reviewedGroups": [
+        188,
+        298
+      ],
+      "primaryOriginalId": "os7-188",
+      "sourceStems": [
+        "wait(S) 操作的定義是 while (S <= 0) ; S--;，這是什麼類型的等待？ _________ （請用小寫英文回答 字母間留一個空白）",
+        "The definition of the wait(S) operation is while (S <= 0) ; S--; What type of waiting is this? _________ (Please answer in lowercase English, leaving a space between each word)"
+      ]
+    },
+    {
+      "questionId": "os7-197",
+      "sourceRecords": [
+        197,
+        294
+      ],
+      "originalQuestionIds": [
+        "os7-197",
+        "os7-294"
+      ],
+      "reviewedGroups": [
+        197,
+        294
+      ],
+      "primaryOriginalId": "os7-294",
+      "sourceStems": [
+        "Which two hardware instructions can be used to implement a critical section?",
+        "哪兩種硬體指令可用於實作臨界區？"
+      ]
+    },
+    {
+      "questionId": "os7-209",
+      "sourceRecords": [
+        209,
+        254,
+        379
+      ],
+      "originalQuestionIds": [
+        "os7-209",
+        "os7-254",
+        "os7-379"
+      ],
+      "reviewedGroups": [
+        209,
+        254
+      ],
+      "primaryOriginalId": "os7-209",
+      "sourceStems": [
+        "哲學家進餐問題的semaphore解決方案中，可能導致什麼問題？",
+        "The semaphore solution to the Dining Philosophers Problem can lead to what issue?"
+      ]
+    },
+    {
+      "questionId": "os7-215",
+      "sourceRecords": [
+        215,
+        268,
+        353
+      ],
+      "originalQuestionIds": [
+        "os7-215"
+      ],
+      "reviewedGroups": [
+        215
+      ],
+      "primaryOriginalId": "os7-215",
+      "sourceStems": [
+        "compare_and_swap 指令會原子地比較一個值和 _________ ，如果它們相等，則將該值設定為一個新值。（請用小寫英文回答 字母間留一個空白）"
+      ]
+    },
+    {
+      "questionId": "os7-217",
+      "sourceRecords": [
+        217,
+        243,
+        274,
+        339
+      ],
+      "originalQuestionIds": [
+        "os7-217",
+        "os7-243",
+        "os7-274",
+        "os7-339"
+      ],
+      "reviewedGroups": [
+        217,
+        243
+      ],
+      "primaryOriginalId": "os7-217",
+      "sourceStems": [
+        "Linux 的 futex 是一種什麼機制？",
+        "What kind of mechanism is Linux's futex?"
+      ]
+    },
+    {
+      "questionId": "os7-227",
+      "sourceRecords": [
+        227,
+        350,
+        382
+      ],
+      "originalQuestionIds": [
+        "os7-227",
+        "os7-382"
+      ],
+      "reviewedGroups": [
+        227
+      ],
+      "primaryOriginalId": "os7-227",
+      "sourceStems": [
+        "哪些是屬於作業系統核心的同步機制？"
+      ]
+    },
+    {
+      "questionId": "os7-231",
+      "sourceRecords": [
+        231,
+        384
+      ],
+      "originalQuestionIds": [
+        "os7-231",
+        "os7-384"
+      ],
+      "reviewedGroups": [
+        231
+      ],
+      "primaryOriginalId": "os7-231",
+      "sourceStems": [
+        "In a preemptive kernel, in which situations can a process be preempted?"
+      ]
+    },
+    {
+      "questionId": "os7-234",
+      "sourceRecords": [
+        234
+      ],
+      "originalQuestionIds": [
+        "os7-234"
+      ],
+      "reviewedGroups": [
+        234
+      ],
+      "primaryOriginalId": "os7-234",
+      "sourceStems": [
+        "關於無忙碌等待的信號量（Semaphore），以下哪些陳述是正確的？"
+      ]
+    },
+    {
+      "questionId": "os7-236",
+      "sourceRecords": [
+        236
+      ],
+      "originalQuestionIds": [
+        "os7-236"
+      ],
+      "reviewedGroups": [
+        236
+      ],
+      "primaryOriginalId": "os7-236",
+      "sourceStems": [
+        "signal(S) 的原子性是透過以下哪種方式實施的？"
+      ]
+    },
+    {
+      "questionId": "os7-249",
+      "sourceRecords": [
+        249
+      ],
+      "originalQuestionIds": [
+        "os7-249"
+      ],
+      "reviewedGroups": [
+        249
+      ],
+      "primaryOriginalId": "os7-249",
+      "sourceStems": [
+        "在有界緩衝區問題中，wait(empty) 和 wait(mutex) 都是在 _________ 程序中使用的。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-257",
+      "sourceRecords": [
+        257,
+        300
+      ],
+      "originalQuestionIds": [
+        "os7-257",
+        "os7-300"
+      ],
+      "reviewedGroups": [
+        257,
+        300
+      ],
+      "primaryOriginalId": "os7-300",
+      "sourceStems": [
+        "The volatile keyword in Java is used to ensure that read and write operations to a variable are not _________ .(Please answer in lowercase English)",
+        "volatile 關鍵字在 Java 中用於確保對變數的讀寫操作不會被 _________ 排序。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-265",
+      "sourceRecords": [
+        265,
+        284,
+        315,
+        358
+      ],
+      "originalQuestionIds": [
+        "os7-265",
+        "os7-284",
+        "os7-315",
+        "os7-358"
+      ],
+      "reviewedGroups": [
+        265,
+        315
+      ],
+      "primaryOriginalId": "os7-265",
+      "sourceStems": [
+        "哪些是 Peterson's Solution 的優點？",
+        "What are the advantages of Peterson's Solution?"
+      ]
+    },
+    {
+      "questionId": "os7-272",
+      "sourceRecords": [
+        272
+      ],
+      "originalQuestionIds": [
+        "os7-272"
+      ],
+      "reviewedGroups": [
+        272
+      ],
+      "primaryOriginalId": "os7-272",
+      "sourceStems": [
+        "Many systems provide hardware _________ for implementing critical section code.(Please answer in lowercase English)"
+      ]
+    },
+    {
+      "questionId": "os7-278",
+      "sourceRecords": [
+        278
+      ],
+      "originalQuestionIds": [
+        "os7-278"
+      ],
+      "reviewedGroups": [
+        278
+      ],
+      "primaryOriginalId": "os7-278",
+      "sourceStems": [
+        "A memory transaction is a sequence of read-write operations to memory that are performed in what way?"
+      ]
+    },
+    {
+      "questionId": "os7-281",
+      "sourceRecords": [
+        281
+      ],
+      "originalQuestionIds": [
+        "os7-281"
+      ],
+      "reviewedGroups": [
+        281
+      ],
+      "primaryOriginalId": "os7-281",
+      "sourceStems": [
+        "The wait() operation of a semaphore, when the semaphore value is less than or equal to zero, causes the process to enter what state?"
+      ]
+    },
+    {
+      "questionId": "os7-285",
+      "sourceRecords": [
+        285
+      ],
+      "originalQuestionIds": [
+        "os7-285"
+      ],
+      "reviewedGroups": [
+        285
+      ],
+      "primaryOriginalId": "os7-285",
+      "sourceStems": [
+        "在哲學家進餐問題的信號量解決方案中，每個哲學家在嘗試進食時會執行哪些 wait 操作？"
+      ]
+    },
+    {
+      "questionId": "os7-287",
+      "sourceRecords": [
+        287
+      ],
+      "originalQuestionIds": [
+        "os7-287"
+      ],
+      "reviewedGroups": [
+        287
+      ],
+      "primaryOriginalId": "os7-287",
+      "sourceStems": [
+        "In the solution to the Readers-Writers Problem, the read_count variable is used to track how many _________ are currently reading.(Please answer in lowercase English)"
+      ]
+    },
+    {
+      "questionId": "os7-291",
+      "sourceRecords": [
+        291
+      ],
+      "originalQuestionIds": [
+        "os7-291"
+      ],
+      "reviewedGroups": [
+        291
+      ],
+      "primaryOriginalId": "os7-291",
+      "sourceStems": [
+        "_________ 信號量的值可以是一個不受限制的整數。（請用小寫英文回答）"
+      ]
+    },
+    {
+      "questionId": "os7-303",
+      "sourceRecords": [
+        303
+      ],
+      "originalQuestionIds": [
+        "os7-303"
+      ],
+      "reviewedGroups": [
+        303
+      ],
+      "primaryOriginalId": "os7-303",
+      "sourceStems": [
+        "互斥鎖是信號量的一種特殊情況，其值只能是 _________ 或 _________ 。(數字請用\"\"包起來 如\"9\")"
+      ]
+    },
+    {
+      "questionId": "os7-318",
+      "sourceRecords": [
+        318
+      ],
+      "originalQuestionIds": [
+        "os7-318"
+      ],
+      "reviewedGroups": [
+        318
+      ],
+      "primaryOriginalId": "os7-318",
+      "sourceStems": [
+        "哪種同步工具被視為一種高階的抽象概念，提供便利且有效的程序同步機制？"
+      ]
+    },
+    {
+      "questionId": "os7-321",
+      "sourceRecords": [
+        321
+      ],
+      "originalQuestionIds": [
+        "os7-321"
+      ],
+      "reviewedGroups": [
+        321
+      ],
+      "primaryOriginalId": "os7-321",
+      "sourceStems": [
+        "Which of the following is a synchronization primitive used in the Windows kernel?"
+      ]
+    },
+    {
+      "questionId": "os7-332",
+      "sourceRecords": [
+        332,
+        374
+      ],
+      "originalQuestionIds": [
+        "os7-332",
+        "os7-374"
+      ],
+      "reviewedGroups": [
+        332
+      ],
+      "primaryOriginalId": "os7-332",
+      "sourceStems": [
+        "關於功能性程式設計語言，以下哪些陳述是正確的？"
+      ]
+    },
+    {
+      "questionId": "os7-345",
+      "sourceRecords": [
+        345
+      ],
+      "originalQuestionIds": [
+        "os7-345"
+      ],
+      "reviewedGroups": [
+        345
+      ],
+      "primaryOriginalId": "os7-345",
+      "sourceStems": [
+        "哪些機制在 Java 中用於同步？"
+      ]
+    },
+    {
+      "questionId": "os7-348",
+      "sourceRecords": [
+        348
+      ],
+      "originalQuestionIds": [
+        "os7-348"
+      ],
+      "reviewedGroups": [
+        348
+      ],
+      "primaryOriginalId": "os7-348",
+      "sourceStems": [
+        "哲學家進餐問題（Dining-Philosophers Problem）是用來測試什麼的經典同步問題？"
+      ]
+    },
+    {
+      "questionId": "os7-371",
+      "sourceRecords": [
+        371
+      ],
+      "originalQuestionIds": [
+        "os7-371"
+      ],
+      "reviewedGroups": [
+        371
+      ],
+      "primaryOriginalId": "os7-371",
+      "sourceStems": [
+        "A single writer can access the shared dataset, and when the writer is writing, no readers or writers are allowed to access it. Which synchronization problem does this describe?"
+      ]
+    }
+  ]
+}

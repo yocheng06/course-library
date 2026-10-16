@@ -36,21 +36,35 @@ const os = JSON.parse(
       /<script id="course-data" type="application\/json">([\s\S]*?)<\/script>/,
     )[1],
   );
-const entries = [];
+// Keep all reviewed source variants in the index, so a removed translation or
+// option order cannot be reintroduced as a new L7 question.
+const { questionKey } = await import("../worker/model.js");
+const entries = new Map();
+let displayedQuestions = 0;
 for (const [course, units] of [
   ["os", os],
   ["algorithms", algo],
 ])
   for (const unit of units)
-    for (const q of unit.questions)
-      entries.push({
-        course,
-        unit: unit.id,
-        stem: q.stem ?? q.q,
-        options: q.options ?? q.opts ?? [],
-      });
+    for (const q of unit.questions) {
+      displayedQuestions++;
+      const variants =
+        unit.id === "synchronization" ? [q, ...(q.sourceVariants || [])] : [q];
+      for (const variant of variants) {
+        const entry = {
+          course,
+          unit: unit.id,
+          stem: variant.stem ?? variant.q,
+          options: variant.options ?? variant.opts ?? [],
+          ...(unit.id === "synchronization" ? { canonicalId: q.id } : {}),
+        };
+        entries.set(questionKey(course, unit.id, entry), entry);
+      }
+    }
 await writeFile(
   resolve(root, "existing-questions.json"),
-  JSON.stringify(entries),
+  JSON.stringify([...entries.values()]),
 );
-console.log("Synchronized UI and existing-question index.");
+console.log(
+  `Synchronized ${displayedQuestions} displayed questions and ${entries.size} known source variants.`,
+);

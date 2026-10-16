@@ -946,7 +946,7 @@ test("answer matching keeps mathematics case-sensitive and supports explicit bil
   assert.equal(key("A,B", ["A. first", "B. second"]), "AB");
 });
 
-test("L7 accepts new submissions and recognizes all 322 built-in versions without collapsing option order", async () => {
+test("L7 merges option-order duplicates and recognizes every reviewed source version", async () => {
   const entries = JSON.parse(
     await readFile(
       new URL("../existing-questions.json", import.meta.url),
@@ -956,10 +956,10 @@ test("L7 accepts new submissions and recognizes all 322 built-in versions withou
   const l7 = entries.filter(
     (q) => q.course === "os" && q.unit === "synchronization",
   );
-  assert.equal(l7.length, 322);
+  assert.equal(new Set(l7.map((q) => q.canonicalId)).size, 137);
   assert.equal(
     new Set(l7.map((q) => questionKey(q.course, q.unit, q))).size,
-    322,
+    l7.length,
   );
   const env = await setup();
   const p = { ...payload(), unit: "synchronization" };
@@ -979,36 +979,49 @@ test("L7 accepts new submissions and recognizes all 322 built-in versions withou
     (await call(env, "/api/questions?course=os")).data.questions[0].unit,
     "synchronization",
   );
-  const seen = new Map();
-  let variants;
-  for (const q of l7) {
-    if (!q.options.length) continue;
-    const key = JSON.stringify([
-      q.stem,
-      q.options.map((o) => o.replace(/^[A-H]\. /, "")).sort(),
-    ]);
-    if (seen.has(key)) {
-      variants = [seen.get(key), q];
-      break;
-    }
-    seen.set(key, q);
-  }
-  assert(variants, "Expected retained option-order variants");
+  const known = l7.find((q) => q.options.length);
+  const reordered = {
+    ...known,
+    options: known.options
+      .map((o) => o.replace(/^[A-H]\. /, ""))
+      .reverse()
+      .map((o, i) => String.fromCharCode(65 + i) + ". " + o),
+  };
   const duplicateBatch = {
     ...p,
-    questions: variants.map((q) => ({
+    questions: [known, reordered].map((q) => ({
       ...p.questions[0],
       stem: q.stem,
       options: q.options,
       answer: "A",
     })),
   };
-  assert.equal(normalizeBatch(duplicateBatch).questions.length, 2);
+  assert.equal(normalizeBatch(duplicateBatch).questions.length, 1);
   const repeated = await call(env, "/api/submissions", {
     method: "POST",
     body: duplicateBatch,
   });
-  assert.equal(repeated.response.status, 200);
   assert.equal(repeated.data.status, "duplicates_only");
   assert.equal(repeated.data.skippedCount, 2);
+  for (let start = 0; start < l7.length; start += 200) {
+    const batch = {
+      ...p,
+      questions: l7
+        .slice(start, start + 200)
+        .map((q) => ({
+          ...p.questions[0],
+          stem: q.stem,
+          options: q.options,
+          type: q.options.length ? "單選題" : "填空題",
+          answer: q.options.length ? "A" : "來源答案",
+        })),
+    };
+    const result = await call(env, "/api/submissions", {
+      method: "POST",
+      body: batch,
+    });
+    assert.equal(result.response.status, 200);
+    assert.equal(result.data.status, "duplicates_only");
+    assert.equal(result.data.skippedCount, batch.questions.length);
+  }
 });

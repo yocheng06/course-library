@@ -120,3 +120,5 @@ body[data-course="os"] { --page:#eef4f9; --surface:#f9fcff; --ink:#293f56; --mut
   .main { margin:0; width:100%; }
   .guide[open] p { height:auto; overflow:visible; }
 }
+
+.option-translation { display:block; margin-top:4px; color:var(--muted); font-size:14px; line-height:1.6; }

@@ -26,7 +26,7 @@
   function searchFields(question) {
     return [
       { label:'題幹', values:[question.stem ?? question.q, question.translation] },
-      { label:'選項', values:question.options || question.opts || [] },
+      { label:'選項', values:[...(question.options || question.opts || []), ...(question.optionTranslations || [])] },
       { label:'答案', values:[question.answer ?? question.a] },
       { label:'修正前答案', values:[question.originalAnswer] },
       { label:'解析', values:[question.explanation ?? question.ex, ...(question.terms || []).map(term => `${term.label} ${term.text}`)] },

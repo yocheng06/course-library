@@ -3,7 +3,7 @@ import {
   TYPES,
   normalizeType,
   normalizeBatch,
-} from "./contribution-model.js?v=os-l7-20261016";
+} from "./contribution-model.js?v=os-l7-dedup-20261016";
 import {
   esc,
   api,
@@ -12,7 +12,7 @@ import {
   statusLabel,
   showSimilar,
   downloadJSON,
-} from "./contributions-ui.js?v=os-l7-20261016";
+} from "./contributions-ui.js?v=os-l7-dedup-20261016";
 const $ = (id) => document.getElementById(id),
   origin = window.courseContributions.apiOrigin;
 if (location.origin !== origin) {

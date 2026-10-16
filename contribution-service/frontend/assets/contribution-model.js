@@ -30,11 +30,24 @@ export function normalizeType(type, images = []) {
 export function questionKey(course, unit, question) {
   const clean = (value) =>
     String(value).normalize("NFKC").replace(/\s+/g, "").trim();
+  const mergeOptionOrder = course === "os" && unit === "synchronization";
   return JSON.stringify([
     course,
     unit,
-    clean(question.stem),
-    question.options.map(clean).sort(),
+    clean(
+      mergeOptionOrder ? question.stem.replace(/_{2,}/g, "___") : question.stem,
+    ),
+    question.options
+      .map((option) =>
+        clean(
+          mergeOptionOrder
+            ? String(option)
+                .normalize("NFKC")
+                .replace(/^[A-H][.、．:：]\s*/i, "")
+            : option,
+        ),
+      )
+      .sort(),
   ]);
 }
 export function similarityKey(course, unit, question) {
