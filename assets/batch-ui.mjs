@@ -1,0 +1,307 @@
+import {
+  parseQuestions,
+  buildIndex,
+  matchQuestions,
+  expandLibraryQuestion,
+  aiPrompt,
+  MAX_TEXT,
+} from "./batch-model.mjs?v=batch-text-20261017";
+const $ = (id) => document.getElementById(id);
+const esc = (value) =>
+  String(value ?? "").replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
+  );
+const names = { os: "作業系統", algorithms: "演算法" };
+const labels = { matched: "已收錄", unmatched: "未收錄", review: "需確認" };
+const draftKey = "course-library.batch-draft.v1";
+let library,
+  index,
+  coverage = { os: false, algorithms: false },
+  results = [],
+  snapshot = null,
+  loading = false,
+  libraryGeneration = 0,
+  snapshotGeneration = -1;
+const selectedCourse = new URL(location.href).searchParams.get("course");
+if (names[selectedCourse]) $("course").value = selectedCourse;
+function message(text, error = false) {
+  $("message").textContent = text;
+  $("message").classList.toggle("error", error);
+  $("message").hidden = !text;
+}
+function scope() {
+  return { course: $("course").value, unit: $("unit").value };
+}
+function currentSnapshot() {
+  return JSON.stringify({ ...scope(), text: $("batchText").value });
+}
+function units() {
+  const previous = $("unit").value;
+  $("unit").innerHTML =
+    '<option value="all">全部單元</option>' +
+    (library?.courses[$("course").value]?.units || [])
+      .map((u) => `<option value="${esc(u.id)}">${esc(u.name)}</option>`)
+      .join("");
+  if ([...$("unit").options].some((o) => o.value === previous))
+    $("unit").value = previous;
+  if (library && restoreUnit) {
+    if ([...$("unit").options].some((o) => o.value === restoreUnit))
+      $("unit").value = restoreUnit;
+    restoreUnit = null;
+  }
+  document.body.dataset.course = $("course").value;
+}
+function isStale() {
+  return (
+    snapshot !== currentSnapshot() || snapshotGeneration !== libraryGeneration
+  );
+}
+function markChanged() {
+  $("staleNotice").hidden = !results.length || !isStale();
+  const stale = !$("staleNotice").hidden;
+  for (const id of ["copyAnswers", "copyUnmatched", "copyReview"])
+    $(id).disabled = stale || !results.length || !copyItems(id).length;
+  $("inputCount").textContent =
+    `${$("batchText").value.length.toLocaleString()} / ${MAX_TEXT.toLocaleString()} 字・最多 30 題`;
+  try {
+    localStorage.setItem(
+      draftKey,
+      JSON.stringify({ ...scope(), text: $("batchText").value }),
+    );
+  } catch {}
+}
+function copyItems(id) {
+  return id === "copyUnmatched"
+    ? results.filter((r) => r.status === "unmatched")
+    : id === "copyReview"
+      ? results.filter((r) => r.status === "review")
+      : results;
+}
+function statusLabel(row) {
+  return row.status === "unmatched" && !snapshotCoverage
+    ? "未找到"
+    : labels[row.status];
+}
+let snapshotCoverage = false;
+let restoreUnit = null;
+function libraryStatus() {
+  const course = $("course").value;
+  const count = new Set(
+    (index?.entries || []).filter((e) => e.course === course).map((e) => e.id),
+  ).size;
+  $("libraryStatus").textContent =
+    `${names[course]}：${count} 題可供比對。` +
+    (coverage[course]
+      ? "已同步內建與公開投稿題庫。"
+      : "投稿題庫暫時無法同步，目前僅比對內建題庫。可按「重新同步題庫」重試。");
+}
+async function loadLibrary() {
+  if (loading) return;
+  loading = true;
+  $("compare").disabled = true;
+  $("reloadLibrary").disabled = true;
+  $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
+  try {
+    const built = fetch("assets/batch-library.json?v=batch-text-20261017", {
+      signal: AbortSignal.timeout(12000),
+    }).then(async (r) => {
+      if (!r.ok) throw new Error("library");
+      return r.json();
+    });
+    const publicLoads = Object.keys(names).map(async (course) => {
+      const response = await fetch(
+        window.courseContributions.apiOrigin +
+          "/api/questions?course=" +
+          course,
+        { signal: AbortSignal.timeout(6000) },
+      );
+      if (!response.ok) throw new Error("public");
+      const data = await response.json();
+      if (!Array.isArray(data.questions)) throw new Error("public");
+      return { course, questions: data.questions };
+    });
+    const publicResults = Promise.allSettled(publicLoads);
+    const base = await built;
+    if (
+      base.schemaVersion !== 1 ||
+      !Array.isArray(base.entries) ||
+      !base.courses?.os ||
+      !base.courses?.algorithms
+    )
+      throw new Error("library");
+    library = base;
+    let entries = base.entries.slice();
+    coverage = { os: false, algorithms: false };
+    for (const result of await publicResults) {
+      if (result.status !== "fulfilled") continue;
+      const { course, questions } = result.value;
+      coverage[course] = true;
+      for (const row of questions) {
+        const raw = row?.question;
+        if (
+          !library.courses[course].units.some((u) => u.id === row?.unit) ||
+          !raw ||
+          !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(
+            raw.id || raw.bookmarkId || "",
+          )
+        )
+          continue;
+        entries.push(...expandLibraryQuestion(course, row.unit, raw));
+      }
+    }
+    index = buildIndex(entries);
+    libraryGeneration++;
+    units();
+    libraryStatus();
+    $("compare").disabled = false;
+    if (results.length) {
+      $("staleNotice").textContent =
+        "題庫已重新同步，請重新比對。下方保留的是上一批結果。";
+      $("staleNotice").hidden = false;
+      for (const id of ["copyAnswers", "copyUnmatched", "copyReview"])
+        $(id).disabled = true;
+    }
+  } catch {
+    index = null;
+    $("libraryStatus").textContent =
+      "無法載入內建題庫，貼上的文字仍保留。請確認網路連線後按「重新同步題庫」。";
+  } finally {
+    loading = false;
+    $("reloadLibrary").disabled = false;
+  }
+}
+function sourceURL(id) {
+  return (
+    (snapshotCourse === "os" ? "os.html" : "algorithms.html") +
+    "?question=" +
+    encodeURIComponent(id)
+  );
+}
+let snapshotCourse = "os";
+function renderResults() {
+  const filter = $("resultFilter").value;
+  const shown = results.filter((r) => filter === "all" || r.status === filter);
+  $("resultRows").innerHTML = shown
+    .map(
+      (row) =>
+        `<tr><th scope="row">${esc(row.question.number)}</th><td class="answer-text">${esc(row.answer || "尚無可確認答案")}</td><td><span class="result-badge ${row.status}">${esc(statusLabel(row))}</span></td><td><details class="question-detail"><summary>${esc(row.question.stem.slice(0, 90) || "缺少題幹")}</summary><p>${esc(row.question.stem)}</p>${row.question.options.length ? "<ul>" + row.question.options.map((o) => `<li>${esc(o.label)}. ${esc(o.text)}</li>`).join("") + "</ul>" : ""}<p>${esc(row.reason)}</p>${row.references.length ? '<ul class="source-links">' + row.references.map((ref) => `<li><a href="${sourceURL(ref.id)}" target="_blank" rel="noopener">${esc(ref.id)}・開啟${row.status === "matched" ? "收錄" : "候選"}原題 ↗</a></li>`).join("") + "</ul>" : ""}</details></td></tr>`,
+    )
+    .join("");
+  $("emptyResults").hidden = shown.length > 0;
+}
+$("batchForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (!index || loading) return;
+  try {
+    const parsed = parseQuestions($("batchText").value);
+    results = matchQuestions(parsed, index, scope());
+    snapshot = currentSnapshot();
+    snapshotGeneration = libraryGeneration;
+    snapshotCourse = $("course").value;
+    snapshotCoverage = coverage[snapshotCourse];
+    const count = (status) => results.filter((r) => r.status === status).length;
+    $("resultCount").textContent =
+      `共 ${results.length} 題・已收錄 ${count("matched")}・${snapshotCoverage ? "未收錄" : "未找到"} ${count("unmatched")}・需確認 ${count("review")}`;
+    $("coverageNotice").hidden = snapshotCoverage;
+    $("coverageNotice").textContent =
+      "公開投稿題庫尚未同步。本次結果只涵蓋內建題庫，「未找到」不代表網站一定未收錄，請重新同步後核對。";
+    $("resultFilter").querySelector('[value="unmatched"]').textContent =
+      snapshotCoverage ? "未收錄" : "未找到";
+    $("copyUnmatched").textContent = snapshotCoverage
+      ? "複製未收錄題目給 AI"
+      : "複製未找到題目給 AI";
+    $("staleNotice").textContent =
+      "文字、科目或範圍已變更，請重新比對。下方保留的是上一批結果。";
+    $("resultFilter").value = "all";
+    $("results").hidden = false;
+    $("copyFallback").hidden = true;
+    $("copyHelp").hidden = true;
+    renderResults();
+    markChanged();
+    message(
+      `已辨識 ${parsed.length} 題。請展開有疑義的項目，核對題幹與選項是否完整。`,
+    );
+    $("resultsHeading").focus({ preventScroll: true });
+    $("results").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (error) {
+    message(error.message, true);
+  }
+});
+async function copy(text) {
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error("clipboard");
+    await navigator.clipboard.writeText(text);
+    $("copyFallback").hidden = true;
+    $("copyHelp").hidden = true;
+    message("已複製，可直接貼到 AI 或筆記。");
+  } catch {
+    $("copyFallback").value = text;
+    $("copyFallback").hidden = false;
+    $("copyHelp").hidden = false;
+    $("copyFallback").focus();
+    $("copyFallback").select();
+    message("請複製已選取的文字。");
+  }
+}
+$("copyAnswers").addEventListener("click", () => {
+  if (isStale()) return;
+  const text =
+    `${names[snapshotCourse]}・答案總表\n` +
+    (!snapshotCoverage ? "注意：投稿題庫未同步，僅比對內建題庫。\n" : "") +
+    results
+      .map(
+        (r) =>
+          `${r.question.number}｜${r.answer || "尚無可確認答案"}｜${statusLabel(r)}`,
+      )
+      .join("\n");
+  copy(text);
+});
+for (const id of ["copyUnmatched", "copyReview"])
+  $(id).addEventListener("click", () => {
+    if (!isStale()) copy(aiPrompt(copyItems(id).map((r) => r.question)));
+  });
+$("copyTranscription").addEventListener("click", () =>
+  copy(
+    "請將圖片中的課程練習題抄成純文字，不要解答。每題用「1. 題幹」開頭，保留原始題號；每個選項獨立一行，使用 A.、B.、C. 等代號。保留題型、否定詞、數學大小寫、指數、程式碼及填空位置。不要改寫題目，不要加答案或解析。看不清楚請標示 [看不清楚]；需要圖片才能解答時標示 [題圖未轉錄]。每批最多 30 題。",
+  ),
+);
+$("resultFilter").addEventListener("change", renderResults);
+$("batchText").addEventListener("input", markChanged);
+$("course").addEventListener("change", () => {
+  restoreUnit = null;
+  units();
+  if (index) libraryStatus();
+  markChanged();
+});
+$("unit").addEventListener("change", markChanged);
+$("reloadLibrary").addEventListener("click", loadLibrary);
+$("clearInput").addEventListener("click", () => {
+  $("batchText").value = "";
+  markChanged();
+  $("batchText").focus();
+  message("已清空輸入文字。");
+});
+try {
+  const draft = JSON.parse(localStorage.getItem(draftKey) || "null");
+  if (
+    draft &&
+    typeof draft.text === "string" &&
+    draft.text.length <= MAX_TEXT
+  ) {
+    $("batchText").value = draft.text;
+    if (!names[selectedCourse] && names[draft.course])
+      $("course").value = draft.course;
+    if (
+      (!names[selectedCourse] || selectedCourse === draft.course) &&
+      typeof draft.unit === "string"
+    )
+      restoreUnit = draft.unit;
+  }
+} catch {}
+units();
+markChanged();
+loadLibrary();

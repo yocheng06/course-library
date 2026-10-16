@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="一次貼上最多 30 題，核對課程題庫答案，依選項換序對應答案，複製未找到的題目給 AI。"
+    />
+    <title>批次查題｜課程學習站</title>
+    <link rel="icon" href="assets/icons/course-mascot.png" />
+    <link
+      rel="stylesheet"
+      href="assets/contributions.css?v=global-dedup-20261016"
+    />
+    <link rel="stylesheet" href="assets/batch.css?v=batch-text-20261017" />
+  </head>
+  <body data-course="os">
+    <a class="skip-link" href="#batchText">跳至貼上題目</a>
+    <header class="contribution-nav">
+      <a class="brand" href="index.html">課程學習站</a>
+      <nav aria-label="網站導覽">
+        <a href="index.html">課程首頁</a
+        ><a href="os.html?v=silver-blue-20261016">作業系統</a
+        ><a href="algorithms.html">演算法</a>
+      </nav>
+    </header>
+    <main class="contribution-page batch-page">
+      <div class="page-heading">
+        <span class="eyebrow">把整理好的題目，一次核對</span>
+        <h1>批次查題</h1>
+        <p>
+          貼上 AI 抄好的題幹與完整選項，每批最多 30
+          題。先比對網站題庫，再把未解答的題目整批複製給 AI。
+        </p>
+      </div>
+      <p class="notice">
+        這一版提供題庫比對，未串接 AI
+        解答。未找到的題目會明確標示，不會自動產生答案。
+      </p>
+      <form id="batchForm" class="panel" aria-labelledby="inputHeading">
+        <h2 id="inputHeading">貼上這批題目</h2>
+        <div class="field-grid">
+          <label
+            >科目<select id="course">
+              <option value="os">作業系統</option>
+              <option value="algorithms">演算法</option>
+            </select></label
+          >
+          <label
+            >比對範圍<select id="unit">
+              <option value="all">全部單元</option>
+            </select></label
+          >
+        </div>
+        <label for="batchText">題幹與選項</label>
+        <p id="formatHint" class="muted input-help">
+          每題以「1.」或「第 1 題」開頭，選項用
+          A.、B.、C.、D.。填空題可省略選項；保留原題號即可，不用 JSON。
+        </p>
+        <textarea
+          id="batchText"
+          rows="14"
+          maxlength="80000"
+          aria-describedby="formatHint inputCount"
+          placeholder="1. CPU 排程器是哪一種類型的排程器？&#10;A. 長程排程器&#10;B. 中程排程器&#10;C. 短程排程器&#10;D. 巨集排程器&#10;&#10;2. 接著貼上下一題……"
+          required
+          spellcheck="false"
+        ></textarea>
+        <div class="input-footer">
+          <span id="inputCount" class="muted">最多 30 題・80,000 字</span
+          ><span>文字暫存在這台裝置，不會自動投稿；可用「清空文字」移除。</span>
+        </div>
+        <details class="format-example">
+          <summary>查看貼上範例與抄題指令</summary>
+          <pre id="exampleText">
+1. CPU 排程器是哪一種類型的排程器？
+A. 長程排程器
+B. 中程排程器
+C. 短程排程器
+D. 巨集排程器
+
+2. 【填空題】在這裡貼上填空題題幹。</pre
+          >
+          <button type="button" id="copyTranscription" class="text-button">
+            複製給 AI 的抄題指令
+          </button>
+        </details>
+        <div class="actions">
+          <button class="button" id="compare" type="submit" disabled>
+            比對全部題目</button
+          ><button class="text-button" id="clearInput" type="button">
+            清空文字
+          </button>
+        </div>
+        <p id="libraryStatus" class="muted" role="status" aria-live="polite">
+          正在載入題庫……
+        </p>
+        <button id="reloadLibrary" class="text-button" type="button">
+          重新同步題庫
+        </button>
+      </form>
+      <p id="message" role="status" aria-live="polite" hidden></p>
+      <section
+        id="results"
+        class="panel result-panel"
+        aria-labelledby="resultsHeading"
+        hidden
+      >
+        <div class="results-heading">
+          <h2 id="resultsHeading" tabindex="-1">答案總表</h2>
+          <span id="resultCount" class="muted"></span>
+        </div>
+        <p id="coverageNotice" class="notice" hidden></p>
+        <p id="staleNotice" class="notice" hidden>
+          文字、科目或範圍已變更，請重新比對。下方保留的是上一批結果。
+        </p>
+        <div class="result-tools">
+          <label
+            >顯示<select id="resultFilter">
+              <option value="all">全部結果</option>
+              <option value="matched">已收錄</option>
+              <option value="unmatched">未收錄</option>
+              <option value="review">需確認</option>
+            </select></label
+          >
+          <div class="actions">
+            <button id="copyAnswers" type="button" class="button secondary">
+              複製答案總表</button
+            ><button id="copyUnmatched" type="button" class="text-button">
+              複製未收錄題目給 AI</button
+            ><button id="copyReview" type="button" class="text-button">
+              複製待確認題目給 AI
+            </button>
+          </div>
+        </div>
+        <p class="muted result-help">
+          選項代號依你貼上的版本對應；未收錄以所選科目與單元為範圍。展開每題可核對辨識文字與原題連結。
+        </p>
+        <div
+          class="table-scroll"
+          role="region"
+          aria-label="批次答案總表"
+          tabindex="0"
+        >
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">題號</th>
+                <th scope="col">答案</th>
+                <th scope="col">題庫比對</th>
+                <th scope="col">題目與說明</th>
+              </tr>
+            </thead>
+            <tbody id="resultRows"></tbody>
+          </table>
+        </div>
+        <p id="emptyResults" class="muted" hidden>這個篩選下沒有題目。</p>
+      </section>
+      <textarea
+        id="copyFallback"
+        rows="8"
+        aria-label="可手動複製的內容"
+        readonly
+        hidden
+      ></textarea>
+      <p id="copyHelp" class="muted" hidden>
+        瀏覽器未允許直接複製，已選取下方文字，請長按或使用複製快捷鍵。
+      </p>
+      <noscript
+        ><p class="notice">
+          請啟用 JavaScript 才能載入題庫與批次比對。
+        </p></noscript
+      >
+    </main>
+    <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
+    <script
+      type="module"
+      src="assets/batch-ui.mjs?v=batch-text-20261017"
+    ></script>
+  </body>
+</html>

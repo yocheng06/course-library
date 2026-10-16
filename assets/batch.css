@@ -1,0 +1,357 @@
+/* Reuse the existing course typography and form components. */
+body[data-course="os"] {
+  --ink: #29394e;
+  --muted: #506581;
+  --accent: #45658e;
+  --line: #cbd7e7;
+  --soft: #e2ebf6;
+  background: #eff2f6;
+}
+body[data-course="algorithms"] {
+  background: #f6f4f5;
+}
+body[data-course="os"] .contribution-nav {
+  background: #d5deeb;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+body[data-course="os"] .contribution-nav a {
+  color: #344863;
+}
+body[data-course="os"] .button {
+  background: #afc7e5;
+  color: #263e59;
+  border-color: #89a6cb;
+}
+body[data-course="os"] .button.secondary {
+  background: var(--soft);
+  color: var(--accent);
+}
+.skip-link {
+  position: fixed;
+  top: -80px;
+  left: 16px;
+  z-index: 50;
+  padding: 10px;
+  background: #fff;
+}
+.skip-link:focus {
+  top: 10px;
+}
+.batch-page {
+  max-width: 1120px;
+}
+.input-help {
+  margin: 4px 0 12px;
+  line-height: 1.7;
+}
+#batchText {
+  font-size: 16px;
+  line-height: 1.8;
+  min-height: 280px;
+  resize: vertical;
+  white-space: pre-wrap;
+}
+.input-footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 13px;
+  color: var(--muted);
+  margin: 8px 0 14px;
+}
+.format-example {
+  margin: 12px 0 20px;
+  color: var(--muted);
+}
+.format-example summary {
+  min-height: 44px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.format-example pre {
+  padding: 16px;
+  background: var(--soft);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.8;
+  border-radius: 10px;
+}
+#libraryStatus {
+  margin: 16px 0 0;
+  line-height: 1.7;
+}
+#reloadLibrary {
+  margin-top: 4px;
+}
+#message {
+  padding: 12px 16px;
+  background: var(--soft);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+#message.error {
+  color: #843b35;
+  background: #fff0ed;
+  border-color: #a44940;
+}
+.results-heading {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.results-heading h2 {
+  margin: 0;
+}
+.result-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+}
+.result-tools > label {
+  min-width: 160px;
+  margin: 0;
+}
+.result-tools .actions {
+  margin: 0;
+}
+.result-help {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  text-align: left;
+}
+th {
+  background: var(--soft);
+  font-size: 14px;
+}
+th,
+td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+tr:last-child td {
+  border-bottom: 0;
+}
+th:first-child {
+  width: 60px;
+}
+th:nth-child(2) {
+  width: 27%;
+}
+th:nth-child(3) {
+  width: 105px;
+}
+.answer-text {
+  white-space: pre-wrap;
+  font-weight: 650;
+}
+.result-badge {
+  display: inline-block;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.result-badge.matched {
+  background: #e3efe8;
+  color: #315c44;
+}
+.result-badge.unmatched {
+  background: #eef1f5;
+  color: #4b5d74;
+}
+.result-badge.review {
+  background: #fff1d9;
+  color: #735019;
+}
+.question-detail {
+  min-width: 160px;
+}
+.question-detail summary {
+  min-height: 44px;
+  cursor: pointer;
+  line-height: 1.7;
+  color: var(--accent);
+}
+.question-detail p {
+  margin: 8px 0;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+.question-detail ul {
+  padding-left: 20px;
+  line-height: 1.8;
+}
+.source-links {
+  list-style: none;
+  padding-left: 0 !important;
+}
+.source-links a {
+  display: inline-block;
+  padding: 8px 0;
+  min-height: 44px;
+}
+#copyFallback {
+  margin-top: 16px;
+  font-size: 16px;
+}
+button:focus-visible,
+a:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+.table-scroll:focus-visible,
+#resultsHeading:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+@media (max-width: 640px) {
+  .contribution-nav {
+    padding: 14px 16px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .contribution-nav nav {
+    gap: 16px;
+  }
+  .contribution-page {
+    width: calc(100% - 24px);
+    margin: 24px auto 40px;
+  }
+  .page-heading h1 {
+    font-size: 28px;
+  }
+  .panel {
+    padding: 18px 14px;
+    border-radius: 12px;
+  }
+  .result-tools,
+  .result-tools .actions {
+    align-items: stretch;
+    width: 100%;
+  }
+  .result-tools > label {
+    width: 100%;
+  }
+  .result-tools .actions {
+    flex-direction: column;
+  }
+  th,
+  td {
+    padding: 8px 6px;
+  }
+  table,
+  tbody {
+    display: block;
+  }
+  table {
+    min-width: 0;
+  }
+  thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  tr {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  tr:last-child {
+    border-bottom: 0;
+  }
+  tr > th {
+    grid-column: 1;
+    grid-row: 1;
+    width: auto !important;
+    background: transparent;
+  }
+  tr > td:nth-child(2) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  tr > td:nth-child(3) {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  tr > td:last-child {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
+  th,
+  td {
+    border: 0;
+  }
+  .question-detail {
+    min-width: 0;
+  }
+
+  .table-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
+  .input-footer {
+    display: block;
+  }
+  .input-footer span {
+    display: block;
+    margin-bottom: 6px;
+  }
+}
+@media print {
+  .contribution-nav,
+  #batchForm,
+  .result-tools,
+  .notice,
+  #message,
+  .result-help,
+  .skip-link {
+    display: none !important;
+  }
+  .contribution-page {
+    width: 100%;
+    margin: 0;
+  }
+  .panel {
+    border: 0;
+    padding: 0;
+  }
+  .table-scroll {
+    overflow: visible;
+  }
+  .question-detail {
+    min-width: 0;
+  }
+  table {
+    min-width: 0;
+  }
+}
