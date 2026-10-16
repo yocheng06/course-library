@@ -1,0 +1,121 @@
+**Beast 1.**
+
+Which of the following situations will NOT result in a race condition?
+
+* A. Multiple processes writing to shared data simultaneously
+
+* B. One process reading and another process writing to shared data
+
+* C. Multiple processes reading shared data simultaneously
+
+* D. Multiple processes executing unrelated code simultaneously
+
+---
+
+**妖獸 2.**
+
+關於功能性程式設計語言，以下哪些陳述是正確的？
+
+* A. 變數是不可變的
+
+* B. Erlang 和 Scala 是此類語言的例子
+
+* C. 它們不維護狀態
+
+* D. 它們可以避免資料競爭
+
+---
+
+**Beast 3.**
+
+In the solution to the Readers-Writers Problem, what is the purpose of the read_count variable?
+
+* A. To track the number of waiting processes
+
+* B. To track the number of writers
+
+* C. To track the number of readers
+
+* D. To track the number of completed tasks
+
+---
+
+**妖獸 4.**
+
+臨界區問題的「進度」要求指的是什麼？
+
+* A. 程序在臨界區內的等待時間有限
+
+* B. 請求進入臨界區的程序不能被無限期推遲
+
+* C. 只有一個程序可以進入臨界區
+
+* D. 每個程序都必須按照特定順序進入
+
+---
+
+**Beast 5.**
+
+Which type of programming language's variables are immutable, helping to avoid data races?
+
+* A. C++
+
+* B. Python
+
+* C. Java
+
+* D. Functional Programming Languages
+
+---
+
+**妖獸 6.**
+
+signal(empty) 是在有界緩衝區問題的 _________ 程序中使用的。（請用小寫英文回答）
+
+---
+
+**妖獸 7.**
+
+程序的執行由一個CPU執行和一個 _________ 等待的週期組成。（請用小寫英文回答）
+
+---
+
+**妖獸 8.**
+
+acquire() 和 release() 都是在哪些同步工具中使用的操作？
+
+* A. Semaphores
+
+* B. Mutex Locks
+
+* C. Spinlocks
+
+* D. Monitors
+
+---
+
+**Beast 9.**
+
+What kind of mechanism is Linux's futex?
+
+* A. A hybrid synchronization tool
+
+* B. Pure busy waiting
+
+* C. A user-space synchronization tool
+
+* D. A kernel-level synchronization tool
+
+---
+
+**妖獸 10.**
+
+在有界緩衝區問題中，哪些信號量被初始化為非零值？
+
+* A. mutex
+
+* B. empty
+
+* C. wait
+
+* D. full

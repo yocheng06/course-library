@@ -264,3 +264,80 @@ test("generated canonical index stays aligned with current course files", async 
     );
   }
 });
+
+test("user's Beast / 妖獸 Markdown batch produces ten correctly remapped bank answers", async () => {
+  const text = await readFile(
+    new URL("./fixtures/batch-beast.txt", import.meta.url),
+    "utf8",
+  );
+  const questions = parseQuestions(text);
+  assert.equal(questions.length, 10);
+  assert.deepEqual(
+    questions.map((q) => q.number),
+    Array.from({ length: 10 }, (_, i) => String(i + 1)),
+  );
+  assert.deepEqual(
+    questions.map((q) => q.options.length),
+    [4, 4, 4, 4, 4, 0, 0, 4, 4, 4],
+  );
+  assert(questions.every((q) => q.issues.length === 0));
+  assert(!questions.some((q) => /Beast|妖獸|\*\*|---/.test(q.stem)));
+  const data = JSON.parse(
+    await readFile(
+      new URL("../assets/batch-library.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const results = matchQuestions(questions, buildIndex(data.entries), {
+    course: "os",
+    unit: "all",
+  });
+  assert(results.every((r) => r.status === "matched"));
+  const keys = results.map((r) =>
+    r.question.options.length
+      ? r.answer
+          .split("；")
+          .map((part) => part.match(/^([A-H])\./)[1])
+          .join("")
+      : r.answer,
+  );
+  assert.deepEqual(keys, [
+    "D",
+    "ABCD",
+    "C",
+    "B",
+    "D",
+    "consumer",
+    "io",
+    "BC",
+    "A",
+    "AB",
+  ]);
+});
+
+test("standalone named headings preserve original numbering and limits without treating expressions or decimals as headings", () => {
+  const questions = parseQuestions(
+    "**Exercise 21.**\nA question?\n* A. first\n* B. second\n---\n**自訂題號 22.**\nA fill-in question",
+  );
+  assert.deepEqual(
+    questions.map((q) => q.number),
+    ["21", "22"],
+  );
+  assert.equal(questions[0].options.length, 2);
+  const arithmetic = parseQuestions(
+    "1. Evaluate\nx >= 1.\n1.5 is a decimal\nA. 2\nB. 3",
+  );
+  assert.equal(arithmetic.length, 1);
+  assert(arithmetic[0].stem.includes("x >= 1."));
+  assert(arithmetic[0].stem.includes("1.5"));
+  assert.throws(
+    () =>
+      parseQuestions(
+        Array.from(
+          { length: 31 },
+          (_, i) => `**Beast ${i + 1}.**\nQuestion text`,
+        ).join("\n---\n"),
+      ),
+    /最多比對 30 題/,
+  );
+});

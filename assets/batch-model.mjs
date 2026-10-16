@@ -10,6 +10,20 @@ const cleanLine = (text) =>
     .replace(/^\*\*(.+?)\*\*(.*)$/, "$1$2");
 const header =
   /^(?:第\s*(\d{1,4})\s*題\s*[:：.)、]?|(?:Q(?:uestion)?|題目|題)\s*(\d{1,4})\s*[:：.)、-]?|[（(](\d{1,4})[）)]|(\d{1,4})[.)、](?=\D|$))\s*(.*)$/i;
+// AI sometimes emits standalone heading labels such as "Beast 1." or "妖獸 2.".
+// Require a letter-only prefix, a separated number and terminal punctuation;
+// expressions, decimals and option content remain ordinary question text.
+const namedHeader = /^[\p{L}][\p{L}\p{M} _-]{0,30}?\s+(\d{1,4})[.)、:]\s*$/u;
+function questionHeader(line) {
+  const standard = line.match(header);
+  if (standard)
+    return {
+      number: standard[1] || standard[2] || standard[3] || standard[4],
+      text: standard[5],
+    };
+  const named = line.match(namedHeader);
+  return named ? { number: named[1], text: "" } : null;
+}
 const option =
   /^(?:[-*]\s+)?(?:\(([A-H])\)|\[([A-H])\]|([A-H])[.)、:])\s*(.*)$/i;
 const metadata = /^(?:正確答案|參考答案|答案|解答|解析|詳解|說明)\s*[:：]/;
@@ -60,7 +74,7 @@ export function parseQuestions(text) {
         .replace(/^#{1,6}\s*/, "")
         .normalize("NFKC"),
     );
-  const numbered = lines.some((line) => header.test(line));
+  const numbered = lines.some((line) => questionHeader(line));
   const questions = [];
   let current,
     trailing = false;
@@ -114,10 +128,10 @@ export function parseQuestions(text) {
     else current.stem += (current.stem ? "\n" : "") + line;
   }
   for (const line of lines) {
-    const match = line.match(header);
+    const match = questionHeader(line);
     if (match) {
-      start(match[1] || match[2] || match[3] || match[4]);
-      append(match[5]);
+      start(match.number);
+      append(match.text);
     } else if (current) append(line);
     else if (!numbered && line.trim()) {
       start("1");
@@ -137,7 +151,7 @@ export function parseQuestions(text) {
       new Set(labels).size !== labels.length ||
       labels.some((l) => !LETTERS.slice(0, labels.length).includes(l))
     )
-      q.issues.push("選項代號重複或不完整，請補齊選項。");
+      q.issues.push("選項代號重複或不完整，請確認多題是否已分開並補齊選項。");
     if (q.options.some((o) => !o.text.trim())) q.issues.push("選項內容為空。");
     if (/選/.test(q.type) && !q.options.length)
       q.issues.push("選擇題尚未附上選項。");

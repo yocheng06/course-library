@@ -13,7 +13,10 @@
       rel="stylesheet"
       href="assets/contributions.css?v=global-dedup-20261016"
     />
-    <link rel="stylesheet" href="assets/batch.css?v=batch-text-20261017" />
+    <link
+      rel="stylesheet"
+      href="assets/batch.css?v=batch-heading-fix-20261017"
+    />
   </head>
   <body data-course="os">
     <a class="skip-link" href="#batchText">跳至貼上題目</a>
@@ -55,8 +58,9 @@
         </div>
         <label for="batchText">題幹與選項</label>
         <p id="formatHint" class="muted input-help">
-          每題以「1.」或「第 1 題」開頭，選項用
-          A.、B.、C.、D.。填空題可省略選項；保留原題號即可，不用 JSON。
+          支援「1.」、「第 1 題」及「Beast 1.／妖獸 2.」等獨立題號，選項用
+          A.、B.、C.、D.。填空題可省略選項；不用
+          JSON，粗體、星號、空行和分隔線可直接保留。
         </p>
         <textarea
           id="batchText"
@@ -176,7 +180,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=batch-text-20261017"
+      src="assets/batch-ui.mjs?v=batch-heading-fix-20261017"
     ></script>
   </body>
 </html>
