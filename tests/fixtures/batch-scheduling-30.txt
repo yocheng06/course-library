@@ -1,0 +1,137 @@
+這裡為你提取圖片中的 30 道題目與選項：\
+​渡劫試煉：行程排程谷 6 (築基中期)\
+​請回答以下 30 道問題...\
+​題目 1\
+​在 Windows 排程中，哪個功能允許應用程式獨立於核心來創建和管理執行緒？\
+​A. 完全公平排程器\
+​B. 處理器親和性\
+​C. 使用者模式排程 (UMS)\
+​D. 多層級行列\
+​Question 2\
+​\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ time is the amount of time it takes from when a request was submitted until the first response is produced, not the output. (Please answer in lowercase English, leaving a space between each word)\
+​Question 3\
+​Which scheduling algorithm can lead to the 'convoy effect'?\
+​A. First-Come, First-Served (FCFS)\
+​B. Priority scheduling\
+​C. Round Robin (RR)\
+​D. Shortest-Job-First (SJF)\
+​題目 4\
+​短剩餘時間優先 (SRTF) 是哪一種排程演算法的搶佔式版本？\
+​A. 先到先服務 (FCFS)\
+​B. 短工作優先 (SJF)\
+​C. 優先權排程\
+​D. 輪轉 (RR)\
+​Question 5\
+​In the Windows system, what happens to a thread's priority when its quantum expires?\
+​A. It is lowered\
+​B. It changes randomly\
+​C. It is boosted\
+​D. It remains unchanged\
+​題目 6\
+​佇列模型 (Queueing models) 通常用來計算哪些平均值？\
+​A. 平均等待時間\
+​B. 平均吞吐量\
+​C. 平均利用率\
+​D. 平均 CPU 突發時間\
+​題目 7\
+​當一個程序從執行中狀態切換到就緒狀態時，排程是屬於 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ 類型。(請用小寫英文回答)\
+​題目 8\
+​分派器 (Dispatcher) 模組的工作包含哪些項目？\
+​A. 跳轉到使用者程式中的正確位置以重新啟動該程式\
+​B. 選擇下一個要運行的行程\
+​C. 切換到使用者模式\
+​D. 切換上下文 (context switch)\
+​題目 9\
+​在多處理器系統中，下列哪些排程方法屬於負荷平衡？\
+​A. 對稱多處理 (SMP)\
+​B. 處理器親和性 (Processor affinity)\
+​C. 推動式遷移 (Push migration)\
+​D. 拉取式遷移 (Pull migration)\
+​題目 10\
+​在輪循 (Round Robin) 排程演算法中，\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ 決定了每個程序可以獲得的 CPU 時間長度。(請用小寫英文回答 字母間留一個空白)\
+​Question 11\
+​\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ scheduling can lead to the convoy effect, where all other processes wait for one long process to finish.(Please answer using English abbreviations and uppercase letters.)\
+​題目 12\
+​多層級回饋佇列 (Multilevel Feedback Queue) 排程的定義參數包含哪些？\
+​A. 行列的數量\
+​B. 升級和降級程序的方法\
+​C. 每個行列的排程演算法\
+​D. 用於確定行程進入哪個行列的方法\
+​題目 13\
+​在優先權排程中，解決「飢餓」問題的方法是什麼？\
+​A. 將所有優先權設定為相同\
+​B. 增加時間量\
+​C. 老化 (Aging)\
+​D. 使用迴圈排程\
+​題目 14\
+​下列哪一項是分派器 (Dispatcher) 的工作？\
+​A. 將程序從就緒佇列中移除\
+​B. 將行程從等待狀態轉換為就緒狀態\
+​C. 將 CPU 控制權交給排程器選擇的程序\
+​D. 將中斷發送給程序\
+​題目 15\
+​短剩餘時間優先 (SRTF) 是 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ 排程演算法的搶佔式版本。(請用小寫英文回答 字母間用 - 連接)\
+​題目 16\
+​\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ 排程演算法是最佳的，因為它能給定程序集提供最小的平均等待時間。(請用小寫英文回答 字母間用 - 連接)\
+​題目 17\
+​Windows 中，下列哪些是可變 (Variable) 優先權類別？\
+​A. HIGH_PRIORITY_CLASS\
+​B. NORMAL_PRIORITY_CLASS\
+​C. REALTIME_PRIORITY_CLASS\
+​D. IDLE_PRIORITY_CLASS\
+​題目 18\
+​下列哪些是衡量 CPU 排程演算法的準則？\
+​A. 等待時間\
+​B. CPU 利用率\
+​C. 周轉時間\
+​D. 吞吐量\
+​Question 19\
+​What challenges does real-time CPU scheduling face?\
+​A. Tasks in hard real-time systems must be completed within their deadline\
+​B. Interrupt latency can affect performance\
+​C. Dispatch latency can affect performance\
+​D. Soft real-time systems have no scheduling guarantee\
+​Question 20\
+​\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ allows processes to move between different queues based on the length of time for which they have been serviced.(Please answer in lowercase English, leaving a space between each word)\
+​Question 21\
+​In the Round Robin (RR) scheduling algorithm, what is the unit of a small amount of CPU time given to each process?\
+​A. Time unit\
+​B. Time block\
+​C. Time quantum\
+​D. Time period\
+​題目 22\
+​迴圈排程 (RR) 的性能與哪些因素相關？\
+​A. 行程類型 (CPU 密集型或 I/O 密集型)\
+​B. 時間片 (q) 的大小\
+​C. 程序在就緒佇列中的數量\
+​D. 上下文切換 (context switch) 的時間\
+​Question 23\
+​In priority scheduling, the solution to the "starvation" problem where a low-priority process might never execute is \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_.(Please answer in lowercase English)\
+​題目 24\
+​在 Windows 系統中，當一個執行緒從等待狀態返回時，它的優先權會被 \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_。(請用小寫英文回答)\
+​Question 25\
+​Which of the following are optimization goals for scheduling algorithms?\
+​A. Maximize throughput\
+​B. Minimize response time\
+​C. Minimize turnaround time\
+​D. Maximize CPU utilization\
+​題目 26\
+​POSIX.1b標準定義了兩種即時排程類別：SCHED_FIFO和 。(請用小寫英文回答)\
+​題目 27\
+​最早截止時間優先排程 (Earliest Deadline First Scheduling) 的特性是什麼？\
+​A. 截止時間越早的優先權越高\
+​B. 是一種動態優先權演算法\
+​C. 是一種靜態優先權演算法\
+​D. 截止時間越晚的優先權越低\
+​題目 28\
+​在 POSIX 即時排程中，SCHED_FIFO 的特點是什麼？\
+​A. 僅限於單核心系統\
+​B. 提供優先提升\
+​C. 沒有時間分片\
+​D. 提供時間分片\
+​題目 29\
+​ 模型是數學分析的工具，通常假設已知的到達和服務時間分佈。(請用小寫英文回答)\
+​Question 30\
+​When the time quantum (q) is very large relative to the context switch time, the Round Robin (RR) algorithm's behavior approaches \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_.(Please answer using lowercase English letters; connect related letters with a hyphen and separate unrelated letters with a space.)\
+給我答案\
+給我答案確定正確

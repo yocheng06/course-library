@@ -5,7 +5,7 @@ import {
   expandLibraryQuestion,
   aiPrompt,
   MAX_TEXT,
-} from "./batch-model.mjs?v=batch-labels-20261017";
+} from "./batch-model.mjs?v=batch-scheduling-20261017";
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
   String(value ?? "").replace(
@@ -106,7 +106,7 @@ async function loadLibrary() {
   $("reloadLibrary").disabled = true;
   $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
   try {
-    const built = fetch("assets/batch-library.json?v=batch-labels-20261017", {
+    const built = fetch("assets/batch-library.json?v=batch-scheduling-20261017", {
       signal: AbortSignal.timeout(12000),
     }).then(async (r) => {
       if (!r.ok) throw new Error("library");

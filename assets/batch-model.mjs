@@ -7,6 +7,8 @@ const invisible = /[\u200B\u2060\uFEFF]/g;
 // NFKC alone flattens n² into n2, which changes the mathematical meaning.
 const superscriptChars = "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿⁱ";
 const superscriptValues = "0123456789+-=()ni";
+const unescapeBlanks = (value) =>
+  String(value).replace(/(?:\\_){2,}/g, (blank) => blank.replaceAll("\\", ""));
 const normalizeUnicode = (value) =>
   String(value ?? "")
     .replace(
@@ -16,7 +18,7 @@ const normalizeUnicode = (value) =>
     )
     .normalize("NFKC");
 const cleanLine = (text) =>
-  normalizeUnicode(text)
+  normalizeUnicode(unescapeBlanks(text))
     .replace(invisible, "")
     .trim()
     .replace(/\*\*([A-H][.)、:]|\([A-H]\))\*\*/gi, "$1")
@@ -51,7 +53,7 @@ const typePattern =
 
 export function normalizeText(value) {
   return (
-    normalizeUnicode(value)
+    normalizeUnicode(unescapeBlanks(value ?? ""))
       .replace(invisible, "")
       // Translate only known presentation commands. Keep variables, operators,
       // logarithm bases and upper/lower bounds distinct.
@@ -95,7 +97,13 @@ function answerFormat(value) {
     .replace(/(?:符號)?中間不留空白/g, "")
     .replace(/[,;\s]/g, "");
   if (remainder) return { stem: normalized, hint: "" };
-  return { stem: normalized.slice(0, match.index).trim(), hint: match[1] };
+  return {
+    stem: normalized
+      .slice(0, match.index)
+      .trim()
+      .replace(/[?？。]+$/, ""),
+    hint: match[1],
+  };
 }
 export const normalizeStem = (value) => answerFormat(value).stem;
 export const optionText = (value) =>
@@ -123,14 +131,30 @@ export function parseQuestions(text) {
     throw new Error("請先貼上題目與選項。");
   if (text.length > MAX_TEXT)
     throw new Error("文字超過 80,000 字，請分批貼上。");
-  const cleanedLines = text
-    .replace(/\r\n?/g, "\n")
-    .split("\n")
-    .map((line) =>
-      cleanLine(line)
-        .replace(/^#{1,6}\s*/, "")
-        .normalize("NFKC"),
-    );
+  const rawLines = text.replace(/\r\n?/g, "\n").split("\n");
+  // Some Markdown exports add a literal hard-break backslash to every line.
+  // Require multiple standalone numbered headings before treating it as markup;
+  // an isolated path or literal code backslash remains ordinary content.
+  const hardBreak = /(?<!\\)\\\s*$/;
+  const exportedBreaks =
+    rawLines.filter((line) => {
+      if (!hardBreak.test(line)) return false;
+      const heading = questionHeader(cleanLine(line.replace(hardBreak, "")));
+      return heading && !heading.text.trim();
+    }).length >= 2;
+  const cleanedLines = rawLines.map((line) =>
+    cleanLine(exportedBreaks ? line.replace(hardBreak, "") : line)
+      .replace(/^#{1,6}\s*/, "")
+      .normalize("NFKC"),
+  );
+  const tailRequest =
+    /^(?:請)?給我(?:全部)?答案(?:[，, ]*(?:並|請)?(?:確定|確認)(?:答案)?正確)?[。.!！]?$/;
+  if (cleanedLines.some(questionHeader))
+    while (
+      cleanedLines.length &&
+      (!cleanedLines.at(-1) || tailRequest.test(cleanedLines.at(-1)))
+    )
+      cleanedLines.pop();
   const lines = cleanedLines.flatMap((line, i) => {
     // Recover "D. option text  第 21 題\n題目：..." only with both
     // an actual option before it and an explicitly labelled question after it.
@@ -339,13 +363,25 @@ export function expandLibraryQuestion(course, unit, q) {
 }
 
 export function buildIndex(entries) {
-  const stems = new Map();
+  const stems = new Map(),
+    blanklessStems = new Map();
   for (const entry of entries) {
-    const key = entry.course + "|" + normalizeStem(entry.stem);
+    const normalized = normalizeStem(entry.stem);
+    const key = entry.course + "|" + normalized;
     if (!stems.has(key)) stems.set(key, []);
     stems.get(key).push(entry);
+    if (
+      !entry.options.length &&
+      (normalized.match(/___/g) || []).length === 1
+    ) {
+      const blanklessKey =
+        entry.course + "|" + normalized.replace("___", "").trim();
+      if (!blanklessStems.has(blanklessKey))
+        blanklessStems.set(blanklessKey, []);
+      blanklessStems.get(blanklessKey).push(entry);
+    }
   }
-  return { stems, entries };
+  return { stems, blanklessStems, entries };
 }
 const sortedOptions = (options) => options.map(optionKey).sort();
 function remapAnswer(question, entry) {
@@ -417,9 +453,23 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       reason: question.issues.join(" "),
       references: [],
     };
-  const sameStem = (
-    index.stems.get(course + "|" + normalizeStem(question.stem)) || []
-  ).filter(eligible);
+  const normalized = normalizeStem(question.stem);
+  let sameStem = (index.stems.get(course + "|" + normalized) || []).filter(
+    eligible,
+  );
+  let missingBlank = false;
+  if (
+    !sameStem.length &&
+    !question.options.length &&
+    !normalized.includes("___") &&
+    normalized.length >= 15 &&
+    answerFormat(question.stem).hint
+  ) {
+    sameStem = (
+      index.blanklessStems.get(course + "|" + normalized) || []
+    ).filter(eligible);
+    missingBlank = sameStem.length > 0;
+  }
   const options = JSON.stringify(
     sortedOptions(question.options.map((o) => o.text)),
   );
@@ -461,12 +511,16 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     return {
       status: "matched",
       answer: answers[0].answer,
-      reason: textAnswerBridge
-        ? "題幹符合，題庫的文字答案唯一對應本次選項。"
-        : "題幹與選項符合題庫，答案已依貼上的選項代號對應。" +
-          (question.options.some((o) => optionText(o.text) === "Disk formating")
-            ? "已將 Disk formating 的常見拼字辨識為 Disk formatting，保留貼上原文。"
-            : ""),
+      reason: missingBlank
+        ? "填空線未貼出；其餘文字符合題庫，已核對答案一致且符合填答格式。"
+        : textAnswerBridge
+          ? "題幹符合，題庫的文字答案唯一對應本次選項。"
+          : "題幹與選項符合題庫（含已核對的中英文對照），答案已依貼上的選項代號對應。" +
+            (question.options.some(
+              (o) => optionText(o.text) === "Disk formating",
+            )
+              ? "已將 Disk formating 的常見拼字辨識為 Disk formatting，保留貼上原文。"
+              : ""),
       references: references(exact),
     };
   }

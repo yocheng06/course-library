@@ -755,3 +755,203 @@ test("known technical spelling is limited to the complete option term, while oth
       "review",
     );
 });
+
+test("user's scheduling export matches all 30 questions across verified option translations, reordered choices and missing blanks", async () => {
+  const text = await readFile(
+    new URL("./fixtures/batch-scheduling-30.txt", import.meta.url),
+    "utf8",
+  );
+  const questions = parseQuestions(text);
+  assert.equal(questions.length, 30);
+  assert.deepEqual(
+    questions.map((q) => q.number),
+    Array.from({ length: 30 }, (_, i) => String(i + 1)),
+  );
+  assert(questions.every((q) => q.issues.length === 0));
+  assert(!questions.at(-1).stem.includes("給我答案"));
+  assert(
+    !questions.some(
+      (q) =>
+        q.stem.includes("\\_") || q.options.some((o) => o.text.endsWith("\\")),
+    ),
+  );
+  const data = JSON.parse(
+    await readFile(
+      new URL("../assets/batch-library.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const index = buildIndex(data.entries);
+  const rows = matchQuestions(questions, index, { course: "os" });
+  assert(
+    rows.every((r) => r.status === "matched"),
+    rows
+      .filter((r) => r.status !== "matched")
+      .map((r) => r.question.number + ": " + r.reason)
+      .join("\n"),
+  );
+  assert.deepEqual(
+    rows.map((r) =>
+      r.question.options.length
+        ? [...r.answer.matchAll(/(?:^|；)([A-H])\./g)].map((m) => m[1]).join("")
+        : r.answer,
+    ),
+    [
+      "C",
+      "response",
+      "A",
+      "B",
+      "A",
+      "ABC",
+      "preemptive",
+      "ACD",
+      "CD",
+      "time quantum",
+      "FCFS",
+      "ABCD",
+      "C",
+      "C",
+      "shortest-job-first",
+      "shortest-job-first",
+      "ABD",
+      "ABCD",
+      "ABCD",
+      "multilevel feedback queue",
+      "C",
+      "BCD",
+      "aging",
+      "boosted",
+      "ABCD",
+      "sched_rr",
+      "ABD",
+      "C",
+      "queueing",
+      "first-come first-served",
+    ],
+  );
+  assert(rows[25].reason.includes("填空線未貼出"));
+  assert(rows[28].reason.includes("填空線未貼出"));
+  for (const n of [1, 5, 8, 21, 28]) {
+    const q = questions[n - 1];
+    const reversed = {
+      ...q,
+      options: q.options
+        .slice()
+        .reverse()
+        .map((o, i) => ({ ...o, label: String.fromCharCode(65 + i) })),
+    };
+    const result = matchQuestions([reversed], index, { course: "os" })[0];
+    assert.equal(result.status, "matched");
+    const correctContents = (row) =>
+      row.answer
+        .split("；")
+        .map((s) => s.slice(3))
+        .sort();
+    assert.deepEqual(correctContents(result), correctContents(rows[n - 1]));
+  }
+});
+
+test("missing blank recovery requires a recognized fill instruction, exact remaining content, one placeholder and consistent answers", () => {
+  const fill = make({
+    stem: "POSIX 定義的第二個排程類別是 ____。",
+    options: [],
+    answer: "sched_rr",
+  });
+  const input = "1. POSIX 定義的第二個排程類別是 。(請用小寫英文回答)";
+  assert.equal(lookup(input, [fill])[0].answer, "sched_rr");
+  assert.equal(
+    lookup(input, [{ ...fill, needsImage: true }])[0].status,
+    "review",
+  );
+  assert.equal(
+    lookup(input, [fill, { ...fill, id: "conflict", answer: "sched_fifo" }])[0]
+      .status,
+    "review",
+  );
+  for (const text of [
+    input.replace("(請用小寫英文回答)", ""),
+    input.replace("第二個", "第三個"),
+    input.replace("(請用小寫英文回答)", "(請用小寫英文回答，只考慮非即時)"),
+    input + "\nA. sched_rr\nB. sched_fifo",
+  ])
+    assert.notEqual(lookup(text, [fill])[0].status, "matched");
+  assert.notEqual(
+    lookup(input, [
+      { ...fill, stem: fill.stem.replace("____", "____ 與 ____") },
+    ])[0].status,
+    "matched",
+  );
+  assert.equal(
+    lookup(input, [{ ...fill, answer: "SCHED_RR" }])[0].status,
+    "review",
+  );
+  assert.notEqual(
+    lookup(input.replace("是 。", "是 sched_rr。"), [fill])[0].status,
+    "matched",
+  );
+});
+
+test("Markdown exports remove repeated hard-break markup and trailing requests while preserving paths, code, meaningful underscores and question content", () => {
+  const exportText =
+    "題目 1\\\n填寫 \\_\\_\\_\\_ 答案\\\n題目 2\\\n另一個填空題\\\n給我答案\\\n給我答案確定正確";
+  const qs = parseQuestions(exportText);
+  assert.equal(qs.length, 2);
+  assert.equal(qs[0].stem, "填寫 ____ 答案");
+  assert.equal(qs[1].stem, "另一個填空題");
+  assert(
+    parseQuestions("1. 檔案路徑\nA. C:\\\nB. D:\\")[0].options[0].text.endsWith(
+      "\\",
+    ),
+  );
+  const paths = parseQuestions("1. 路徑 C:\\\n2. 路徑 D:\\");
+  assert(paths.every((q) => q.stem.endsWith("\\")));
+  assert.equal(normalizeText("my\\_key"), "my\\_key");
+  assert.equal(
+    parseQuestions("1. 「給我答案」這句話的意思為何？")[0].stem,
+    "「給我答案」這句話的意思為何?",
+  );
+  assert.equal(
+    parseQuestions("1. 問題\nA. 給我答案\nB. 其他")[0].options[0].text,
+    "給我答案",
+  );
+  assert.throws(
+    () =>
+      parseQuestions(
+        exportText.replace("給我答案\\\n給我答案確定正確", "") +
+          "\n" +
+          Array.from({ length: 29 }, (_, i) => `${i + 3}. 額外題目`).join("\n"),
+      ),
+    /最多比對 30 題/,
+  );
+});
+
+test("verified translations preserve all alternatives; changing a translated choice or negation still requires review", async () => {
+  const data = JSON.parse(
+    await readFile(
+      new URL("../assets/batch-library.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const index = buildIndex(data.entries);
+  const text = await readFile(
+    new URL("./fixtures/batch-scheduling-30.txt", import.meta.url),
+    "utf8",
+  );
+  const q = parseQuestions(text)[0];
+  for (const replacement of [
+    "核心模式排程 (UMS)",
+    "不是使用者模式排程 (UMS)",
+    "多層級行列",
+  ]) {
+    const changed = {
+      ...q,
+      options: q.options.map((o) =>
+        o.label === "C" ? { ...o, text: replacement } : o,
+      ),
+    };
+    assert.equal(
+      matchQuestions([changed], index, { course: "os" })[0].status,
+      "review",
+    );
+  }
+});
