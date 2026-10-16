@@ -60,6 +60,7 @@ export function normalizeText(value) {
       .replace(/⌊\s*([^⌊⌋\n]*?)\s*⌋/g, "floor($1)")
       .replace(/⌈\s*([^⌈⌉\n]*?)\s*⌉/g, "ceil($1)")
       .replace(/\^\{([A-Za-z0-9]+)\}/g, "^$1")
+      .replace(/\^\(((?:log|ln)(?:_[A-Za-z0-9]+)?\([^()]*\))\)/g, "^$1")
       .replace(/`([^`\n]+)`/g, "$1")
       .replace(/\[_{2,}\d*_*\]|_{2,}/g, "___")
       .replace(/[“”]/g, '"')
@@ -71,15 +72,19 @@ export function normalizeText(value) {
       .trim()
   );
 }
-// Only these complete, known English/math formatting hints may be omitted
-// from the lookup key. Naming, abbreviation, case and arbitrary conditions
-// remain part of the question. The pasted text itself is kept for display/copy.
-function englishFormat(value) {
+// Only these complete, known answer-format hints may be omitted
+// from the lookup key. Naming, abbreviation and arbitrary conditions remain
+// part of the question; case and number requirements are checked on answers.
+// The pasted text itself is kept for display/copy.
+function answerFormat(value) {
   const normalized = normalizeText(value).replace(/[?？。]+$/, "");
-  const match = normalized.match(/\((請用英文回答[^()]*)\)$/);
+  const match = normalized.match(
+    /\((請用(?:小寫英文|大寫英文|英文|數字)回答[^()]*)\)$/,
+  );
   if (!match) return { stem: normalized, hint: "" };
   const remainder = match[1]
-    .replace(/^請用英文回答/, "")
+    .replace(/^請用(?:小寫英文|大寫英文|英文|數字)回答/, "")
+    .replace(/單字間(?:請)?留-/g, "")
     .replace(/表示形式為/g, "")
     .replace(/請用log/g, "")
     .replace(/不可用lg(?:替代log)?/g, "")
@@ -90,7 +95,7 @@ function englishFormat(value) {
   if (remainder) return { stem: normalized, hint: "" };
   return { stem: normalized.slice(0, match.index).trim(), hint: match[1] };
 }
-export const normalizeStem = (value) => englishFormat(value).stem;
+export const normalizeStem = (value) => answerFormat(value).stem;
 export const optionText = (value) =>
   normalizeUnicode(value)
     .replace(/^(?:\([A-H]\)|\[[A-H]\]|[A-H][.)、:])\s*/i, "")
@@ -319,10 +324,15 @@ export function buildIndex(entries) {
 const sortedOptions = (options) => options.map(optionKey).sort();
 function remapAnswer(question, entry) {
   if (!question.options.length) {
-    const { hint } = englishFormat(question.stem);
+    const { hint } = answerFormat(question.stem);
     if (
       hint &&
       (/[\p{Script=Han}]/u.test(entry.answer) ||
+        (/小寫英文/.test(hint) && /[A-Z]/.test(entry.answer)) ||
+        (/大寫英文/.test(hint) && /[a-z]/.test(entry.answer)) ||
+        (/請用數字回答/.test(hint) &&
+          !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(entry.answer.trim())) ||
+        (/單字間(?:請)?留-/.test(hint) && /[\s_]/.test(entry.answer)) ||
         (/中間不留空白/.test(hint) && /\s/.test(entry.answer)) ||
         (/不可用lg/.test(hint) && /\blg/.test(entry.answer)))
     )
@@ -419,7 +429,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       return {
         status: "review",
         answer: "",
-        reason: "題庫版本的答案或選項對應不一致，請開啟原題核對。",
+        reason: "題庫答案的填答格式、版本或選項對應不一致，請開啟原題核對。",
         references: references(exact),
       };
     return {

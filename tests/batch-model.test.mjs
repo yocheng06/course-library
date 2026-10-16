@@ -499,3 +499,128 @@ test("only known English/math answer instructions are presentation aliases; case
   assert.notEqual(extra.status, "matched");
   assert.equal(extra.answer, "");
 });
+
+test("user's bold recurrence batch keeps all 25 numbers, accepts answer hints and only reviews actual option differences", async () => {
+  const text = await readFile(
+    new URL("./fixtures/batch-recurrence.txt", import.meta.url),
+    "utf8",
+  );
+  const questions = parseQuestions(text);
+  assert.equal(questions.length, 25);
+  assert.deepEqual(
+    questions.map((q) => q.number),
+    Array.from({ length: 25 }, (_, i) => String(i + 1)),
+  );
+  const fillNumbers = [1, 3, 8, 17, 18, 19, 20, 21];
+  for (const q of questions) {
+    assert.equal(
+      q.options.length,
+      fillNumbers.includes(Number(q.number)) ? 0 : 4,
+      q.number,
+    );
+    assert.equal(q.issues.length, 0, q.number);
+  }
+  const data = JSON.parse(
+    await readFile(
+      new URL("../assets/batch-library.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const rows = matchQuestions(questions, buildIndex(data.entries), {
+    course: "algorithms",
+  });
+  assert.deepEqual(
+    rows.filter((r) => r.status === "review").map((r) => r.question.number),
+    ["2", "12", "13"],
+  );
+  assert.equal(rows.filter((r) => r.status === "matched").length, 22);
+  assert.deepEqual(
+    rows.map((r) =>
+      r.status === "matched"
+        ? r.question.options.length
+          ? [...r.answer.matchAll(/(?:^|；)([A-H])\./g)]
+              .map((m) => m[1])
+              .join("")
+          : r.answer
+        : r.status,
+    ),
+    [
+      "1",
+      "review",
+      "comparison",
+      "ACD",
+      "A",
+      "C",
+      "A",
+      "2",
+      "ABD",
+      "ACD",
+      "C",
+      "review",
+      "review",
+      "ABCD",
+      "ABC",
+      "C",
+      "three",
+      "n",
+      "conditions",
+      "induction",
+      "asymptotic",
+      "D",
+      "D",
+      "C",
+      "D",
+    ],
+  );
+  const reviews = rows.filter((r) => r.status === "review");
+  for (const row of reviews) {
+    assert.equal(row.answer, "");
+    assert(row.reason.includes("選項不同"));
+    assert.equal(row.references.length, 1);
+  }
+  const copied = aiPrompt(reviews.map((r) => r.question));
+  assert(copied.includes("忽略複雜的數學常數"));
+  assert(copied.includes("滿足規則性條件"));
+  assert(copied.includes("將其改為隨機"));
+});
+
+test("recognized answer hints validate the actual bank answer and never change it to fit another required case or format", () => {
+  const fill = make({ stem: "此處應填入 ____", options: [], answer: "2" });
+  assert.equal(
+    lookup("1. 此處應填入 _____ (請用數字回答)", [fill])[0].answer,
+    "2",
+  );
+  assert.equal(
+    lookup("1. 此處應填入 _____ (請用小寫英文回答)", [
+      { ...fill, answer: "induction" },
+    ])[0].answer,
+    "induction",
+  );
+  for (const [hint, answer] of [
+    ["數字", "two"],
+    ["小寫英文", "N"],
+    ["大寫英文", "n"],
+  ]) {
+    const row = lookup(`1. 此處應填入 _____ (請用${hint}回答)`, [
+      { ...fill, answer },
+    ])[0];
+    assert.equal(row.status, "review");
+    assert.equal(row.answer, "");
+  }
+  for (const hint of [
+    "請用小寫英文回答，只考慮負數",
+    "請用數字回答，忽略第一項",
+    "請用小寫英文回答，請填縮寫",
+  ])
+    assert.notEqual(
+      lookup(`1. 此處應填入 _____ (${hint})`, [fill])[0].status,
+      "matched",
+    );
+  assert.equal(normalizeText("n^(log_b(a))"), normalizeText("n^log_b(a)"));
+  assert.notEqual(
+    normalizeText("n^(log_b(a)+1)"),
+    normalizeText("n^log_b(a)+1"),
+  );
+  assert.notEqual(normalizeText("n^(log_b(a))"), normalizeText("n^(log_a(b))"));
+  assert.notEqual(normalizeText("n^(log_b(a))"), normalizeText("N^(log_b(a))"));
+});
