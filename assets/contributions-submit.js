@@ -1,11 +1,11 @@
-import { COURSE_UNITS, normalizeType, normalizeBatch } from "./contribution-model.js?v=question-types-20261016";
+import { COURSE_UNITS, normalizeType, normalizeBatch } from "./contribution-model.js?v=image-question-types-20261016";
 import {
   esc,
   api,
   message,
   questionPreview,
   statusLabel,
-} from "./contributions-ui.js?v=question-types-20261016";
+} from "./contributions-ui.js?v=image-question-types-20261016";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
@@ -84,7 +84,7 @@ function renderImages() {
 }
 function typeChanged() {
   const choice = /選題/.test(form.elements.type.value);
-  $("optionsField").hidden = !choice;
+  $("optionsField").hidden = !choice && form.elements.type.value !== "圖片題";
   form.elements.options.required = choice;
 }
 function clearEditor() {
@@ -137,6 +137,7 @@ try {
         form.elements[name].value = name === "type" ? normalizeType(value) : value;
     }
     images = draft.images || [];
+    if (images.length) form.elements.type.value = "圖片題";
     editIndex =
       Number.isInteger(draft.editIndex) &&
       draft.editIndex >= 0 &&
@@ -171,7 +172,7 @@ form.addEventListener("submit", (event) => {
   if (imageReadPending) return;
   try {
     const data = Object.fromEntries(new FormData(form));
-    data.options = /選題/.test(data.type)
+    data.options = /選題|圖片題/.test(data.type)
       ? data.options
           .split(/\r?\n/)
           .map((s) => s.trim())
@@ -268,6 +269,8 @@ $("questionImages").addEventListener("change", async (event) => {
       }),
     );
     images.push(...next);
+    if (images.length) form.elements.type.value = "圖片題";
+    typeChanged();
     renderImages();
     save();
   } catch (error) {
@@ -352,7 +355,7 @@ $("importFile").addEventListener("change", async (event) => {
       source: data.source ?? $("source").value,
       questions: importedQuestions(data)?.map((q) => ({
         ...q,
-        type: (q.options ?? q.opts)?.length ? normalizeType(q.type || "單選題") : "填空題",
+        type: normalizeType((q.options ?? q.opts)?.length ? q.type || "單選題" : q.type === "圖片題" ? "圖片題" : "填空題", q.images || []),
         images: (q.images || []).map((image) =>
           typeof image === "string" ? image : image.src,
         ),

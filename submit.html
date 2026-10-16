@@ -87,6 +87,7 @@
               <option>單選題</option>
               <option>多選題</option>
               <option>填空題</option>
+              <option>圖片題</option>
             </select></label
           >
         </div>
@@ -99,7 +100,7 @@
             placeholder="照原題寫出題幹；有程式碼時可以附題圖。"
           ></textarea></label
         ><label id="optionsField"
-          >選項（一行一個）<textarea
+          >選項（一行一個；圖片題可留空）<textarea
             name="options"
             rows="4"
             maxlength="16000"
@@ -127,7 +128,7 @@
             accept="image/png,image/jpeg,image/webp"
             multiple
           /><span class="muted"
-            >每張最多 1 MB；整份投稿的題圖最多 6 MB。</span
+            >附圖題目歸為圖片題，圖片題須附圖。每張最多 1 MB；整份投稿的題圖最多 6 MB。</span
           ></label
         >
         <div id="imagePreviews" class="image-previews"></div>
@@ -199,7 +200,7 @@
     <script src="assets/contributions-config.js?v=20261014"></script>
     <script
       type="module"
-      src="assets/contributions-submit.js?v=question-types-20261016"
+      src="assets/contributions-submit.js?v=image-question-types-20261016"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
   </body>

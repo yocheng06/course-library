@@ -18,8 +18,9 @@ export const COURSE_UNITS = {
     },
   },
 };
-export const TYPES = ["單選題", "多選題", "填空題"];
-export function normalizeType(type) {
+export const TYPES = ["單選題", "多選題", "填空題", "圖片題"];
+export function normalizeType(type, images = []) {
+  if (images.length || type === "圖片題") return "圖片題";
   if (type === "單選題") return "單選題";
   if (type === "多選題" || type === "複選題") return "多選題";
   return "填空題";
@@ -62,7 +63,7 @@ export function normalizeBatch(input, { allowImages = true } = {}) {
     const options = q.options ?? q.opts ?? [];
     if (!Array.isArray(options) || options.length > 8)
       throw new Error(`第 ${index + 1} 題最多 8 個選項。`);
-    const type = normalizeType(text(q.type, "題型", 20, true));
+    const type = normalizeType(text(q.type, "題型", 20, true), q.images ?? []);
     const item = {
       category: text(q.category, "分類", 100, true),
       type,
@@ -74,9 +75,13 @@ export function normalizeBatch(input, { allowImages = true } = {}) {
     };
     if (["單選題", "多選題"].includes(type) && item.options.length < 2)
       throw new Error(`第 ${index + 1} 題請提供至少兩個選項。`);
-    if (!["單選題", "多選題"].includes(type) && item.options.length)
+    if (type === "填空題" && item.options.length)
       throw new Error(`第 ${index + 1} 題為文字題，請清空選項。`);
+    if (type === "圖片題" && item.options.length === 1)
+      throw new Error(`第 ${index + 1} 題如需選項，請提供至少兩個選項。`);
     const images = q.images ?? [];
+    if (type === "圖片題" && !images.length)
+      throw new Error(`第 ${index + 1} 題為圖片題，請附至少一張題圖。`);
     if (!Array.isArray(images) || images.length > 2)
       throw new Error(`第 ${index + 1} 題最多附兩張題圖。`);
     item.images = images.map((value) => {
