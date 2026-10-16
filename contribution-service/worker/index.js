@@ -20,6 +20,35 @@ function json(value, status = 200) {
     },
   });
 }
+async function removePublished(env, payload, skipped, input) {
+  const keys = await fingerprints(payload);
+  const duplicateIndexes = new Set(await duplicates(env, keys));
+  const sourceIndexes = new Map();
+  input.questions.forEach((q, i) => {
+    const key = questionKey(payload.course, payload.unit, {
+      stem: q.stem ?? q.q, options: q.options ?? q.opts ?? [],
+    });
+    if (!sourceIndexes.has(key)) sourceIndexes.set(key, i + 1);
+  });
+  const keptKeys = [];
+  const questions = payload.questions.filter((q, i) => {
+    if (duplicateIndexes.has(i + 1)) {
+      skipped.push({
+        index: sourceIndexes.get(questionKey(payload.course, payload.unit, q)),
+        stem: q.stem.slice(0, 200), reason: "published",
+      });
+      return false;
+    }
+    keptKeys.push(keys[i]);
+    return true;
+  });
+  skipped.sort((a, b) => a.index - b.index);
+  return { payload: { ...payload, questions }, keys: keptKeys };
+}
+function duplicateReport(input, payload, skipped) {
+  return { receivedCount: input.questions.length, acceptedCount: payload.questions.length,
+    skippedCount: skipped.length, skipped };
+}
 function owner(request, env) {
   const id = request.headers.get("oai-authenticated-user-id"),
     email = request.headers.get("oai-authenticated-user-email");
@@ -151,20 +180,16 @@ async function submit(request, env) {
   const body = await readBody(request);
   if (body.website) throw new HttpError(400, "投稿未送出，請重新整理後再試。");
   let payload;
+  const skipped = [];
   try {
-    payload = normalizeBatch(body);
+    payload = normalizeBatch(body, { onDuplicate: (q) => skipped.push(q) });
   } catch (error) {
     throw new HttpError(400, error.message);
   }
-  const keys = await fingerprints(payload);
-  const duplicateIndexes = await duplicates(env, keys);
-  if (duplicateIndexes.length)
-    throw new HttpError(
-      409,
-      "第 " +
-        duplicateIndexes.join("、") +
-        " 題已存在於正式題庫，請移除後再送出。",
-    );
+  ({ payload } = await removePublished(env, payload, skipped, body));
+  const report = duplicateReport(body, payload, skipped);
+  if (!payload.questions.length)
+    return json({ id: null, status: "duplicates_only", ...report });
   const uploads = [];
   let imageBytes = 0;
   for (const [i, q] of payload.questions.entries())
@@ -217,7 +242,7 @@ async function submit(request, env) {
     await Promise.allSettled(saved.map((key) => env.BUCKET.delete(key)));
     throw error;
   }
-  return json({ id, status: "pending" }, 201);
+  return json({ id, status: "pending", ...report }, 201);
 }
 function submissionRow(row) {
   return {
@@ -297,95 +322,95 @@ async function decide(request, env, id) {
   const original = JSON.parse(row.payload);
   let payload = original;
   if (body.action === "approve") {
-    try {
-      payload = normalizeBatch(body.payload);
-    } catch (error) {
-      throw new HttpError(400, error.message);
-    }
-    storedImagesOnly(original, payload, id);
-    const keys = await fingerprints(payload);
-    const duplicateIndexes = await duplicates(env, keys);
-    if (duplicateIndexes.length)
-      throw new HttpError(
-        409,
-        "目前保留清單的第 " +
-          duplicateIndexes.join("、") +
-          " 題已存在於正式題庫，請移除後再核准。",
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const skipped = [];
+      try {
+        payload = normalizeBatch(body.payload, { onDuplicate: (q) => skipped.push(q) });
+      } catch (error) {
+        throw new HttpError(400, error.message);
+      }
+      storedImagesOnly(original, payload, id);
+      let keys;
+      ({ payload, keys } = await removePublished(env, payload, skipped, body.payload));
+      const report = duplicateReport(body.payload, payload, skipped);
+      const reviewNote = skipped.length
+        ? `本次新增 ${report.acceptedCount} 題，自動略過 ${report.skippedCount} 題重複題目。\n${body.note.trim()}`.trim().slice(0, 2000)
+        : body.note.trim();
+      const statements = [],
+        published = [];
+      for (const [i, q] of payload.questions.entries()) {
+        const questionId = `community-${id}-${i + 1}`;
+        const raw =
+          payload.course === "os"
+            ? {
+                id: questionId,
+                category: q.category,
+                type: q.type,
+                stem: q.stem,
+                options: q.options,
+                answer: q.answer,
+                explanation: q.explanation,
+                answerProvided: true,
+                images: q.images.map((src) => ({ src, alt: q.stem })),
+                translation: "",
+                terms: [],
+                note: "",
+              }
+            : {
+                bookmarkId: questionId,
+                category: q.category,
+                type: q.type,
+                q: q.stem,
+                opts: q.options,
+                a: q.answer,
+                ex: q.explanation,
+                answerProvided: true,
+                images: q.images.map((src) => ({ src, alt: q.stem })),
+                warn: false,
+                exact: false,
+              };
+        published.push({
+          id: questionId,
+          fingerprint: keys[i],
+          submissionId: id,
+          course: payload.course,
+          unit: payload.unit,
+          data: JSON.stringify(raw),
+          createdAt: Date.now(),
+        });
+      }
+      statements.push(
+        env.DB.prepare(
+          "INSERT INTO public_questions (id,fingerprint,submission_id,course,unit,data,created_at) SELECT json_extract(value,'$.id'),json_extract(value,'$.fingerprint'),json_extract(value,'$.submissionId'),json_extract(value,'$.course'),json_extract(value,'$.unit'),json_extract(value,'$.data'),json_extract(value,'$.createdAt') FROM json_each(?) WHERE EXISTS (SELECT 1 FROM submissions WHERE id=? AND status='pending' AND revision=?)",
+        ).bind(JSON.stringify(published), id, row.revision),
       );
-    const statements = [],
-      published = [];
-    for (const [i, q] of payload.questions.entries()) {
-      const questionId = `community-${id}-${i + 1}`;
-      const raw =
-        payload.course === "os"
-          ? {
-              id: questionId,
-              category: q.category,
-              type: q.type,
-              stem: q.stem,
-              options: q.options,
-              answer: q.answer,
-              explanation: q.explanation,
-              answerProvided: true,
-              images: q.images.map((src) => ({ src, alt: q.stem })),
-              translation: "",
-              terms: [],
-              note: "",
-            }
-          : {
-              bookmarkId: questionId,
-              category: q.category,
-              type: q.type,
-              q: q.stem,
-              opts: q.options,
-              a: q.answer,
-              ex: q.explanation,
-              answerProvided: true,
-              images: q.images.map((src) => ({ src, alt: q.stem })),
-              warn: false,
-              exact: false,
-            };
-      published.push({
-        id: questionId,
-        fingerprint: keys[i],
-        submissionId: id,
-        course: payload.course,
-        unit: payload.unit,
-        data: JSON.stringify(raw),
-        createdAt: Date.now(),
-      });
-    }
-    statements.push(
-      env.DB.prepare(
-        "INSERT INTO public_questions (id,fingerprint,submission_id,course,unit,data,created_at) SELECT json_extract(value,'$.id'),json_extract(value,'$.fingerprint'),json_extract(value,'$.submissionId'),json_extract(value,'$.course'),json_extract(value,'$.unit'),json_extract(value,'$.data'),json_extract(value,'$.createdAt') FROM json_each(?) WHERE EXISTS (SELECT 1 FROM submissions WHERE id=? AND status='pending' AND revision=?)",
-      ).bind(JSON.stringify(published), id, row.revision),
-    );
-    statements.push(
-      env.DB.prepare(
-        "UPDATE submissions SET payload=?,course=?,unit=?,title=?,status='approved',revision=revision+1,reviewed_at=?,reviewer_id=?,note=? WHERE id=? AND status='pending' AND revision=?",
-      ).bind(
-        JSON.stringify(payload),
-        payload.course,
-        payload.unit,
-        payload.title,
-        Date.now(),
-        reviewer,
-        body.note.trim(),
-        id,
-        row.revision,
-      ),
-    );
-    try {
-      const results = await env.DB.batch(statements);
-      if (!results.at(-1).meta.changes)
-        throw new HttpError(409, "投稿狀態已改變，請重新載入。");
-    } catch (error) {
-      if (String(error).includes("UNIQUE"))
-        throw new HttpError(
-          409,
-          "題目剛被其他投稿收錄，請重新載入並移除重複題。",
-        );
-      throw error;
+      statements.push(
+        env.DB.prepare(
+          "UPDATE submissions SET payload=?,course=?,unit=?,title=?,status='approved',revision=revision+1,reviewed_at=?,reviewer_id=?,note=? WHERE id=? AND status='pending' AND revision=?",
+        ).bind(
+          JSON.stringify(payload),
+          payload.course,
+          payload.unit,
+          payload.title,
+          Date.now(),
+          reviewer,
+          reviewNote,
+          id,
+          row.revision,
+        ),
+      );
+      try {
+        const results = await env.DB.batch(statements);
+        if (!results.at(-1).meta.changes)
+          throw new HttpError(409, "投稿狀態已改變，請重新載入。");
+      } catch (error) {
+        if (String(error).includes("UNIQUE")) {
+          if (attempt < 2) continue;
+          throw new HttpError(409, "題庫持續更新中，請稍後再核准，系統會自動略過重複題。");
+        }
+        throw error;
+      }
+      return json({ status: "approved", ...report });
     }
   } else {
     const result = await env.DB.prepare(

@@ -1,4 +1,4 @@
-import { normalizeType } from "./contribution-model.js?v=image-question-types-20261016";
+import { normalizeType } from "./contribution-model.js?v=auto-deduplicate-20261016";
 
 export const esc = (value) =>
   String(value ?? "").replace(
@@ -34,6 +34,21 @@ export function message(text, error = false) {
   if (text) {
     node.scrollIntoView({ block: "center", behavior: "instant" });
     node.focus({ preventScroll: true });
+  }
+}
+export function showDuplicates(result) {
+  const panel = document.getElementById("duplicateReport");
+  if (!panel) return;
+  panel.hidden = !result.skippedCount;
+  document.getElementById("duplicateSummary").textContent =
+    `共檢查 ${result.receivedCount} 題，保留 ${result.acceptedCount} 題，略過 ${result.skippedCount} 題重複題目。`;
+  const list = document.getElementById("duplicateList");
+  list.replaceChildren();
+  const reasons = { batch: "同一批題目重複，保留第一筆", draft: "已在投稿清單中", published: "正式題庫已收錄" };
+  for (const q of result.skipped || []) {
+    const item = document.createElement("li");
+    item.textContent = `${q.index ? `第 ${q.index} 題：` : ""}${q.stem}（${reasons[q.reason] || "重複題目"}）`;
+    list.append(item);
   }
 }
 export const statusLabel = {

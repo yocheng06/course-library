@@ -1,11 +1,11 @@
-import { COURSE_UNITS, TYPES, normalizeType, normalizeBatch } from "./contribution-model.js?v=image-question-types-20261016";
+import { COURSE_UNITS, TYPES, normalizeType, normalizeBatch } from "./contribution-model.js?v=auto-deduplicate-20261016";
 import {
   esc,
   api,
   message,
   questionPreview,
   statusLabel,
-} from "./contributions-ui.js?v=image-question-types-20261016";
+} from "./contributions-ui.js?v=auto-deduplicate-20261016";
 const $ = (id) => document.getElementById(id),
   origin = window.courseContributions.apiOrigin;
 if (location.origin !== origin) {
@@ -41,7 +41,7 @@ function entryMarkup(entry) {
           )
           .join(
             "",
-          )}</select></label><label>單元<select data-batch="unit">${unitOptions(p.course, p.unit)}</select></label></div><label>題庫名稱<input data-batch="title" maxlength="100" value="${esc(p.title)}"></label><label>來源說明<textarea data-batch="source" rows="2" maxlength="2000">${esc(p.source)}</textarea></label><div class="questions-container">${p.questions.map(fields).join("")}</div><div class="decision"><label>給投稿者的說明（退回時必填）<textarea class="review-note" rows="2" maxlength="2000" placeholder="說明需要調整的地方"></textarea></label><p class="muted">核准會發布目前保留的題目與修改內容。重複題會由系統攔下。</p><div class="actions"><button class="button" type="button" data-action="approve">核准並加入題庫</button><button class="button secondary" type="button" data-action="reject">退回投稿</button></div></div>`
+          )}</select></label><label>單元<select data-batch="unit">${unitOptions(p.course, p.unit)}</select></label></div><label>題庫名稱<input data-batch="title" maxlength="100" value="${esc(p.title)}"></label><label>來源說明<textarea data-batch="source" rows="2" maxlength="2000">${esc(p.source)}</textarea></label><div class="questions-container">${p.questions.map(fields).join("")}</div><div class="decision"><label>給投稿者的說明（退回時必填）<textarea class="review-note" rows="2" maxlength="2000" placeholder="說明需要調整的地方"></textarea></label><p class="muted">核准會發布目前保留的題目與修改內容。重複題會自動略過，只發布尚未收錄的題目。</p><div class="actions"><button class="button" type="button" data-action="approve">核准並加入題庫</button><button class="button secondary" type="button" data-action="reject">退回投稿</button></div></div>`
       : p.questions
           .map((q, i) => questionPreview(q, i) + "</article>")
           .join("") + (entry.note ? `<p>站主說明：${esc(entry.note)}</p>` : "")
@@ -153,18 +153,19 @@ $("reviewList").addEventListener("click", async (event) => {
           return q;
         },
       );
-      payload = normalizeBatch(batch);
+      normalizeBatch(batch);
+      payload = batch;
     }
     card
       .querySelectorAll("button,input,textarea,select")
       .forEach((node) => (node.disabled = true));
     message(action === "approve" ? "正在核准並發布題目…" : "正在退回投稿…");
-    await api("/api/review/" + entry.id, {
+    const result = await api("/api/review/" + entry.id, {
       method: "POST",
       body: JSON.stringify({ action, revision: entry.revision, payload, note }),
     });
     message(
-      action === "approve" ? "已核准，題目已加入正式題庫。" : "已退回投稿。",
+      action === "approve" ? `已完成審核，新增 ${result.acceptedCount} 題${result.skippedCount ? `，自動略過 ${result.skippedCount} 題重複題目` : ""}。` : "已退回投稿。",
     );
     await load();
   } catch (error) {

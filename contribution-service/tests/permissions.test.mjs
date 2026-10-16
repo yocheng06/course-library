@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFile, readdir } from "node:fs/promises";
 import worker from "../dist/server/index.js";
+import { normalizeBatch, uniqueQuestions } from "../worker/model.js";
 const origin =
   "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site";
 async function setup() {
@@ -201,11 +202,12 @@ test("anonymous submission stays private; only the owner can review and publish"
     ).response.status,
     409,
   );
-  assert.equal(
-    (await call(env, "/api/submissions", { method: "POST", body: payload() }))
-      .response.status,
-    409,
-  );
+  const repeat = await call(env, "/api/submissions", { method: "POST", body: payload() });
+  assert.equal(repeat.response.status, 200);
+  assert.equal(repeat.data.status, "duplicates_only");
+  assert.equal(repeat.data.id, null);
+  assert.equal(repeat.data.acceptedCount, 0);
+  assert.equal(repeat.data.skippedCount, 1);
 });
 test("rejecting a submission never publishes it; status gives the submitter the review note", async () => {
   const env = await setup(),
@@ -229,7 +231,7 @@ test("rejecting a submission never publishes it; status gives the submitter the 
     "請補充題目條件。",
   );
 });
-test("duplicate approvals are blocked atomically and do not partially publish", async () => {
+test("approvals automatically skip questions published since submission", async () => {
   const env = await setup(),
     p = payload(),
     one = await call(env, "/api/submissions", { method: "POST", body: p }),
@@ -245,25 +247,28 @@ test("duplicate approvals are blocked atomically and do not partially publish", 
     reviewer: true,
     body: { action: "approve", revision: 1, payload: p, note: "" },
   });
-  assert.equal(second.response.status, 409);
+  assert.equal(second.response.status, 200);
+  assert.equal(second.data.acceptedCount, 0);
+  assert.equal(second.data.skippedCount, 1);
   assert.equal(
     (await call(env, "/api/status/" + two.data.id)).data.status,
-    "pending",
+    "approved",
   );
   assert.equal(
     (await call(env, "/api/questions?course=os")).data.questions.length,
     1,
   );
 });
-test("original questions and duplicate items are rejected; untrusted fields cannot bypass validation", async () => {
+test("duplicate items and built-in questions are skipped; invalid data still fails validation", async () => {
   const env = await setup();
   let p = payload();
   p.questions.push(p.questions[0]);
-  assert.equal(
-    (await call(env, "/api/submissions", { method: "POST", body: p })).response
-      .status,
-    400,
-  );
+  const deduplicated = await call(env, "/api/submissions", { method: "POST", body: p });
+  assert.equal(deduplicated.response.status, 201);
+  assert.equal(deduplicated.data.acceptedCount, 1);
+  assert.equal(deduplicated.data.skippedCount, 1);
+  assert.equal(deduplicated.data.skipped[0].index, 2);
+  assert.equal(deduplicated.data.skipped[0].reason, "batch");
   p = payload();
   p.questions[0].answer = "";
   assert.equal(
@@ -303,11 +308,11 @@ test("original questions and duplicate items are rejected; untrusted fields cann
     explanation: "",
     images: [],
   };
-  assert.equal(
-    (await call(env, "/api/submissions", { method: "POST", body: p })).response
-      .status,
-    409,
-  );
+  const existing = await call(env, "/api/submissions", { method: "POST", body: p });
+  assert.equal(existing.response.status, 200);
+  assert.equal(existing.data.status, "duplicates_only");
+  assert.equal(existing.data.skippedCount, 1);
+  assert.equal(existing.data.skipped[0].reason, "published");
 });
 test("pending images require owner identity; only retained images become public after approval", async () => {
   const env = await setup(),
@@ -388,4 +393,77 @@ test("anonymous posts have bounded rate and allowed origins; public results neve
     cors.response.headers.get("access-control-allow-credentials"),
     null,
   );
+});
+
+test("mixed submissions keep new questions, report original positions and never overwrite existing answers", async () => {
+  const env = await setup(), p = payload();
+  const first = await call(env, "/api/submissions", { method: "POST", body: p });
+  await call(env, "/api/review/" + first.data.id, {
+    method: "POST", reviewer: true,
+    body: { action: "approve", revision: 1, payload: p, note: "" },
+  });
+  const old = { ...p.questions[0], answer: "B", explanation: "不應覆寫既有內容" };
+  const novel = { ...p.questions[0], stem: "同一批中的新題目？" };
+  const mixed = await call(env, "/api/submissions", {
+    method: "POST", body: { ...p, questions: [old, novel, old, { ...novel, stem: " 同一批中的新題目？ " }] },
+  });
+  assert.equal(mixed.response.status, 201);
+  assert.equal(mixed.data.receivedCount, 4);
+  assert.equal(mixed.data.acceptedCount, 1);
+  assert.equal(mixed.data.skippedCount, 3);
+  assert.deepEqual(mixed.data.skipped.map(q => q.index), [1, 3, 4]);
+  assert.deepEqual(mixed.data.skipped.map(q => q.reason), ["published", "batch", "batch"]);
+  const saved = (await call(env, "/api/review", { reviewer: true })).data.items.find(q => q.id === mixed.data.id);
+  assert.equal(saved.payload.questions.length, 1);
+  assert.equal(saved.payload.questions[0].stem, novel.stem);
+  assert.equal((await call(env, "/api/questions?course=os")).data.questions[0].question.answer, "A");
+  const countBefore = env.sql.prepare("SELECT count(*) AS n FROM submissions").get().n;
+  const allOld = await call(env, "/api/submissions", { method: "POST", body: { ...p, questions: [old, old] } });
+  assert.equal(allOld.data.status, "duplicates_only");
+  assert.equal(allOld.data.skippedCount, 2);
+  assert.equal(env.sql.prepare("SELECT count(*) AS n FROM submissions").get().n, countBefore);
+});
+
+test("reimporting a full draft keeps 200 questions and preserves the first version", () => {
+  const p = payload();
+  const questions = normalizeBatch({ ...p, questions: Array.from({ length: 200 }, (_, i) => ({ ...p.questions[0], stem: "題目 " + i })) }).questions;
+  const skipped = [];
+  const merged = uniqueQuestions(p.course, p.unit, [...questions, ...questions], q => skipped.push(q));
+  assert.equal(merged.length, 200);
+  assert.equal(skipped.length, 200);
+  assert.equal(normalizeBatch({ ...p, questions: merged }).questions.length, 200);
+  const first = normalizeBatch({ ...p, questions: [p.questions[0], { ...p.questions[0], answer: "B" }] });
+  assert.equal(first.questions[0].answer, "A");
+});
+
+test("approval retries a publication collision and publishes only the remaining new questions", async () => {
+  const env = await setup(), p = payload();
+  const novel = { ...p.questions[0], stem: "並行審核時保留的新題目？" };
+  const one = await call(env, "/api/submissions", { method: "POST", body: p });
+  const both = { ...p, questions: [p.questions[0], novel] };
+  const two = await call(env, "/api/submissions", { method: "POST", body: both });
+  const batch = env.DB.batch;
+  let collided = false;
+  env.DB.batch = async (statements) => {
+    if (!collided) {
+      collided = true;
+      const concurrent = await call(env, "/api/review/" + one.data.id, {
+        method: "POST", reviewer: true,
+        body: { action: "approve", revision: 1, payload: p, note: "" },
+      });
+      assert.equal(concurrent.response.status, 200);
+    }
+    return batch(statements);
+  };
+  const result = await call(env, "/api/review/" + two.data.id, {
+    method: "POST", reviewer: true,
+    body: { action: "approve", revision: 1, payload: both, note: "" },
+  });
+  assert.equal(result.response.status, 200);
+  assert.equal(result.data.acceptedCount, 1);
+  assert.equal(result.data.skippedCount, 1);
+  const questions = (await call(env, "/api/questions?course=os")).data.questions;
+  assert.equal(questions.length, 2);
+  assert.equal(questions.filter(q => q.question.stem === novel.stem).length, 1);
+  assert.match((await call(env, "/api/status/" + two.data.id)).data.note, /新增 1 題.*略過 1 題/);
 });

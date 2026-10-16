@@ -35,6 +35,18 @@ export function questionKey(course, unit, question) {
     question.options.map(clean).sort(),
   ]);
 }
+export function uniqueQuestions(course, unit, questions, onDuplicate = () => {}) {
+  const keys = new Set();
+  return questions.filter((question, index) => {
+    const key = questionKey(course, unit, question);
+    if (keys.has(key)) {
+      onDuplicate({ index: index + 1, stem: question.stem.slice(0, 200), reason: "batch" });
+      return false;
+    }
+    keys.add(key);
+    return true;
+  });
+}
 function text(value, label, max, required = false) {
   if (typeof value !== "string" && value != null)
     throw new Error(`${label}必須是文字。`);
@@ -43,7 +55,7 @@ function text(value, label, max, required = false) {
   if (result.length > max) throw new Error(`${label}超過 ${max} 字。`);
   return result;
 }
-export function normalizeBatch(input, { allowImages = true } = {}) {
+export function normalizeBatch(input, { allowImages = true, onDuplicate = () => {} } = {}) {
   if (!input || typeof input !== "object" || Array.isArray(input))
     throw new Error("投稿資料格式不正確。");
   const course = text(input.course, "科目", 30, true),
@@ -56,7 +68,6 @@ export function normalizeBatch(input, { allowImages = true } = {}) {
     input.questions.length > 200
   )
     throw new Error("每次請投稿 1–200 題。");
-  const keys = new Set();
   const questions = input.questions.map((q, index) => {
     if (!q || typeof q !== "object" || Array.isArray(q))
       throw new Error(`第 ${index + 1} 題格式不正確。`);
@@ -99,10 +110,6 @@ export function normalizeBatch(input, { allowImages = true } = {}) {
       }
       return image;
     });
-    const key = questionKey(course, unit, item);
-    if (keys.has(key))
-      throw new Error(`第 ${index + 1} 題與本次投稿的其他題目重複。`);
-    keys.add(key);
     return item;
   });
   return {
@@ -111,6 +118,6 @@ export function normalizeBatch(input, { allowImages = true } = {}) {
     title: text(input.title, "題庫名稱", 100, true),
     name: text(input.name, "投稿者稱呼", 60),
     source: text(input.source, "來源說明", 2000),
-    questions,
+    questions: uniqueQuestions(course, unit, questions, onDuplicate),
   };
 }

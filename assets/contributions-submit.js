@@ -1,11 +1,12 @@
-import { COURSE_UNITS, normalizeType, normalizeBatch } from "./contribution-model.js?v=image-question-types-20261016";
+import { COURSE_UNITS, normalizeType, normalizeBatch, uniqueQuestions } from "./contribution-model.js?v=auto-deduplicate-20261016";
 import {
   esc,
   api,
   message,
   questionPreview,
   statusLabel,
-} from "./contributions-ui.js?v=image-question-types-20261016";
+  showDuplicates,
+} from "./contributions-ui.js?v=auto-deduplicate-20261016";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
@@ -187,16 +188,17 @@ form.addEventListener("submit", (event) => {
       next = questions.slice();
     if (editIndex === -1) next.push(question);
     else next[editIndex] = question;
-    normalizeBatch({
+    const skipped = [];
+    questions = normalizeBatch({
       ...metadata(),
       title: $("batchTitle").value || "草稿",
-      questions: next,
-    });
-    questions = next;
+      questions: uniqueQuestions($("course").value, $("unit").value, next, (q) => skipped.push(q)),
+    }).questions;
+    showDuplicates({ receivedCount: next.length, acceptedCount: questions.length, skippedCount: skipped.length, skipped });
     clearEditor();
     render();
     save();
-    message("題目已加入投稿清單，可繼續新增或送出審核。");
+    message(skipped.length ? "已自動略過重複題，保留投稿清單中的第一筆。" : "題目已加入投稿清單，可繼續新增或送出審核。");
   } catch (error) {
     message(error.message, true);
   }
@@ -345,6 +347,8 @@ $("importFile").addEventListener("change", async (event) => {
       units();
       $("unit").value = data.unit;
     }
+    const skipped = [];
+    const imported = importedQuestions(data);
     const candidate = normalizeBatch({
       ...metadata(),
       title:
@@ -353,25 +357,26 @@ $("importFile").addEventListener("change", async (event) => {
         file.name.replace(/\.(json|html?)$/i, ""),
       name: data.name ?? $("submitter").value,
       source: data.source ?? $("source").value,
-      questions: importedQuestions(data)?.map((q) => ({
+      questions: imported?.map((q) => ({
         ...q,
         type: normalizeType((q.options ?? q.opts)?.length ? q.type || "單選題" : q.type === "圖片題" ? "圖片題" : "填空題", q.images || []),
         images: (q.images || []).map((image) =>
           typeof image === "string" ? image : image.src,
         ),
       })),
-    });
-    normalizeBatch({
-      ...candidate,
-      questions: [...questions, ...candidate.questions],
-    });
-    questions.push(...candidate.questions);
+    }, { onDuplicate: (q) => skipped.push(q) });
+    const previousCount = questions.length;
+    const merged = uniqueQuestions(candidate.course, candidate.unit,
+      [...questions, ...candidate.questions], (q) => skipped.push({ ...q, index: null, reason: "draft" }));
+    questions = normalizeBatch({ ...candidate, questions: merged }).questions;
+    const added = questions.length - previousCount;
+    showDuplicates({ receivedCount: imported.length, acceptedCount: added, skippedCount: skipped.length, skipped });
     $("batchTitle").value = candidate.title;
     $("submitter").value = candidate.name;
     $("source").value = candidate.source;
     render();
     save();
-    message(`已匯入 ${candidate.questions.length} 題，請預覽內容再送出。`);
+    message(`已新增 ${added} 題至投稿清單${skipped.length ? `，自動略過 ${skipped.length} 題重複題目` : ""}。請預覽內容再送出。`);
   } catch (error) {
     message("無法匯入：" + error.message, true);
   } finally {
@@ -425,6 +430,12 @@ $("submitBatch").addEventListener("click", async () => {
       method: "POST",
       body: JSON.stringify({ ...payload, website: $("website").value }),
     });
+    showDuplicates(result);
+    if (result.status === "duplicates_only") {
+      $("success").hidden = true;
+      message(`這 ${result.receivedCount} 題均已收錄或與本批重複，沒有新增投稿。草稿仍保留，可查看下方略過清單。`);
+      return;
+    }
     $("receipt").textContent = result.id;
     $("statusId").value = result.id;
     $("success").hidden = false;
@@ -432,7 +443,7 @@ $("submitBatch").addEventListener("click", async () => {
     clearEditor();
     render();
     save();
-    message("投稿已送出，等待站主審核。");
+    message(`已送出 ${result.acceptedCount ?? payload.questions.length} 題，等待站主審核${result.skippedCount ? `；自動略過 ${result.skippedCount} 題重複題目` : ""}。`);
   } catch (error) {
     message(
       error.message === "Failed to fetch"
