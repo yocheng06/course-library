@@ -17,7 +17,7 @@
     if (question.type === '多選題' || question.type === '複選題') return '多選題';
     if (question.type === '單選題') return '單選題';
     if (question.type && question.type !== '圖片題') return '填空題';
-    const expected = window.coursePractice?.expectedChoiceKey(question.answer ?? question.a, options);
+    const expected = question.type === '圖片題' ? window.coursePractice?.expectedChoiceKey(question.answer ?? question.a, options) : null;
     if (expected) return expected.length > 1 ? '多選題' : '單選題';
     const letters = new Set(String(question.answer ?? question.a ?? '').match(/[A-H](?=[.、，,\s]|$)/g) || []);
     return letters.size > 1 ? '多選題' : '單選題';
