@@ -8,6 +8,7 @@ export const COURSE_UNITS = {
       process: "L4 · 程序與 IPC",
       threads: "L5 · 執行緒與多執行緒",
       scheduling: "L6 · CPU 排程",
+      synchronization: "L7 · 程序同步",
     },
   },
   algorithms: {

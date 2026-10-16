@@ -3,7 +3,7 @@ import {
   normalizeType,
   normalizeBatch,
   uniqueQuestions,
-} from "./contribution-model.js?v=site-fixes-20261016";
+} from "./contribution-model.js?v=os-l7-20261016";
 import {
   esc,
   api,
@@ -14,7 +14,7 @@ import {
   showSimilar,
   downloadJSON,
   copyText,
-} from "./contributions-ui.js?v=site-fixes-20261016";
+} from "./contributions-ui.js?v=os-l7-20261016";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";

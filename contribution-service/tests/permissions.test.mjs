@@ -3,7 +3,11 @@ import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFile, readdir } from "node:fs/promises";
 import worker from "../dist/server/index.js";
-import { normalizeBatch, uniqueQuestions } from "../worker/model.js";
+import {
+  normalizeBatch,
+  uniqueQuestions,
+  questionKey,
+} from "../worker/model.js";
 const origin =
   "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site";
 async function setup() {
@@ -940,4 +944,71 @@ test("answer matching keeps mathematics case-sensitive and supports explicit bil
   );
   assert.equal(key("A. ω", ["A. ω", "B. O", "C. Ω", "D. o"]), "A");
   assert.equal(key("A,B", ["A. first", "B. second"]), "AB");
+});
+
+test("L7 accepts new submissions and recognizes all 322 built-in versions without collapsing option order", async () => {
+  const entries = JSON.parse(
+    await readFile(
+      new URL("../existing-questions.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const l7 = entries.filter(
+    (q) => q.course === "os" && q.unit === "synchronization",
+  );
+  assert.equal(l7.length, 322);
+  assert.equal(
+    new Set(l7.map((q) => questionKey(q.course, q.unit, q))).size,
+    322,
+  );
+  const env = await setup();
+  const p = { ...payload(), unit: "synchronization" };
+  p.questions[0].stem = "L7 新投稿測試：如何保護共享狀態？";
+  const submitted = await call(env, "/api/submissions", {
+    method: "POST",
+    body: p,
+  });
+  assert.equal(submitted.response.status, 201);
+  const approved = await call(env, "/api/review/" + submitted.data.id, {
+    method: "POST",
+    reviewer: true,
+    body: { action: "approve", revision: 1, payload: p, note: "" },
+  });
+  assert.equal(approved.response.status, 200);
+  assert.equal(
+    (await call(env, "/api/questions?course=os")).data.questions[0].unit,
+    "synchronization",
+  );
+  const seen = new Map();
+  let variants;
+  for (const q of l7) {
+    if (!q.options.length) continue;
+    const key = JSON.stringify([
+      q.stem,
+      q.options.map((o) => o.replace(/^[A-H]\. /, "")).sort(),
+    ]);
+    if (seen.has(key)) {
+      variants = [seen.get(key), q];
+      break;
+    }
+    seen.set(key, q);
+  }
+  assert(variants, "Expected retained option-order variants");
+  const duplicateBatch = {
+    ...p,
+    questions: variants.map((q) => ({
+      ...p.questions[0],
+      stem: q.stem,
+      options: q.options,
+      answer: "A",
+    })),
+  };
+  assert.equal(normalizeBatch(duplicateBatch).questions.length, 2);
+  const repeated = await call(env, "/api/submissions", {
+    method: "POST",
+    body: duplicateBatch,
+  });
+  assert.equal(repeated.response.status, 200);
+  assert.equal(repeated.data.status, "duplicates_only");
+  assert.equal(repeated.data.skippedCount, 2);
 });
