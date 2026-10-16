@@ -9,7 +9,10 @@
     />
     <title>投稿題庫｜課程學習站</title>
     <link rel="icon" href="assets/icons/course-mascot.png" />
-    <link rel="stylesheet" href="assets/contributions.css?v=20261014" />
+    <link
+      rel="stylesheet"
+      href="assets/contributions.css?v=site-fixes-20261016"
+    />
   </head>
   <body>
     <header class="contribution-nav">
@@ -128,7 +131,8 @@
             accept="image/png,image/jpeg,image/webp"
             multiple
           /><span class="muted"
-            >附圖題目歸為圖片題，圖片題須附圖。每張最多 1 MB；整份投稿的題圖最多 6 MB。</span
+            >附圖題目歸為圖片題，圖片題須附圖。每張最多 1 MB；整份投稿的題圖最多
+            6 MB。</span
           ></label
         >
         <div id="imagePreviews" class="image-previews"></div>
@@ -168,7 +172,9 @@
         <div class="actions">
           <button id="submitBatch" class="button" type="button" disabled>
             送出，等待審核</button
-          ><span class="muted">送出不會立即發布；重複題會自動略過，其餘題目照常送審。</span>
+          ><span class="muted"
+            >送出不會立即發布；重複題會自動略過，其餘題目照常送審。</span
+          >
         </div>
       </section>
       <p
@@ -178,15 +184,39 @@
         aria-live="polite"
         tabindex="-1"
       ></p>
-      <section id="duplicateReport" class="panel" hidden aria-labelledby="duplicateHeading">
+      <section
+        id="duplicateReport"
+        class="panel"
+        hidden
+        aria-labelledby="duplicateHeading"
+      >
         <h2 id="duplicateHeading">重複題處理結果</h2>
         <p id="duplicateSummary" role="status" aria-live="polite"></p>
-        <details><summary>查看略過的題目</summary><ul id="duplicateList"></ul></details>
+        <details>
+          <summary>查看略過的題目</summary>
+          <ul id="duplicateList"></ul>
+        </details>
       </section>
+      <section id="possibleDuplicates" class="panel" hidden></section>
       <section id="success" class="panel" hidden>
         <h2>投稿已送出</h2>
         <p>投稿編號：<strong id="receipt"></strong></p>
+        <div class="actions">
+          <button type="button" id="copyReceipt" class="button secondary">
+            複製編號</button
+          ><button type="button" id="downloadReceipt" class="button secondary">
+            下載投稿收據
+          </button>
+        </div>
         <p>這份題庫正在等待站主審核。請保留編號；你可以在下方查詢審核狀態。</p>
+      </section>
+      <section id="recentReceipts" class="panel" hidden>
+        <h2>這台裝置的近期投稿</h2>
+        <p class="muted">
+          最多保存最近 20
+          筆收據；清除瀏覽器資料後會移除。跨裝置查詢請保留下載的收據。
+        </p>
+        <div id="receiptList"></div>
       </section>
       <section class="panel" aria-labelledby="statusHeading">
         <h2 id="statusHeading">查詢投稿狀態</h2>
@@ -205,7 +235,7 @@
     <script src="assets/contributions-config.js?v=20261014"></script>
     <script
       type="module"
-      src="assets/contributions-submit.js?v=auto-deduplicate-20261016"
+      src="assets/contributions-submit.js?v=site-fixes-20261016"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
   </body>

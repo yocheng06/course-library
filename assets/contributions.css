@@ -452,3 +452,30 @@ summary:focus-visible {
 .panel {
   overflow-wrap: anywhere;
 }
+
+.similar-warning {
+  padding: 16px;
+  border: 1px solid #b28b4a;
+  border-radius: 10px;
+  background: #fffbef;
+  margin: 16px 0;
+}
+.similar-warning li {
+  margin: 8px 0;
+  overflow-wrap: anywhere;
+}
+.management-entry .remove-question {
+  display: none;
+}
+.history-list pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 440px;
+  overflow: auto;
+  font: inherit;
+  line-height: 1.7;
+}
+.draft-status {
+  color: #326749;
+  font-size: 14px;
+}

@@ -1,3 +1,4 @@
+import "./choice-answers.js?v=site-fixes-20261016";
 export const COURSE_UNITS = {
   os: {
     name: "作業系統",
@@ -35,12 +36,65 @@ export function questionKey(course, unit, question) {
     question.options.map(clean).sort(),
   ]);
 }
-export function uniqueQuestions(course, unit, questions, onDuplicate = () => {}) {
+export function similarityKey(course, unit, question) {
+  const clean = (value) => String(value).normalize("NFKC").replace(/\s+/g, "");
+  return JSON.stringify([
+    course,
+    unit,
+    clean(question.stem),
+    question.options
+      .map((o) =>
+        clean(
+          String(o)
+            .normalize("NFKC")
+            .replace(/^[A-H][.、．:：]\s*/i, ""),
+        ),
+      )
+      .sort(),
+  ]);
+}
+export function possibleMatches(course, unit, questions, known) {
+  const matches = [],
+    seen = new Map();
+  for (const other of known) {
+    if (other.course !== course || other.unit !== unit) continue;
+    const key = similarityKey(course, unit, other);
+    if (!seen.has(key)) seen.set(key, []);
+    seen.get(key).push(other);
+  }
+  questions.forEach((q, i) => {
+    const key = similarityKey(course, unit, q),
+      exact = questionKey(course, unit, q);
+    const other = (seen.get(key) || []).find(
+      (o) => questionKey(course, unit, o) !== exact,
+    );
+    if (other)
+      matches.push({
+        index: i + 1,
+        stem: q.stem.slice(0, 200),
+        reference: other.id || "同批題目",
+        reason: "題幹相同，選項次序或代號不同",
+      });
+    if (!seen.has(key)) seen.set(key, []);
+    seen.get(key).push({ ...q, course, unit, id: "同批第 " + (i + 1) + " 題" });
+  });
+  return matches;
+}
+export function uniqueQuestions(
+  course,
+  unit,
+  questions,
+  onDuplicate = () => {},
+) {
   const keys = new Set();
   return questions.filter((question, index) => {
     const key = questionKey(course, unit, question);
     if (keys.has(key)) {
-      onDuplicate({ index: index + 1, stem: question.stem.slice(0, 200), reason: "batch" });
+      onDuplicate({
+        index: index + 1,
+        stem: question.stem.slice(0, 200),
+        reason: "batch",
+      });
       return false;
     }
     keys.add(key);
@@ -55,7 +109,10 @@ function text(value, label, max, required = false) {
   if (result.length > max) throw new Error(`${label}超過 ${max} 字。`);
   return result;
 }
-export function normalizeBatch(input, { allowImages = true, onDuplicate = () => {} } = {}) {
+export function normalizeBatch(
+  input,
+  { allowImages = true, onDuplicate = () => {} } = {},
+) {
   if (!input || typeof input !== "object" || Array.isArray(input))
     throw new Error("投稿資料格式不正確。");
   const course = text(input.course, "科目", 30, true),
@@ -90,6 +147,19 @@ export function normalizeBatch(input, { allowImages = true, onDuplicate = () => 
       throw new Error(`第 ${index + 1} 題為文字題，請清空選項。`);
     if (type === "圖片題" && item.options.length === 1)
       throw new Error(`第 ${index + 1} 題如需選項，請提供至少兩個選項。`);
+    if (item.options.length) {
+      const choiceKey = globalThis.courseChoiceAnswers.expectedChoiceKey(
+        item.answer,
+        item.options,
+      );
+      if (!choiceKey)
+        throw new Error(
+          `第 ${index + 1} 題的答案無法對應選項，請使用 A 或 A、B 等選項代號。`,
+        );
+      if (type === "單選題" && choiceKey.length !== 1)
+        throw new Error(`第 ${index + 1} 題為單選題，只能指定一個正確選項。`);
+      item.choiceKey = choiceKey;
+    }
     const images = q.images ?? [];
     if (type === "圖片題" && !images.length)
       throw new Error(`第 ${index + 1} 題為圖片題，請附至少一張題圖。`);

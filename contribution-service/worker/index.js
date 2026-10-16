@@ -1,4 +1,9 @@
-import { normalizeBatch, questionKey, COURSE_UNITS } from "./model.js";
+import {
+  normalizeBatch,
+  questionKey,
+  possibleMatches,
+  COURSE_UNITS,
+} from "./model.js";
 /* BUILD_DATA */
 const SITE_ORIGIN =
   "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site";
@@ -6,9 +11,10 @@ const LIBRARY_ORIGIN = "https://yocheng06.github.io";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const origins = new Set([SITE_ORIGIN, LIBRARY_ORIGIN]);
 class HttpError extends Error {
-  constructor(status, message) {
+  constructor(status, message, details = {}) {
     super(message);
     this.status = status;
+    this.details = details;
   }
 }
 function json(value, status = 200) {
@@ -26,7 +32,8 @@ async function removePublished(env, payload, skipped, input) {
   const sourceIndexes = new Map();
   input.questions.forEach((q, i) => {
     const key = questionKey(payload.course, payload.unit, {
-      stem: q.stem ?? q.q, options: q.options ?? q.opts ?? [],
+      stem: q.stem ?? q.q,
+      options: q.options ?? q.opts ?? [],
     });
     if (!sourceIndexes.has(key)) sourceIndexes.set(key, i + 1);
   });
@@ -35,7 +42,8 @@ async function removePublished(env, payload, skipped, input) {
     if (duplicateIndexes.has(i + 1)) {
       skipped.push({
         index: sourceIndexes.get(questionKey(payload.course, payload.unit, q)),
-        stem: q.stem.slice(0, 200), reason: "published",
+        stem: q.stem.slice(0, 200),
+        reason: "published",
       });
       return false;
     }
@@ -46,8 +54,12 @@ async function removePublished(env, payload, skipped, input) {
   return { payload: { ...payload, questions }, keys: keptKeys };
 }
 function duplicateReport(input, payload, skipped) {
-  return { receivedCount: input.questions.length, acceptedCount: payload.questions.length,
-    skippedCount: skipped.length, skipped };
+  return {
+    receivedCount: input.questions.length,
+    acceptedCount: payload.questions.length,
+    skippedCount: skipped.length,
+    skipped,
+  };
 }
 function owner(request, env) {
   const id = request.headers.get("oai-authenticated-user-id"),
@@ -188,6 +200,7 @@ async function submit(request, env) {
   }
   ({ payload } = await removePublished(env, payload, skipped, body));
   const report = duplicateReport(body, payload, skipped);
+  await checkSimilar(env, payload, body.confirmSimilar);
   if (!payload.questions.length)
     return json({ id: null, status: "duplicates_only", ...report });
   const uploads = [];
@@ -244,21 +257,42 @@ async function submit(request, env) {
   }
   return json({ id, status: "pending", ...report }, 201);
 }
-function supplementApprovedQuestion(question, course, unit, id = question.id ?? question.bookmarkId) {
+function supplementApprovedQuestion(
+  question,
+  course,
+  unit,
+  id = question.id ?? question.bookmarkId,
+) {
   const supplement = REVIEWED_EXPLANATIONS[id];
-  if (!supplement || String(question.explanation ?? question.ex ?? "").trim()) return question;
-  if (supplement.course !== course || supplement.unit !== unit ||
-      supplement.answer !== (question.answer ?? question.a) ||
-      supplement.key !== questionKey(course, unit, {
-        stem: question.stem ?? question.q, options: question.options ?? question.opts ?? [],
-      })) return question;
-  return { ...question, [course === "algorithms" ? "ex" : "explanation"]: supplement.explanation };
+  if (!supplement || String(question.explanation ?? question.ex ?? "").trim())
+    return question;
+  if (
+    supplement.course !== course ||
+    supplement.unit !== unit ||
+    supplement.answer !== (question.answer ?? question.a) ||
+    supplement.key !==
+      questionKey(course, unit, {
+        stem: question.stem ?? question.q,
+        options: question.options ?? question.opts ?? [],
+      })
+  )
+    return question;
+  return {
+    ...question,
+    [course === "algorithms" ? "ex" : "explanation"]: supplement.explanation,
+  };
 }
 function submissionRow(row) {
   const payload = JSON.parse(row.payload);
   if (row.status === "approved") {
     payload.questions = payload.questions.map((q, i) =>
-      supplementApprovedQuestion(q, payload.course, payload.unit, `community-${row.id}-${i + 1}`));
+      supplementApprovedQuestion(
+        q,
+        payload.course,
+        payload.unit,
+        `community-${row.id}-${i + 1}`,
+      ),
+    );
   }
   return {
     id: row.id,
@@ -340,16 +374,26 @@ async function decide(request, env, id) {
     for (let attempt = 0; attempt < 3; attempt++) {
       const skipped = [];
       try {
-        payload = normalizeBatch(body.payload, { onDuplicate: (q) => skipped.push(q) });
+        payload = normalizeBatch(body.payload, {
+          onDuplicate: (q) => skipped.push(q),
+        });
       } catch (error) {
         throw new HttpError(400, error.message);
       }
       storedImagesOnly(original, payload, id);
       let keys;
-      ({ payload, keys } = await removePublished(env, payload, skipped, body.payload));
+      ({ payload, keys } = await removePublished(
+        env,
+        payload,
+        skipped,
+        body.payload,
+      ));
       const report = duplicateReport(body.payload, payload, skipped);
+      await checkSimilar(env, payload, body.confirmSimilar);
       const reviewNote = skipped.length
-        ? `本次新增 ${report.acceptedCount} 題，自動略過 ${report.skippedCount} 題重複題目。\n${body.note.trim()}`.trim().slice(0, 2000)
+        ? `本次新增 ${report.acceptedCount} 題，自動略過 ${report.skippedCount} 題重複題目。\n${body.note.trim()}`
+            .trim()
+            .slice(0, 2000)
         : body.note.trim();
       const statements = [],
         published = [];
@@ -365,6 +409,7 @@ async function decide(request, env, id) {
                 options: q.options,
                 answer: q.answer,
                 explanation: q.explanation,
+                choiceKey: q.choiceKey,
                 answerProvided: true,
                 images: q.images.map((src) => ({ src, alt: q.stem })),
                 translation: "",
@@ -379,6 +424,7 @@ async function decide(request, env, id) {
                 opts: q.options,
                 a: q.answer,
                 ex: q.explanation,
+                choiceKey: q.choiceKey,
                 answerProvided: true,
                 images: q.images.map((src) => ({ src, alt: q.stem })),
                 warn: false,
@@ -421,7 +467,10 @@ async function decide(request, env, id) {
       } catch (error) {
         if (String(error).includes("UNIQUE")) {
           if (attempt < 2) continue;
-          throw new HttpError(409, "題庫持續更新中，請稍後再核准，系統會自動略過重複題。");
+          throw new HttpError(
+            409,
+            "題庫持續更新中，請稍後再核准，系統會自動略過重複題。",
+          );
         }
         throw error;
       }
@@ -438,10 +487,358 @@ async function decide(request, env, id) {
   }
   return json({ status: body.action === "approve" ? "approved" : "rejected" });
 }
+// A bounded, idempotent content backfill, separate from schema migrations.
+async function materializeReviewedExplanations(env) {
+  if (
+    await env.DB.prepare("SELECT id FROM content_updates WHERE id=?")
+      .bind(REVIEWED_CONTENT_VERSION)
+      .first()
+  )
+    return;
+  const ids = Object.keys(REVIEWED_EXPLANATIONS),
+    affectedSubmissions = new Set();
+  let found = 0;
+  for (let start = 0; start < ids.length; start += 25) {
+    const chunk = ids.slice(start, start + 25);
+    const result = await env.DB.prepare(
+      `SELECT * FROM public_questions WHERE id IN (${chunk.map(() => "?").join(",")})`,
+    )
+      .bind(...chunk)
+      .all();
+    found += result.results.length;
+    const statements = [];
+    for (const row of result.results) {
+      const old = JSON.parse(row.data),
+        enriched = supplementApprovedQuestion(old, row.course, row.unit);
+      if (enriched === old) continue;
+      const now = Date.now();
+      statements.push(
+        historyStatement(
+          env,
+          row,
+          "reviewed-content",
+          "補充解析",
+          "2026-10-16 已審閱解析整合",
+          now,
+        ),
+      );
+      statements.push(
+        env.DB.prepare(
+          "UPDATE public_questions SET data=?,revision=revision+1,updated_at=? WHERE id=? AND revision=? AND data=?",
+        ).bind(JSON.stringify(enriched), now, row.id, row.revision, row.data),
+      );
+      affectedSubmissions.add(row.submission_id);
+    }
+    if (statements.length) await env.DB.batch(statements);
+  }
+  for (const id of affectedSubmissions) {
+    const row = await env.DB.prepare(
+      "SELECT * FROM submissions WHERE id=? AND status='approved'",
+    )
+      .bind(id)
+      .first();
+    if (!row) continue;
+    const payload = JSON.parse(row.payload);
+    payload.questions = payload.questions.map((q, i) =>
+      supplementApprovedQuestion(
+        q,
+        payload.course,
+        payload.unit,
+        `community-${id}-${i + 1}`,
+      ),
+    );
+    await env.DB.prepare(
+      "UPDATE submissions SET payload=?,revision=revision+1 WHERE id=? AND payload=? AND status='approved'",
+    )
+      .bind(JSON.stringify(payload), id, row.payload)
+      .run();
+  }
+  if (found)
+    await env.DB.prepare(
+      "INSERT OR IGNORE INTO content_updates (id,applied_at) VALUES (?,?)",
+    )
+      .bind(REVIEWED_CONTENT_VERSION, Date.now())
+      .run();
+}
+function historyStatement(env, row, actor, action, note, now) {
+  return env.DB.prepare(
+    "INSERT INTO question_history (id,question_id,revision,course,unit,data,is_published,action,actor,note,created_at) SELECT ?,id,revision,course,unit,data,is_published,?,?,?,? FROM public_questions WHERE id=? AND revision=? AND data=?",
+  ).bind(
+    crypto.randomUUID(),
+    action,
+    actor,
+    note,
+    now,
+    row.id,
+    row.revision,
+    row.data,
+  );
+}
+function canonicalQuestion(data) {
+  return {
+    category: data.category,
+    type:
+      data.type ||
+      (data.options?.length || data.opts?.length ? "單選題" : "填空題"),
+    stem: data.stem ?? data.q,
+    options: data.options ?? data.opts ?? [],
+    answer: data.answer ?? data.a,
+    explanation: data.explanation ?? data.ex ?? "",
+    images: (data.images || []).map((img) =>
+      typeof img === "string" ? img : img.src,
+    ),
+  };
+}
+function publicationRow(row) {
+  return {
+    id: row.id,
+    submissionId: row.submission_id,
+    course: row.course,
+    unit: row.unit,
+    question: canonicalQuestion(JSON.parse(row.data)),
+    revision: row.revision,
+    published: Boolean(row.is_published),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+async function suspectedDuplicates(env, payload, excludeId = null) {
+  const known = BASE_QUESTIONS.map((q) => ({ ...q, id: "內建題庫" }));
+  const result = await env.DB.prepare(
+    "SELECT id,course,unit,data FROM public_questions WHERE course=?",
+  )
+    .bind(payload.course)
+    .all();
+  for (const row of result.results) {
+    if (row.id === excludeId) continue;
+    known.push({
+      ...canonicalQuestion(JSON.parse(row.data)),
+      id: row.id,
+      course: row.course,
+      unit: row.unit,
+    });
+  }
+  return possibleMatches(
+    payload.course,
+    payload.unit,
+    payload.questions,
+    known,
+  );
+}
+async function checkSimilar(env, payload, confirmed, excludeId = null) {
+  if (confirmed === true || !payload.questions.length) return;
+  const possibleDuplicates = await suspectedDuplicates(env, payload, excludeId);
+  if (possibleDuplicates.length)
+    throw new HttpError(
+      409,
+      "發現選項次序或代號不同的疑似重複題，請確認後再送出。",
+      { code: "similar_questions", possibleDuplicates },
+    );
+}
+async function listPublications(request, env, url) {
+  owner(request, env);
+  await materializeReviewedExplanations(env);
+  const course = url.searchParams.get("course") || "os",
+    state = url.searchParams.get("state") || "published";
+  if (!COURSE_UNITS[course] || !["published", "hidden", "all"].includes(state))
+    throw new HttpError(400, "篩選條件不正確。");
+  const cursor = url.searchParams.get("cursor") || "",
+    query = (url.searchParams.get("q") || "").trim();
+  if (
+    (cursor && !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(cursor)) ||
+    query.length > 100
+  )
+    throw new HttpError(400, "查詢條件不正確。");
+  let sql = "SELECT * FROM public_questions WHERE course=?",
+    params = [course];
+  if (state !== "all") {
+    sql += " AND is_published=?";
+    params.push(state === "published" ? 1 : 0);
+  }
+  if (query) {
+    sql += " AND instr(data,?)>0";
+    params.push(query);
+  }
+  if (cursor) {
+    sql += " AND id>?";
+    params.push(cursor);
+  }
+  const result = await env.DB.prepare(sql + " ORDER BY id LIMIT 26")
+    .bind(...params)
+    .all();
+  return json({
+    items: result.results.slice(0, 25).map(publicationRow),
+    nextCursor: result.results.length > 25 ? result.results[24].id : null,
+  });
+}
+async function editPublication(request, env, id) {
+  const actor = owner(request, env);
+  requireOrigin(request, true);
+  await materializeReviewedExplanations(env);
+  const body = await readBody(request),
+    row = await env.DB.prepare("SELECT * FROM public_questions WHERE id=?")
+      .bind(id)
+      .first();
+  if (!row) throw new HttpError(404, "找不到題目。");
+  if (body.revision !== row.revision)
+    throw new HttpError(
+      409,
+      "題目已更新，請重新載入後再修改；本機草稿仍保留。",
+    );
+  if (!["update", "hide", "restore"].includes(body.action))
+    throw new HttpError(400, "操作不正確。");
+  const note = body.note ?? "";
+  if (typeof note !== "string" || note.length > 2000)
+    throw new HttpError(400, "修改說明格式不正確。");
+  let raw = JSON.parse(row.data),
+    course = row.course,
+    unit = row.unit,
+    fingerprint = row.fingerprint;
+  if (body.action === "update") {
+    let batch;
+    try {
+      batch = normalizeBatch(body.payload);
+    } catch (e) {
+      throw new HttpError(400, e.message);
+    }
+    if (body.payload.questions.length !== 1)
+      throw new HttpError(400, "每次只修改一題。");
+    storedImagesOnly(
+      { questions: [canonicalQuestion(raw)] },
+      batch,
+      row.submission_id,
+    );
+    await checkSimilar(env, batch, body.confirmSimilar, id);
+    [fingerprint] = await fingerprints(batch);
+    if (
+      fingerprint !== row.fingerprint &&
+      (BASE_FINGERPRINTS.includes(fingerprint) ||
+        (await env.DB.prepare(
+          "SELECT id FROM public_questions WHERE fingerprint=? AND id<>?",
+        )
+          .bind(fingerprint, id)
+          .first()))
+    )
+      throw new HttpError(409, "修改後與既有題目完全重複，請調整內容。");
+    const q = batch.questions[0];
+    course = batch.course;
+    unit = batch.unit;
+    const images = q.images.map((src) => ({ src, alt: q.stem }));
+    const retained = row.course === course ? raw : {};
+    raw =
+      course === "os"
+        ? {
+            ...retained,
+            id,
+            category: q.category,
+            type: q.type,
+            stem: q.stem,
+            options: q.options,
+            answer: q.answer,
+            explanation: q.explanation,
+            images,
+            answerProvided: true,
+            choiceKey: q.choiceKey,
+          }
+        : {
+            ...retained,
+            bookmarkId: id,
+            category: q.category,
+            type: q.type,
+            q: q.stem,
+            opts: q.options,
+            a: q.answer,
+            ex: q.explanation,
+            images,
+            answerProvided: true,
+            choiceKey: q.choiceKey,
+          };
+  }
+  const published =
+      body.action === "hide"
+        ? 0
+        : body.action === "restore"
+          ? 1
+          : row.is_published,
+    now = Date.now();
+  const statements = [
+    historyStatement(env, row, actor, body.action, note, now),
+    env.DB.prepare(
+      "UPDATE public_questions SET course=?,unit=?,fingerprint=?,data=?,is_published=?,revision=revision+1,updated_at=? WHERE id=? AND revision=?",
+    ).bind(
+      course,
+      unit,
+      fingerprint,
+      JSON.stringify(raw),
+      published,
+      now,
+      id,
+      row.revision,
+    ),
+  ];
+  let result;
+  try {
+    result = await env.DB.batch(statements);
+  } catch (e) {
+    if (String(e).includes("UNIQUE"))
+      throw new HttpError(409, "這道題目剛被其他操作更新，請重新載入。");
+    throw e;
+  }
+  if (!result[1].meta.changes)
+    throw new HttpError(409, "題目已更新，請重新載入。");
+  return json({
+    item: publicationRow({
+      ...row,
+      course,
+      unit,
+      data: JSON.stringify(raw),
+      is_published: published,
+      revision: row.revision + 1,
+      updated_at: now,
+    }),
+  });
+}
+async function publicationHistory(request, env, id) {
+  owner(request, env);
+  const result = await env.DB.prepare(
+    "SELECT * FROM question_history WHERE question_id=? ORDER BY created_at DESC,id DESC LIMIT 50",
+  )
+    .bind(id)
+    .all();
+  return json({
+    items: result.results.map((r) => ({ ...r, data: JSON.parse(r.data) })),
+  });
+}
+async function exportBackup(request, env) {
+  owner(request, env);
+  await materializeReviewedExplanations(env);
+  const [questions, submissions, history] = await Promise.all([
+    env.DB.prepare("SELECT * FROM public_questions ORDER BY id").all(),
+    env.DB.prepare("SELECT * FROM submissions ORDER BY created_at,id").all(),
+    env.DB.prepare(
+      "SELECT * FROM question_history ORDER BY created_at,id",
+    ).all(),
+  ]);
+  return json({
+    schemaVersion: 1,
+    exportedAt: new Date().toISOString(),
+    questions: questions.results.map((r) => ({
+      ...publicationRow(r),
+      fingerprint: r.fingerprint,
+      data: JSON.parse(r.data),
+    })),
+    submissions: submissions.results.map((r) => ({
+      ...r,
+      payload: JSON.parse(r.payload),
+    })),
+    history: history.results.map((r) => ({ ...r, data: JSON.parse(r.data) })),
+  });
+}
+
 async function imageResponse(request, env, id, file) {
   const src = SITE_ORIGIN + "/api/image/" + id + "/" + file;
   const published = await env.DB.prepare(
-    "SELECT id FROM public_questions WHERE submission_id=? AND instr(data,?)>0 LIMIT 1",
+    "SELECT id FROM public_questions WHERE submission_id=? AND is_published=1 AND instr(data,?)>0 LIMIT 1",
   )
     .bind(id, src)
     .first();
@@ -473,12 +870,28 @@ async function route(request, env) {
   if (path === "/api/submissions" && request.method === "POST")
     return submit(request, env);
   if (path === "/api/session" && request.method === "GET") {
-    owner(request, env);
-    return json({ isReviewer: true });
+    const userId = owner(request, env);
+    await materializeReviewedExplanations(env);
+    return json({ isReviewer: true, userId });
   }
   if (path === "/api/review" && request.method === "GET")
     return listReview(request, env, url);
+  if (path === "/api/manage/questions" && request.method === "GET")
+    return listPublications(request, env, url);
+  if (path === "/api/manage/export" && request.method === "GET")
+    return exportBackup(request, env);
   let match;
+  if (
+    (match =
+      /^\/api\/manage\/questions\/(community-[0-9a-f-]{36}-[1-9]\d*)(\/history)?$/.exec(
+        path,
+      ))
+  ) {
+    if (request.method === "GET" && match[2])
+      return publicationHistory(request, env, match[1]);
+    if (request.method === "POST" && !match[2])
+      return editPublication(request, env, match[1]);
+  }
   if (
     (match = /^\/api\/review\/([^/]+)$/.exec(path)) &&
     request.method === "POST"
@@ -506,20 +919,24 @@ async function route(request, env) {
   if (path === "/api/questions" && request.method === "GET") {
     const course = url.searchParams.get("course");
     if (!COURSE_UNITS[course]) throw new HttpError(400, "請指定科目。");
+    await materializeReviewedExplanations(env);
     const result = await env.DB.prepare(
-      "SELECT unit,data FROM public_questions WHERE course=? ORDER BY created_at,id",
+      "SELECT unit,data FROM public_questions WHERE course=? AND is_published=1 ORDER BY created_at,id",
     )
       .bind(course)
       .all();
     return json({
       questions: result.results.map((row) => ({
         unit: row.unit,
-        question: supplementApprovedQuestion(JSON.parse(row.data), course, row.unit),
+        question: JSON.parse(row.data),
       })),
     });
   }
   if (
-    (match = /^\/api\/image\/([^/]+)\/(\d{1,2}-[01])$/.exec(path)) &&
+    (match =
+      /^\/api\/image\/([^/]+)\/((?:[0-9]|[1-9][0-9]|1[0-9]{2})-[01])$/.exec(
+        path,
+      )) &&
     request.method === "GET"
   ) {
     if (!uuid.test(match[1])) throw new HttpError(404, "找不到題圖。");
@@ -560,6 +977,7 @@ export default {
             error instanceof HttpError
               ? error.message
               : "服務暫時無法完成操作，請稍後再試。",
+          ...(error instanceof HttpError ? error.details : {}),
         },
         error.status || 500,
       );

@@ -202,7 +202,10 @@ test("anonymous submission stays private; only the owner can review and publish"
     ).response.status,
     409,
   );
-  const repeat = await call(env, "/api/submissions", { method: "POST", body: payload() });
+  const repeat = await call(env, "/api/submissions", {
+    method: "POST",
+    body: payload(),
+  });
   assert.equal(repeat.response.status, 200);
   assert.equal(repeat.data.status, "duplicates_only");
   assert.equal(repeat.data.id, null);
@@ -263,7 +266,10 @@ test("duplicate items and built-in questions are skipped; invalid data still fai
   const env = await setup();
   let p = payload();
   p.questions.push(p.questions[0]);
-  const deduplicated = await call(env, "/api/submissions", { method: "POST", body: p });
+  const deduplicated = await call(env, "/api/submissions", {
+    method: "POST",
+    body: p,
+  });
   assert.equal(deduplicated.response.status, 201);
   assert.equal(deduplicated.data.acceptedCount, 1);
   assert.equal(deduplicated.data.skippedCount, 1);
@@ -308,7 +314,10 @@ test("duplicate items and built-in questions are skipped; invalid data still fai
     explanation: "",
     images: [],
   };
-  const existing = await call(env, "/api/submissions", { method: "POST", body: p });
+  const existing = await call(env, "/api/submissions", {
+    method: "POST",
+    body: p,
+  });
   assert.equal(existing.response.status, 200);
   assert.equal(existing.data.status, "duplicates_only");
   assert.equal(existing.data.skippedCount, 1);
@@ -396,59 +405,114 @@ test("anonymous posts have bounded rate and allowed origins; public results neve
 });
 
 test("mixed submissions keep new questions, report original positions and never overwrite existing answers", async () => {
-  const env = await setup(), p = payload();
-  const first = await call(env, "/api/submissions", { method: "POST", body: p });
+  const env = await setup(),
+    p = payload();
+  const first = await call(env, "/api/submissions", {
+    method: "POST",
+    body: p,
+  });
   await call(env, "/api/review/" + first.data.id, {
-    method: "POST", reviewer: true,
+    method: "POST",
+    reviewer: true,
     body: { action: "approve", revision: 1, payload: p, note: "" },
   });
-  const old = { ...p.questions[0], answer: "B", explanation: "不應覆寫既有內容" };
+  const old = {
+    ...p.questions[0],
+    answer: "B",
+    explanation: "不應覆寫既有內容",
+  };
   const novel = { ...p.questions[0], stem: "同一批中的新題目？" };
   const mixed = await call(env, "/api/submissions", {
-    method: "POST", body: { ...p, questions: [old, novel, old, { ...novel, stem: " 同一批中的新題目？ " }] },
+    method: "POST",
+    body: {
+      ...p,
+      questions: [old, novel, old, { ...novel, stem: " 同一批中的新題目？ " }],
+    },
   });
   assert.equal(mixed.response.status, 201);
   assert.equal(mixed.data.receivedCount, 4);
   assert.equal(mixed.data.acceptedCount, 1);
   assert.equal(mixed.data.skippedCount, 3);
-  assert.deepEqual(mixed.data.skipped.map(q => q.index), [1, 3, 4]);
-  assert.deepEqual(mixed.data.skipped.map(q => q.reason), ["published", "batch", "batch"]);
-  const saved = (await call(env, "/api/review", { reviewer: true })).data.items.find(q => q.id === mixed.data.id);
+  assert.deepEqual(
+    mixed.data.skipped.map((q) => q.index),
+    [1, 3, 4],
+  );
+  assert.deepEqual(
+    mixed.data.skipped.map((q) => q.reason),
+    ["published", "batch", "batch"],
+  );
+  const saved = (
+    await call(env, "/api/review", { reviewer: true })
+  ).data.items.find((q) => q.id === mixed.data.id);
   assert.equal(saved.payload.questions.length, 1);
   assert.equal(saved.payload.questions[0].stem, novel.stem);
-  assert.equal((await call(env, "/api/questions?course=os")).data.questions[0].question.answer, "A");
-  const countBefore = env.sql.prepare("SELECT count(*) AS n FROM submissions").get().n;
-  const allOld = await call(env, "/api/submissions", { method: "POST", body: { ...p, questions: [old, old] } });
+  assert.equal(
+    (await call(env, "/api/questions?course=os")).data.questions[0].question
+      .answer,
+    "A",
+  );
+  const countBefore = env.sql
+    .prepare("SELECT count(*) AS n FROM submissions")
+    .get().n;
+  const allOld = await call(env, "/api/submissions", {
+    method: "POST",
+    body: { ...p, questions: [old, old] },
+  });
   assert.equal(allOld.data.status, "duplicates_only");
   assert.equal(allOld.data.skippedCount, 2);
-  assert.equal(env.sql.prepare("SELECT count(*) AS n FROM submissions").get().n, countBefore);
+  assert.equal(
+    env.sql.prepare("SELECT count(*) AS n FROM submissions").get().n,
+    countBefore,
+  );
 });
 
 test("reimporting a full draft keeps 200 questions and preserves the first version", () => {
   const p = payload();
-  const questions = normalizeBatch({ ...p, questions: Array.from({ length: 200 }, (_, i) => ({ ...p.questions[0], stem: "題目 " + i })) }).questions;
+  const questions = normalizeBatch({
+    ...p,
+    questions: Array.from({ length: 200 }, (_, i) => ({
+      ...p.questions[0],
+      stem: "題目 " + i,
+    })),
+  }).questions;
   const skipped = [];
-  const merged = uniqueQuestions(p.course, p.unit, [...questions, ...questions], q => skipped.push(q));
+  const merged = uniqueQuestions(
+    p.course,
+    p.unit,
+    [...questions, ...questions],
+    (q) => skipped.push(q),
+  );
   assert.equal(merged.length, 200);
   assert.equal(skipped.length, 200);
-  assert.equal(normalizeBatch({ ...p, questions: merged }).questions.length, 200);
-  const first = normalizeBatch({ ...p, questions: [p.questions[0], { ...p.questions[0], answer: "B" }] });
+  assert.equal(
+    normalizeBatch({ ...p, questions: merged }).questions.length,
+    200,
+  );
+  const first = normalizeBatch({
+    ...p,
+    questions: [p.questions[0], { ...p.questions[0], answer: "B" }],
+  });
   assert.equal(first.questions[0].answer, "A");
 });
 
 test("approval retries a publication collision and publishes only the remaining new questions", async () => {
-  const env = await setup(), p = payload();
+  const env = await setup(),
+    p = payload();
   const novel = { ...p.questions[0], stem: "並行審核時保留的新題目？" };
   const one = await call(env, "/api/submissions", { method: "POST", body: p });
   const both = { ...p, questions: [p.questions[0], novel] };
-  const two = await call(env, "/api/submissions", { method: "POST", body: both });
+  const two = await call(env, "/api/submissions", {
+    method: "POST",
+    body: both,
+  });
   const batch = env.DB.batch;
   let collided = false;
   env.DB.batch = async (statements) => {
     if (!collided) {
       collided = true;
       const concurrent = await call(env, "/api/review/" + one.data.id, {
-        method: "POST", reviewer: true,
+        method: "POST",
+        reviewer: true,
         body: { action: "approve", revision: 1, payload: p, note: "" },
       });
       assert.equal(concurrent.response.status, 200);
@@ -456,51 +520,155 @@ test("approval retries a publication collision and publishes only the remaining 
     return batch(statements);
   };
   const result = await call(env, "/api/review/" + two.data.id, {
-    method: "POST", reviewer: true,
+    method: "POST",
+    reviewer: true,
     body: { action: "approve", revision: 1, payload: both, note: "" },
   });
   assert.equal(result.response.status, 200);
   assert.equal(result.data.acceptedCount, 1);
   assert.equal(result.data.skippedCount, 1);
-  const questions = (await call(env, "/api/questions?course=os")).data.questions;
+  const questions = (await call(env, "/api/questions?course=os")).data
+    .questions;
   assert.equal(questions.length, 2);
-  assert.equal(questions.filter(q => q.question.stem === novel.stem).length, 1);
-  assert.match((await call(env, "/api/status/" + two.data.id)).data.note, /新增 1 題.*略過 1 題/);
+  assert.equal(
+    questions.filter((q) => q.question.stem === novel.stem).length,
+    1,
+  );
+  assert.match(
+    (await call(env, "/api/status/" + two.data.id)).data.note,
+    /新增 1 題.*略過 1 題/,
+  );
 });
 
 test("all 76 approved explanations appear in the public API and reviewer view without changing questions or answers", async () => {
   const env = await setup();
-  const content = JSON.parse(await readFile(new URL("../content/approved-explanations.json", import.meta.url), "utf8"));
+  const content = JSON.parse(
+    await readFile(
+      new URL("../content/approved-explanations.json", import.meta.url),
+      "utf8",
+    ),
+  );
   assert.equal(content.entries.length, 76);
   const submissionId = "65307e6c-1612-4c30-b48f-0489756453b5";
-  const questions = content.entries.map(entry => ({
-    id: entry.id, category: "課堂投稿", type: "填空題", stem: entry.stem,
-    options: entry.options, answer: entry.answer, explanation: "", answerProvided: true,
+  const questions = content.entries.map((entry) => ({
+    id: entry.id,
+    category: "課堂投稿",
+    type: "填空題",
+    stem: entry.stem,
+    options: entry.options,
+    answer: entry.answer,
+    explanation: "",
+    answerProvided: true,
   }));
   for (const [i, q] of questions.entries()) {
-    env.sql.prepare("INSERT INTO public_questions (id,fingerprint,submission_id,course,unit,data,created_at) VALUES (?,?,?,?,?,?,?)")
-      .run(q.id, "reviewed-fixture-" + i, submissionId, "os", "scheduling", JSON.stringify(q), i);
+    env.sql
+      .prepare(
+        "INSERT INTO public_questions (id,fingerprint,submission_id,course,unit,data,created_at) VALUES (?,?,?,?,?,?,?)",
+      )
+      .run(
+        q.id,
+        "reviewed-fixture-" + i,
+        submissionId,
+        "os",
+        "scheduling",
+        JSON.stringify(q),
+        i,
+      );
   }
-  const batch = { course: "os", unit: "scheduling", title: "已核准課堂題庫", questions };
-  env.sql.prepare("INSERT INTO submissions (id,course,unit,title,payload,status,revision,created_at,note) VALUES (?,?,?,?,?,'approved',2,0,'')")
-    .run(submissionId, batch.course, batch.unit, batch.title, JSON.stringify(batch));
+  const batch = {
+    course: "os",
+    unit: "scheduling",
+    title: "已核准課堂題庫",
+    questions,
+  };
+  env.sql
+    .prepare(
+      "INSERT INTO submissions (id,course,unit,title,payload,status,revision,created_at,note) VALUES (?,?,?,?,?,'approved',2,0,'')",
+    )
+    .run(
+      submissionId,
+      batch.course,
+      batch.unit,
+      batch.title,
+      JSON.stringify(batch),
+    );
   const publicResult = await call(env, "/api/questions?course=os");
   assert.equal(publicResult.response.status, 200);
   assert.equal(publicResult.data.questions.length, 76);
   for (const [i, row] of publicResult.data.questions.entries()) {
-    assert.deepEqual(row.question, { ...questions[i], explanation: content.entries[i].explanation });
+    assert.deepEqual(row.question, {
+      ...questions[i],
+      explanation: content.entries[i].explanation,
+    });
     assert(row.question.explanation.length >= 70);
   }
-  const reviewed = await call(env, "/api/review?status=approved", { reviewer: true });
+  const reviewed = await call(env, "/api/review?status=approved", {
+    reviewer: true,
+  });
   assert.equal(reviewed.data.items.length, 1);
-  assert.deepEqual(reviewed.data.items[0].payload.questions, publicResult.data.questions.map(q => q.question));
-  assert.equal(JSON.parse(env.sql.prepare("SELECT data FROM public_questions WHERE id=?").get(questions[0].id).data).explanation, "");
-  env.sql.prepare("UPDATE submissions SET status='pending' WHERE id=?").run(submissionId);
-  assert((await call(env, "/api/review", { reviewer: true })).data.items[0].payload.questions.every(q => !q.explanation));
+  assert.deepEqual(
+    reviewed.data.items[0].payload.questions,
+    publicResult.data.questions.map((q) => q.question),
+  );
+  assert.equal(
+    JSON.parse(
+      env.sql
+        .prepare("SELECT data FROM public_questions WHERE id=?")
+        .get(questions[0].id).data,
+    ).explanation,
+    content.entries[0].explanation,
+  );
+  assert.equal(
+    env.sql.prepare("SELECT count(*) AS n FROM content_updates").get().n,
+    1,
+  );
+  assert.equal(
+    env.sql.prepare("SELECT count(*) AS n FROM question_history").get().n,
+    76,
+  );
+  await call(env, "/api/questions?course=os");
+  assert.equal(
+    env.sql.prepare("SELECT count(*) AS n FROM question_history").get().n,
+    76,
+  );
+  const first = questions[0];
+  const cleared = {
+    ...batch,
+    questions: [{ ...first, type: "單選題", images: [], explanation: "" }],
+  };
+  const saved = await call(env, "/api/manage/questions/" + first.id, {
+    method: "POST",
+    reviewer: true,
+    body: { action: "update", revision: 2, payload: cleared },
+  });
+  assert.equal(saved.response.status, 200);
+  const afterClear = await call(env, "/api/questions?course=os");
+  assert.equal(
+    afterClear.data.questions.find((q) => q.question.id === first.id).question
+      .explanation,
+    "",
+  );
+  assert.equal(
+    env.sql.prepare("SELECT count(*) AS n FROM question_history").get().n,
+    77,
+  );
+  env.sql
+    .prepare("UPDATE submissions SET status='pending' WHERE id=?")
+    .run(submissionId);
+  assert(
+    (
+      await call(env, "/api/review", { reviewer: true })
+    ).data.items[0].payload.questions.every((q) => q.explanation),
+  );
 });
 
 test("reviewed explanations preserve later edits and require the matching id, question, answer and unit", async () => {
-  const content = JSON.parse(await readFile(new URL("../content/approved-explanations.json", import.meta.url), "utf8"));
+  const content = JSON.parse(
+    await readFile(
+      new URL("../content/approved-explanations.json", import.meta.url),
+      "utf8",
+    ),
+  );
   const entry = content.entries[0];
   for (const change of [
     { explanation: "站主之後補寫的完整解析" },
@@ -511,10 +679,265 @@ test("reviewed explanations preserve later edits and require the matching id, qu
     { unit: "basics" },
   ]) {
     const env = await setup();
-    const question = { id: entry.id, stem: entry.stem, options: entry.options, answer: entry.answer, explanation: "", ...change };
-    env.sql.prepare("INSERT INTO public_questions (id,fingerprint,submission_id,course,unit,data,created_at) VALUES (?,?,?,?,?,?,0)")
-      .run(question.id, "guard-fixture", "fixture", "os", change.unit || entry.unit, JSON.stringify(question));
+    const question = {
+      id: entry.id,
+      stem: entry.stem,
+      options: entry.options,
+      answer: entry.answer,
+      explanation: "",
+      ...change,
+    };
+    env.sql
+      .prepare(
+        "INSERT INTO public_questions (id,fingerprint,submission_id,course,unit,data,created_at) VALUES (?,?,?,?,?,?,0)",
+      )
+      .run(
+        question.id,
+        "guard-fixture",
+        "fixture",
+        "os",
+        change.unit || entry.unit,
+        JSON.stringify(question),
+      );
     const result = await call(env, "/api/questions?course=os");
     assert.deepEqual(result.data.questions[0].question, question);
   }
+});
+
+test("images on questions 101 and 200 remain readable by the owner and after approval", async () => {
+  const env = await setup(),
+    p = payload(),
+    png =
+      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j1ioAAAAASUVORK5CYII=";
+  p.questions = Array.from({ length: 200 }, (_, i) => ({
+    ...p.questions[0],
+    stem: "圖片邊界 " + i,
+    images: i === 100 || i === 199 ? [png] : [],
+  }));
+  const sent = await call(env, "/api/submissions", { method: "POST", body: p });
+  assert.equal(sent.response.status, 201);
+  for (const i of [100, 199])
+    assert.equal(
+      (await call(env, `/api/image/${sent.data.id}/${i}-0`, { reviewer: true }))
+        .response.status,
+      200,
+    );
+  const saved = (await call(env, "/api/review", { reviewer: true })).data
+    .items[0];
+  assert.equal(
+    (
+      await call(env, "/api/review/" + sent.data.id, {
+        method: "POST",
+        reviewer: true,
+        body: {
+          action: "approve",
+          revision: 1,
+          payload: saved.payload,
+          note: "",
+        },
+      })
+    ).response.status,
+    200,
+  );
+  for (const i of [100, 199])
+    assert.equal(
+      (await call(env, `/api/image/${sent.data.id}/${i}-0`)).response.status,
+      200,
+    );
+});
+test("submission validation rejects impossible single-choice and out-of-range answers", async () => {
+  for (const answer of ["A,B", "H", "Z", "無法對應的內容"]) {
+    const env = await setup(),
+      p = payload();
+    p.questions[0].answer = answer;
+    assert.equal(
+      (await call(env, "/api/submissions", { method: "POST", body: p }))
+        .response.status,
+      400,
+    );
+  }
+  const p = payload();
+  p.questions[0].type = "多選題";
+  p.questions[0].answer = "A,B";
+  assert.equal(normalizeBatch(p).questions[0].choiceKey, "AB");
+});
+test("relabeled options are flagged for confirmation without automatic deletion", async () => {
+  const env = await setup(),
+    p = payload();
+  p.questions[0].options = ["A. Alpha", "B. Beta"];
+  const one = await call(env, "/api/submissions", { method: "POST", body: p });
+  await call(env, "/api/review/" + one.data.id, {
+    method: "POST",
+    reviewer: true,
+    body: { action: "approve", revision: 1, payload: p, note: "" },
+  });
+  const q = {
+    ...p,
+    questions: [
+      { ...p.questions[0], options: ["A. Beta", "B. Alpha"], answer: "B" },
+    ],
+  };
+  const check = await call(env, "/api/submissions", {
+    method: "POST",
+    body: q,
+  });
+  assert.equal(check.response.status, 409);
+  assert.equal(check.data.code, "similar_questions");
+  assert.equal(check.data.possibleDuplicates.length, 1);
+  const confirmed = await call(env, "/api/submissions", {
+    method: "POST",
+    body: { ...q, confirmSimilar: true },
+  });
+  assert.equal(confirmed.response.status, 201);
+  const review = await call(env, "/api/review/" + confirmed.data.id, {
+    method: "POST",
+    reviewer: true,
+    body: { action: "approve", revision: 1, payload: q, note: "" },
+  });
+  assert.equal(review.data.code, "similar_questions");
+  assert.equal(
+    (
+      await call(env, "/api/review/" + confirmed.data.id, {
+        method: "POST",
+        reviewer: true,
+        body: {
+          action: "approve",
+          revision: 1,
+          payload: q,
+          note: "",
+          confirmSimilar: true,
+        },
+      })
+    ).response.status,
+    200,
+  );
+});
+test("published management enforces permissions, revisions, history, hide/restore and complete exports", async () => {
+  const env = await setup(),
+    p = payload(),
+    sent = await call(env, "/api/submissions", { method: "POST", body: p });
+  await call(env, "/api/review/" + sent.data.id, {
+    method: "POST",
+    reviewer: true,
+    body: { action: "approve", revision: 1, payload: p, note: "" },
+  });
+  const id = `community-${sent.data.id}-1`,
+    path = "/api/manage/questions/" + id;
+  assert.equal((await call(env, "/api/manage/questions")).response.status, 401);
+  assert.equal(
+    (await call(env, "/api/manage/export", { otherUser: true })).response
+      .status,
+    403,
+  );
+  const current = (await call(env, "/api/manage/questions", { reviewer: true }))
+    .data.items[0];
+  assert.equal(current.revision, 1);
+  const updated = {
+    ...p,
+    questions: [
+      { ...p.questions[0], explanation: "站主在核准之後補上的詳細解析。" },
+    ],
+  };
+  assert.equal(
+    (
+      await call(env, path, {
+        method: "POST",
+        body: { action: "update", revision: 1, payload: updated },
+      })
+    ).response.status,
+    401,
+  );
+  assert.equal(
+    (
+      await call(env, path, {
+        method: "POST",
+        reviewer: true,
+        siteOrigin: "https://evil.test",
+        body: { action: "update", revision: 1, payload: updated },
+      })
+    ).response.status,
+    403,
+  );
+  const saved = await call(env, path, {
+    method: "POST",
+    reviewer: true,
+    body: { action: "update", revision: 1, payload: updated, note: "補解析" },
+  });
+  assert.equal(saved.response.status, 200);
+  assert.equal(saved.data.item.revision, 2);
+  assert.equal(
+    (await call(env, "/api/questions?course=os")).data.questions[0].question
+      .explanation,
+    updated.questions[0].explanation,
+  );
+  assert.equal(
+    (
+      await call(env, path, {
+        method: "POST",
+        reviewer: true,
+        body: { action: "hide", revision: 1 },
+      })
+    ).response.status,
+    409,
+  );
+  assert.equal(
+    (
+      await call(env, path, {
+        method: "POST",
+        reviewer: true,
+        body: { action: "hide", revision: 2 },
+      })
+    ).response.status,
+    200,
+  );
+  assert.equal(
+    (await call(env, "/api/questions?course=os")).data.questions.length,
+    0,
+  );
+  assert.equal(
+    (await call(env, "/api/manage/questions?state=hidden", { reviewer: true }))
+      .data.items.length,
+    1,
+  );
+  assert.equal(
+    (
+      await call(env, path, {
+        method: "POST",
+        reviewer: true,
+        body: { action: "restore", revision: 3 },
+      })
+    ).response.status,
+    200,
+  );
+  const history = await call(env, path + "/history", { reviewer: true });
+  assert.equal(history.data.items.length, 3);
+  assert.equal(
+    history.data.items.find((r) => r.revision === 1).data.explanation,
+    p.questions[0].explanation,
+  );
+  const backup = await call(env, "/api/manage/export", { reviewer: true });
+  assert.equal(backup.response.status, 200);
+  assert.equal(
+    backup.data.questions[0].question.explanation,
+    updated.questions[0].explanation,
+  );
+  assert.equal(backup.data.history.length, 3);
+  assert.equal(backup.data.submissions.length, 1);
+  assert.equal(
+    (await call(env, "/api/questions?course=os")).data.questions.length,
+    1,
+  );
+});
+
+test("answer matching keeps mathematics case-sensitive and supports explicit bilingual answer labels", () => {
+  const key = globalThis.courseChoiceAnswers.expectedChoiceKey;
+  assert.equal(key("ω", ["A. ω", "B. O", "C. Ω", "D. o"]), "A");
+  assert.equal(key("Ω", ["A. ω", "B. O", "C. Ω", "D. o"]), "C");
+  assert.equal(key("o", ["A. O", "B. Ω", "C. o", "D. Θ"]), "C");
+  assert.equal(
+    key("B. 損毀傾印（Crash dump）", ["A. Logging", "B. Crash dump"]),
+    "B",
+  );
+  assert.equal(key("A. ω", ["A. ω", "B. O", "C. Ω", "D. o"]), "A");
+  assert.equal(key("A,B", ["A. first", "B. second"]), "AB");
 });

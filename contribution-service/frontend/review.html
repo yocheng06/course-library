@@ -6,7 +6,10 @@
     <title>審核題庫｜課程學習站</title>
     <meta name="robots" content="noindex" />
     <link rel="icon" href="assets/icons/course-mascot.png" />
-    <link rel="stylesheet" href="assets/contributions.css?v=20261014" />
+    <link
+      rel="stylesheet"
+      href="assets/contributions.css?v=site-fixes-20261016"
+    />
   </head>
   <body>
     <header class="contribution-nav">
@@ -36,6 +39,37 @@
           >登入後審核</a
         >
       </section>
+      <div
+        id="managementTabs"
+        class="actions"
+        role="group"
+        aria-label="管理工作區"
+        hidden
+      >
+        <button
+          type="button"
+          id="showReviews"
+          class="button"
+          aria-pressed="true"
+        >
+          投稿審核</button
+        ><button
+          type="button"
+          id="showPublished"
+          class="button secondary"
+          aria-pressed="false"
+        >
+          已發布題目管理</button
+        ><button type="button" id="exportReviewDrafts" class="text-button">
+          下載本機編輯草稿
+        </button>
+      </div>
+      <p
+        id="reviewDraftStatus"
+        class="muted"
+        role="status"
+        aria-live="polite"
+      ></p>
       <section id="reviewWorkspace" hidden>
         <div class="panel review-controls">
           <label
@@ -59,6 +93,39 @@
           載入更多投稿
         </button>
       </section>
+      <section id="managementWorkspace" hidden>
+        <h2>已發布題目管理</h2>
+        <p class="muted">
+          可編輯題目與解析、下架或重新上架。修改前版本會保留在紀錄中；下架不會刪除資料。已核准投稿列表保留核准時的紀錄，目前內容以此處為準。
+        </p>
+        <form id="manageSearchForm" class="panel review-controls">
+          <label>科目<select id="manageCourse"></select></label
+          ><label
+            >狀態<select id="manageState">
+              <option value="published">上架中</option>
+              <option value="hidden">已下架</option>
+              <option value="all">全部</option>
+            </select></label
+          ><label
+            >搜尋<input
+              id="manageQuery"
+              maxlength="100"
+              placeholder="題幹、答案或解析" /></label
+          ><button class="button secondary" type="submit">搜尋／重新載入</button
+          ><button id="exportBackup" class="button secondary" type="button">
+            下載完整備份
+          </button>
+        </form>
+        <p class="muted">
+          JSON
+          備份包含全部已核准投稿題目（含下架）、原始資料、投稿與修改紀錄；題圖以連結保存。
+        </p>
+        <p id="manageCount" class="muted" role="status"></p>
+        <div id="publishedList"></div>
+        <button id="manageMore" type="button" class="button secondary" hidden>
+          載入更多題目
+        </button>
+      </section>
       <p
         id="message"
         class="message"
@@ -70,7 +137,7 @@
     <script src="assets/contributions-config.js?v=20261014"></script>
     <script
       type="module"
-      src="assets/contributions-review.js?v=auto-deduplicate-20261016"
+      src="assets/contributions-review.js?v=site-fixes-20261016"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫審核功能。</noscript>
   </body>

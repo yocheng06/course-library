@@ -1,4 +1,9 @@
-import { COURSE_UNITS, normalizeType, normalizeBatch, uniqueQuestions } from "./contribution-model.js?v=auto-deduplicate-20261016";
+import {
+  COURSE_UNITS,
+  normalizeType,
+  normalizeBatch,
+  uniqueQuestions,
+} from "./contribution-model.js?v=site-fixes-20261016";
 import {
   esc,
   api,
@@ -6,7 +11,10 @@ import {
   questionPreview,
   statusLabel,
   showDuplicates,
-} from "./contributions-ui.js?v=auto-deduplicate-20261016";
+  showSimilar,
+  downloadJSON,
+  copyText,
+} from "./contributions-ui.js?v=site-fixes-20261016";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
@@ -135,7 +143,8 @@ try {
       : [];
     for (const [name, value] of Object.entries(draft.editor || {})) {
       if (form.elements[name] && typeof value === "string")
-        form.elements[name].value = name === "type" ? normalizeType(value) : value;
+        form.elements[name].value =
+          name === "type" ? normalizeType(value) : value;
     }
     images = draft.images || [];
     if (images.length) form.elements.type.value = "圖片題";
@@ -192,13 +201,27 @@ form.addEventListener("submit", (event) => {
     questions = normalizeBatch({
       ...metadata(),
       title: $("batchTitle").value || "草稿",
-      questions: uniqueQuestions($("course").value, $("unit").value, next, (q) => skipped.push(q)),
+      questions: uniqueQuestions(
+        $("course").value,
+        $("unit").value,
+        next,
+        (q) => skipped.push(q),
+      ),
     }).questions;
-    showDuplicates({ receivedCount: next.length, acceptedCount: questions.length, skippedCount: skipped.length, skipped });
+    showDuplicates({
+      receivedCount: next.length,
+      acceptedCount: questions.length,
+      skippedCount: skipped.length,
+      skipped,
+    });
     clearEditor();
     render();
     save();
-    message(skipped.length ? "已自動略過重複題，保留投稿清單中的第一筆。" : "題目已加入投稿清單，可繼續新增或送出審核。");
+    message(
+      skipped.length
+        ? "已自動略過重複題，保留投稿清單中的第一筆。"
+        : "題目已加入投稿清單，可繼續新增或送出審核。",
+    );
   } catch (error) {
     message(error.message, true);
   }
@@ -349,34 +372,55 @@ $("importFile").addEventListener("change", async (event) => {
     }
     const skipped = [];
     const imported = importedQuestions(data);
-    const candidate = normalizeBatch({
-      ...metadata(),
-      title:
-        data.title ||
-        $("batchTitle").value ||
-        file.name.replace(/\.(json|html?)$/i, ""),
-      name: data.name ?? $("submitter").value,
-      source: data.source ?? $("source").value,
-      questions: imported?.map((q) => ({
-        ...q,
-        type: normalizeType((q.options ?? q.opts)?.length ? q.type || "單選題" : q.type === "圖片題" ? "圖片題" : "填空題", q.images || []),
-        images: (q.images || []).map((image) =>
-          typeof image === "string" ? image : image.src,
-        ),
-      })),
-    }, { onDuplicate: (q) => skipped.push(q) });
+    const candidate = normalizeBatch(
+      {
+        ...metadata(),
+        title:
+          data.title ||
+          $("batchTitle").value ||
+          file.name.replace(/\.(json|html?)$/i, ""),
+        name: data.name ?? $("submitter").value,
+        source: data.source ?? $("source").value,
+        questions: imported?.map((q) => ({
+          ...q,
+          type: normalizeType(
+            (q.options ?? q.opts)?.length
+              ? q.type || "單選題"
+              : q.type === "圖片題"
+                ? "圖片題"
+                : "填空題",
+            q.images || [],
+          ),
+          images: (q.images || []).map((image) =>
+            typeof image === "string" ? image : image.src,
+          ),
+        })),
+      },
+      { onDuplicate: (q) => skipped.push(q) },
+    );
     const previousCount = questions.length;
-    const merged = uniqueQuestions(candidate.course, candidate.unit,
-      [...questions, ...candidate.questions], (q) => skipped.push({ ...q, index: null, reason: "draft" }));
+    const merged = uniqueQuestions(
+      candidate.course,
+      candidate.unit,
+      [...questions, ...candidate.questions],
+      (q) => skipped.push({ ...q, index: null, reason: "draft" }),
+    );
     questions = normalizeBatch({ ...candidate, questions: merged }).questions;
     const added = questions.length - previousCount;
-    showDuplicates({ receivedCount: imported.length, acceptedCount: added, skippedCount: skipped.length, skipped });
+    showDuplicates({
+      receivedCount: imported.length,
+      acceptedCount: added,
+      skippedCount: skipped.length,
+      skipped,
+    });
     $("batchTitle").value = candidate.title;
     $("submitter").value = candidate.name;
     $("source").value = candidate.source;
     render();
     save();
-    message(`已新增 ${added} 題至投稿清單${skipped.length ? `，自動略過 ${skipped.length} 題重複題目` : ""}。請預覽內容再送出。`);
+    message(
+      `已新增 ${added} 題至投稿清單${skipped.length ? `，自動略過 ${skipped.length} 題重複題目` : ""}。請預覽內容再送出。`,
+    );
   } catch (error) {
     message("無法匯入：" + error.message, true);
   } finally {
@@ -428,14 +472,42 @@ $("submitBatch").addEventListener("click", async () => {
     message("正在送出投稿…");
     const result = await api("/api/submissions", {
       method: "POST",
-      body: JSON.stringify({ ...payload, website: $("website").value }),
+      body: JSON.stringify({
+        ...payload,
+        website: $("website").value,
+        confirmSimilar:
+          $("possibleDuplicates").querySelector(".similar-consent")?.checked ===
+          true,
+      }),
     });
     showDuplicates(result);
     if (result.status === "duplicates_only") {
       $("success").hidden = true;
-      message(`這 ${result.receivedCount} 題均已收錄或與本批重複，沒有新增投稿。草稿仍保留，可查看下方略過清單。`);
+      message(
+        `這 ${result.receivedCount} 題均已收錄或與本批重複，沒有新增投稿。草稿仍保留，可查看下方略過清單。`,
+      );
       return;
     }
+    let receiptSaveFailed = false;
+    currentReceipt = {
+      id: result.id,
+      course: payload.course,
+      title: payload.title,
+      acceptedCount: result.acceptedCount,
+      skippedCount: result.skippedCount,
+      submittedAt: new Date().toISOString(),
+    };
+    receipts = [
+      currentReceipt,
+      ...receipts.filter((r) => r.id !== result.id),
+    ].slice(0, 20);
+    try {
+      localStorage.setItem(receiptKey, JSON.stringify(receipts));
+    } catch {
+      receiptSaveFailed = true;
+    }
+    renderReceipts();
+    showSimilar($("possibleDuplicates"), []);
     $("receipt").textContent = result.id;
     $("statusId").value = result.id;
     $("success").hidden = false;
@@ -443,8 +515,12 @@ $("submitBatch").addEventListener("click", async () => {
     clearEditor();
     render();
     save();
-    message(`已送出 ${result.acceptedCount ?? payload.questions.length} 題，等待站主審核${result.skippedCount ? `；自動略過 ${result.skippedCount} 題重複題目` : ""}。`);
+    message(
+      `已送出 ${result.acceptedCount ?? payload.questions.length} 題，等待站主審核${result.skippedCount ? `；自動略過 ${result.skippedCount} 題重複題目` : ""}。${receiptSaveFailed ? "這台裝置無法保存收據，請下載投稿收據備份。" : ""}`,
+    );
   } catch (error) {
+    if (error.details?.code === "similar_questions")
+      showSimilar($("possibleDuplicates"), error.details.possibleDuplicates);
     message(
       error.message === "Failed to fetch"
         ? "無法連線，草稿已保留，請稍後再送出。"
@@ -476,3 +552,57 @@ $("statusForm").addEventListener("submit", async (event) => {
     $("statusResult").textContent = error.message;
   }
 });
+
+const receiptKey = "course-library-submission-receipts-v1";
+let receipts = [],
+  currentReceipt = null;
+try {
+  const saved = JSON.parse(localStorage.getItem(receiptKey) || "[]");
+  if (Array.isArray(saved))
+    receipts = saved
+      .filter(
+        (r) => /^[0-9a-f-]{36}$/i.test(r.id) && typeof r.title === "string",
+      )
+      .slice(0, 20);
+} catch {}
+function renderReceipts() {
+  $("recentReceipts").hidden = !receipts.length;
+  $("receiptList").innerHTML = receipts
+    .map(
+      (r, i) =>
+        `<article class="draft-card"><h3>${esc(r.title)}</h3><p>${esc(r.id)} · ${esc(r.submittedAt ? new Date(r.submittedAt).toLocaleString("zh-TW") : "")} · ${Number(r.acceptedCount) || 0} 題</p><div class="actions"><button type="button" class="text-button" data-receipt-check="${i}">查詢狀態</button><button type="button" class="text-button" data-receipt-copy="${i}">複製編號</button><button type="button" class="text-button" data-receipt-download="${i}">下載收據</button></div></article>`,
+    )
+    .join("");
+}
+$("copyReceipt").addEventListener(
+  "click",
+  () => currentReceipt && copyText(currentReceipt.id),
+);
+$("downloadReceipt").addEventListener(
+  "click",
+  () => currentReceipt && downloadJSON(currentReceipt, "題庫投稿收據.json"),
+);
+$("receiptList").addEventListener("click", (event) => {
+  const b = event.target.closest("button");
+  if (!b) return;
+  if (b.dataset.receiptCheck !== undefined) {
+    $("statusId").value = receipts[Number(b.dataset.receiptCheck)].id;
+    $("statusForm").requestSubmit();
+  }
+  if (b.dataset.receiptCopy !== undefined)
+    copyText(receipts[Number(b.dataset.receiptCopy)].id);
+  if (b.dataset.receiptDownload !== undefined)
+    downloadJSON(
+      receipts[Number(b.dataset.receiptDownload)],
+      "題庫投稿收據.json",
+    );
+});
+form.addEventListener("input", () => {
+  const check = $("possibleDuplicates").querySelector(".similar-consent");
+  if (check) check.checked = false;
+});
+$("draftList").addEventListener("click", () => {
+  const check = $("possibleDuplicates").querySelector(".similar-consent");
+  if (check) check.checked = false;
+});
+renderReceipts();

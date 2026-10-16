@@ -25,6 +25,9 @@ export const publicQuestions = sqliteTable(
     course: text("course").notNull(),
     unit: text("unit").notNull(),
     data: text("data").notNull(),
+    revision: integer("revision").notNull().default(1),
+    isPublished: integer("is_published").notNull().default(1),
+    updatedAt: integer("updated_at"),
     createdAt: integer("created_at").notNull(),
   },
   (t) => [index("questions_course_unit").on(t.course, t.unit)],
@@ -33,4 +36,26 @@ export const rateWindows = sqliteTable("rate_windows", {
   key: text("key").primaryKey(),
   count: integer("count").notNull(),
   expiresAt: integer("expires_at").notNull(),
+});
+
+export const questionHistory = sqliteTable(
+  "question_history",
+  {
+    id: text("id").primaryKey(),
+    questionId: text("question_id").notNull(),
+    revision: integer("revision").notNull(),
+    course: text("course").notNull(),
+    unit: text("unit").notNull(),
+    data: text("data").notNull(),
+    isPublished: integer("is_published").notNull(),
+    action: text("action").notNull(),
+    actor: text("actor").notNull(),
+    note: text("note").notNull().default(""),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [index("history_question_created").on(t.questionId, t.createdAt)],
+);
+export const contentUpdates = sqliteTable("content_updates", {
+  id: text("id").primaryKey(),
+  appliedAt: integer("applied_at").notNull(),
 });

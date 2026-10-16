@@ -15,20 +15,33 @@ const fingerprints = entries.map((q) =>
     .update(questionKey(q.course, q.unit, q))
     .digest("hex"),
 );
-const reviewed = JSON.parse(await readFile(resolve(root, "content/approved-explanations.json"), "utf8"));
+const reviewed = JSON.parse(
+  await readFile(resolve(root, "content/approved-explanations.json"), "utf8"),
+);
 const explanations = {};
 for (const entry of reviewed.entries) {
-  if (!/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(entry.id) || explanations[entry.id] ||
-      !COURSE_UNITS[entry.course]?.units[entry.unit] ||
-      typeof entry.stem !== "string" || !Array.isArray(entry.options) ||
-      typeof entry.answer !== "string" || !entry.answer.trim() ||
-      typeof entry.explanation !== "string" || !entry.explanation.trim() || entry.explanation.length > 16000 ||
-      !entry.sources?.length || entry.sources.some(key => !reviewed.sources[key])) {
+  if (
+    !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(entry.id) ||
+    explanations[entry.id] ||
+    !COURSE_UNITS[entry.course]?.units[entry.unit] ||
+    typeof entry.stem !== "string" ||
+    !Array.isArray(entry.options) ||
+    typeof entry.answer !== "string" ||
+    !entry.answer.trim() ||
+    typeof entry.explanation !== "string" ||
+    !entry.explanation.trim() ||
+    entry.explanation.length > 16000 ||
+    !entry.sources?.length ||
+    entry.sources.some((key) => !reviewed.sources[key])
+  ) {
     throw new Error("Invalid reviewed explanation: " + entry.id);
   }
   explanations[entry.id] = {
-    course: entry.course, unit: entry.unit, key: questionKey(entry.course, entry.unit, entry),
-    answer: entry.answer, explanation: entry.explanation,
+    course: entry.course,
+    unit: entry.unit,
+    key: questionKey(entry.course, entry.unit, entry),
+    answer: entry.answer,
+    explanation: entry.explanation,
   };
 }
 const paths = [
@@ -37,6 +50,7 @@ const paths = [
   "assets/contributions.css",
   "assets/contributions-config.js",
   "assets/contribution-model.js",
+  "assets/choice-answers.js",
   "assets/contributions-ui.js",
   "assets/contributions-submit.js",
   "assets/contributions-review.js",
@@ -61,16 +75,21 @@ assets["/assets/icons/course-mascot.png"] = {
   base64: true,
 };
 let worker = await readFile(resolve(root, "worker/index.js"), "utf8");
-const model = (
-  await readFile(resolve(root, "worker/model.js"), "utf8")
-).replace(/^export /gm, "");
-worker = worker.replace(/^import\s+\{[^}]*\}\s+from\s+["']\.\/model\.js["'];\s*/, "");
+const model = (await readFile(resolve(root, "worker/model.js"), "utf8"))
+  .replace(/^import .*;\s*$/gm, "")
+  .replace(/^export /gm, "");
+worker = worker.replace(
+  /^import\s+\{[^}]*\}\s+from\s+["']\.\/model\.js["'];\s*/,
+  "",
+);
 worker =
+  (await readFile(resolve(root, "worker/choice-answers.js"), "utf8")) +
+  "\n" +
   model +
   "\n" +
   worker.replace(
     "/* BUILD_DATA */",
-    `const BASE_FINGERPRINTS=${JSON.stringify(fingerprints)};\nconst STATIC_ASSETS=${JSON.stringify(assets)};\nconst REVIEWED_EXPLANATIONS=${JSON.stringify(explanations)};`,
+    `const BASE_FINGERPRINTS=${JSON.stringify(fingerprints)};\nconst BASE_QUESTIONS=${JSON.stringify(entries)};\nconst STATIC_ASSETS=${JSON.stringify(assets)};\nconst REVIEWED_EXPLANATIONS=${JSON.stringify(explanations)};\nconst REVIEWED_CONTENT_VERSION=${JSON.stringify(createHash("sha256").update(JSON.stringify(explanations)).digest("hex"))};`,
   );
 await writeFile(resolve(root, "dist/server/index.js"), worker);
 await cp(
@@ -80,9 +99,7 @@ await cp(
 await cp(resolve(root, "drizzle"), resolve(root, "dist/drizzle"), {
   recursive: true,
 });
-const built = await import(
-  resolve(root, "dist/server/index.js")
-);
+const built = await import(resolve(root, "dist/server/index.js"));
 if (typeof built.default?.fetch !== "function")
   throw new Error("Invalid Worker export");
 console.log(

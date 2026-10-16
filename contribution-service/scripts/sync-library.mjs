@@ -8,6 +8,7 @@ const paths = [
   "assets/contributions.css",
   "assets/contributions-config.js",
   "assets/contribution-model.js",
+  "assets/choice-answers.js",
   "assets/contributions-ui.js",
   "assets/contributions-submit.js",
   "assets/contributions-review.js",
@@ -20,6 +21,10 @@ for (const name of paths) {
 await cp(
   resolve(library, "assets/contribution-model.js"),
   resolve(root, "worker/model.js"),
+);
+await cp(
+  resolve(library, "assets/choice-answers.js"),
+  resolve(root, "worker/choice-answers.js"),
 );
 const os = JSON.parse(
     (await readFile(resolve(library, "os.html"), "utf8")).match(
