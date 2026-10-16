@@ -341,3 +341,161 @@ test("standalone named headings preserve original numbering and limits without t
     /最多比對 30 題/,
   );
 });
+
+test("user's 25-question heap transcription accepts invisible characters, circle options and LaTeX without losing questions", async () => {
+  const text = await readFile(
+    new URL("./fixtures/batch-heap.txt", import.meta.url),
+    "utf8",
+  );
+  const questions = parseQuestions(text);
+  assert.equal(questions.length, 25);
+  assert.deepEqual(
+    questions.map((q) => q.number),
+    Array.from({ length: 25 }, (_, i) => String(i + 1)),
+  );
+  const fills = [1, 5, 6, 8, 11, 12, 19, 20];
+  for (const q of questions)
+    assert.equal(
+      q.options.length,
+      fills.includes(Number(q.number)) ? 0 : 4,
+      q.number,
+    );
+  const data = JSON.parse(
+    await readFile(
+      new URL("../assets/batch-library.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const rows = matchQuestions(questions, buildIndex(data.entries), {
+    course: "algorithms",
+  });
+  assert.equal(rows.filter((r) => r.status === "matched").length, 23);
+  assert.equal(rows.filter((r) => r.status === "review").length, 2);
+  assert.deepEqual(
+    rows.map((r) =>
+      r.status === "matched"
+        ? r.question.options.length
+          ? [...r.answer.matchAll(/(?:^|；)([A-H])\./g)]
+              .map((m) => m[1])
+              .join("")
+          : r.answer
+        : r.status,
+    ),
+    [
+      "max-heap",
+      "D",
+      "B",
+      "review",
+      "review",
+      "O(nlogn)",
+      "BCD",
+      "maximum",
+      "B",
+      "C",
+      "greater",
+      "T(n)<=T(2n/3)+big-theta(1)",
+      "ABD",
+      "D",
+      "A",
+      "B",
+      "AB",
+      "A",
+      "O(logn)",
+      "in-place",
+      "ABC",
+      "D",
+      "ABD",
+      "ABCD",
+      "ABC",
+    ],
+  );
+  assert.equal(rows[3].references[0].id, "L4-046");
+  assert.equal(rows[4].answer, "");
+  assert(rows[4].reason.includes("圖片"));
+  assert(
+    aiPrompt(
+      rows.filter((r) => r.status === "review").map((r) => r.question),
+    ).includes("根為 4"),
+  );
+});
+
+test("math presentation aliases preserve bases, case, rounding and comparison direction", () => {
+  assert.equal(normalizeText("O(n \\log n)"), normalizeText("O(n log n)"));
+  assert.equal(
+    normalizeText("\\lfloor i/2 \\rfloor"),
+    normalizeText("⌊ i/2 ⌋"),
+  );
+  assert.equal(normalizeText("\\text{floor}(i/2)"), normalizeText("⌊i/2⌋"));
+  assert.equal(normalizeText("n^{2}"), normalizeText("n^2"));
+  assert.equal(normalizeText("n²"), normalizeText("n^2"));
+  assert.notEqual(normalizeText("n²"), normalizeText("n2"));
+  assert.equal(
+    parseQuestions("1. O(n²)\n◯ **A.** n²\n☑️ B. n2")[0].options[0].text,
+    "n^{2}",
+  );
+  for (const [a, b] of [
+    ["log n", "lg n"],
+    ["log n", "ln n"],
+    ["⌊i/2⌋", "⌈i/2⌉"],
+    ["O(n)", "o(n)"],
+    ["n^{N}", "n^{n}"],
+    ["x<0", "x>0"],
+  ])
+    assert.notEqual(normalizeText(a), normalizeText(b));
+});
+
+test("text answers may map to one exact option, while ambiguous, image and conflicting choices require review", () => {
+  const fill = make({ options: [], answer: "原地排序" });
+  const input = "1. CPU 排程器是哪一種類型的排程器？\nA. 原地排序\nB. 其他";
+  assert.equal(lookup(input, [fill])[0].answer, "A. 原地排序");
+  for (const entries of [
+    [{ ...fill, needsImage: true }],
+    [fill, make()],
+    [fill, { ...fill, id: "other", answer: "其他" }],
+  ]) {
+    assert.equal(lookup(input, entries)[0].status, "review");
+  }
+  assert.equal(lookup(input + "\nC. 原地排序", [fill])[0].status, "review");
+  assert.equal(
+    lookup(input, [{ ...fill, answer: "原地" }])[0].status,
+    "review",
+  );
+});
+
+test("only known English/math answer instructions are presentation aliases; case, naming and added conditions remain meaningful", () => {
+  const fill = make({
+    stem: "執行時間為 __________",
+    options: [],
+    answer: "O(nlogn)",
+  });
+  const hint =
+    "（請用英文回答，表示形式為 請用 log，不可用 lg 替代 log，上標請用 ^，符號請用 {big-theta, theta, big-omega, omega, O, o}）";
+  assert.equal(
+    lookup("1. 執行時間為 ____ " + hint, [fill])[0].answer,
+    "O(nlogn)",
+  );
+  for (const suffix of [
+    "（請用英文回答，只考慮 n<0）",
+    "（請用大寫英文回答）",
+    "（請用英文回答，填完整名稱）",
+  ])
+    assert.notEqual(
+      lookup("1. 執行時間為 ____ " + suffix, [fill])[0].status,
+      "matched",
+    );
+  assert.equal(
+    lookup("1. 執行時間為 ____（請用英文回答）", [
+      { ...fill, answer: "線性" },
+    ])[0].status,
+    "review",
+  );
+  assert.equal(
+    lookup("1. 執行時間為 ____（請用英文回答，中間不留空白）", [
+      { ...fill, answer: "O(n log n)" },
+    ])[0].status,
+    "review",
+  );
+  const extra = lookup("1. 執行時間為 ____\n附加條件：只考慮 n<0", [fill])[0];
+  assert.notEqual(extra.status, "matched");
+  assert.equal(extra.answer, "");
+});

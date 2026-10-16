@@ -3,11 +3,28 @@ import "./choice-answers.js?v=global-dedup-20261016";
 export const MAX_QUESTIONS = 30;
 export const MAX_TEXT = 80000;
 const LETTERS = "ABCDEFGH";
+const invisible = /[\u200B\u2060\uFEFF]/g;
+// NFKC alone flattens n² into n2, which changes the mathematical meaning.
+const superscriptChars = "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿⁱ";
+const superscriptValues = "0123456789+-=()ni";
+const normalizeUnicode = (value) =>
+  String(value ?? "")
+    .replace(
+      /[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿⁱ]+/g,
+      (group) =>
+        `^{${[...group].map((c) => superscriptValues[superscriptChars.indexOf(c)]).join("")}}`,
+    )
+    .normalize("NFKC");
 const cleanLine = (text) =>
-  text
+  normalizeUnicode(text)
+    .replace(invisible, "")
     .trim()
     .replace(/\*\*([A-H][.)、:]|\([A-H]\))\*\*/gi, "$1")
-    .replace(/^\*\*(.+?)\*\*(.*)$/, "$1$2");
+    .replace(/^\*\*(.+?)\*\*(.*)$/, "$1$2")
+    .replace(
+      /(^|\s)[◯○●⭕☐☑□■•·✓✔]\uFE0F?\s*(?=(?:\(?[A-H][.)、:]|\[[A-H]\]))/gi,
+      "$1",
+    );
 const header =
   /^(?:第\s*(\d{1,4})\s*題\s*[:：.)、]?|(?:Q(?:uestion)?|題目|題)\s*(\d{1,4})\s*[:：.)、-]?|[（(](\d{1,4})[）)]|(\d{1,4})[.)、](?=\D|$))\s*(.*)$/i;
 // AI sometimes emits standalone heading labels such as "Beast 1." or "妖獸 2.".
@@ -25,29 +42,57 @@ function questionHeader(line) {
   return named ? { number: named[1], text: "" } : null;
 }
 const option =
-  /^(?:[-*]\s+)?(?:\(([A-H])\)|\[([A-H])\]|([A-H])[.)、:])\s*(.*)$/i;
+  /^(?:[-*+]\s+)?(?:\(([A-H])\)|\[([A-H])\]|([A-H])[.)、:])\s*(.*)$/i;
 const metadata = /^(?:正確答案|參考答案|答案|解答|解析|詳解|說明)\s*[:：]/;
 const typePattern =
   /^(?:[【\[(（]\s*)?(單選題?|多選題?|複選題?|填空題?|圖片題?)(?:\s*[】\])）]|\s*[:：])\s*/;
 
 export function normalizeText(value) {
-  return String(value ?? "")
-    .normalize("NFKC")
-    .replace(/`([^`\n]+)`/g, "$1")
-    .replace(/\[_{2,}\d*_*\]|_{2,}/g, "___")
-    .replace(/[“”]/g, '"')
-    .replace(/[‘’]/g, "'")
-    .replace(/\s+/g, " ")
-    .replace(/([\p{Script=Han}])\s+/gu, "$1")
-    .replace(/\s+([\p{Script=Han}])/gu, "$1")
-    .replace(/\s*([,;:?!()\[\]{}])\s*/g, "$1")
-    .trim();
+  return (
+    normalizeUnicode(value)
+      .replace(invisible, "")
+      // Translate only known presentation commands. Keep variables, operators,
+      // logarithm bases and upper/lower bounds distinct.
+      .replace(/\\(?:text|operatorname)\{(floor|ceil|log)\}/g, "$1")
+      .replace(/\\(log|ln)\b/g, "$1")
+      .replace(/\\lfloor\s*([^{}\n]*?)\s*\\rfloor/g, "floor($1)")
+      .replace(/\\lceil\s*([^{}\n]*?)\s*\\rceil/g, "ceil($1)")
+      .replace(/⌊\s*([^⌊⌋\n]*?)\s*⌋/g, "floor($1)")
+      .replace(/⌈\s*([^⌈⌉\n]*?)\s*⌉/g, "ceil($1)")
+      .replace(/\^\{([A-Za-z0-9]+)\}/g, "^$1")
+      .replace(/`([^`\n]+)`/g, "$1")
+      .replace(/\[_{2,}\d*_*\]|_{2,}/g, "___")
+      .replace(/[“”]/g, '"')
+      .replace(/[‘’]/g, "'")
+      .replace(/\s+/g, " ")
+      .replace(/([\p{Script=Han}])\s+/gu, "$1")
+      .replace(/\s+([\p{Script=Han}])/gu, "$1")
+      .replace(/\s*([,;:?!()\[\]{}])\s*/g, "$1")
+      .trim()
+  );
 }
-export const normalizeStem = (value) =>
-  normalizeText(value).replace(/[?？。]+$/, "");
+// Only these complete, known English/math formatting hints may be omitted
+// from the lookup key. Naming, abbreviation, case and arbitrary conditions
+// remain part of the question. The pasted text itself is kept for display/copy.
+function englishFormat(value) {
+  const normalized = normalizeText(value).replace(/[?？。]+$/, "");
+  const match = normalized.match(/\((請用英文回答[^()]*)\)$/);
+  if (!match) return { stem: normalized, hint: "" };
+  const remainder = match[1]
+    .replace(/^請用英文回答/, "")
+    .replace(/表示形式為/g, "")
+    .replace(/請用log/g, "")
+    .replace(/不可用lg(?:替代log)?/g, "")
+    .replace(/上標(?:請)?用\^/g, "")
+    .replace(/符號請用\{big-theta,theta,big-omega,omega,O,o\}/g, "")
+    .replace(/(?:符號)?中間不留空白/g, "")
+    .replace(/[,;\s]/g, "");
+  if (remainder) return { stem: normalized, hint: "" };
+  return { stem: normalized.slice(0, match.index).trim(), hint: match[1] };
+}
+export const normalizeStem = (value) => englishFormat(value).stem;
 export const optionText = (value) =>
-  String(value ?? "")
-    .normalize("NFKC")
+  normalizeUnicode(value)
     .replace(/^(?:\([A-H]\)|\[[A-H]\]|[A-H][.)、:])\s*/i, "")
     .trim();
 export const optionKey = (value) => normalizeText(optionText(value));
@@ -159,6 +204,9 @@ export function parseQuestions(text) {
       /圖片/.test(q.type) ||
       /\[(?:看不清楚|無法辨識|圖片|題圖)[^\]]*\]|[（(]圖略[）)]/.test(
         q.stem + q.options.map((o) => o.text).join(""),
+      ) ||
+      /[（(](?:題目|原題)(?:附帶|附有|含有)[^）)\n]*(?:圖|虛擬碼)[^）)\n]*[）)]/.test(
+        q.stem,
       )
     )
       q.issues.push("題目含未提供的圖片或無法辨識的文字。");
@@ -270,12 +318,24 @@ export function buildIndex(entries) {
 }
 const sortedOptions = (options) => options.map(optionKey).sort();
 function remapAnswer(question, entry) {
-  if (!question.options.length)
+  if (!question.options.length) {
+    const { hint } = englishFormat(question.stem);
+    if (
+      hint &&
+      (/[\p{Script=Han}]/u.test(entry.answer) ||
+        (/中間不留空白/.test(hint) && /\s/.test(entry.answer)) ||
+        (/不可用lg/.test(hint) && /\blg/.test(entry.answer)))
+    )
+      return null;
     return { answer: entry.answer, signature: normalizeText(entry.answer) };
-  if (!entry.choiceKey) return null;
-  const correct = [...entry.choiceKey].map((letter) =>
-    optionKey(entry.options[LETTERS.indexOf(letter)]),
-  );
+  }
+  const correct = entry.options.length
+    ? entry.choiceKey &&
+      [...entry.choiceKey].map((letter) =>
+        optionKey(entry.options[LETTERS.indexOf(letter)]),
+      )
+    : [normalizeText(entry.answer)];
+  if (!correct) return null;
   const mapped = correct.map((text) =>
     question.options.filter((o) => optionKey(o.text) === text),
   );
@@ -330,6 +390,18 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   let exact = sameStem.filter(
     (e) => JSON.stringify(sortedOptions(e.options)) === options,
   );
+  let textAnswerBridge = false;
+  // A text-answer question can be transcribed as MCQ. Accept only an exact
+  // stem, an unambiguous literal answer, and no competing choice/image version.
+  if (
+    !exact.length &&
+    question.options.length &&
+    sameStem.length &&
+    sameStem.every((e) => !e.options.length && !e.needsImage)
+  ) {
+    exact = sameStem;
+    textAnswerBridge = true;
+  }
   if (exact.some((e) => e.preferred)) exact = exact.filter((e) => e.preferred);
   if (exact.length) {
     if (exact.some((e) => e.needsImage))
@@ -353,7 +425,9 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     return {
       status: "matched",
       answer: answers[0].answer,
-      reason: "題幹與選項符合題庫，答案已依貼上的選項代號對應。",
+      reason: textAnswerBridge
+        ? "題幹符合，題庫的文字答案唯一對應本次選項。"
+        : "題幹與選項符合題庫，答案已依貼上的選項代號對應。",
       references: references(exact),
     };
   }
@@ -366,6 +440,20 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
         : "找到同題幹的選擇題，請補齊選項後再比對。",
       references: references(sameStem),
     };
+  const firstLine = normalizeStem(question.stem.split("\n")[0]);
+  if (firstLine !== normalizeStem(question.stem) && firstLine.length >= 10) {
+    const withContext = (
+      index.stems.get(course + "|" + firstLine) || []
+    ).filter(eligible);
+    if (withContext.length)
+      return {
+        status: "review",
+        answer: "",
+        reason:
+          "找到同題幹，但附加的圖示描述或條件仍需核對，請開啟候選原題確認。",
+        references: references(withContext),
+      };
+  }
   const stem = normalizeStem(question.stem),
     candidates = [];
   for (const e of index.entries) {

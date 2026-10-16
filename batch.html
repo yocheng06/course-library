@@ -13,10 +13,7 @@
       rel="stylesheet"
       href="assets/contributions.css?v=global-dedup-20261016"
     />
-    <link
-      rel="stylesheet"
-      href="assets/batch.css?v=batch-heading-fix-20261017"
-    />
+    <link rel="stylesheet" href="assets/batch.css?v=batch-flexible-20261017" />
   </head>
   <body data-course="os">
     <a class="skip-link" href="#batchText">跳至貼上題目</a>
@@ -58,9 +55,10 @@
         </div>
         <label for="batchText">題幹與選項</label>
         <p id="formatHint" class="muted input-help">
-          支援「1.」、「第 1 題」及「Beast 1.／妖獸 2.」等獨立題號，選項用
-          A.、B.、C.、D.。填空題可省略選項；不用
-          JSON，粗體、星號、空行和分隔線可直接保留。
+          先選擇科目，再直接貼上常見 AI 抄題文字。支援「1.」、「題目 1.」、 「第
+          1 題」與「Beast 1.／妖獸 2.」等獨立題號， A.、◯
+          A.、(A)、全形選項及常見 LaTeX 數學寫法。
+          填空題可省略選項；粗體、星號、空行和分隔線可直接保留。
         </p>
         <textarea
           id="batchText"
@@ -180,7 +178,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=batch-heading-fix-20261017"
+      src="assets/batch-ui.mjs?v=batch-flexible-20261017"
     ></script>
   </body>
 </html>

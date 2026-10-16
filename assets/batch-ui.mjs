@@ -5,7 +5,7 @@ import {
   expandLibraryQuestion,
   aiPrompt,
   MAX_TEXT,
-} from "./batch-model.mjs?v=batch-heading-fix-20261017";
+} from "./batch-model.mjs?v=batch-flexible-20261017";
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
   String(value ?? "").replace(
@@ -106,7 +106,7 @@ async function loadLibrary() {
   $("reloadLibrary").disabled = true;
   $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
   try {
-    const built = fetch("assets/batch-library.json?v=batch-heading-fix-20261017", {
+    const built = fetch("assets/batch-library.json?v=batch-flexible-20261017", {
       signal: AbortSignal.timeout(12000),
     }).then(async (r) => {
       if (!r.ok) throw new Error("library");
@@ -222,9 +222,15 @@ $("batchForm").addEventListener("submit", (event) => {
     $("copyHelp").hidden = true;
     renderResults();
     markChanged();
-    message(
-      `已辨識 ${parsed.length} 題。請展開有疑義的項目，核對題幹與選項是否完整。`,
-    );
+    const otherCourse = snapshotCourse === "os" ? "algorithms" : "os";
+    const otherMatches = matchQuestions(parsed, index, {
+      course: otherCourse,
+    }).filter((r) => r.status === "matched").length;
+    const scopeHint =
+      otherMatches >= 2 && otherMatches > count("matched")
+        ? `這批有 ${otherMatches} 題符合${names[otherCourse]}題庫，請將科目切換為「${names[otherCourse]}」後重新比對。`
+        : "請展開有疑義的項目，核對題幹與選項是否完整。";
+    message(`已辨識 ${parsed.length} 題。${scopeHint}`);
     $("resultsHeading").focus({ preventScroll: true });
     $("results").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
