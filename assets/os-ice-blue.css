@@ -1,27 +1,27 @@
-/* Selected reference: pale blue navigation, white paper, blush selection.
+/* Selected reference: muted silver-blue navigation and selection, soft paper.
    Loaded only by the OS course; shared course geometry stays in its own files. */
 body[data-course="os"] {
-  --page: #f1f8fd;
-  --surface: #ffffff;
-  --ink: #263f56;
-  --muted: #506e89;
-  --line: #cfe1ef;
-  --green: #386b94;
-  --tint: #e3f0f9;
-  --rose: #87b5d8;
-  --rose-strong: #386b94;
-  --rose-soft: #e3f0f9;
-  --rail: #d3e7f5;
-  --rail-card: #e1eef8;
-  --rail-line: #b5d1e5;
-  --rail-ink: #2c4a64;
-  --rail-focus: #386b94;
-  --ui-accent: #386b94;
-  --ui-soft: #e3f0f9;
-  --ui-line: #b5d1e5;
-  --control-line: #86a7c1;
-  --os-blush: #f4e4ed;
-  --os-blush-ink: #884c6b;
+  --page: #eff2f6;
+  --surface: #fcfdff;
+  --ink: #29394e;
+  --muted: #506581;
+  --line: #cbd7e7;
+  --green: #45658e;
+  --tint: #e2ebf6;
+  --rose: #8aa7cc;
+  --rose-strong: #45658e;
+  --rose-soft: #e2ebf6;
+  --rail: #d5deeb;
+  --rail-card: #e5ebf3;
+  --rail-line: #b9cadf;
+  --rail-ink: #344863;
+  --rail-focus: #45658e;
+  --ui-accent: #45658e;
+  --ui-soft: #e2ebf6;
+  --ui-line: #b9cadf;
+  --control-line: #8199b6;
+  --os-selected: #afc7e5;
+  --os-tag-ink: #456180;
   color-scheme: light;
 }
 
@@ -39,7 +39,7 @@ body[data-course="os"] .mobile-navigation > summary {
 }
 
 body[data-course="os"] .navtitle {
-  color: #446580;
+  color: #48617e;
 }
 
 body[data-course="os"] .site-nav a,
@@ -50,42 +50,42 @@ body[data-course="os"] .course-nav {
 }
 
 body[data-course="os"] .site-nav a[aria-current="page"] {
-  background: #a2cbe6;
-  color: #244762;
-  border-color: #83b1d2;
+  background: #afc7e5;
+  color: #263e59;
+  border-color: #89a6cb;
 }
 
 body[data-course="os"] .site-nav a:hover,
 body[data-course="os"] .course-nav:hover {
-  background: #c7e0f2;
+  background: #d8e3f0;
 }
 
 body[data-course="os"] .course-nav .unit-number,
 body[data-course="os"] .course-nav small,
 body[data-course="os"] .course-nav .unit-count {
-  color: #446580;
+  color: #48617e;
 }
 
 body[data-course="os"] .course-nav.active {
-  background: var(--os-blush);
+  background: var(--os-selected);
   color: var(--rail-ink);
-  border-color: #d7c4d2;
+  border-color: #8ca8cb;
   border-left-color: var(--rose);
 }
 
 body[data-course="os"] .course-nav.active:hover {
-  background: #efd9e5;
+  background: #a4bedf;
 }
 
 body[data-course="os"] .course-nav.active .unit-number,
 body[data-course="os"] .course-nav.active small,
 body[data-course="os"] .course-nav.active .unit-count {
-  color: #446580;
+  color: #48617e;
 }
 
 body[data-course="os"] .logo img,
 body[data-course="os"] .guide-icon {
-  filter: invert(40%) sepia(18%) saturate(1091%) hue-rotate(164deg)
+  filter: invert(39%) sepia(17%) saturate(910%) hue-rotate(175deg)
     brightness(92%) contrast(88%);
 }
 
@@ -118,25 +118,25 @@ body[data-course="os"] .count {
 }
 
 body[data-course="os"] .guide {
-  background: #f5faff;
+  background: #f3f6fa;
   border-color: var(--line);
   border-left-color: var(--rose);
 }
 
 body[data-course="os"] .guide p {
-  color: #46637d;
+  color: #4a607d;
 }
 
 body[data-course="os"] .toolbar,
 body[data-course="os"] .card {
   background: var(--surface);
   border-color: var(--line);
-  box-shadow: 0 3px 12px #294e7105;
+  box-shadow: 0 3px 12px #293d5805;
 }
 
 body[data-course="os"] .searchbox,
 body[data-course="os"] .entry {
-  background: #f5faff;
+  background: #f3f6fa;
   color: var(--ink);
   border-color: var(--control-line);
 }
@@ -155,29 +155,29 @@ body[data-course="os"] .plain:hover {
 body[data-course="os"] .segmented button.active,
 body[data-course="os"] .reveal,
 body[data-course="os"] .pager button.active {
-  background: #a2cbe6;
-  color: #244762;
-  border-color: #83b1d2;
+  background: #afc7e5;
+  color: #263e59;
+  border-color: #89a6cb;
 }
 
 body[data-course="os"] .reveal:hover,
 body[data-course="os"] .pager button.active:hover {
-  background: #8ebcdd;
+  background: #9eb9dc;
 }
 
 body[data-course="os"] .summary {
-  background: #e6f1f9;
-  color: #46637d;
+  background: #e4ebf4;
+  color: #4a607d;
 }
 
 body[data-course="os"] .badge {
-  background: #dfedf8;
+  background: #dce7f5;
   border-radius: 999px;
 }
 
 body[data-course="os"] .badge.neutral {
-  background: #f9e2ed;
-  color: var(--os-blush-ink);
+  background: #dce7f5;
+  color: var(--os-tag-ink);
 }
 
 body[data-course="os"] .badge.gold {
@@ -186,7 +186,7 @@ body[data-course="os"] .badge.gold {
 }
 
 body[data-course="os"] .option {
-  background: #f4f9fd;
+  background: #f7f9fc;
   border-color: var(--line);
   color: var(--ink);
 }
@@ -197,7 +197,7 @@ body[data-course="os"] .option.chosen {
 }
 
 body[data-course="os"] .answer {
-  background: #f0f7fc;
+  background: #edf2f8;
   border-color: var(--line);
   border-left-color: var(--rose);
   color: var(--ink);
@@ -212,7 +212,7 @@ body[data-course="os"] .sources {
 
 body[data-course="os"] .unit-picker select,
 body[data-course="os"] .mobile-navigation-panel select {
-  background: #eaf4fb;
+  background: #e8eef6;
   color: var(--rail-ink);
   border-color: var(--control-line);
 }
