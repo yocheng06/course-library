@@ -429,6 +429,20 @@ h1 {
   background: #f8edf0;
 }
 
+.option.correct {
+  border-color: #d6b3c0;
+  background: #fcf6f8;
+}
+
+.option.correct .option-label {
+  color: var(--rose-strong);
+  font-weight: 700;
+}
+
+.answer-value {
+  white-space: pre-line;
+}
+
 .option input {
   accent-color: var(--rose-strong);
 }

@@ -25,7 +25,7 @@
 
   function searchFields(question) {
     return [
-      { label:'題幹', values:[question.stem ?? question.q, question.translation] },
+      { label:'題幹', values:[question.stem ?? question.q, question.translation, ...(Array.isArray(question.aliases) ? question.aliases : [])] },
       { label:'選項', values:[...(question.options || question.opts || []), ...(question.optionTranslations || [])] },
       { label:'答案', values:[question.answer ?? question.a] },
       { label:'修正前答案', values:[question.originalAnswer] },
