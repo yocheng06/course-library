@@ -17,30 +17,27 @@
       rel="stylesheet"
       href="assets/batch.css?v=batch-audit-fixes-20261017"
     />
+  <link rel="stylesheet" href="assets/ui-consistency.css?v=ui-consistency-20261018">
   </head>
   <body data-course="os">
     <a class="skip-link" href="#batchText">跳至貼上題目</a>
     <header class="contribution-nav">
       <a class="brand" href="index.html">課程學習站</a>
       <nav aria-label="網站導覽">
-        <a href="index.html">課程首頁</a
-        ><a href="os.html?v=silver-blue-20261016">作業系統</a
-        ><a href="algorithms.html">演算法</a>
+        <a href="index.html">課程首頁</a>
+        <a href="os.html?v=ui-consistency-20261018">作業系統</a>
+        <a href="algorithms.html?v=ui-consistency-20261018">演算法</a>
+        <a href="batch.html?v=ui-consistency-20261018" aria-current="page">批次查題</a>
+        <a href="submit.html?v=ui-consistency-20261018">投稿題庫</a>
       </nav>
     </header>
     <main class="contribution-page batch-page">
       <div class="page-heading">
-        <span class="eyebrow">把整理好的題目，一次核對</span>
         <h1>批次查題</h1>
         <p>
-          貼上 AI 抄好的題幹與完整選項，每批最多 30
-          題。先比對網站題庫，再把未解答的題目整批複製給 AI。
+          貼上完整題幹與選項，一次比對最多 30 題。
         </p>
       </div>
-      <p class="notice">
-        這一版提供題庫比對，未串接 AI
-        解答。未找到的題目會明確標示，不會自動產生答案。
-      </p>
       <form id="batchForm" class="panel" aria-labelledby="inputHeading">
         <h2 id="inputHeading">貼上這批題目</h2>
         <div class="field-grid">
@@ -57,17 +54,10 @@
           >
         </div>
         <label for="batchText">題幹與選項</label>
-        <p id="formatHint" class="muted input-help">
-          先選擇科目，再直接貼上常見 AI 抄題文字。支援「1.」、「題目 1.」、 「第
-          1 題」與「Beast 1.／妖獸 2.」等獨立題號， A.、◯
-          A.、(A)、全形選項及常見 LaTeX 數學寫法。
-          填空題可省略選項；「題目：／選項：」標籤、粗體、星號、空行和分隔線可直接保留。
-          「請用數字／小寫英文回答」等填答提示可保留。中英文選項會依已核對的對照比對；
-          有填答提示但漏掉一條填空線時，會核對其餘完整文字及答案。條件或選項內容不同仍列為需確認。
-        </p>
+        <p id="formatHint" class="muted input-help">保留題號與完整選項；填空題只需題幹。</p>
         <textarea
           id="batchText"
-          rows="14"
+          rows="8"
           maxlength="80000"
           aria-describedby="formatHint inputCount"
           placeholder="1. CPU 排程器是哪一種類型的排程器？&#10;A. 長程排程器&#10;B. 中程排程器&#10;C. 短程排程器&#10;D. 巨集排程器&#10;&#10;2. 接著貼上下一題……"
@@ -78,8 +68,22 @@
           <span id="inputCount" class="muted">最多 30 題・80,000 字</span
           ><span>文字暫存在這台裝置，不會自動投稿；可用「清空文字」移除。</span>
         </div>
+        <div class="actions">
+          <button class="button" id="compare" type="submit" disabled>
+            比對全部題目</button
+          ><button class="text-button" id="clearInput" type="button">
+            清空文字
+          </button>
+        </div>
         <details class="format-example">
-          <summary>查看貼上範例與抄題指令</summary>
+          <summary>貼上格式、範例與抄題指令</summary>
+          <p class="format-rules">只核對已收錄題庫；未找到的題目可複製給 AI 另行處理。</p>
+          <p class="format-rules">先選擇科目，再直接貼上常見 AI 抄題文字。支援「1.」、「題目 1.」、 「第
+          1 題」與「Beast 1.／妖獸 2.」等獨立題號， A.、◯
+          A.、(A)、全形選項及常見 LaTeX 數學寫法。
+          填空題可省略選項；「題目：／選項：」標籤、粗體、星號、空行和分隔線可直接保留。
+          「請用數字／小寫英文回答」等填答提示可保留。中英文選項會依已核對的對照比對；
+          有填答提示但漏掉一條填空線時，會核對其餘完整文字及答案。條件或選項內容不同仍列為需確認。</p>
           <pre id="exampleText">
 1. CPU 排程器是哪一種類型的排程器？
 A. 長程排程器
@@ -93,13 +97,7 @@ D. 巨集排程器
             複製給 AI 的抄題指令
           </button>
         </details>
-        <div class="actions">
-          <button class="button" id="compare" type="submit" disabled>
-            比對全部題目</button
-          ><button class="text-button" id="clearInput" type="button">
-            清空文字
-          </button>
-        </div>
+
         <p id="libraryStatus" class="muted" role="status" aria-live="polite">
           正在載入題庫……
         </p>

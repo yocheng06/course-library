@@ -1,0 +1,68 @@
+/* Shared geometry for course controls and tool-page navigation. */
+body[data-course] .site-nav {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px; margin-bottom: 18px;
+}
+body[data-course] .site-nav a { min-width: 0; min-height: 44px; padding: 7px 10px; font-size: 14px; }
+body[data-course] .site-nav a:first-child { grid-column: 1 / -1; }
+body[data-course] .toolbar .filters {
+  display: grid; grid-template-columns: minmax(0, 1fr);
+  align-items: start; gap: 12px; margin-top: 12px;
+}
+body[data-course] .toolbar .filter-details { width: 100%; min-width: 0; margin: 0; }
+body[data-course] .toolbar .filter-fields {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center; gap: 12px;
+}
+body[data-course] .toolbar .filter-fields > label {
+  display: flex; flex-wrap: nowrap; align-items: center; gap: 8px;
+  min-width: 0; margin: 0; font-size: 14px; white-space: nowrap;
+}
+body[data-course] .toolbar .filter-fields select {
+  flex: 1 1 0; width: 100%; min-width: 0; max-width: 100%;
+  min-height: 44px; padding: 8px 10px; font-size: 14px;
+}
+body[data-course] .toolbar .study-controls {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end;
+  gap: 10px 16px; width: 100%; margin: 0;
+}
+body[data-course] .toolbar .study-controls .answer-toggle {
+  display: inline-flex; flex: 0 1 auto; align-items: center; gap: 8px;
+  min-height: 44px; margin: 0 auto 0 0; font-size: 14px;
+}
+body[data-course] .toolbar .study-controls .segmented { margin: 0; flex-shrink: 0; }
+body[data-course] .toolbar .segmented button { min-height: 44px; padding: 8px 14px; font-size: 14px; }
+body[data-course] .toolbar [hidden] { display: none !important; }
+.contribution-nav nav { align-items: center; }
+.contribution-nav nav a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; }
+.contribution-nav nav a:not(.button) { padding: 6px 2px; border-bottom: 2px solid transparent; }
+.contribution-nav nav a[aria-current="page"] { border-bottom-color: currentColor; font-weight: 700; }
+.batch-page { margin-top: 28px; }
+.batch-page .page-heading h1 { margin: 0 0 8px; }
+.batch-page .page-heading p { margin: 0; }
+.batch-page #batchForm > h2 { margin-bottom: 16px; }
+.batch-page #batchForm .field-grid label { margin-bottom: 12px; }
+.batch-page label[for="batchText"] { margin-bottom: 4px; }
+.batch-page .input-help { margin: 0 0 8px; }
+.batch-page #batchText { min-height: 200px; height: clamp(200px, 28vh, 300px); }
+.batch-page .input-footer { margin: 8px 0 12px; }
+.batch-page .format-example { margin: 12px 0 0; border-top: 1px solid var(--line); }
+.batch-page .format-rules { font-size: 14px; line-height: 1.8; }
+@media (max-width: 1000px) {
+  body[data-course] .toolbar .filter-details > summary { display: flex; }
+}
+@media (max-width: 720px) {
+  body[data-course] .toolbar .filter-fields { grid-template-columns: minmax(0, 1fr); gap: 10px; padding-bottom: 12px; }
+  body[data-course] .toolbar .filter-fields > label { display: grid; grid-template-columns: 70px minmax(0, 1fr); }
+  body[data-course] .toolbar .study-controls { gap: 8px; }
+  body .contribution-nav { flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+  body .contribution-nav nav { flex-wrap: wrap; gap: 4px 14px; }
+  .batch-page { margin-top: 22px; }
+}
+@media (max-width: 480px) {
+  body[data-course] .toolbar .study-controls .segmented { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  body[data-course] .toolbar .study-controls .answer-toggle { width: 100%; }
+}
+@media print {
+  body[data-course] .site-nav, body[data-course] .toolbar .study-controls { display: none !important; }
+}
