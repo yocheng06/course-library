@@ -12,7 +12,8 @@ const $=id=>document.getElementById(id);
 const meta={
  L2:{title:'基礎與漸進分析',short:'基礎與漸進分析',en:'ALGORITHM FUNDAMENTALS',sub:'漸進符號 · 函數增長率 · 插入排序與合併排序',guide:'把 n 想成待整理的書本數量：O 看成長速度的上界，Ω 看下界，Θ 表示同階。它們不是「最壞／最好情況」的別名。學排序時，先問採用什麼方法，再比較資料變多後需要多少步驟。'},
  L3:{title:'遞迴關係式與分治分析',short:'遞迴關係式',en:'RECURRENCE RELATIONS',sub:'代入法 · 遞迴樹 · 大師定理與適用條件',guide:'想像把一疊作業分給幾個人，再把結果合起來。T(n)=aT(n/b)+f(n) 中，a 是分出幾份、n/b 是每份大小、f(n) 是分配與整合的成本。遞迴樹逐層加總；大師定理則要先確認形式與條件。'},
- L4:{title:'堆積、堆積排序與優先佇列',short:'Heap 與 Heapsort',en:'HEAP & PRIORITY QUEUE',sub:'Heap 性質 · Max-Heapify · Heapsort · Priority Queue',guide:'把 Max-Heap 想成「優先處理最高分任務」的排列：父節點不小於子節點，最大值在根部，但整個陣列未必已排序。索引從 1 開始時，左子是 2i、右子是 2i+1、父節點是 floor(i/2)。'}
+ L4:{title:'堆積、堆積排序與優先佇列',short:'Heap 與 Heapsort',en:'HEAP & PRIORITY QUEUE',sub:'Heap 性質 · Max-Heapify · Heapsort · Priority Queue',guide:'把 Max-Heap 想成「優先處理最高分任務」的排列：父節點不小於子節點，最大值在根部，但整個陣列未必已排序。索引從 1 開始時，左子是 2i、右子是 2i+1、父節點是 floor(i/2)。'},
+ L5:{title:'快速排序',short:'快速排序',en:'QUICK SORT',sub:'Pivot · Partition · 遞迴與複雜度',guide:'把陣列想成一列卡片：先選一張作為 pivot，再用 Partition 把較小與較大的值分到兩側，讓 pivot 到達正確位置，接著遞迴處理兩邊。分割大致平均時，時間通常是 Θ(n log n)；每次都極端不平衡時，可能退化到 Θ(n²)。'}
 };
 let lesson='L2',chapter='全部',type='全部',page=1,totalPages=1,mode='study';
 const PAGE_SIZE=10, drafts=new Map(), revealed=new Set(), selections=new Map(), feedback=new Map();

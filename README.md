@@ -1,6 +1,6 @@
 # 課程學習站
 
-作業系統與演算法的課程題庫，提供分單元閱讀、搜尋、練習作答與答案解析。
+作業系統與演算法課程題庫；演算法收錄 L2–L5，提供分單元閱讀、搜尋、練習作答與答案解析。
 
 **[開啟網站](https://yocheng06.github.io/course-library/)** · [批次查題](https://yocheng06.github.io/course-library/batch.html) · [投稿題庫](https://yocheng06.github.io/course-library/submit.html)
 
