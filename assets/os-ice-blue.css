@@ -196,6 +196,15 @@ body[data-course="os"] .option.chosen {
   border-color: var(--ui-accent);
 }
 
+body[data-course="os"] .option-content {
+  flex: 1;
+  min-width: 0;
+}
+
+body[data-course="os"] .option-label {
+  white-space: nowrap;
+}
+
 body[data-course="os"] .option.correct {
   background: #fcf6f8;
   border-color: #d6b3c0;
