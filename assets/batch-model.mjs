@@ -17,16 +17,25 @@ const normalizeUnicode = (value) =>
         `^{${[...group].map((c) => superscriptValues[superscriptChars.indexOf(c)]).join("")}}`,
     )
     .normalize("NFKC");
-const cleanLine = (text) =>
-  normalizeUnicode(unescapeBlanks(text))
+const cleanLine = (text) => {
+  const normalized = normalizeUnicode(unescapeBlanks(text))
     .replace(invisible, "")
-    .trim()
+    .trim();
+  // Some copied AI answers bold the complete named question title instead of
+  // placing its number on a separate heading line.
+  const boldNamed = /\*\*([\p{L}][\p{L}\p{M} _-]{0,30}?)\s+(\d{1,4})[.)、:]\s+(.+?)\*\*/u;
+  const heading = normalized.replace(
+    boldNamed,
+    (_match, _label, number, stem) => `第 ${number} 題 ${stem}`,
+  );
+  return heading
     .replace(/\*\*([A-H][.)、:]|\([A-H]\))\*\*/gi, "$1")
     .replace(/^\*\*(.+?)\*\*(.*)$/, "$1$2")
     .replace(
       /(^|\s)[◯○●⭕☐☑□■•·✓✔]\uFE0F?\s*(?=(?:\(?[A-H][.)、:]|\[[A-H]\]))/gi,
       "$1",
     );
+};
 const header =
   /^(?:第\s*(\d{1,4})\s*題\s*[:：.)、]?|(?:Q(?:uestion)?|題目|題)\s*(\d{1,4})\s*[:：.)、-]?|[（(](\d{1,4})[）)]|(\d{1,4})[.)、](?=\D|$))\s*(.*)$/i;
 // AI sometimes emits standalone heading labels such as "Beast 1." or "妖獸 2.".
@@ -169,7 +178,16 @@ export function parseQuestions(text) {
     throw new Error("請先貼上題目與選項。");
   if (text.length > MAX_TEXT)
     throw new Error("文字超過 80,000 字，請分批貼上。");
-  const rawLines = text.replace(/\r\n?/g, "\n").split("\n");
+  const rawLines = text
+    .replace(/\r\n?/g, "\n")
+    .split("\n")
+    .map((line) => {
+      if (/^\s*\\{1,2}\s*$/.test(line)) return "";
+      // Escaped Markdown (\\* and \\**) occurs when copied from rendered
+      // notes. Normalize only structural heading and option lines.
+      if (!/^\s*\\?\*(?:\\?\*|\s+[A-H][.)、:])/i.test(line)) return line;
+      return line.replace(/\\\*/g, "*").replace(/\\{1,2}\s*$/, "");
+    });
   // Some Markdown exports add a literal hard-break backslash to every line.
   // Require multiple standalone numbered headings before treating it as markup;
   // an isolated path or literal code backslash remains ordinary content.
@@ -194,6 +212,13 @@ export function parseQuestions(text) {
     )
       cleanedLines.pop();
   const lines = cleanedLines.flatMap((line, i) => {
+    // A title can be pasted onto the end of the preceding option line.
+    // Split only when the preceding text is a complete, labelled option.
+    const appended = line.match(
+      /^(.*\S)[ \t]+(第\s*\d{1,4}\s*題\s*[:.)、]?\s+.+)$/,
+    );
+    if (appended && appended[1].match(option)?.[4]?.trim())
+      return [appended[1], appended[2]];
     // Recover "D. option text  第 21 題\n題目：..." only with both
     // an actual option before it and an explicitly labelled question after it.
     // Ordinary references to another question are not question boundaries.

@@ -345,6 +345,43 @@ test("standalone named headings preserve original numbering and limits without t
   );
 });
 
+test("escaped bold Beast question titles split a new question pasted after an option", async () => {
+  const text = await readFile(
+    new URL("./fixtures/batch-beast-joined-bold.txt", import.meta.url),
+    "utf8",
+  );
+  const questions = parseQuestions(text);
+  assert.deepEqual(questions.map((q) => q.number), ["8", "21"]);
+  assert.equal(questions[0].stem, "遞迴樹的每一層代表?");
+  assert.deepEqual(questions[0].options.map((o) => o.text), [
+    "該層遞迴分解的成本",
+    "樹的深度",
+    "遞迴的總次數",
+    "常數項",
+  ]);
+  assert.equal(
+    questions[1].stem,
+    "遞迴關係式分析中,我們通常會忽略 ______ 條件 (請用小寫英文回答)",
+  );
+  assert(questions.every((q) => q.issues.length === 0));
+  const data = JSON.parse(
+    await readFile(
+      new URL("../assets/batch-library.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const results = matchQuestions(questions, buildIndex(data.entries), {
+    course: "algorithms",
+  });
+  assert.deepEqual(
+    results.map((row) => [row.status, row.answer, row.references[0]?.id]),
+    [
+      ["matched", "A. 該層遞迴分解的成本", "L3-006"],
+      ["matched", "boundary", "L3-050"],
+    ],
+  );
+});
+
 test("user's 25-question heap transcription accepts invisible characters, circle options and LaTeX without losing questions", async () => {
   const text = await readFile(
     new URL("./fixtures/batch-heap.txt", import.meta.url),
