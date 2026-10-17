@@ -111,20 +111,26 @@ async function start() {
     $("reviewWorkspace").hidden = true;
     $("managementWorkspace").hidden = true;
     $("managementTabs").hidden = true;
-    const canSetUp = session.canManageCredentials || session.canUseSetupCode;
-    $("passwordLoginForm").hidden =
-      session.canManageCredentials || !session.accountConfigured;
+    const resetRequested =
+      new URLSearchParams(window.location.search).get("credentials") === "reset";
+    const canSetUp =
+      session.canUseSetupCode ||
+      (session.canManageCredentials &&
+        (!session.accountConfigured || resetRequested));
+    $("passwordLoginForm").hidden = !session.accountConfigured || canSetUp;
     $("passwordSetupForm").hidden = !canSetUp;
     $("setupCodeField").hidden = !session.canUseSetupCode;
     $("setupCode").required = session.canUseSetupCode;
-    $("credentialAccess").hidden = canSetUp;
+    $("credentialAccess").hidden =
+      session.canUseSetupCode ||
+      (session.canManageCredentials && canSetUp);
     if (session.canUseSetupCode) {
       $("loginTitle").textContent = session.accountConfigured
         ? "設定或重設管理者帳號"
         : "首次設定管理者帳號";
       $("loginHint").textContent =
         "輸入一次性設定碼並設定帳號密碼；設定碼使用後就會失效。之後登入只需帳號密碼。";
-    } else if (session.canManageCredentials) {
+    } else if (canSetUp && session.canManageCredentials) {
       $("loginTitle").textContent = session.accountConfigured
         ? "重設管理者帳號"
         : "首次設定管理者帳號";
