@@ -196,6 +196,16 @@ body[data-course="os"] .option.chosen {
   border-color: var(--ui-accent);
 }
 
+body[data-course="os"] .option.correct {
+  background: #fcf6f8;
+  border-color: #d6b3c0;
+}
+
+body[data-course="os"] .option.correct .option-label {
+  color: #85475e;
+  font-weight: 700;
+}
+
 body[data-course="os"] .answer {
   background: #edf2f8;
   border-color: var(--line);
