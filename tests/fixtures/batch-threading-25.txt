@@ -1,0 +1,187 @@
+以下是從圖片中提取的題目與選項：
+
+**題目 1. 哪一種多執行緒模型允許一個核心執行緒與一個使用者執行緒綁定？**
+
+* A. Two-level
+
+* B. One-to-One
+
+* C. Many-to-One
+
+* D. Many-to-Many
+
+**題目 2. Windows 執行緒實作了 _____ 模型。(請用小寫英文回答 字母間用-連接)**
+
+**題目 3. _____ 指將相同資料集的子集分配到多個核心上，並在每個核心上執行相同的操作。(請用英文小寫回答，單字間留一空白)**
+
+**Question 4. What are the advantages of Implicit Threading?**
+
+* A. Thread creation and management are done by the compiler and runtime libraries
+
+* B. Helps solve the issue of program correctness as the number of threads increases
+
+* C. Increases control over the thread creation process
+
+* D. Reduces the programmer's burden of managing threads
+
+**Question 5. The popularity of _____ techniques is due to the difficulty of ensuring program correctness as the number of threads increases.(請用英文小寫回答，單字間留一空白)**
+
+**Question 6. In a multithreaded server architecture, what does the server do when a client request arrives?**
+
+* A. Creates a new thread to service the request
+
+* B. Immediately closes the connection
+
+* C. Waits for existing requests to complete
+
+* D. Terminates the existing process
+
+**題目 7. 在 _____ 模型中，會創建一定數量的執行緒，並將其放置在池中等待工作。(請用小寫英文回答 字母間留一空白)**
+
+**題目 8. 執行緒本地儲存（Thread-local storage TLS）有何用途？**
+
+* A. 允許每個執行緒擁有自己的資料副本
+
+* B. 儲存只在單一函式調用中可見的變數
+
+* C. 儲存全域變數
+
+* D. 讓所有執行緒共享相同的資料
+
+**題目 9. 在 Java 中，創建執行緒的方法有哪些兩種？**
+
+* A. 使用 Runnable 類別
+
+* B. 創建一個新的程序
+
+* C. 實作 Runnable 介面
+
+* D. 繼弱 Thread 類別
+
+**題目 10. Amdahl's Law 的公式為：speedup? (1/(S+(1-S)/N))，N 代表 _____ 的數量。(請用英文小寫回答，單字間留一空白)**
+
+**Question 11. In a multithreaded environment, what are the ways to handle signals?**
+
+* A. Delivers the signal to certain specific threads in the process
+
+* B. Delivers the signal to every thread in the process
+
+* C. Designates a specific thread to receive all signals
+
+* D. Delivers the signal to a specific thread to which the signal applies
+
+**題目 12. 執行緒本地儲存（Thread-local storage TLS）與區域變數有何不同？**
+
+* A. TLS 在多次函式呼叫中可見
+
+* B. 區域變數在不同執行緒中是獨特的
+
+* C. 區域變數只在單次函式呼叫中可見
+
+* D. TLS 在所有執行緒中共享
+
+**題目 13. 執行緒（Thread）與程序（Process）相比，其創建成本有何不同？**
+
+* A. 執行緒創建是重量級的
+
+* B. 兩者創建成本相同
+
+* C. 程序創建是輕量級的
+
+* D. 執行緒創建是輕量級的
+
+**題目 14. 在 Windows 執行緒的資料結構中，核心空間（kernel space）包含哪些區塊？**
+
+* A. KTHREAD
+
+* B. 執行緒 ID
+
+* C. TEB
+
+* D. ETHREAD
+
+**題目 15. _____ 指將執行緒分配到不同的核心上，每個執行緒執行獨特的任務。(請用英文小寫回答，單字間留一空白)**
+
+**Question 16. In multicore programming, what type of parallelism involves distributing subsets of the same data set to multiple cores and performing the same operation on each core?**
+
+* A. System parallelism
+
+* B. Program parallelism
+
+* C. Task parallelism
+
+* D. Data parallelism
+
+**題目 17. 下列哪一個不是隱式執行緒 (Implicit Threading) 的方法？**
+
+* A. OpenMP
+
+* B. Thread Pools
+
+* C. Grand Central Dispatch
+
+* D. pthread_create()
+
+**題目 18. 下列哪些屬於使用者層級執行緒函式庫？**
+
+* A. Java threads
+
+* B. Win32 threads
+
+* C. Linux threads
+
+* D. POSIX Pthreads
+
+**Question 19. Which of the following is an advantage of multithreaded programming?**
+
+* A. Simplifies code and improves efficiency
+
+* B. Reduces resource sharing
+
+* C. Increases code complexity
+
+* D. Increases the overhead of process creation
+
+**題目 20. 有三種主要的使用者層級執行緒函式庫：POSIX Pthreads Win32 threads 和 _____ 。 (請用小寫英文回答 字母間留一個空白)**
+
+**Question 21. Because threads share a process's resources, _____ is easier to achieve than shared memory or message passing. (Please answer in lowercase English, leaving a space between each word)**
+
+**題目 22. 單執行緒程序和多執行緒程序共享哪些資源？**
+
+* A. 資料
+
+* B. 堆疊 (Stack)
+
+* C. 檔案
+
+* D. 程式碼
+
+**題目 23. 使用者層級執行緒 (User-level threads) 的管理主要由誰負責？**
+
+* A. 硬體
+
+* B. 使用者層級執行緒函式庫
+
+* C. 核心 (Kernel)
+
+* D. 應用程式
+
+**題目 24. 下列哪一個作業系統的執行緒實作採用 One-to-One 模型？**
+
+* A. Solaris Green Threads
+
+* B. GNU Portable Threads
+
+* C. Windows NT/XP/2000
+
+* D. Solaris prior to version 9
+
+**題目 25. 執行緒取消 (Thread Cancellation) 的兩種方法中，哪一種會立即終止目標執行緒？**
+
+* A. 自動取消 (Automatic cancellation)
+
+* B. 協作取消 (Cooperative cancellation)
+
+* C. 延遲取消 (Deferred cancellation)
+
+* D. 非同步取消 (Asynchronous cancellation)

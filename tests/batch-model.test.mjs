@@ -1058,3 +1058,24 @@ test("important answer conditions survive translations, source variants and cros
   assert(rows[4].conditions.join("").includes("基礎優先權"));
   assert.equal(rows[1].conditions.length, 0);
 });
+
+
+test("threading Markdown batch keeps all 25 questions and diagnoses the wrong course without inventing answers", async () => {
+  const text = await readFile(new URL("./fixtures/batch-threading-25.txt", import.meta.url), "utf8");
+  const questions = parseQuestions(text);
+  assert.deepEqual(questions.map((q) => q.number), Array.from({length:25}, (_, i) => String(i + 1)));
+  assert(questions.every((q) => q.issues.length === 0));
+  assert.equal(questions[8].options[3].text, "繼弱 Thread 類別");
+  const data = JSON.parse(await readFile(new URL("../assets/batch-library.json", import.meta.url), "utf8"));
+  const index = buildIndex(data.entries);
+  const wrongCourse = matchQuestions(questions, index, {course:"algorithms", unit:"all"});
+  assert(wrongCourse.every((r) => r.status === "unmatched" && !r.answer));
+  const rows = matchQuestions(questions, index, {course:"os", unit:"all"});
+  assert.equal(rows.filter((r) => r.status === "matched").length, 18);
+  assert.deepEqual(rows.filter((r) => r.status === "review").map((r) => r.question.number), ["4", "7", "9", "20"]);
+  assert.deepEqual(rows.filter((r) => r.status === "unmatched").map((r) => r.question.number), ["11", "19", "25"]);
+  assert.equal(rows[0].answer, "A. Two-level");
+  assert.equal(rows[13].answer, "A. KTHREAD；D. ETHREAD");
+  assert(rows.filter((r) => r.status !== "matched").every((r) => !r.answer));
+});
+

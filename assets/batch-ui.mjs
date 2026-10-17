@@ -25,7 +25,8 @@ let library,
   snapshot = null,
   loading = false,
   libraryGeneration = 0,
-  snapshotGeneration = -1;
+  snapshotGeneration = -1,
+  courseSuggestion = null;
 const selectedCourse = new URL(location.href).searchParams.get("course");
 if (names[selectedCourse]) $("course").value = selectedCourse;
 function message(text, error = false) {
@@ -63,6 +64,8 @@ function isStale() {
 function markChanged() {
   $("staleNotice").hidden = !results.length || !isStale();
   const stale = !$("staleNotice").hidden;
+  $("courseMismatch").hidden = !courseSuggestion || stale || loading;
+  $("switchCourse").disabled = stale || loading || !index;
   for (const id of ["copyAnswers", "copyUnmatched", "copyReview"])
     $(id).disabled =
       stale || loading || !index || !results.length || !copyItems(id).length;
@@ -83,6 +86,7 @@ function copyItems(id) {
       : results;
 }
 function statusLabel(row) {
+  if (row.status === "unmatched" && courseSuggestion) return "此科目未找到";
   if (row.outsideScope) return "其他單元已收錄";
   return row.status === "unmatched" && !snapshotCoverage
     ? "未找到"
@@ -234,23 +238,30 @@ $("batchForm").addEventListener("submit", (event) => {
     snapshotUnit = $("unit").value;
     snapshotCoverage = coverage[snapshotCourse];
     const count = (status) => results.filter((r) => r.status === status).length;
+    const otherCourse = snapshotCourse === "os" ? "algorithms" : "os";
+    const otherMatches = matchQuestions(parsed, index, {
+      course: otherCourse,
+    }).filter((r) => r.status === "matched").length;
+    courseSuggestion = otherMatches >= 2 && otherMatches > count("matched")
+      ? { course: otherCourse, count: otherMatches }
+      : null;
+    const scopeHint = courseSuggestion
+      ? `目前比對科目為「${names[snapshotCourse]}」，這批有 ${otherMatches} 題在「${names[otherCourse]}」找到一致原題。請切換科目後重新比對。`
+      : "請展開有疑義的項目，核對題幹與選項是否完整。";
+    $("courseMismatchText").textContent = courseSuggestion ? scopeHint : "";
+    $("switchCourse").textContent = `改用${names[otherCourse]}比對`;
+    const unmatchedLabel = courseSuggestion
+      ? "此科目未找到"
+      : !snapshotCoverage ? "未找到"
+      : snapshotUnit === "all" ? "未收錄" : "此範圍未找到";
     $("resultCount").textContent =
-      `共 ${results.length} 題・已收錄 ${count("matched")}・${snapshotCoverage ? (snapshotUnit === "all" ? "未收錄" : "此範圍未找到") : "未找到"} ${count("unmatched")}・需確認 ${count("review")}`;
+      `共 ${results.length} 題・${names[snapshotCourse]}・已收錄 ${count("matched")}・${unmatchedLabel} ${count("unmatched")}・需確認 ${count("review")}`;
     $("expandScope").hidden = !results.some((r) => r.outsideScope);
     $("coverageNotice").hidden = snapshotCoverage;
     $("coverageNotice").textContent =
       "公開投稿題庫尚未同步。本次結果只涵蓋內建題庫，「未找到」不代表網站一定未收錄，請重新同步後核對。";
-    $("resultFilter").querySelector('[value="unmatched"]').textContent =
-      snapshotCoverage
-        ? snapshotUnit === "all"
-          ? "未收錄"
-          : "此範圍未找到"
-        : "未找到";
-    $("copyUnmatched").textContent = snapshotCoverage
-      ? snapshotUnit === "all"
-        ? "複製未收錄題目給 AI"
-        : "複製此範圍未找到題目給 AI"
-      : "複製未找到題目給 AI";
+    $("resultFilter").querySelector('[value="unmatched"]').textContent = unmatchedLabel;
+    $("copyUnmatched").textContent = `複製${unmatchedLabel}題目給 AI`;
     $("staleNotice").textContent =
       "文字、科目或範圍已變更，請重新比對。下方保留的是上一批結果。";
     $("resultFilter").value = "all";
@@ -259,14 +270,6 @@ $("batchForm").addEventListener("submit", (event) => {
     $("copyHelp").hidden = true;
     renderResults();
     markChanged();
-    const otherCourse = snapshotCourse === "os" ? "algorithms" : "os";
-    const otherMatches = matchQuestions(parsed, index, {
-      course: otherCourse,
-    }).filter((r) => r.status === "matched").length;
-    const scopeHint =
-      otherMatches >= 2 && otherMatches > count("matched")
-        ? `這批有 ${otherMatches} 題符合${names[otherCourse]}題庫，請將科目切換為「${names[otherCourse]}」後重新比對。`
-        : "請展開有疑義的項目，核對題幹與選項是否完整。";
     message(`已辨識 ${parsed.length} 題。${scopeHint}`);
     $("resultsHeading").focus({ preventScroll: true });
     $("results").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -295,6 +298,7 @@ $("copyAnswers").addEventListener("click", () => {
   const text =
     `${names[snapshotCourse]}・答案總表\n` +
     (!snapshotCoverage ? "注意：投稿題庫未同步，僅比對內建題庫。\n" : "") +
+    (courseSuggestion ? `注意：這批有 ${courseSuggestion.count} 題在${names[courseSuggestion.course]}找到一致原題，請切換科目重新比對；以下僅為${names[snapshotCourse]}範圍結果。\n` : "") +
     results
       .map(
         (r) =>
@@ -314,6 +318,18 @@ for (const id of ["copyUnmatched", "copyReview"])
   });
 $("expandScope").addEventListener("click", () => {
   $("unit").value = "all";
+  markChanged();
+  $("batchForm").dispatchEvent(
+    new Event("submit", { bubbles: true, cancelable: true }),
+  );
+});
+$("switchCourse").addEventListener("click", () => {
+  if (!courseSuggestion || isStale() || loading || !index) return;
+  $("course").value = courseSuggestion.course;
+  restoreUnit = null;
+  units();
+  $("unit").value = "all";
+  libraryStatus();
   markChanged();
   $("batchForm").dispatchEvent(
     new Event("submit", { bubbles: true, cancelable: true }),
