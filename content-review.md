@@ -103,8 +103,6 @@ Two-level 綁定題與 Max-Heap 的 greater 填空仍需確認題幹限定；雖
 | [作業系統 threads 第 84 題](https://yocheng06.github.io/course-library/os.html?question=threads-084) | 題幹未限定是否指多對多模型額外提供的專屬綁定功能，需核對原題。 |
 | [演算法 L2 第 8 題](https://yocheng06.github.io/course-library/algorithms.html?question=L2-008) | 題幹混同上／下界與最壞／最佳情況；需確認原題實際要填的符號。 |
 | [演算法 L2 第 16 題](https://yocheng06.github.io/course-library/algorithms.html?question=L2-016) | 題幹未交代 a、b 的範圍；D 需補上正整數等適用條件。 |
-| [演算法 L2 第 48 題](https://yocheng06.github.io/course-library/algorithms.html?question=L2-048) | 缺少帶行號的 Insertion Sort 虛擬碼與各行執行次數表。 |
-| [演算法 L2 第 49 題](https://yocheng06.github.io/course-library/algorithms.html?question=L2-049) | 缺少帶行號的 Insertion Sort 虛擬碼與各行成本表。 |
 | [演算法 L3 第 10 題](https://yocheng06.github.io/course-library/algorithms.html?question=L3-034) | 選項「無法進行代數變換」含義不明，需核對原文是否指代數推導困難。 |
 | [演算法 L3 第 19 題](https://yocheng06.github.io/course-library/algorithms.html?question=L3-016) | 題幹缺少每層成本的量級，無法選出唯一總成本。 |
 | [演算法 L3 第 20 題](https://yocheng06.github.io/course-library/algorithms.html?question=L3-017) | 未給遞迴式或葉節點數，葉層總成本不一定為線性。 |
