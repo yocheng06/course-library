@@ -31,7 +31,7 @@
       <section class="panel" id="loginPanel">
         <h2 id="loginTitle">管理者登入</h2>
         <p id="loginHint">輸入已設定的帳號與密碼即可登入審核。</p>
-        <form id="passwordLoginForm" class="login-form">
+        <form id="passwordLoginForm" class="login-form" method="post" action="/api/login">
           <label
             >帳號<input
               id="loginUsername"
@@ -49,9 +49,9 @@
               maxlength="128"
               required
           /></label>
-          <button class="button" id="loginSubmit" type="submit">登入</button>
+          <button class="button" id="loginSubmit" type="submit" disabled>登入</button>
         </form>
-        <form id="passwordSetupForm" class="login-form" hidden>
+        <form id="passwordSetupForm" class="login-form" method="post" action="/api/password/setup" hidden>
           <label id="setupCodeField" hidden
             >一次性設定碼<input
               id="setupCode"
@@ -90,7 +90,7 @@
               maxlength="128"
               required
           /></label>
-          <button class="button" id="setupSubmit" type="submit">
+          <button class="button" id="setupSubmit" type="submit" disabled>
             儲存並登入
           </button>
         </form>
@@ -195,7 +195,7 @@
     <script src="assets/contributions-config.js?v=password-setup-code-20261017"></script>
     <script
       type="module"
-      src="assets/contributions-review.js?v=review-login-reset-link-20261017"
+      src="assets/contributions-review.js?v=site-audit-20261017"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫審核功能。</noscript>
   </body>

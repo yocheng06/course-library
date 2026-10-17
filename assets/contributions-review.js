@@ -12,7 +12,7 @@ import {
   statusLabel,
   showSimilar,
   downloadJSON,
-} from "./contributions-ui.js?v=password-setup-code-20261017";
+} from "./contributions-ui.js?v=site-audit-20261017";
 const $ = (id) => document.getElementById(id),
   origin = window.courseContributions.apiOrigin;
 if (location.origin !== origin) {
@@ -196,6 +196,11 @@ $("passwordSetupForm").addEventListener("submit", async (event) => {
     submit.disabled = false;
   }
 });
+// Enable credential submission only after both POST handlers are attached.
+if (location.origin === origin) {
+  $("loginSubmit").disabled = false;
+  $("setupSubmit").disabled = false;
+}
 $("signOut").addEventListener("click", async () => {
   try {
     await api("/api/logout", { method: "POST", body: "{}" });
@@ -551,7 +556,7 @@ $("publishedList").addEventListener("click", async (event) => {
           ? result.items
               .map(
                 (item) =>
-                  `<details><summary>版本 ${item.revision} · ${esc({ update: "儲存修改前", hide: "下架前", restore: "重新上架前", 補充解析: "補充解析前" }[item.action] || item.action)} · ${esc(new Date(item.created_at).toLocaleString("zh-TW"))}</summary><p>${esc(item.note || "未填說明")}</p><div class="draft-card"><h3>${esc(item.data.stem ?? item.data.q)}</h3>${(item.data.options ?? item.data.opts ?? []).length ? `<ol>${(item.data.options ?? item.data.opts).map((o) => `<li>${esc(o)}</li>`).join("")}</ol>` : ""}<p><strong>答案：</strong>${esc(item.data.answer ?? item.data.a)}</p><p><strong>解析：</strong>${esc(item.data.explanation ?? item.data.ex ?? "")}</p></div></details>`,
+                  `<details><summary>版本 ${item.revision} · ${esc({ update: "儲存修改前", hide: "下架前", restore: "重新上架前", 補充解析: "補充解析前" }[item.action] || item.action)} · ${esc(new Date(item.created_at).toLocaleString("zh-TW"))}</summary><p>${esc(item.note || "未填說明")}</p><div class="draft-card"><h3>${esc(item.data.stem ?? item.data.q)}</h3>${(item.data.options ?? item.data.opts ?? []).length ? `<ol type="A">${(item.data.options ?? item.data.opts).map((o) => `<li>${esc(o)}</li>`).join("")}</ol>` : ""}<p><strong>答案：</strong>${esc(item.data.answer ?? item.data.a)}</p><p><strong>解析：</strong>${esc(item.data.explanation ?? item.data.ex ?? "")}</p></div></details>`,
               )
               .join("")
           : "<p>尚無修改紀錄。</p>");

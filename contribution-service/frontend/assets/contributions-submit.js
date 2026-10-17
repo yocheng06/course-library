@@ -14,7 +14,7 @@ import {
   showSimilar,
   downloadJSON,
   copyText,
-} from "./contributions-ui.js?v=global-dedup-20261016";
+} from "./contributions-ui.js?v=site-audit-20261017";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
@@ -403,6 +403,7 @@ function importedQuestions(data) {
   }
   return data.questions;
 }
+$("chooseImport").addEventListener("click", () => $("importFile").click());
 $("importFile").addEventListener("change", async (event) => {
   const file = event.target.files[0];
   if (!file) return;

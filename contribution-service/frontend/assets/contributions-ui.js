@@ -62,7 +62,7 @@ export const statusLabel = {
   rejected: "已退回",
 };
 export function questionPreview(q, index) {
-  return `<article class="draft-card"><div class="draft-meta">第 ${index + 1} 題 · ${esc(q.category)} · ${esc(normalizeType(q.type, q.images))}</div><h3>${esc(q.stem)}</h3>${q.images.map((src) => `<img src="${esc(src)}" alt="第 ${index + 1} 題的題圖" loading="lazy">`).join("")}${q.options.length ? "<ol>" + q.options.map((option) => `<li>${esc(option)}</li>`).join("") + "</ol>" : ""}<p><strong>答案：</strong>${esc(q.answer)}</p>${q.explanation ? `<p><strong>解析：</strong>${esc(q.explanation)}</p>` : '<p class="muted">尚未提供解析，交由站主審核補充。</p>'}`;
+  return `<article class="draft-card"><div class="draft-meta">第 ${index + 1} 題 · ${esc(q.category)} · ${esc(normalizeType(q.type, q.images))}</div><h3>${esc(q.stem)}</h3>${q.images.map((src) => `<img src="${esc(src)}" alt="第 ${index + 1} 題的題圖" loading="lazy">`).join("")}${q.options.length ? '<ol type="A">' + q.options.map((option) => `<li>${esc(option)}</li>`).join("") + "</ol>" : ""}<p><strong>答案：</strong>${esc(q.answer)}</p>${q.explanation ? `<p><strong>解析：</strong>${esc(q.explanation)}</p>` : '<p class="muted">尚未提供解析，交由站主審核補充。</p>'}`;
 }
 
 export function showSimilar(container, items) {
