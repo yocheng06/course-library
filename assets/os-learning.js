@@ -61,7 +61,7 @@ function optionMarkup(q, option, index) {
   const text = String(option ?? ''), match = text.match(/^([A-H][.、．:：])(\s*)([\s\S]*)$/);
   const content = match ? `<span class="option-label">${highlighted(match[1])}</span>${esc(match[2])}${highlighted(match[3])}` : highlighted(text);
   const translation = q.optionTranslations?.[index];
-  return content + (translation ? `<span class="option-translation" lang="en">${highlighted(translation)}</span>` : '');
+  return `<span class="option-content">${content}</span>` + (translation ? `<span class="option-translation" lang="en">${highlighted(translation)}</span>` : '');
 }
 function expectedOptionKeys(q, options) {
   if (!window.courseQuestionTools.hasProvidedAnswer(q)) return new Set();
