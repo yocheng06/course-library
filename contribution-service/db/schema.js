@@ -1,4 +1,11 @@
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import {
+  sqliteTable,
+  text,
+  integer,
+  index,
+  check,
+} from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
 export const submissions = sqliteTable(
   "submissions",
   {
@@ -37,6 +44,23 @@ export const rateWindows = sqliteTable("rate_windows", {
   count: integer("count").notNull(),
   expiresAt: integer("expires_at").notNull(),
 });
+export const adminAccounts = sqliteTable("admin_accounts", {
+  id: integer("id").primaryKey(),
+  username: text("username").notNull(),
+  salt: text("salt").notNull(),
+  passwordHash: text("password_hash").notNull(),
+  iterations: integer("iterations").notNull(),
+  createdAt: integer("created_at").notNull(),
+  updatedAt: integer("updated_at").notNull(),
+});
+export const adminSetupState = sqliteTable(
+  "admin_setup_state",
+  {
+    id: integer("id").primaryKey(),
+    consumedAt: text("consumed_at"),
+  },
+  (t) => [check("admin_setup_state_singleton", sql`${t.id} = 1`)],
+);
 
 export const questionHistory = sqliteTable(
   "question_history",

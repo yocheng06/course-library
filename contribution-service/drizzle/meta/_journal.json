@@ -15,6 +15,20 @@
       "when": 1792127251495,
       "tag": "0001_crazy_joseph",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1792220708385,
+      "tag": "0002_kind_moondragon",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1792221466887,
+      "tag": "0003_parched_vulcan",
+      "breakpoints": true
     }
   ]
 }

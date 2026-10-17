@@ -8,8 +8,12 @@ import {
 const SITE_ORIGIN =
   "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site";
 const LIBRARY_ORIGIN = "https://yocheng06.github.io";
+const ADMIN_COOKIE = "__Host-course-admin";
+const ADMIN_SESSION_MS = 8 * 60 * 60 * 1000;
+const ADMIN_PASSWORD_ITERATIONS = 210000;
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const origins = new Set([SITE_ORIGIN, LIBRARY_ORIGIN]);
+const initializedAdminDatabases = new WeakSet();
 class HttpError extends Error {
   constructor(status, message, details = {}) {
     super(message);
@@ -67,14 +71,347 @@ function duplicateReport(input, payload, skipped) {
     skipped,
   };
 }
-function owner(request, env) {
+async function ensureAdminDatabase(env) {
+  if (initializedAdminDatabases.has(env.DB)) return;
+  await env.DB.prepare(
+    "CREATE TABLE IF NOT EXISTS admin_accounts (id INTEGER PRIMARY KEY NOT NULL, username TEXT NOT NULL, salt TEXT NOT NULL, password_hash TEXT NOT NULL, iterations INTEGER NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)",
+  ).run();
+  await env.DB.prepare(
+    "CREATE TABLE IF NOT EXISTS admin_setup_state (id INTEGER PRIMARY KEY NOT NULL CHECK (id=1), consumed_at TEXT)",
+  ).run();
+  await env.DB.prepare(
+    "INSERT INTO admin_setup_state (id,consumed_at) VALUES (1,NULL) ON CONFLICT(id) DO NOTHING",
+  ).run();
+  initializedAdminDatabases.add(env.DB);
+}
+async function getAdminAccount(env) {
+  await ensureAdminDatabase(env);
+  return env.DB.prepare("SELECT * FROM admin_accounts WHERE id=1").first();
+}
+async function getAdminSetupState(env) {
+  await ensureAdminDatabase(env);
+  return env.DB.prepare("SELECT * FROM admin_setup_state WHERE id=1").first();
+}
+function toHex(bytes) {
+  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+function fromHex(hex) {
+  if (typeof hex !== "string" || !/^(?:[0-9a-f]{2})+$/i.test(hex))
+    throw new Error("Invalid hexadecimal data");
+  return Uint8Array.from(hex.match(/.{2}/g), (byte) => parseInt(byte, 16));
+}
+function base64url(bytes) {
+  return btoa(String.fromCharCode(...bytes))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replace(/=+$/, "");
+}
+function decodeBase64url(value) {
+  const normalized = value.replaceAll("-", "+").replaceAll("_", "/");
+  const binary = atob(
+    normalized + "=".repeat((4 - (normalized.length % 4)) % 4),
+  );
+  return Uint8Array.from(binary, (character) => character.charCodeAt(0));
+}
+async function derivePassword(password, salt, iterations) {
+  const material = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(password),
+      "PBKDF2",
+      false,
+      ["deriveBits"],
+    ),
+    bits = await crypto.subtle.deriveBits(
+      { name: "PBKDF2", hash: "SHA-256", salt: fromHex(salt), iterations },
+      material,
+      256,
+    );
+  return toHex(new Uint8Array(bits));
+}
+function sameSecret(a, b) {
+  if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length)
+    return false;
+  let difference = 0;
+  for (let i = 0; i < a.length; i++)
+    difference |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return difference === 0;
+}
+function cookieValue(request, name) {
+  return (request.headers.get("cookie") || "")
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(name + "="))
+    ?.slice(name.length + 1);
+}
+async function createAdminCookie(account) {
+  const now = Date.now(),
+    payload = base64url(
+      new TextEncoder().encode(
+        JSON.stringify({
+          username: account.username,
+          issuedAt: now,
+          expiresAt: now + ADMIN_SESSION_MS,
+          nonce: toHex(crypto.getRandomValues(new Uint8Array(16))),
+        }),
+      ),
+    ),
+    key = await crypto.subtle.importKey(
+      "raw",
+      fromHex(account.password_hash),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"],
+    ),
+    signature = await crypto.subtle.sign(
+      "HMAC",
+      key,
+      new TextEncoder().encode(payload),
+    );
+  return `${ADMIN_COOKIE}=${payload}.${base64url(new Uint8Array(signature))}; Path=/; Max-Age=${ADMIN_SESSION_MS / 1000}; Secure; HttpOnly; SameSite=Strict`;
+}
+async function authenticatedAdmin(request, env, account = undefined) {
+  const token = cookieValue(request, ADMIN_COOKIE);
+  if (!token || token.length > 1024) return null;
+  account ??= await getAdminAccount(env);
+  if (
+    !account ||
+    !Number.isSafeInteger(account.iterations) ||
+    account.iterations < 100000 ||
+    account.iterations > 500000 ||
+    !/^[0-9a-f]{64}$/i.test(account.password_hash)
+  )
+    return null;
+  const [payload, signature, extra] = token.split(".");
+  if (!payload || !signature || extra !== undefined) return null;
+  try {
+    const key = await crypto.subtle.importKey(
+        "raw",
+        fromHex(account.password_hash),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["verify"],
+      ),
+      valid = await crypto.subtle.verify(
+        "HMAC",
+        key,
+        decodeBase64url(signature),
+        new TextEncoder().encode(payload),
+      );
+    if (!valid) return null;
+    const claims = JSON.parse(
+      new TextDecoder().decode(decodeBase64url(payload)),
+    );
+    if (
+      claims.username !== account.username ||
+      !Number.isSafeInteger(claims.issuedAt) ||
+      !Number.isSafeInteger(claims.expiresAt) ||
+      claims.issuedAt > Date.now() + 60000 ||
+      claims.expiresAt <= Date.now() ||
+      claims.expiresAt - claims.issuedAt !== ADMIN_SESSION_MS
+    )
+      return null;
+    return account;
+  } catch {
+    return null;
+  }
+}
+function boundOwnerIdentity(request, env) {
   const id = request.headers.get("oai-authenticated-user-id"),
     email = request.headers.get("oai-authenticated-user-email");
-  if (!id || !email) throw new HttpError(401, "請先登入管理者帳號。");
+  if (!id || !email) return null;
   if (!env.REVIEWER_EMAIL) throw new HttpError(503, "管理者帳號尚未設定。");
-  if (email.toLowerCase() !== env.REVIEWER_EMAIL.toLowerCase())
-    throw new HttpError(403, "這個帳號沒有題庫審核權限。");
+  if (email.toLowerCase() !== env.REVIEWER_EMAIL.toLowerCase()) return null;
   return id;
+}
+function requireBoundOwner(request, env) {
+  if (!env.REVIEWER_EMAIL) throw new HttpError(503, "管理者帳號尚未設定。");
+  const id = request.headers.get("oai-authenticated-user-id"),
+    email = request.headers.get("oai-authenticated-user-email");
+  if (!id || !email) throw new HttpError(401, "請先登入綁定的管理者帳號。");
+  if (email.toLowerCase() !== env.REVIEWER_EMAIL.toLowerCase())
+    throw new HttpError(403, "這個帳號沒有管理者權限。");
+  return id;
+}
+async function owner(request, env) {
+  const account = await authenticatedAdmin(request, env);
+  if (!account) throw new HttpError(401, "請輸入管理者帳號與密碼登入。");
+  return "admin:" + account.username;
+}
+async function adminLoginLimit(request, env) {
+  if (!env.RATE_HASH_KEY) throw new HttpError(503, "登入服務尚未完成設定。");
+  const now = Date.now(),
+    window = Math.floor(now / (15 * 60 * 1000)),
+    ip = request.headers.get("cf-connecting-ip") || "unknown",
+    key = await hash(`admin-login:${ip}:${env.RATE_HASH_KEY}:${window}`);
+  await env.DB.prepare("DELETE FROM rate_windows WHERE expires_at<?")
+    .bind(now)
+    .run();
+  const result = await env.DB.prepare(
+    "INSERT INTO rate_windows (key,count,expires_at) VALUES (?,1,?) ON CONFLICT(key) DO UPDATE SET count=count+1,expires_at=excluded.expires_at WHERE count<5 RETURNING count",
+  )
+    .bind(key, (window + 2) * 15 * 60 * 1000)
+    .first();
+  if (!result)
+    throw new HttpError(429, "登入次數過多，請 15 分鐘後再試。", {
+      retryAfter: 900,
+    });
+  return key;
+}
+async function adminSetupLimit(request, env) {
+  if (!env.RATE_HASH_KEY) throw new HttpError(503, "設定服務尚未完成設定。");
+  const now = Date.now(),
+    window = Math.floor(now / (15 * 60 * 1000)),
+    ip = request.headers.get("cf-connecting-ip") || "unknown",
+    key = await hash(`admin-setup:${ip}:${env.RATE_HASH_KEY}:${window}`);
+  await env.DB.prepare("DELETE FROM rate_windows WHERE expires_at<?")
+    .bind(now)
+    .run();
+  const result = await env.DB.prepare(
+    "INSERT INTO rate_windows (key,count,expires_at) VALUES (?,1,?) ON CONFLICT(key) DO UPDATE SET count=count+1,expires_at=excluded.expires_at WHERE count<5 RETURNING count",
+  )
+    .bind(key, (window + 2) * 15 * 60 * 1000)
+    .first();
+  if (!result)
+    throw new HttpError(429, "設定碼嘗試次數過多，請 15 分鐘後再試。", {
+      retryAfter: 900,
+    });
+  return key;
+}
+async function adminLogin(request, env) {
+  requireOrigin(request, true);
+  const key = await adminLoginLimit(request, env),
+    body = await readBody(request),
+    account = await getAdminAccount(env),
+    username =
+      typeof body.username === "string"
+        ? body.username.trim().toLowerCase()
+        : "",
+    password = typeof body.password === "string" ? body.password : "";
+  if (account) {
+    if (
+      !Number.isSafeInteger(account.iterations) ||
+      account.iterations < 100000 ||
+      account.iterations > 500000 ||
+      !/^[0-9a-f]{32}$/i.test(account.salt) ||
+      !/^[0-9a-f]{64}$/i.test(account.password_hash) ||
+      new TextEncoder().encode(password).length > 128
+    )
+      throw new HttpError(401, "帳號或密碼不正確。");
+    const candidate = await derivePassword(
+      password,
+      account.salt,
+      account.iterations,
+    );
+    if (
+      username === account.username &&
+      sameSecret(candidate, account.password_hash)
+    ) {
+      await env.DB.prepare("DELETE FROM rate_windows WHERE key=?")
+        .bind(key)
+        .run();
+      const response = json({
+        isReviewer: true,
+        userId: "admin:" + account.username,
+      });
+      response.headers.set("set-cookie", await createAdminCookie(account));
+      return response;
+    }
+  }
+  throw new HttpError(401, "帳號或密碼不正確。");
+}
+async function setupAdmin(request, env) {
+  requireOrigin(request, true);
+  const body = await readBody(request),
+    username =
+      typeof body.username === "string"
+        ? body.username.trim().toLowerCase()
+        : "",
+    password = typeof body.password === "string" ? body.password : "",
+    confirmation =
+      typeof body.confirmPassword === "string" ? body.confirmPassword : "",
+    setupCode = typeof body.setupCode === "string" ? body.setupCode : "";
+  if (!/^[a-z0-9][a-z0-9._-]{2,31}$/.test(username))
+    throw new HttpError(
+      400,
+      "帳號需為 3 至 32 個英文字母、數字、句點、底線或連字號。",
+    );
+  const passwordLength = new TextEncoder().encode(password).length;
+  if (passwordLength < 12 || passwordLength > 128)
+    throw new HttpError(400, "密碼需為 12 至 128 個字元。");
+  if (password !== confirmation)
+    throw new HttpError(400, "兩次輸入的密碼不一致。");
+  await ensureAdminDatabase(env);
+  const setupState = await getAdminSetupState(env);
+  let setupLimitKey = null;
+  if (setupCode) {
+    if (!env.ADMIN_SETUP_CODE || setupState?.consumed_at !== null)
+      throw new HttpError(401, "一次性設定碼無效或已使用。");
+    setupLimitKey = await adminSetupLimit(request, env);
+    if (!sameSecret(setupCode, env.ADMIN_SETUP_CODE))
+      throw new HttpError(401, "一次性設定碼不正確。");
+  } else {
+    requireBoundOwner(request, env);
+  }
+  const existing = await getAdminAccount(env),
+    salt = toHex(crypto.getRandomValues(new Uint8Array(16))),
+    passwordHash = await derivePassword(
+      password,
+      salt,
+      ADMIN_PASSWORD_ITERATIONS,
+    ),
+    now = Date.now(),
+    consumedMarker = `${now}:${crypto.randomUUID()}`;
+  if (setupCode) {
+    const results = await env.DB.batch([
+      env.DB.prepare(
+        "UPDATE admin_setup_state SET consumed_at=? WHERE id=1 AND consumed_at IS NULL",
+      ).bind(consumedMarker),
+      env.DB.prepare(
+        "INSERT INTO admin_accounts (id,username,salt,password_hash,iterations,created_at,updated_at) VALUES (1,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET username=excluded.username,salt=excluded.salt,password_hash=excluded.password_hash,iterations=excluded.iterations,updated_at=excluded.updated_at WHERE (SELECT consumed_at FROM admin_setup_state WHERE id=1)=?",
+      ).bind(
+        username,
+        salt,
+        passwordHash,
+        ADMIN_PASSWORD_ITERATIONS,
+        existing?.created_at || now,
+        now,
+        consumedMarker,
+      ),
+    ]);
+    if (!results[0].meta.changes || !results[1].meta.changes)
+      throw new HttpError(409, "一次性設定碼已使用，請重新登入。");
+    await env.DB.prepare("DELETE FROM rate_windows WHERE key=?")
+      .bind(setupLimitKey)
+      .run();
+  } else {
+    await env.DB.prepare(
+      "INSERT INTO admin_accounts (id,username,salt,password_hash,iterations,created_at,updated_at) VALUES (1,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET username=excluded.username,salt=excluded.salt,password_hash=excluded.password_hash,iterations=excluded.iterations,updated_at=excluded.updated_at",
+    )
+      .bind(
+        username,
+        salt,
+        passwordHash,
+        ADMIN_PASSWORD_ITERATIONS,
+        existing?.created_at || now,
+        now,
+      )
+      .run();
+  }
+  const account = await getAdminAccount(env),
+    response = json({
+      isReviewer: true,
+      userId: "admin:" + account.username,
+    });
+  response.headers.set("set-cookie", await createAdminCookie(account));
+  return response;
+}
+function clearAdminCookie() {
+  const response = json({ ok: true });
+  response.headers.set(
+    "set-cookie",
+    `${ADMIN_COOKIE}=; Path=/; Max-Age=0; Secure; HttpOnly; SameSite=Strict`,
+  );
+  return response;
 }
 function requireOrigin(request, admin = false) {
   const origin = request.headers.get("origin");
@@ -347,7 +684,7 @@ function submissionRow(row) {
   };
 }
 async function listReview(request, env, url) {
-  owner(request, env);
+  await owner(request, env);
   const status = url.searchParams.get("status") || "pending";
   if (!["pending", "approved", "rejected"].includes(status))
     throw new HttpError(400, "審核狀態不正確。");
@@ -395,7 +732,7 @@ function storedImagesOnly(original, payload, id) {
     }
 }
 async function decide(request, env, id) {
-  const reviewer = owner(request, env);
+  const reviewer = await owner(request, env);
   requireOrigin(request, true);
   const body = await readBody(request);
   const row = await env.DB.prepare("SELECT * FROM submissions WHERE id=?")
@@ -776,7 +1113,7 @@ async function checkSimilar(env, payload, confirmed, excludeId = null) {
     );
 }
 async function listPublications(request, env, url) {
-  owner(request, env);
+  await owner(request, env);
   await ensureReviewedContent(env);
   const course = url.searchParams.get("course") || "os",
     state = url.searchParams.get("state") || "published";
@@ -812,7 +1149,7 @@ async function listPublications(request, env, url) {
   });
 }
 async function editPublication(request, env, id) {
-  const actor = owner(request, env);
+  const actor = await owner(request, env);
   requireOrigin(request, true);
   await ensureReviewedContent(env);
   const body = await readBody(request),
@@ -939,7 +1276,7 @@ async function editPublication(request, env, id) {
   });
 }
 async function publicationHistory(request, env, id) {
-  owner(request, env);
+  await owner(request, env);
   const result = await env.DB.prepare(
     "SELECT * FROM question_history WHERE question_id=? ORDER BY created_at DESC,id DESC LIMIT 50",
   )
@@ -950,7 +1287,7 @@ async function publicationHistory(request, env, id) {
   });
 }
 async function exportBackup(request, env) {
-  owner(request, env);
+  await owner(request, env);
   await ensureReviewedContent(env);
   const [questions, submissions, history] = await Promise.all([
     env.DB.prepare("SELECT * FROM public_questions ORDER BY id").all(),
@@ -982,7 +1319,7 @@ async function imageResponse(request, env, id, file) {
   )
     .bind(id, src)
     .first();
-  if (!published) owner(request, env);
+  if (!published) await owner(request, env);
   const object = await env.BUCKET.get(`submissions/${id}/${file}`);
   if (!object) throw new HttpError(404, "找不到題圖。");
   const headers = new Headers({
@@ -1009,10 +1346,33 @@ async function route(request, env) {
   }
   if (path === "/api/submissions" && request.method === "POST")
     return submit(request, env);
+  if (path === "/api/login" && request.method === "POST")
+    return adminLogin(request, env);
+  if (path === "/api/password/setup" && request.method === "POST")
+    return setupAdmin(request, env);
+  if (path === "/api/logout" && request.method === "POST") {
+    requireOrigin(request, true);
+    return clearAdminCookie();
+  }
   if (path === "/api/session" && request.method === "GET") {
-    const userId = owner(request, env);
-    await ensureReviewedContent(env);
-    return json({ isReviewer: true, userId });
+    const account = await getAdminAccount(env),
+      authenticated = await authenticatedAdmin(request, env, account),
+      setupState = await getAdminSetupState(env);
+    if (authenticated) {
+      await ensureReviewedContent(env);
+      return json({
+        isReviewer: true,
+        userId: "admin:" + authenticated.username,
+        accountConfigured: true,
+      });
+    }
+    return json({
+      isReviewer: false,
+      accountConfigured: Boolean(account),
+      canManageCredentials: Boolean(boundOwnerIdentity(request, env)),
+      canUseSetupCode:
+        Boolean(env.ADMIN_SETUP_CODE) && setupState?.consumed_at === null,
+    });
   }
   if (path === "/api/review" && request.method === "GET")
     return listReview(request, env, url);

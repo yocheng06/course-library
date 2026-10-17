@@ -10,7 +10,7 @@ import {
 } from "../worker/model.js";
 const origin =
   "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site";
-async function setup() {
+async function setup({ provisionAdmin = true } = {}) {
   const sql = new DatabaseSync(":memory:");
   for (const file of (
     await readdir(new URL("../drizzle/", import.meta.url))
@@ -64,13 +64,35 @@ async function setup() {
       objects.delete(key);
     },
   };
-  return {
+  const env = {
     DB,
     BUCKET,
     REVIEWER_EMAIL: "owner@example.test",
     RATE_HASH_KEY: "test-hash-salt",
     sql,
   };
+  if (provisionAdmin) {
+    const response = await worker.fetch(
+      new Request(origin + "/api/password/setup", {
+        method: "POST",
+        headers: {
+          origin,
+          "content-type": "application/json",
+          "oai-authenticated-user-id": "owner-id",
+          "oai-authenticated-user-email": "owner@example.test",
+        },
+        body: JSON.stringify({
+          username: "reviewer",
+          password: "test-admin-password-123",
+          confirmPassword: "test-admin-password-123",
+        }),
+      }),
+      env,
+    );
+    assert.equal(response.status, 200);
+    env.testCookie = response.headers.get("set-cookie").split(";")[0];
+  }
+  return env;
 }
 const payload = () => ({
   course: "os",
@@ -98,6 +120,7 @@ async function call(
     body,
     reviewer = false,
     otherUser = false,
+    cookie,
     siteOrigin = origin,
     ip = "127.0.0.1",
   } = {},
@@ -113,6 +136,8 @@ async function call(
       ? "owner@example.test"
       : "student@example.test";
   }
+  const authCookie = cookie ?? (reviewer ? env.testCookie : undefined);
+  if (authCookie) headers.cookie = authCookie;
   const response = await worker.fetch(
     new Request(origin + path, {
       method,
@@ -127,7 +152,179 @@ async function call(
   } catch {}
   return { response, data };
 }
-test("anonymous submission stays private; only the owner can review and publish", async () => {
+test("reviewer password setup requires the bound owner and protects review endpoints", async () => {
+  const env = await setup({ provisionAdmin: false });
+  const anonymous = await call(env, "/api/session");
+  assert.equal(anonymous.data.accountConfigured, false);
+  assert.equal(anonymous.data.canManageCredentials, false);
+  const ownerSession = await call(env, "/api/session", {
+    reviewer: true,
+    cookie: "",
+  });
+  assert.equal(ownerSession.data.canManageCredentials, true);
+  assert.equal(
+    (
+      await call(env, "/api/password/setup", {
+        method: "POST",
+        otherUser: true,
+        body: {
+          username: "reviewer",
+          password: "test-admin-password-123",
+          confirmPassword: "test-admin-password-123",
+        },
+      })
+    ).response.status,
+    403,
+  );
+  const setupResult = await call(env, "/api/password/setup", {
+    method: "POST",
+    reviewer: true,
+    cookie: "",
+    body: {
+      username: "reviewer",
+      password: "test-admin-password-123",
+      confirmPassword: "test-admin-password-123",
+    },
+  });
+  assert.equal(setupResult.response.status, 200);
+  const stored = env.sql
+    .prepare(
+      "SELECT username,salt,password_hash,iterations FROM admin_accounts",
+    )
+    .get();
+  assert.equal(stored.username, "reviewer");
+  assert.notEqual(stored.password_hash, "test-admin-password-123");
+  assert.equal(stored.iterations, 210000);
+  const setupCookie = setupResult.response.headers.get("set-cookie");
+  assert.match(setupCookie, /HttpOnly/);
+  assert.match(setupCookie, /Secure/);
+  assert.match(setupCookie, /SameSite=Strict/);
+  assert.equal(
+    (await call(env, "/api/review", { reviewer: true, cookie: "" })).response
+      .status,
+    401,
+  );
+  const wrongPassword = await call(env, "/api/login", {
+    method: "POST",
+    body: { username: "reviewer", password: "wrong-password" },
+  });
+  assert.equal(wrongPassword.response.status, 401);
+  const login = await call(env, "/api/login", {
+    method: "POST",
+    body: { username: "reviewer", password: "test-admin-password-123" },
+  });
+  assert.equal(login.response.status, 200);
+  const loginCookie = login.response.headers.get("set-cookie").split(";")[0];
+  assert.equal(
+    (await call(env, "/api/review", { cookie: loginCookie })).response.status,
+    200,
+  );
+  const logout = await call(env, "/api/logout", {
+    method: "POST",
+    cookie: loginCookie,
+    body: {},
+  });
+  assert.equal(logout.response.status, 200);
+  assert.match(logout.response.headers.get("set-cookie"), /Max-Age=0/);
+  assert.equal((await call(env, "/api/review")).response.status, 401);
+  const reset = await call(env, "/api/password/setup", {
+    method: "POST",
+    reviewer: true,
+    cookie: "",
+    body: {
+      username: "reviewer2",
+      password: "new-test-password-456",
+      confirmPassword: "new-test-password-456",
+    },
+  });
+  assert.equal(reset.response.status, 200);
+  assert.equal(
+    (
+      await call(env, "/api/login", {
+        method: "POST",
+        body: { username: "reviewer", password: "test-admin-password-123" },
+      })
+    ).response.status,
+    401,
+  );
+  const relogin = await call(env, "/api/login", {
+    method: "POST",
+    body: { username: "reviewer2", password: "new-test-password-456" },
+  });
+  assert.equal(relogin.response.status, 200);
+  for (let attempt = 0; attempt < 5; attempt++)
+    assert.equal(
+      (
+        await call(env, "/api/login", {
+          method: "POST",
+          ip: "198.51.100.42",
+          body: { username: "reviewer2", password: "incorrect-password" },
+        })
+      ).response.status,
+      401,
+    );
+  assert.equal(
+    (
+      await call(env, "/api/login", {
+        method: "POST",
+        ip: "198.51.100.42",
+        body: { username: "reviewer2", password: "incorrect-password" },
+      })
+    ).response.status,
+    429,
+  );
+});
+test("one-time setup code creates the admin account without Site identity and cannot be reused", async () => {
+  const env = await setup({ provisionAdmin: false });
+  env.ADMIN_SETUP_CODE = "f".repeat(48);
+  const session = await call(env, "/api/session");
+  assert.equal(session.data.canManageCredentials, false);
+  assert.equal(session.data.canUseSetupCode, true);
+  const setupBody = {
+    username: "reviewer",
+    password: "test-admin-password-123",
+    confirmPassword: "test-admin-password-123",
+    setupCode: env.ADMIN_SETUP_CODE,
+  };
+  const invalid = await call(env, "/api/password/setup", {
+    method: "POST",
+    ip: "198.51.100.7",
+    body: { ...setupBody, setupCode: "invalid-code" },
+  });
+  assert.equal(invalid.response.status, 401);
+  const configured = await call(env, "/api/password/setup", {
+    method: "POST",
+    body: setupBody,
+  });
+  assert.equal(configured.response.status, 200);
+  assert.match(
+    env.sql
+      .prepare("SELECT consumed_at FROM admin_setup_state WHERE id=1")
+      .get().consumed_at,
+    /^\d+:/,
+  );
+  const afterSetup = await call(env, "/api/session");
+  assert.equal(afterSetup.data.canUseSetupCode, false);
+  assert.equal(
+    (
+      await call(env, "/api/password/setup", {
+        method: "POST",
+        body: { ...setupBody, username: "attacker" },
+      })
+    ).response.status,
+    401,
+  );
+  assert.equal(
+    (
+      await call(env, "/api/login", {
+        method: "POST",
+        body: { username: "reviewer", password: "test-admin-password-123" },
+      })
+    ).response.status,
+    200,
+  );
+});
+test("anonymous submission stays private; only an authenticated reviewer can review and publish", async () => {
   const env = await setup();
   const submitted = await call(env, "/api/submissions", {
     method: "POST",
@@ -149,7 +346,7 @@ test("anonymous submission stays private; only the owner can review and publish"
   assert.equal((await call(env, "/api/review")).response.status, 401);
   assert.equal(
     (await call(env, "/api/review", { otherUser: true })).response.status,
-    403,
+    401,
   );
   const decision = {
     action: "approve",
@@ -170,7 +367,7 @@ test("anonymous submission stays private; only the owner can review and publish"
         otherUser: true,
       })
     ).response.status,
-    403,
+    401,
   );
   assert.equal(
     (
@@ -327,7 +524,7 @@ test("duplicate items and built-in questions are skipped; invalid data still fai
   assert.equal(existing.data.skippedCount, 1);
   assert.equal(existing.data.skipped[0].reason, "published");
 });
-test("pending images require owner identity; only retained images become public after approval", async () => {
+test("pending images require a reviewer session; only retained images become public after approval", async () => {
   const env = await setup(),
     p = payload();
   p.questions[0].images = [
@@ -343,7 +540,7 @@ test("pending images require owner identity; only retained images become public 
   assert.equal((await call(env, imagePath)).response.status, 401);
   assert.equal(
     (await call(env, imagePath, { otherUser: true })).response.status,
-    403,
+    401,
   );
   assert.equal(
     (await call(env, imagePath, { reviewer: true })).response.status,
@@ -834,7 +1031,7 @@ test("published management enforces permissions, revisions, history, hide/restor
   assert.equal(
     (await call(env, "/api/manage/export", { otherUser: true })).response
       .status,
-    403,
+    401,
   );
   const current = (await call(env, "/api/manage/questions", { reviewer: true }))
     .data.items[0];

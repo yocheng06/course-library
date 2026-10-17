@@ -8,7 +8,7 @@
     <link rel="icon" href="assets/icons/course-mascot.png" />
     <link
       rel="stylesheet"
-      href="assets/contributions.css?v=global-dedup-20261016"
+      href="assets/contributions.css?v=password-setup-code-20261017"
     />
   </head>
   <body>
@@ -29,14 +29,77 @@
         <p>確認題目、答案與解析，核准後才會出現在課程題庫。</p>
       </div>
       <section class="panel" id="loginPanel">
-        <h2>管理者登入</h2>
-        <p id="loginHint">使用綁定的 ChatGPT 帳號登入後，即可審核投稿。</p>
+        <h2 id="loginTitle">管理者登入</h2>
+        <p id="loginHint">輸入管理者帳號與密碼即可審核投稿。</p>
+        <form id="passwordLoginForm" class="login-form" hidden>
+          <label
+            >管理者帳號<input
+              id="loginUsername"
+              name="username"
+              autocomplete="username"
+              maxlength="32"
+              required
+          /></label>
+          <label
+            >密碼<input
+              id="loginPassword"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              maxlength="128"
+              required
+          /></label>
+          <button class="button" id="loginSubmit" type="submit">登入</button>
+        </form>
+        <form id="passwordSetupForm" class="login-form" hidden>
+          <label id="setupCodeField" hidden
+            >一次性設定碼<input
+              id="setupCode"
+              name="setup-code"
+              type="password"
+              autocomplete="one-time-code"
+              maxlength="96"
+          /></label>
+          <label
+            >管理者帳號<input
+              id="setupUsername"
+              name="username"
+              autocomplete="username"
+              minlength="3"
+              maxlength="32"
+              pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,31}"
+              required
+          /></label>
+          <label
+            >設定新密碼<input
+              id="setupPassword"
+              name="new-password"
+              type="password"
+              autocomplete="new-password"
+              minlength="12"
+              maxlength="128"
+              required
+          /></label>
+          <label
+            >再次輸入新密碼<input
+              id="setupPasswordConfirm"
+              name="new-password-confirm"
+              type="password"
+              autocomplete="new-password"
+              minlength="12"
+              maxlength="128"
+              required
+          /></label>
+          <button class="button" id="setupSubmit" type="submit">
+            儲存並登入
+          </button>
+        </form>
         <a
-          class="button"
-          id="signIn"
+          class="text-button"
+          id="credentialAccess"
           href="/signin-with-chatgpt?return_to=%2Freview"
           target="_top"
-          >登入後審核</a
+          >首次設定或忘記密碼？以綁定的管理者帳號驗證</a
         >
       </section>
       <div
@@ -80,12 +143,7 @@
             </select></label
           ><button class="button secondary" id="refresh" type="button">
             重新載入</button
-          ><a
-            class="text-button"
-            href="/signout-with-chatgpt?return_to=%2Freview"
-            target="_top"
-            >登出</a
-          >
+          ><button class="text-button" id="signOut" type="button">登出</button>
         </div>
         <p id="reviewCount" class="muted"></p>
         <div id="reviewList"></div>
@@ -134,10 +192,10 @@
         tabindex="-1"
       ></p>
     </main>
-    <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
+    <script src="assets/contributions-config.js?v=password-setup-code-20261017"></script>
     <script
       type="module"
-      src="assets/contributions-review.js?v=global-dedup-20261016"
+      src="assets/contributions-review.js?v=password-setup-code-20261017"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫審核功能。</noscript>
   </body>

@@ -282,6 +282,15 @@ $("draftList").addEventListener("click", (event) => {
     }
     render();
     save();
+    const status = $("message");
+    status.textContent = `已移除第 ${index + 1} 題`;
+    status.classList.remove("error");
+    const nextQuestion = Math.min(index, questions.length - 1);
+    const nextAction =
+      nextQuestion >= 0
+        ? $("draftList").querySelector(`[data-edit="${nextQuestion}"]`)
+        : $("draftHeading");
+    nextAction.focus();
   }
   if (b.dataset.edit !== undefined) {
     editIndex = Number(b.dataset.edit);
@@ -480,7 +489,7 @@ $("downloadExample").addEventListener("click", () =>
           category: "課程觀念",
           type: "單選題",
           stem: "請在這裡寫出題目。",
-          options: ["A. 第一個選項", "B. 第二個選項"],
+          options: ["第一個選項", "第二個選項"],
           answer: "A",
           explanation: "說明為什麼選 A。",
           images: [],

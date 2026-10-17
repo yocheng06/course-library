@@ -3,7 +3,7 @@ import {
   TYPES,
   normalizeType,
   normalizeBatch,
-} from "./contribution-model.js?v=global-dedup-20261016";
+} from "./contribution-model.js?v=password-setup-code-20261017";
 import {
   esc,
   api,
@@ -12,7 +12,7 @@ import {
   statusLabel,
   showSimilar,
   downloadJSON,
-} from "./contributions-ui.js?v=global-dedup-20261016";
+} from "./contributions-ui.js?v=password-setup-code-20261017";
 const $ = (id) => document.getElementById(id),
   origin = window.courseContributions.apiOrigin;
 if (location.origin !== origin) {
@@ -84,6 +84,10 @@ async function load(append = false) {
         $("statusFilter").selectedOptions[0].textContent +
         "的投稿。";
   } catch (error) {
+    if (seq === loadSequence && error.status === 401) {
+      await start();
+      return;
+    }
     if (seq === loadSequence) message(error.message, true);
   } finally {
     if (seq === loadSequence) {
@@ -95,20 +99,105 @@ async function load(append = false) {
 async function start() {
   try {
     const session = await api("/api/session");
-    if (!session.isReviewer) return;
-    initDrafts(session.userId);
-    $("managementTabs").hidden = false;
-    $("loginPanel").hidden = true;
-    $("reviewWorkspace").hidden = false;
-    await load();
+    if (session.isReviewer) {
+      initDrafts(session.userId);
+      $("managementTabs").hidden = false;
+      $("loginPanel").hidden = true;
+      $("reviewWorkspace").hidden = false;
+      await load();
+      return;
+    }
+    $("loginPanel").hidden = false;
+    $("reviewWorkspace").hidden = true;
+    $("managementWorkspace").hidden = true;
+    $("managementTabs").hidden = true;
+    const canSetUp = session.canManageCredentials || session.canUseSetupCode;
+    $("passwordLoginForm").hidden =
+      session.canManageCredentials || !session.accountConfigured;
+    $("passwordSetupForm").hidden = !canSetUp;
+    $("setupCodeField").hidden = !session.canUseSetupCode;
+    $("setupCode").required = session.canUseSetupCode;
+    $("credentialAccess").hidden = canSetUp;
+    if (session.canUseSetupCode) {
+      $("loginTitle").textContent = session.accountConfigured
+        ? "設定或重設管理者帳號"
+        : "首次設定管理者帳號";
+      $("loginHint").textContent =
+        "輸入一次性設定碼並設定帳號密碼；設定碼使用後就會失效。之後登入只需帳號密碼。";
+    } else if (session.canManageCredentials) {
+      $("loginTitle").textContent = session.accountConfigured
+        ? "重設管理者帳號"
+        : "首次設定管理者帳號";
+      $("loginHint").textContent = session.accountConfigured
+        ? "已用綁定帳號驗證身份。可設定新的登入帳號與密碼。"
+        : "已用綁定帳號驗證身份。設定帳號與密碼後即可登入審核。";
+    } else {
+      $("loginTitle").textContent = "管理者登入";
+      $("loginHint").textContent = session.accountConfigured
+        ? "輸入管理者帳號與密碼即可審核投稿。"
+        : "首次設定管理者帳號需要先以綁定的管理者帳號驗證。";
+      $("credentialAccess").textContent = session.accountConfigured
+        ? "忘記密碼？以綁定的管理者帳號驗證"
+        : "以綁定的管理者帳號驗證並設定登入帳號";
+    }
   } catch (error) {
-    if (error.status === 401) return;
     message(error.message, true);
-    $("loginHint").textContent = "請確認登入的是管理者帳號。";
-    $("signIn").textContent = "切換帳號後重新登入";
-    $("signIn").href = "/signout-with-chatgpt?return_to=%2Freview";
   }
 }
+$("passwordLoginForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const submit = $("loginSubmit");
+  submit.disabled = true;
+  try {
+    await api("/api/login", {
+      method: "POST",
+      body: JSON.stringify({
+        username: $("loginUsername").value,
+        password: $("loginPassword").value,
+      }),
+    });
+    $("loginPassword").value = "";
+    message("");
+    await start();
+  } catch (error) {
+    message(error.message, true);
+  } finally {
+    submit.disabled = false;
+  }
+});
+$("passwordSetupForm").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const submit = $("setupSubmit");
+  submit.disabled = true;
+  try {
+    await api("/api/password/setup", {
+      method: "POST",
+      body: JSON.stringify({
+        username: $("setupUsername").value,
+        password: $("setupPassword").value,
+        confirmPassword: $("setupPasswordConfirm").value,
+        setupCode: $("setupCode").value,
+      }),
+    });
+    $("setupCode").value = "";
+    $("setupPassword").value = "";
+    $("setupPasswordConfirm").value = "";
+    message("");
+    await start();
+  } catch (error) {
+    message(error.message, true);
+  } finally {
+    submit.disabled = false;
+  }
+});
+$("signOut").addEventListener("click", async () => {
+  try {
+    await api("/api/logout", { method: "POST", body: "{}" });
+    location.reload();
+  } catch (error) {
+    message(error.message, true);
+  }
+});
 $("statusFilter").addEventListener("change", () => load());
 $("refresh").addEventListener("click", () => load());
 $("loadMore").addEventListener("click", () => load(true));

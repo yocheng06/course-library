@@ -103,11 +103,11 @@
             placeholder="照原題寫出題幹；有程式碼時可以附題圖。"
           ></textarea></label
         ><label id="optionsField"
-          >選項（一行一個；圖片題可留空）<textarea
+          >選項（一行一個，不用加 A、B；圖片題可留空）<textarea
             name="options"
             rows="4"
             maxlength="16000"
-            placeholder="A. 第一個選項&#10;B. 第二個選項"
+            placeholder="第一個選項&#10;第二個選項"
           ></textarea></label
         ><label
           >答案<textarea
@@ -151,7 +151,7 @@
       </form>
       <section class="panel" aria-labelledby="draftHeading">
         <div class="section-heading">
-          <h2 id="draftHeading">投稿清單 <span id="draftCount">0 題</span></h2>
+          <h2 id="draftHeading" tabindex="-1">投稿清單 <span id="draftCount">0 題</span></h2>
           <button id="exportDraft" class="text-button" type="button">
             下載草稿
           </button>
