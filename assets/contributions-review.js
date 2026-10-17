@@ -134,7 +134,7 @@ async function start() {
     } else {
       $("loginTitle").textContent = "管理者登入";
       $("loginHint").textContent = session.accountConfigured
-        ? "輸入管理者帳號與密碼即可審核投稿。"
+        ? "輸入已設定的帳號與密碼即可登入審核。"
         : "首次設定管理者帳號需要先以綁定的管理者帳號驗證。";
       $("credentialAccess").textContent = session.accountConfigured
         ? "忘記密碼？以綁定的管理者帳號驗證"

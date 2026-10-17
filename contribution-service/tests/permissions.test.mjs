@@ -194,7 +194,7 @@ test("reviewer password setup requires the bound owner and protects review endpo
     .get();
   assert.equal(stored.username, "reviewer");
   assert.notEqual(stored.password_hash, "test-admin-password-123");
-  assert.equal(stored.iterations, 210000);
+  assert.equal(stored.iterations, 100000);
   const setupCookie = setupResult.response.headers.get("set-cookie");
   assert.match(setupCookie, /HttpOnly/);
   assert.match(setupCookie, /Secure/);

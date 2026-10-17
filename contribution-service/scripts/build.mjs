@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir, rm, cp } from "node:fs/promises";
 import { resolve } from "node:path";
 import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
 import { questionKey, COURSE_UNITS } from "../worker/model.js";
 const root = resolve(import.meta.dirname, ".."),
   library = resolve(root, "frontend");
@@ -125,7 +126,7 @@ await cp(
 await cp(resolve(root, "drizzle"), resolve(root, "dist/drizzle"), {
   recursive: true,
 });
-const built = await import(resolve(root, "dist/server/index.js"));
+const built = await import(pathToFileURL(resolve(root, "dist/server/index.js")).href);
 if (typeof built.default?.fetch !== "function")
   throw new Error("Invalid Worker export");
 console.log(

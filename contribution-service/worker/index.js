@@ -10,7 +10,7 @@ const SITE_ORIGIN =
 const LIBRARY_ORIGIN = "https://yocheng06.github.io";
 const ADMIN_COOKIE = "__Host-course-admin";
 const ADMIN_SESSION_MS = 8 * 60 * 60 * 1000;
-const ADMIN_PASSWORD_ITERATIONS = 210000;
+const ADMIN_PASSWORD_ITERATIONS = 100000;
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const origins = new Set([SITE_ORIGIN, LIBRARY_ORIGIN]);
 const initializedAdminDatabases = new WeakSet();
@@ -177,7 +177,7 @@ async function authenticatedAdmin(request, env, account = undefined) {
     !account ||
     !Number.isSafeInteger(account.iterations) ||
     account.iterations < 100000 ||
-    account.iterations > 500000 ||
+    account.iterations > 100000 ||
     !/^[0-9a-f]{64}$/i.test(account.password_hash)
   )
     return null;
@@ -291,7 +291,7 @@ async function adminLogin(request, env) {
     if (
       !Number.isSafeInteger(account.iterations) ||
       account.iterations < 100000 ||
-      account.iterations > 500000 ||
+      account.iterations > 100000 ||
       !/^[0-9a-f]{32}$/i.test(account.salt) ||
       !/^[0-9a-f]{64}$/i.test(account.password_hash) ||
       new TextEncoder().encode(password).length > 128

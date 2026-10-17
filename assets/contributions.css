@@ -108,6 +108,44 @@ a {
 .login-form label {
   margin-bottom: 10px;
 }
+#loginPanel {
+  width: min(100%, 560px);
+  margin: 32px auto 48px;
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 12px 36px rgb(41 42 47 / 8%);
+}
+#loginTitle {
+  margin-bottom: 8px;
+  font-size: 25px;
+}
+#loginHint {
+  margin: 0;
+}
+#passwordLoginForm {
+  width: 100%;
+  max-width: none;
+  gap: 0;
+  margin: 24px 0 12px;
+}
+#passwordLoginForm label {
+  gap: 10px;
+  margin-bottom: 18px;
+  font-size: 16px;
+}
+#passwordLoginForm input {
+  min-height: 68px;
+  padding: 16px 18px;
+  border-color: #d8cbd1;
+  border-radius: 14px;
+}
+#loginSubmit {
+  width: 100%;
+  min-height: 62px;
+  margin-top: 4px;
+  border-radius: 14px;
+  font-size: 17px;
+}
 .notice,
 .muted {
   font-size: 14px;
@@ -426,6 +464,13 @@ summary:focus-visible {
   .panel {
     padding: 18px;
     border-radius: 14px;
+  }
+  #loginPanel {
+    margin-top: 22px;
+    padding: 22px;
+  }
+  #passwordLoginForm input {
+    min-height: 62px;
   }
   .field-grid {
     grid-template-columns: 1fr;
