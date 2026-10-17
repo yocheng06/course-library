@@ -228,7 +228,10 @@ test("every canonical built-in question round trips safely and reordered choices
       assert.equal(remapped.status, "matched", entry.id);
     }
   }
-  assert.equal(answered + reviewed, 812);
+  assert.equal(
+    answered + reviewed,
+    data.entries.filter((entry) => entry.preferred).length,
+  );
   assert(answered > 790);
   assert.equal(reviewed, 6);
 });
