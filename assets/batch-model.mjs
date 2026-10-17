@@ -74,6 +74,9 @@ export function normalizeText(value) {
       .replace(/⌈\s*([^⌈⌉\n]*?)\s*⌉/g, "ceil($1)")
       .replace(/\^\{([A-Za-z0-9]+)\}/g, "^$1")
       .replace(/\^\(((?:log|ln)(?:_[A-Za-z0-9]+)?\([^()]*\))\)/g, "^$1")
+      // Markdown often wraps math fragments in dollar signs. They are display
+      // delimiters, not part of an option's answer text.
+      .replace(/\$([^$\n]+)\$/g, "$1")
       .replace(/`([^`\n]+)`/g, "$1")
       .replace(/\[_{2,}\d*_*\]|_{2,}/g, "___")
       .replace(/[“”]/g, '"')
@@ -464,18 +467,29 @@ export function buildIndex(entries) {
     const key = entry.course + "|" + normalized;
     if (!stems.has(key)) stems.set(key, []);
     stems.get(key).push(entry);
-    if (
-      !entry.options.length &&
-      (normalized.match(/___/g) || []).length === 1
-    ) {
-      const blanklessKey =
-        entry.course + "|" + normalized.replace("___", "").trim();
+    const blankless = blanklessStem(entry.stem);
+    if (!entry.options.length && blankless !== null) {
+      const blanklessKey = entry.course + "|" + blankless;
       if (!blanklessStems.has(blanklessKey))
         blanklessStems.set(blanklessKey, []);
       blanklessStems.get(blanklessKey).push(entry);
     }
   }
   return { stems, blanklessStems, entries };
+}
+function blanklessStem(value, allowMissing = false) {
+  if (!answerFormat(value).hint) return null;
+  const normalized = normalizeStem(value);
+  const slots = [
+    ...normalized.matchAll(/___|(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/gu),
+  ];
+  if (slots.length === 0) return allowMissing ? normalized : null;
+  if (slots.length !== 1) return null;
+  const slot = slots[0];
+  return (
+    normalized.slice(0, slot.index) +
+    normalized.slice(slot.index + slot[0].length)
+  ).trim();
 }
 function choiceMatches(text, entry, index) {
   return (entry.optionAliases?.[index] || [entry.options[index]]).some(
@@ -573,17 +587,18 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   if (
     !sameStem.length &&
     !question.options.length &&
-    !normalized.includes("___") &&
     normalized.length >= 15 &&
     answerFormat(question.stem).hint
   ) {
-    sameStem = (
-      index.blanklessStems.get(course + "|" + normalized) || []
-    ).filter(eligible);
+    const blankless = blanklessStem(question.stem, true);
+    sameStem = blankless === null
+      ? []
+      : (index.blanklessStems.get(course + "|" + blankless) || []).filter(eligible);
     missingBlank = sameStem.length > 0;
   }
   let exact = sameStem.filter((e) => sameOptions(question, e));
   let textAnswerBridge = false;
+  let answerOnlyMatch = false;
   // A text-answer question can be transcribed as MCQ. Accept only an exact
   // stem, an unambiguous literal answer, and no competing choice/image version.
   if (
@@ -594,6 +609,30 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   ) {
     exact = sameStem;
     textAnswerBridge = true;
+  }
+  // Preserve the confirmed answer when a course uses a different distractor
+  // set. The correct option must still appear exactly once, every preferred
+  // source version must agree, and image-dependent questions remain review-only.
+  if (
+    !exact.length &&
+    !textAnswerBridge &&
+    question.options.length &&
+    sameStem.length
+  ) {
+    const candidates = sameStem.some((e) => e.preferred)
+      ? sameStem.filter((e) => e.preferred)
+      : sameStem;
+    const mapped = candidates.every((e) => !e.needsImage)
+      ? candidates.map((e) => remapAnswer(question, e))
+      : [];
+    if (
+      mapped.length &&
+      mapped.every(Boolean) &&
+      new Set(mapped.map((a) => a.signature)).size === 1
+    ) {
+      exact = candidates;
+      answerOnlyMatch = true;
+    }
   }
   if (exact.some((e) => e.preferred)) exact = exact.filter((e) => e.preferred);
   if (exact.length) {
@@ -619,9 +658,11 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       status: "matched",
       answer: answers[0].answer,
       reason: missingBlank
-        ? "填空線未貼出；其餘文字符合題庫，已核對答案一致且符合填答格式。"
+        ? "填空標記格式不同或未貼出；其餘文字符合題庫，已核對答案一致且符合填答格式。"
         : textAnswerBridge
           ? "題幹符合，題庫的文字答案唯一對應本次選項。"
+          : answerOnlyMatch
+            ? "題幹相同，題庫正確答案可唯一對應本次選項；其他選項與題庫版本不同。"
           : "題幹與選項符合題庫（含已核對的中英文對照），答案已依貼上的選項代號對應。" +
             (question.options.some(
               (o) => optionText(o.text) === "Disk formating",
@@ -723,3 +764,4 @@ export function aiPrompt(questions) {
     formatQuestions(questions)
   );
 }
+

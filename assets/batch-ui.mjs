@@ -5,7 +5,7 @@ import {
   expandLibraryQuestion,
   aiPrompt,
   MAX_TEXT,
-} from "./batch-model.mjs?v=batch-beast-inline-bold-20261017";
+} from "./batch-model.mjs?v=batch-math-and-option-variants-20261017";
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
   String(value ?? "").replace(
@@ -376,3 +376,4 @@ try {
 units();
 markChanged();
 loadLibrary();
+
