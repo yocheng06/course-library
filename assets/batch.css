@@ -167,6 +167,21 @@ th:nth-child(3) {
   white-space: pre-wrap;
   font-weight: 650;
 }
+.answer-condition {
+  margin: 10px 0 0;
+  padding: 10px;
+  background: var(--soft);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.7;
+  white-space: normal;
+}
+.source-unit {
+  font-size: 13px;
+  font-weight: 400;
+}
 .result-badge {
   display: inline-block;
   padding: 3px 7px;

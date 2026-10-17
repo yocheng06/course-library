@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir, cp } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
 const root = resolve(import.meta.dirname, ".."),
   library = resolve(process.argv[2] || dirname(root));
 const paths = [
@@ -40,6 +41,8 @@ const os = JSON.parse(
 // Keep all reviewed source variants in the index, so a removed translation or
 // option order cannot be reintroduced as a new L7 question.
 const { questionKey } = await import("../worker/model.js");
+const { choiceAliases, choiceCombinations, questionStemVersions } =
+  await import(pathToFileURL(resolve(library, "assets/batch-model.mjs")).href);
 const entries = new Map();
 let displayedQuestions = 0;
 for (const [course, units] of [
@@ -49,6 +52,8 @@ for (const [course, units] of [
   for (const unit of units)
     for (const q of unit.questions) {
       displayedQuestions++;
+      const inherited =
+        choiceAliases(q.options ?? q.opts ?? [], q.optionTranslations) || [];
       const variants = [q, ...(q.sourceVariants || [])];
       for (const variant of variants) {
         const entry = {
@@ -71,19 +76,19 @@ for (const [course, units] of [
             );
           }),
         );
-        entries.set(questionKey(course, unit.id, entry), entry);
-        if (variant.translation) {
-          const translated = {
-            ...entry,
-            stem: variant.translation,
-            options:
-              variant.optionTranslations?.length === entry.options.length &&
-              variant.optionTranslations.every((o) => String(o).trim())
-                ? variant.optionTranslations
-                : entry.options,
-          };
-          entries.set(questionKey(course, unit.id, translated), translated);
-        }
+        const aliases = choiceAliases(
+          entry.options,
+          variant.optionTranslations,
+          inherited,
+        );
+        for (const stem of questionStemVersions(
+          entry.stem,
+          variant.translation,
+        ))
+          for (const options of choiceCombinations(entry.options, aliases)) {
+            const version = { ...entry, stem, options };
+            entries.set(questionKey(course, unit.id, version), version);
+          }
       }
     }
 await writeFile(

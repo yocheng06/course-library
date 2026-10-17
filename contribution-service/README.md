@@ -17,7 +17,7 @@
 
 Runtime 設定由 Sites 管理，不能放進 GitHub：`REVIEWER_EMAIL`（管理者登入信箱）、`RATE_HASH_KEY`（匿名投稿頻率雜湊密鑰）。本機驗證使用測試帳號與記憶體資料庫，不寫入正式資料。
 
-修改原網站投稿 UI 或原始題庫後，先在本目錄執行 `node scripts/sync-library.mjs ..`，把前端與現有題目索引同步到服務；同步資料供服務獨立建置，不需要在部署時讀取 GitHub。修改 schema 後執行 `npm run db:generate` 產生新遷移，已套用的遷移不能改寫。
+修改原網站投稿 UI 或原始題庫後，先在本目錄執行 `node scripts/sync-library.mjs ..`，把前端與現有題目索引同步到服務；同步器使用題庫的共用選項別名與題幹版本展開規則，涵蓋已核對的中英文混貼組合。原始題庫與 `assets/batch-model.mjs` 必須同時可讀取。同步後執行主網站的 `node tests/submission-index.test.mjs` 檢查兩邊對照沒有遺漏；同步資料供服務獨立建置，不需要在部署時讀取 GitHub。修改 schema 後執行 `npm run db:generate` 產生新遷移，已套用的遷移不能改寫。
 
 `npm run build` 產生獨立 Worker 與部署資源；`npm test` 驗證匿名投稿、管理者權限、退回、重複略過及疑似重複確認、第 200 題附圖、答案驗證、解析整合、題目管理、歷史備份與頻率限制。部署須同步推送服務來源並使用 Sites 的儲存版本及部署工具，保留 `.openai/hosting.json` 的專案 ID。
 

@@ -1294,3 +1294,77 @@ test("all course keys normalize placeholders and option labels while preserving 
     );
   }
 });
+
+test("verified translated and mixed-language choices are skipped as built-in duplicates before creating a submission", async () => {
+  const env = await setup();
+  const cases = [
+    {
+      stem: "在 Windows 排程中，哪個功能允許應用程式獨立於核心來創建和管理執行緒？",
+      options: [
+        "A. Completely Fair Scheduler",
+        "B. 處理器親和性",
+        "C. 使用者模式排程 (UMS)",
+        "D. Multilevel queue",
+      ],
+      answer: "C",
+    },
+    {
+      stem: "In the Windows system, what happens to a thread's priority when its quantum expires?",
+      options: [
+        "A. It is lowered",
+        "B. It changes randomly",
+        "C. It is boosted",
+        "D. It remains unchanged",
+      ],
+      answer: "A",
+    },
+    {
+      stem: "分派器 (Dispatcher) 模組的工作包含哪些項目？",
+      options: [
+        "A. 跳轉到使用者程式中的正確位置以重新啟動該程式",
+        "B. Selecting the next process to run",
+        "C. 切換到使用者模式",
+        "D. Switching context",
+      ],
+      answer: "A、C、D",
+    },
+    {
+      stem: "In the Round Robin (RR) scheduling algorithm, what is the unit of a small amount of CPU time given to each process?",
+      options: [
+        "A. Time unit",
+        "B. Time block",
+        "C. Time quantum",
+        "D. Time period",
+      ],
+      answer: "C",
+    },
+    {
+      stem: "在 POSIX 即時排程中，SCHED_FIFO 的特點是什麼？",
+      options: [
+        "A. 僅限於單核心系統",
+        "B. 提供優先提升",
+        "C. 沒有時間分片",
+        "D. 提供時間分片",
+      ],
+      answer: "C",
+    },
+  ];
+  const result = await call(env, "/api/submissions", {
+    method: "POST",
+    body: {
+      ...payload(),
+      unit: "scheduling",
+      questions: cases.map((q) => ({
+        category: "查重回歸",
+        type: q.answer.includes("、") ? "多選題" : "單選題",
+        explanation: "",
+        images: [],
+        ...q,
+      })),
+    },
+  });
+  assert.equal(result.response.status, 200);
+  assert.equal(result.data.status, "duplicates_only");
+  assert.equal(result.data.skippedCount, 5);
+  assert.equal(result.data.acceptedCount, 0);
+});

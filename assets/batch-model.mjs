@@ -117,6 +117,44 @@ export const optionKey = (value) => {
   return normalizeText(text === "Disk formating" ? "Disk formatting" : text);
 };
 
+// The aliases in each group refer to one option at the same original index.
+// Align inherited groups by content, never by a source version's letter order.
+export function choiceAliases(options, translations, inherited = []) {
+  if (
+    Array.isArray(translations) &&
+    translations.length === options.length &&
+    translations.every((v) => typeof v === "string" && v.trim())
+  )
+    return options.map((text, i) => [...new Set([text, translations[i]])]);
+  if (!options.length || !inherited.length) return null;
+  const hits = options.map((text) =>
+    inherited.filter((group) =>
+      group.some((alias) => optionKey(alias) === optionKey(text)),
+    ),
+  );
+  return hits.every((groups) => groups.length === 1) &&
+    new Set(hits.map((groups) => groups[0])).size === options.length
+    ? hits.map((groups) => groups[0])
+    : null;
+}
+
+// Shared with submission-index generation so all verified mixed-language
+// versions are recognized there as well. At most 2^8 versions per source.
+export function choiceCombinations(options, aliases = null) {
+  let versions = [[]];
+  for (const [i, option] of options.entries()) {
+    const values = [
+      ...new Map(
+        (aliases?.[i] || [option]).map((v) => [optionKey(v), v]),
+      ).values(),
+    ];
+    if (versions.length * values.length > 256)
+      throw new Error("選項對照版本超過安全上限，請檢查翻譯資料。");
+    versions = versions.flatMap((prefix) => values.map((v) => [...prefix, v]));
+  }
+  return versions;
+}
+
 function inlineOptions(line) {
   const matches = [...line.matchAll(/(?:^|\s)([A-H])[.)、:]\s*/g)];
   if (matches.length < 2 || matches[0].index !== 0) return null;
@@ -310,6 +348,16 @@ export function toLibraryQuestion(
       : null,
     needsImage: Boolean(raw.images?.length || raw.missingContext),
     preferred,
+    ...(choiceAliases(options, raw.optionTranslations)
+      ? { optionAliases: choiceAliases(options, raw.optionTranslations) }
+      : {}),
+    ...(Array.isArray(raw.answerConditions) && raw.answerConditions.length
+      ? {
+          conditions: raw.answerConditions.filter(
+            (v) => typeof v === "string" && v.trim(),
+          ),
+        }
+      : {}),
   };
 }
 
@@ -327,6 +375,15 @@ function bilingualParts(stem) {
   if (parts.filter((x) => /[\p{Script=Han}]/u.test(x)).length !== 1) return [];
   return parts;
 }
+export function questionStemVersions(stem, translation = "") {
+  return [
+    ...new Set([
+      stem,
+      ...bilingualParts(stem),
+      ...(translation ? [translation, ...bilingualParts(translation)] : []),
+    ]),
+  ];
+}
 export function expandLibraryQuestion(course, unit, q) {
   if (!q || typeof q !== "object") return [];
   const result = [],
@@ -335,9 +392,21 @@ export function expandLibraryQuestion(course, unit, q) {
     q,
     ...(Array.isArray(q.sourceVariants) ? q.sourceVariants : []),
   ];
+  const inherited =
+    choiceAliases(q.options ?? q.opts ?? [], q.optionTranslations) || [];
   for (const [i, v] of variants.entries()) {
     const item = toLibraryQuestion(course, unit, v, i === 0, id);
     if (!item) continue;
+    const aliases =
+      item.optionAliases || choiceAliases(item.options, null, inherited);
+    if (aliases) item.optionAliases = aliases;
+    const conditions = [
+      ...new Set([
+        ...(q.answerConditions || []),
+        ...(v.answerConditions || []),
+      ]),
+    ].filter((value) => typeof value === "string" && value.trim());
+    if (conditions.length) item.conditions = conditions;
     result.push(item);
     for (const stem of bilingualParts(item.stem))
       result.push({ ...item, stem, preferred: false });
@@ -383,7 +452,23 @@ export function buildIndex(entries) {
   }
   return { stems, blanklessStems, entries };
 }
-const sortedOptions = (options) => options.map(optionKey).sort();
+function choiceMatches(text, entry, index) {
+  return (entry.optionAliases?.[index] || [entry.options[index]]).some(
+    (alias) => optionKey(alias) === optionKey(text),
+  );
+}
+function sameOptions(question, entry) {
+  if (question.options.length !== entry.options.length) return false;
+  const mapped = question.options.map((o) =>
+    entry.options
+      .map((_, i) => (choiceMatches(o.text, entry, i) ? i : -1))
+      .filter((i) => i >= 0),
+  );
+  return (
+    mapped.every((hits) => hits.length === 1) &&
+    new Set(mapped.map((hits) => hits[0])).size === entry.options.length
+  );
+}
 function remapAnswer(question, entry) {
   if (!question.options.length) {
     const { hint } = answerFormat(question.stem);
@@ -403,13 +488,15 @@ function remapAnswer(question, entry) {
   }
   const correct = entry.options.length
     ? entry.choiceKey &&
-      [...entry.choiceKey].map((letter) =>
-        optionKey(entry.options[LETTERS.indexOf(letter)]),
-      )
+      [...entry.choiceKey].map((letter) => LETTERS.indexOf(letter))
     : [normalizeText(entry.answer)];
   if (!correct) return null;
-  const mapped = correct.map((text) =>
-    question.options.filter((o) => optionKey(o.text) === text),
+  const mapped = correct.map((value) =>
+    question.options.filter((o) =>
+      entry.options.length
+        ? choiceMatches(o.text, entry, value)
+        : optionKey(o.text) === value,
+    ),
   );
   if (mapped.some((hits) => hits.length !== 1)) return null;
   const selected = question.options.filter((o) =>
@@ -470,12 +557,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     ).filter(eligible);
     missingBlank = sameStem.length > 0;
   }
-  const options = JSON.stringify(
-    sortedOptions(question.options.map((o) => o.text)),
-  );
-  let exact = sameStem.filter(
-    (e) => JSON.stringify(sortedOptions(e.options)) === options,
-  );
+  let exact = sameStem.filter((e) => sameOptions(question, e));
   let textAnswerBridge = false;
   // A text-answer question can be transcribed as MCQ. Accept only an exact
   // stem, an unambiguous literal answer, and no competing choice/image version.
@@ -522,7 +604,27 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
               ? "已將 Disk formating 的常見拼字辨識為 Disk formatting，保留貼上原文。"
               : ""),
       references: references(exact),
+      conditions: [...new Set(exact.flatMap((e) => e.conditions || []))],
     };
+  }
+  if (unit !== "all") {
+    const elsewhere = matchQuestion(question, index, { course, unit: "all" });
+    if (elsewhere.status === "matched")
+      return {
+        ...elsewhere,
+        outsideScope: true,
+        reason: "此題已收錄於同科目的其他單元，答案已依本次選項順序核對。",
+      };
+    if (
+      elsewhere.status === "review" &&
+      !sameStem.length &&
+      elsewhere.references.length
+    )
+      return {
+        ...elsewhere,
+        reason:
+          "所選單元未找到一致題目；其他單元有候選原題，請核對文字與條件。",
+      };
   }
   if (sameStem.length)
     return {

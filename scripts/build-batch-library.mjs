@@ -41,6 +41,8 @@ for (const entry of entries) {
     entry.options.map(optionKey),
     entry.choiceKey || entry.answer,
     entry.needsImage,
+    entry.optionAliases?.map((group) => group.map(optionKey).sort()) || null,
+    entry.conditions || [],
   ]);
   const old = unique.get(key);
   if (!old || entry.preferred) unique.set(key, entry);

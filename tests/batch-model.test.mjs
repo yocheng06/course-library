@@ -955,3 +955,103 @@ test("verified translations preserve all alternatives; changing a translated cho
     );
   }
 });
+
+test("verified bilingual options support mixed languages and reordered letters without changing correct content", async () => {
+  const data = JSON.parse(
+    await readFile(
+      new URL("../assets/batch-library.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const index = buildIndex(data.entries);
+  const q = parseQuestions(
+    "1. 什麼是作業系統？\nA. A compiler for converting source code\nB. 在使用者與電腦硬體之間充當中介的程式\nC. A physical device that stores files\nD. 只用於遊戲的應用程式",
+  );
+  const row = matchQuestions(q, index, { course: "os" })[0];
+  assert.equal(row.status, "matched");
+  assert(row.answer.startsWith("B."));
+  for (const entry of data.entries.filter(
+    (e) => e.preferred && e.optionAliases,
+  )) {
+    const mixed = {
+      number: "1",
+      stem: entry.stem,
+      type: "",
+      issues: [],
+      options: entry.options
+        .map((o, i) => ({
+          label: String.fromCharCode(65 + i),
+          text: entry.optionAliases[i][i % entry.optionAliases[i].length],
+        }))
+        .reverse()
+        .map((o, i) => ({ ...o, label: String.fromCharCode(65 + i) })),
+    };
+    assert.equal(
+      matchQuestions([mixed], index, { course: entry.course })[0].status,
+      "matched",
+      entry.id,
+    );
+  }
+  const bad = structuredClone(q[0]);
+  bad.options[1].text = "不是在使用者與電腦硬體之間充當中介的程式";
+  assert.notEqual(
+    matchQuestions([bad], index, { course: "os" })[0].status,
+    "matched",
+  );
+});
+
+test("wrong unit returns the exact answer and source unit instead of claiming an existing question is unrecorded", async () => {
+  const data = JSON.parse(
+    await readFile(
+      new URL("../assets/batch-library.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const q = parseQuestions(
+    "1. 下列何者為作業系統的常見目標？\nA. 僅僅執行程式\nB. 最小化記憶體\nC. 便利性與效率\nD. 僅僅保護硬體",
+  );
+  const index = buildIndex(data.entries);
+  const row = matchQuestions(q, index, { course: "os", unit: "scheduling" })[0];
+  assert.equal(row.status, "matched");
+  assert.equal(row.outsideScope, true);
+  assert.equal(row.answer, "C. 便利性與效率");
+  assert.equal(row.references[0].unit, "basics");
+  assert.notEqual(
+    matchQuestions(q, index, { course: "os", unit: "all" })[0].outsideScope,
+    true,
+  );
+  const different = structuredClone(q);
+  different[0].options[2].text = "完全不同";
+  assert.notEqual(
+    matchQuestions(different, index, { course: "os", unit: "scheduling" })[0]
+      .status,
+    "matched",
+  );
+});
+
+test("important answer conditions survive translations, source variants and cross-unit answers", async () => {
+  const data = JSON.parse(
+    await readFile(
+      new URL("../assets/batch-library.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const rows = matchQuestions(
+    parseQuestions(
+      await readFile(
+        new URL("./fixtures/batch-scheduling-30.txt", import.meta.url),
+        "utf8",
+      ),
+    ),
+    buildIndex(data.entries),
+    { course: "os", unit: "basics" },
+  );
+  for (const n of [5, 22, 30]) {
+    assert.equal(rows[n - 1].status, "matched");
+    assert(rows[n - 1].conditions.length > 0);
+    assert.equal(rows[n - 1].outsideScope, true);
+  }
+  assert(rows[29].conditions.join("").includes("CPU burst"));
+  assert(rows[4].conditions.join("").includes("基礎優先權"));
+  assert.equal(rows[1].conditions.length, 0);
+});

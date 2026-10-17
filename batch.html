@@ -15,7 +15,7 @@
     />
     <link
       rel="stylesheet"
-      href="assets/batch.css?v=batch-scheduling-20261017"
+      href="assets/batch.css?v=batch-audit-fixes-20261017"
     />
   </head>
   <body data-course="os">
@@ -119,6 +119,9 @@ D. 巨集排程器
           <span id="resultCount" class="muted"></span>
         </div>
         <p id="coverageNotice" class="notice" hidden></p>
+        <button id="expandScope" class="text-button" type="button" hidden>
+          改用全部單元比對
+        </button>
         <p id="staleNotice" class="notice" hidden>
           文字、科目或範圍已變更，請重新比對。下方保留的是上一批結果。
         </p>
@@ -142,7 +145,7 @@ D. 巨集排程器
           </div>
         </div>
         <p class="muted result-help">
-          選項代號依你貼上的版本對應；未收錄以所選科目與單元為範圍。展開每題可核對辨識文字與原題連結。
+          選項代號依你貼上的版本對應；其他單元已收錄會另外標示。重要成立條件會隨答案顯示並一起複製，展開每題可核對原題。
         </p>
         <div
           class="table-scroll"
@@ -183,7 +186,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=batch-scheduling-20261017"
+      src="assets/batch-ui.mjs?v=batch-audit-fixes-20261017"
     ></script>
   </body>
 </html>

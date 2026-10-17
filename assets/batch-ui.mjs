@@ -5,7 +5,7 @@ import {
   expandLibraryQuestion,
   aiPrompt,
   MAX_TEXT,
-} from "./batch-model.mjs?v=batch-scheduling-20261017";
+} from "./batch-model.mjs?v=batch-audit-fixes-20261017";
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
   String(value ?? "").replace(
@@ -64,7 +64,8 @@ function markChanged() {
   $("staleNotice").hidden = !results.length || !isStale();
   const stale = !$("staleNotice").hidden;
   for (const id of ["copyAnswers", "copyUnmatched", "copyReview"])
-    $(id).disabled = stale || !results.length || !copyItems(id).length;
+    $(id).disabled =
+      stale || loading || !index || !results.length || !copyItems(id).length;
   $("inputCount").textContent =
     `${$("batchText").value.length.toLocaleString()} / ${MAX_TEXT.toLocaleString()} 字・最多 30 題`;
   try {
@@ -82,11 +83,15 @@ function copyItems(id) {
       : results;
 }
 function statusLabel(row) {
+  if (row.outsideScope) return "其他單元已收錄";
   return row.status === "unmatched" && !snapshotCoverage
     ? "未找到"
-    : labels[row.status];
+    : row.status === "unmatched" && snapshotUnit !== "all"
+      ? "此範圍未找到"
+      : labels[row.status];
 }
 let snapshotCoverage = false;
+let snapshotUnit = "all";
 let restoreUnit = null;
 function libraryStatus() {
   const course = $("course").value;
@@ -102,13 +107,22 @@ function libraryStatus() {
 async function loadLibrary() {
   if (loading) return;
   loading = true;
+  libraryGeneration++;
+  if (results.length) {
+    $("staleNotice").textContent =
+      "正在重新同步題庫，以下為上次比對結果；完成後請重新比對。";
+    markChanged();
+  }
   $("compare").disabled = true;
   $("reloadLibrary").disabled = true;
   $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
   try {
-    const built = fetch("assets/batch-library.json?v=batch-scheduling-20261017", {
-      signal: AbortSignal.timeout(12000),
-    }).then(async (r) => {
+    const built = fetch(
+      "assets/batch-library.json?v=batch-audit-fixes-20261017",
+      {
+        signal: AbortSignal.timeout(12000),
+      },
+    ).then(async (r) => {
       if (!r.ok) throw new Error("library");
       return r.json();
     });
@@ -154,7 +168,6 @@ async function loadLibrary() {
       }
     }
     index = buildIndex(entries);
-    libraryGeneration++;
     units();
     libraryStatus();
     $("compare").disabled = false;
@@ -169,6 +182,11 @@ async function loadLibrary() {
     index = null;
     $("libraryStatus").textContent =
       "無法載入內建題庫，貼上的文字仍保留。請確認網路連線後按「重新同步題庫」。";
+    if (results.length) {
+      $("staleNotice").textContent =
+        "題庫同步失敗，以下為上次比對結果；請重新同步並比對後再複製。";
+      markChanged();
+    }
   } finally {
     loading = false;
     $("reloadLibrary").disabled = false;
@@ -182,13 +200,24 @@ function sourceURL(id) {
   );
 }
 let snapshotCourse = "os";
+function unitNames(row) {
+  return [
+    ...new Set(
+      row.references.map(
+        (ref) =>
+          library.courses[snapshotCourse].units.find((u) => u.id === ref.unit)
+            ?.name || ref.unit,
+      ),
+    ),
+  ].join("、");
+}
 function renderResults() {
   const filter = $("resultFilter").value;
   const shown = results.filter((r) => filter === "all" || r.status === filter);
   $("resultRows").innerHTML = shown
     .map(
       (row) =>
-        `<tr><th scope="row">${esc(row.question.number)}</th><td class="answer-text">${esc(row.answer || "尚無可確認答案")}</td><td><span class="result-badge ${row.status}">${esc(statusLabel(row))}</span></td><td><details class="question-detail"><summary>${esc(row.question.stem.slice(0, 90) || "缺少題幹")}</summary><p>${esc(row.question.stem)}</p>${row.question.options.length ? "<ul>" + row.question.options.map((o) => `<li>${esc(o.label)}. ${esc(o.text)}</li>`).join("") + "</ul>" : ""}<p>${esc(row.reason)}</p>${row.references.length ? '<ul class="source-links">' + row.references.map((ref) => `<li><a href="${sourceURL(ref.id)}" target="_blank" rel="noopener">${esc(ref.id)}・開啟${row.status === "matched" ? "收錄" : "候選"}原題 ↗</a></li>`).join("") + "</ul>" : ""}</details></td></tr>`,
+        `<tr><th scope="row">${esc(row.question.number)}</th><td class="answer-text">${esc(row.answer || "尚無可確認答案")}${row.conditions?.length ? `<p class="answer-condition"><strong>成立條件</strong><br>${row.conditions.map(esc).join("<br>")}</p>` : ""}${row.outsideScope ? `<p class="source-unit">收錄單元：${esc(unitNames(row))}</p>` : ""}</td><td><span class="result-badge ${row.status}">${esc(statusLabel(row))}</span></td><td><details class="question-detail"><summary>${esc(row.question.stem.slice(0, 90) || "缺少題幹")}</summary><p>${esc(row.question.stem)}</p>${row.question.options.length ? "<ul>" + row.question.options.map((o) => `<li>${esc(o.label)}. ${esc(o.text)}</li>`).join("") + "</ul>" : ""}<p>${esc(row.reason)}</p>${row.references.length ? '<ul class="source-links">' + row.references.map((ref) => `<li><a href="${sourceURL(ref.id)}" target="_blank" rel="noopener">${esc(ref.id)}・開啟${row.status === "matched" ? "收錄" : "候選"}原題 ↗</a></li>`).join("") + "</ul>" : ""}</details></td></tr>`,
     )
     .join("");
   $("emptyResults").hidden = shown.length > 0;
@@ -202,17 +231,25 @@ $("batchForm").addEventListener("submit", (event) => {
     snapshot = currentSnapshot();
     snapshotGeneration = libraryGeneration;
     snapshotCourse = $("course").value;
+    snapshotUnit = $("unit").value;
     snapshotCoverage = coverage[snapshotCourse];
     const count = (status) => results.filter((r) => r.status === status).length;
     $("resultCount").textContent =
-      `共 ${results.length} 題・已收錄 ${count("matched")}・${snapshotCoverage ? "未收錄" : "未找到"} ${count("unmatched")}・需確認 ${count("review")}`;
+      `共 ${results.length} 題・已收錄 ${count("matched")}・${snapshotCoverage ? (snapshotUnit === "all" ? "未收錄" : "此範圍未找到") : "未找到"} ${count("unmatched")}・需確認 ${count("review")}`;
+    $("expandScope").hidden = !results.some((r) => r.outsideScope);
     $("coverageNotice").hidden = snapshotCoverage;
     $("coverageNotice").textContent =
       "公開投稿題庫尚未同步。本次結果只涵蓋內建題庫，「未找到」不代表網站一定未收錄，請重新同步後核對。";
     $("resultFilter").querySelector('[value="unmatched"]').textContent =
-      snapshotCoverage ? "未收錄" : "未找到";
+      snapshotCoverage
+        ? snapshotUnit === "all"
+          ? "未收錄"
+          : "此範圍未找到"
+        : "未找到";
     $("copyUnmatched").textContent = snapshotCoverage
-      ? "複製未收錄題目給 AI"
+      ? snapshotUnit === "all"
+        ? "複製未收錄題目給 AI"
+        : "複製此範圍未找到題目給 AI"
       : "複製未找到題目給 AI";
     $("staleNotice").textContent =
       "文字、科目或範圍已變更，請重新比對。下方保留的是上一批結果。";
@@ -254,22 +291,34 @@ async function copy(text) {
   }
 }
 $("copyAnswers").addEventListener("click", () => {
-  if (isStale()) return;
+  if (isStale() || loading || !index) return;
   const text =
     `${names[snapshotCourse]}・答案總表\n` +
     (!snapshotCoverage ? "注意：投稿題庫未同步，僅比對內建題庫。\n" : "") +
     results
       .map(
         (r) =>
-          `${r.question.number}｜${r.answer || "尚無可確認答案"}｜${statusLabel(r)}`,
+          `${r.question.number}｜${r.answer || "尚無可確認答案"}｜${statusLabel(r)}` +
+          (r.outsideScope ? `（${unitNames(r)}）` : "") +
+          (r.conditions?.length
+            ? `\n  成立條件：${r.conditions.join("；")}`
+            : ""),
       )
       .join("\n");
   copy(text);
 });
 for (const id of ["copyUnmatched", "copyReview"])
   $(id).addEventListener("click", () => {
-    if (!isStale()) copy(aiPrompt(copyItems(id).map((r) => r.question)));
+    if (!isStale() && !loading && index)
+      copy(aiPrompt(copyItems(id).map((r) => r.question)));
   });
+$("expandScope").addEventListener("click", () => {
+  $("unit").value = "all";
+  markChanged();
+  $("batchForm").dispatchEvent(
+    new Event("submit", { bubbles: true, cancelable: true }),
+  );
+});
 $("copyTranscription").addEventListener("click", () =>
   copy(
     "請將圖片中的課程練習題抄成純文字，不要解答。每題用「1. 題幹」開頭，保留原始題號；每個選項獨立一行，使用 A.、B.、C. 等代號。保留題型、否定詞、數學大小寫、指數、程式碼及填空位置。不要改寫題目，不要加答案或解析。看不清楚請標示 [看不清楚]；需要圖片才能解答時標示 [題圖未轉錄]。每批最多 30 題。",
