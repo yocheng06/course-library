@@ -58,13 +58,27 @@ function answerMarkup(q) {
   return `<div class="answer" id="answer-${q.id}"><div><strong>${window.courseQuestionTools.answerLabel(q)}</strong><br><span class="answer-value">${highlighted(q.answer)}</span></div>${q.note?`<div class="warning"><strong>題目備註</strong><br>${highlighted(q.note)}</div>`:''}${q.explanation?`<div class="explain"><strong>解析</strong><div class="explanation-text">${window.courseQuestionTools.explanationMarkup(q, highlighted)}</div></div>`:q.terms?.length?`<div class="explain"><strong>相關名詞與作用</strong>${q.terms.map(t=>`<div class="term"><b>${highlighted(t.label)}</b><br>${highlighted(t.text)}</div>`).join('')}</div>`:'<div class="explain">原始題庫尚未提供本題詳細解析。</div>'}${window.courseQuestionTools.reviewMarkup(q)}</div>`;
 }
 function optionMarkup(q, option, index) {
+  const text = String(option ?? ''), match = text.match(/^([A-H][.、．:：])(\\s*)([\\s\\S]*)$/);
+  const content = match ? `<span class="option-label">${highlighted(match[1])}</span>${esc(match[2])}${highlighted(match[3])}` : highlighted(text);
   const translation = q.optionTranslations?.[index];
-  return highlighted(option) + (translation ? `<span class="option-translation" lang="en">${highlighted(translation)}</span>` : '');
+  return content + (translation ? `<span class="option-translation" lang="en">${highlighted(translation)}</span>` : '');
+}
+function expectedOptionKeys(q, options) {
+  if (!window.courseQuestionTools.hasProvidedAnswer(q)) return new Set();
+  const expected = q.choiceKey || window.coursePractice?.expectedChoiceKey(q.answer, options);
+  return new Set(String(expected || ''));
+}
+function updateCorrectOptions(card, q, visible) {
+  const correctKeys = visible && mode === 'study' && q?.options?.length ? expectedOptionKeys(q, q.options) : new Set();
+  card.querySelectorAll('.option').forEach((option, index) => {
+    option.classList.toggle('correct', correctKeys.has(String.fromCharCode(65 + index)));
+  });
 }
 function cardMarkup({q, unit, unitIndex, i}) {
   const practice = mode === 'practice', open = revealed.has(q.id) || (!practice && $('showAnswers').checked), chosen = selections.get(q.id) || [];
   const result = feedback.get(q.id);
-  const options = q.options?.length ? `<div class="options">${q.options.map((o,k)=>practice?`<label class="option ${chosen.includes(k)?'chosen':''}"><input type="${window.courseQuestionTools.answerType(q)==='多選題'?'checkbox':'radio'}" name="choice-${q.id}" data-choice="${q.id}" data-index="${k}" ${chosen.includes(k)?'checked':''}><span>${optionMarkup(q,o,k)}</span></label>`:`<div class="option">${optionMarkup(q,o,k)}</div>`).join('')}</div>` : '';
+  const correctKeys = !practice && open ? expectedOptionKeys(q, q.options || []) : new Set();
+  const options = q.options?.length ? `<div class="options">${q.options.map((o,k)=>practice?`<label class="option ${chosen.includes(k)?'chosen':''}"><input type="${window.courseQuestionTools.answerType(q)==='多選題'?'checkbox':'radio'}" name="choice-${q.id}" data-choice="${q.id}" data-index="${k}" ${chosen.includes(k)?'checked':''}><span>${optionMarkup(q,o,k)}</span></label>`:`<div class="option ${correctKeys.has(String.fromCharCode(65+k))?'correct':''}">${optionMarkup(q,o,k)}</div>`).join('')}</div>` : '';
   const pending = window.courseQuestionTools.qualityReasons(q, 'os').length > 0;
   return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">UNIT ${unitNumber(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(i+1).padStart(3,'0')}</span></div><h3 class="question" tabindex="-1">${highlighted(q.stem)}</h3>${q.translation?`<p class="translation">${highlighted(q.translation)}</p>`:''}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${practice&&!q.options?.length?`<textarea class="entry" data-draft="${q.id}" aria-label="${q.id} 你的答案" placeholder="先寫下你的答案或解題想法…">${esc(drafts.get(q.id)||'')}</textarea>`:''}${practice||!$('showAnswers').checked?`<button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${open?'收起答案':practice?'對照答案與解析':'查看答案與解析'}</button>`:''}${practice&&result&&open?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
 }
@@ -89,6 +103,7 @@ function resetFilters() { window.learningUI?.clearReview(); $('search').value=''
 function switchMode(next) { mode=next; revealed.clear(); feedback.clear(); render(); }
 function toggleAnswer(id,button) {
   const card=button.closest('.card'), panel=card.querySelector('[data-answer]'), open=panel.hidden; panel.hidden=!open;
+  if (mode === 'study') updateCorrectOptions(card, findEntry(id)?.q, open);
   if(open) revealed.add(id); else revealed.delete(id);
   button.setAttribute('aria-expanded',String(open)); button.textContent=open?'收起答案':mode==='practice'?'對照答案與解析':'查看答案與解析';
   card.querySelector('.practice-feedback')?.remove();
