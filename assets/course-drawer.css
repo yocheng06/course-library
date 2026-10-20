@@ -50,9 +50,9 @@ body[data-course] .course-drawer-toggle span {
   }
 
   body[data-course="os"] .topbar {
-    width: 265px;
-    padding-right: 20px;
-    padding-left: 20px;
+    width: 292px;
+    padding-right: 27px;
+    padding-left: 27px;
   }
 
   body[data-course="os"] .topbar .brand {
@@ -61,16 +61,17 @@ body[data-course] .course-drawer-toggle span {
 
   body[data-course="os"] .sidebar {
     left: 0;
-    width: 265px;
+    width: 292px;
     transform: translateX(0);
     visibility: visible;
     transition: transform 200ms ease, visibility 200ms ease;
   }
 
   body[data-course="os"] .main {
-    width: calc(100% - 265px);
-    margin-left: 265px;
+    width: calc(100% - 292px);
+    margin-left: 292px;
     min-width: 0;
+    padding: 30px 40px 56px;
   }
 
   body[data-course="algorithms"] .sidebar {
@@ -90,6 +91,10 @@ body[data-course] .course-drawer-toggle span {
   body[data-course].course-drawer-collapsed .topbar .brand,
   body[data-course].course-drawer-collapsed .topbar .tagline {
     display: none;
+  }
+
+  body[data-course].course-drawer-collapsed .course-drawer-toggle {
+    color: var(--ink);
   }
 
   body[data-course="algorithms"].course-drawer-collapsed .sidebar,
