@@ -1,0 +1,123 @@
+**妖獸 1.** 哪種同步工具提供了 wait() 和 signal() 操作？
+
+- A. Mutex locks
+- B. Monitors
+- C. Condition variables
+- D. Semaphores
+
+**妖獸 2.** 程序的執行由一個CPU執行和一個 \_\_\_\_\_\_\_\_ 等待的週期組成。（請用小寫英文回答）
+
+**妖獸 3.** 哪些問題可能在使用信號量（Semaphore）時發生？
+
+- A. 護航效應
+- B. 餓死
+- C. 優先權反轉
+- D. 死鎖
+
+**Beast 4.** wait(empty) and wait(mutex) are both used in which process of the Bounded-Buffer Problem?
+
+- A. Producer
+- B. Consumer
+- C. Neither uses it
+- D. Both use it
+
+**Beast 5.** A condition variable in a monitor allows a process to suspend its execution until a specific \_\_\_\_\_\_\_\_ is met.(Please answer in lowercase English)
+
+**Beast 6.** The shared dataset in the Dining-Philosophers Problem is the \_\_\_\_\_\_\_\_ .(Please answer in lowercase English, leaving a space between each word)
+
+**Beast 7.** In the solution to the Readers-Writers Problem, which semaphores are used?
+
+- A. read_count
+- B. mutex
+- C. rw_mutex
+- D. full
+
+**Beast 8.** In the semaphore solution to the Dining Philosophers Problem, each philosopher picks up the \_\_\_\_\_\_\_\_ with indices i and (i + 1) % 5.(Please answer in lowercase English)
+
+**妖獸 9.** acquire() 和 release() 操作必須是 \_\_\_\_\_\_\_\_ 的，以避免競爭條件。（請用小寫英文回答）
+
+**Beast 10.** In Peterson's Solution, what is the purpose of the turn variable and flag array?
+
+- A. To handle starvation only
+- B. To collectively solve the mutual exclusion problem
+- C. To ensure progress only
+- D. To handle busy waiting only**Beast 11.** A single writer can access the shared dataset, and when the writer is writing, no readers or writers are allowed to access it. Which synchronization problem does this describe?
+  - A. Dining-Philosophers Problem
+  - B. Producer-Consumer Problem
+  - C. Readers-Writers Problem
+  - D. Banker's Algorithm\
+    **妖獸 12.** 在 Linux 中， \_\_\_\_\_\_\_\_ 是一種混合的同步機制，它在使用者空間和核心之間提供高效的互斥。（請用小寫英文回答）
+  **妖獸 13.** 在 Java 中，哪一個關鍵字可以用來確保方法或程式碼區塊的原子性？
+  - A. synchronized
+  - B. volatile
+  - C. transient
+  - D. atomic\
+    **妖獸 14.** 關於功能性程式設計語言，以下哪些陳述是正確的？
+  - A. Erlang 和 Scala 是此類語言的例子
+  - B. 它們可以避免資料競爭
+  - C. 變數是不可變的
+  - D. 它們不維護狀態\
+    **妖獸 15.** compare_and_swap 硬體指令在什麼條件下才會進行交換？
+  - A. 當值不等於預期值時
+  - B. 當值等於新值時
+  - C. 當值等於預期值時
+  - D. 永遠進行交換\
+    **Beast 16.** When solving the Bounded-Buffer Problem with semaphores, which operation does the producer execute before adding an item to the buffer?
+  - A. signal(empty)
+  - B. wait(full)
+  - C. signal(full)
+  - D. wait(empty)\
+    **妖獸 17.** wait(S) 操作的定義是 while (S <= 0) ; S--;，這是什麼類型的等待？ \_\_\_\_\_\_\_\_ （請用小寫英文回答 字母間留一個空白）
+  **妖獸 18.** 讀者-寫者問題（Readers-Writers Problem）允許 \_\_\_\_\_\_\_\_ 個讀者同時存取共享資料集，但只允許 \_\_\_\_\_\_\_\_ 個寫者存取。（請用小寫英文回答）
+
+  **Beast 19.** The semaphore solution to the Dining Philosophers Problem can lead to what issue?
+  - A. Deadlock
+  - B. Livelock
+  - C. Priority inversion
+  - D. Starvation\
+    **Beast 20.** Which statements are about a "race condition"?
+  - A. It only occurs in multiprocessor systems
+  - B. It can lead to data inconsistency
+  - C. The outcome depends on the particular order of execution of the threads
+  - D. Multiple processes or threads access shared data at the same time**妖獸 21.** 哪一種同步問題允許多個讀者同時存取共享資料集，但只允許一個寫者存取？
+    - A. Bounded-Buffer Problem
+    - B. Producer-Consumer Problem
+    - C. Dining-Philosophers Problem
+    - D. Readers-Writers Problem\
+      **妖獸 22.** 哪些是屬於作業系統核心的同步機制？
+    - A. Spinlocks
+    - B. Mutexes
+    - C. Semaphores
+    - D. Condition variables\
+      **妖獸 23.** 在test_and_set 指令中，*target 的新值總是會被設定為 \_\_\_\_\_\_\_\_ 。（請用數字回答）
+    **Beast 24.** In a preemptive kernel, in which situations can a process be preempted?
+    - A. When it waits for an event to complete
+    - B. When it switches from kernel mode to user mode
+    - C. When it switches from user mode to kernel mode
+    - D. When an interrupt occurs\
+      **Beast 25.** In Peterson's Solution, which variable is used to indicate whose turn it is to enter the critical section?
+    - A. lock
+    - B. available
+    - C. turn
+    - D. flag[]\
+      **妖獸 26.** 在哲學家進餐問題的解決方案中，為了避免死鎖，可以採取哪些方法？
+    - A. 讓一個哲學家總是在他所有鄰居都吃飽後才吃
+    - B. 讓最多四個哲學家同時嘗試進食
+    - C. 奇數號哲學家先拿左邊筷子，偶數號哲學家先拿右邊筷子
+    - D. 一個哲學家不能在沒有拿到兩根筷子的情況下拿任何一根\
+      **妖獸 27.** 在Reader-Writer問題的解決方案中，read_count 變數的作用是什麼？
+    - A. 追蹤寫者的數量
+    - B. 追蹤等待的程序數量
+    - C. 追蹤讀者的數量
+    - D. 追蹤已完成的任務數量\
+      **妖獸 28.** 在非搶佔式核心中，由於程序會執行直到它 \_\_\_\_\_\_\_\_ 或 \_\_\_\_\_\_\_\_ ，所以臨界區問題不會發生。（請用小寫英文回答 字母間留一個空白）
+    **妖獸 29.** signal(mutex) 和 signal(full) 都是在有界緩衝區問題的哪一個程序中使用的？
+    - A. 生產者
+    - B. 都不使用
+    - C. 兩者都使用
+    - D. 消費者\
+      **妖獸 30.** signal(full) 是在有界緩衝區問題的哪一個程序中使用的？
+    - A. 兩者都使用
+    - B. 消費者
+    - C. 都不使用
+    - D. 生產者

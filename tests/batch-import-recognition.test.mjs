@@ -77,6 +77,42 @@ test("inline 妖獸／Beast headings keep all 10 scheduling questions separate",
   assert.equal(results[6].answer, "time quantum");
 });
 
+test("mixed Markdown sync questions split inline headings and discard hard-break slashes at boundaries", async () => {
+  const raw = await readFile(
+    new URL("fixtures/batch-synchronization-1-30.txt", import.meta.url),
+    "utf8",
+  );
+  const questions = input(raw).questions;
+  assert.deepEqual(
+    questions.map((q) => q.number),
+    Array.from({ length: 30 }, (_, i) => String(i + 1)),
+  );
+  assert.deepEqual(
+    questions.map((q) => q.options.length),
+    [
+      4, 0, 4, 4, 0, 0, 4, 0, 0, 4,
+      4, 0, 4, 4, 4, 4, 0, 0, 4, 4,
+      4, 4, 0, 4, 4, 4, 4, 0, 4, 4,
+    ],
+  );
+  assert(questions.every((q) => !q.issues.length));
+
+  const built = JSON.parse(
+    await readFile(new URL("../assets/batch-library.json", import.meta.url), "utf8"),
+  );
+  const results = matchQuestions(questions, buildIndex(built.entries), {
+    course: "os",
+  });
+  assert(results.every((r) => r.status === "matched"));
+  assert.equal(results[9].answer, "B. To collectively solve the mutual exclusion problem");
+  assert.equal(results[10].answer, "C. Readers-Writers Problem");
+  assert.equal(results[15].answer, "D. wait(empty)");
+  assert.equal(
+    results[23].answer,
+    "C. When it switches from user mode to kernel mode；D. When an interrupt occurs",
+  );
+});
+
 test("an OS version number does not become a named question heading", () => {
   const questions = input(
     "1. 下列敘述何者正確？\\nCPU 2.6 核心變更了排程器。\\nA. 是\\nB. 否",

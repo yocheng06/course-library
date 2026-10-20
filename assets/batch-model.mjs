@@ -196,21 +196,31 @@ export function parseQuestions(text) {
       if (!/^\s*\\?\*(?:\\?\*|\s+[A-H][.)、:])/i.test(line)) return line;
       return line.replace(/\\\*/g, "*").replace(/\\{1,2}\s*$/, "");
     });
-  // Some Markdown exports add a literal hard-break backslash to every line.
-  // Require multiple standalone numbered headings before treating it as markup;
-  // an isolated path or literal code backslash remains ordinary content.
-  const hardBreak = /(?<!\\)\\\s*$/;
+  // Markdown exports may add a hard-break slash at the end of a line. Preserve
+  // ordinary backslashes, but remove them before a clearly numbered next question.
+  const hardBreak = /(?<!\\)\\{1,2}\s*$/;
   const exportedBreaks =
     rawLines.filter((line) => {
       if (!hardBreak.test(line)) return false;
       const heading = questionHeader(cleanLine(line.replace(hardBreak, "")));
       return heading && !heading.text.trim();
     }).length >= 2;
-  const cleanedLines = rawLines.map((line) =>
-    cleanLine(exportedBreaks ? line.replace(hardBreak, "") : line)
+  const nextNonblank = new Array(rawLines.length);
+  let nextLine = "";
+  for (let i = rawLines.length - 1; i >= 0; i--) {
+    nextNonblank[i] = nextLine;
+    if (rawLines[i].trim()) nextLine = rawLines[i];
+  }
+  const cleanedLines = rawLines.map((line, i) => {
+    const next = nextNonblank[i];
+    const boundaryBreak =
+      hardBreak.test(line) && next && questionHeader(cleanLine(next));
+    return cleanLine(
+      exportedBreaks || boundaryBreak ? line.replace(hardBreak, "") : line,
+    )
       .replace(/^#{1,6}\s*/, "")
-      .normalize("NFKC"),
-  );
+      .normalize("NFKC");
+  });
   const tailRequest =
     /^(?:請)?給我(?:全部)?答案(?:[，, ]*(?:並|請)?(?:確定|確認)(?:答案)?正確)?[。.!！]?$/;
   if (cleanedLines.some(questionHeader))
@@ -227,6 +237,20 @@ export function parseQuestions(text) {
     );
     if (appended && appended[1].match(option)?.[4]?.trim())
       return [appended[1], appended[2]];
+    // Markdown transcripts sometimes glue a bold "Beast 11." / "妖獸 11."
+    // heading directly to the previous option, without a line break or space.
+    // Split only after a complete labeled option so references in a stem stay intact.
+    const namedMarker = /\*{0,2}(?:妖獸|Beast)\s+\d{1,4}[.)、:]\*{0,2}\s+/giu;
+    for (const marker of line.matchAll(namedMarker)) {
+      const before = line.slice(0, marker.index).trimEnd();
+      const decorated = marker[0].startsWith("**");
+      if (!decorated && marker.index > 0 && !/\s/.test(line[marker.index - 1]))
+        continue;
+      if (!before.match(option)?.[4]?.trim()) continue;
+      const heading = line.slice(marker.index);
+      if (!questionHeader(cleanLine(heading))) continue;
+      return [before, cleanLine(heading)];
+    }
     // Recover "D. option text  第 21 題\n題目：..." only with both
     // an actual option before it and an explicitly labelled question after it.
     // Ordinary references to another question are not question boundaries.
