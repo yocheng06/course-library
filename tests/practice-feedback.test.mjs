@@ -30,6 +30,69 @@ function loadPractice() {
   return context.window.coursePractice;
 }
 
+function mockElement() {
+  const classes = new Set();
+  const attributes = new Map();
+  const element = {
+    classList: {
+      add: (name) => classes.add(name),
+      remove: (...names) => names.forEach((name) => classes.delete(name)),
+      contains: (name) => classes.has(name),
+    },
+    attributes,
+    icon: null,
+    querySelector(selector) {
+      if (selector === "input") return this.input ?? null;
+      if (selector === "textarea") return this.textarea ?? null;
+      if (selector.endsWith("feedback-icon")) return this.icon;
+      return null;
+    },
+    insertAdjacentHTML(position, html) {
+      if (position === "beforeend") {
+        const parent = this;
+        this.icon = {
+          textContent: html.includes("✕") ? "✕" : "✓",
+          remove() {
+            if (parent.icon === this) parent.icon = null;
+          },
+        };
+      }
+    },
+    setAttribute: (name, value) => attributes.set(name, value),
+    getAttribute: (name) => attributes.get(name) ?? null,
+    removeAttribute: (name) => attributes.delete(name),
+  };
+  return element;
+}
+
+function mockCard({ optionCount = 0, text = null } = {}) {
+  const options = Array.from({ length: optionCount }, () => {
+    const option = mockElement();
+    option.input = mockElement();
+    return option;
+  });
+  const entry = text === null ? null : mockElement();
+  if (entry) {
+    entry.textarea = mockElement();
+    entry.textarea.value = text;
+  }
+  const card = {
+    feedbackHtml: "",
+    querySelectorAll: (selector) => (selector === ".option" ? options : []),
+    querySelector(selector) {
+      if (selector === ".practice-entry") return entry;
+      if (selector === ".practice-feedback" && this.feedbackHtml)
+        return { remove: () => (this.feedbackHtml = "") };
+      if (selector === "[data-reveal]")
+        return {
+          insertAdjacentHTML: (_position, html) => (this.feedbackHtml = html),
+        };
+      return null;
+    },
+  };
+  return { card, options, entry };
+}
+
 test("single-choice retry marks the wrong selection and the correct option", () => {
   const practice = loadPractice();
   const result = practice.evaluate(
@@ -45,6 +108,45 @@ test("single-choice retry marks the wrong selection and the correct option", () 
   assert.match(practice.optionMark(result, 0).icon, /✕/);
   assert.match(practice.optionMark(result, 2).icon, /✓/);
   assert.equal(practice.optionMark(result, 1).icon, "");
+});
+
+test("show applies choice colors and symbols immediately without rerendering", () => {
+  const practice = loadPractice();
+  const { card, options } = mockCard({ optionCount: 3 });
+  const result = practice.evaluate(
+    "C",
+    ["A. one", "B. two", "C. three"],
+    [0],
+    { answerProvided: true, answer: "C", type: "單選題" },
+  );
+
+  practice.show(card, result, "L2-001");
+
+  assert.equal(options[0].classList.contains("practice-incorrect"), true);
+  assert.equal(options[0].icon.textContent, "✕");
+  assert.equal(options[0].querySelector("input").getAttribute("aria-invalid"), "true");
+  assert.equal(options[2].classList.contains("practice-correct"), true);
+  assert.equal(options[2].icon.textContent, "✓");
+  assert.match(card.feedbackHtml, /不正確/);
+});
+
+test("show immediately marks a wrong fill-in response and keeps it editable", () => {
+  const practice = loadPractice();
+  const { card, entry } = mockCard({ text: "wrong answer" });
+  const result = practice.evaluate(
+    "cache coherency",
+    [],
+    [],
+    { answerProvided: true, answer: "cache coherency" },
+    "wrong answer",
+  );
+
+  practice.show(card, result, "L2-002");
+
+  assert.equal(entry.classList.contains("practice-incorrect"), true);
+  assert.equal(entry.icon.textContent, "✕");
+  assert.equal(entry.querySelector("textarea").value, "wrong answer");
+  assert.equal(entry.querySelector("textarea").getAttribute("aria-invalid"), "true");
 });
 
 test("multi-select retry marks selected correct and incorrect choices only", () => {

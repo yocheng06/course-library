@@ -143,6 +143,7 @@
   }
 
   function show(card, result, id) {
+    applyMarks(card, result);
     card.querySelector(".practice-feedback")?.remove();
     card
       .querySelector("[data-reveal]")
@@ -199,6 +200,26 @@
     entry?.querySelector("textarea")?.removeAttribute("aria-invalid");
   }
 
+  function applyMarks(card, result) {
+    clearMarks(card);
+    card.querySelectorAll(".option").forEach((option, index) => {
+      const mark = optionMark(result, index);
+      if (!mark.className) return;
+      option.classList.add(mark.className);
+      if (mark.className === "practice-incorrect")
+        option.querySelector("input")?.setAttribute("aria-invalid", "true");
+      if (mark.icon) option.insertAdjacentHTML("beforeend", mark.icon);
+    });
+
+    const entry = card.querySelector(".practice-entry");
+    const mark = textMark(result);
+    if (!entry || !mark.className) return;
+    entry.classList.add(mark.className);
+    if (mark.className === "practice-incorrect")
+      entry.querySelector("textarea")?.setAttribute("aria-invalid", "true");
+    if (mark.icon) entry.insertAdjacentHTML("beforeend", mark.icon);
+  }
+
   window.coursePractice = {
     expectedChoiceKey,
     evaluate,
@@ -207,5 +228,6 @@
     optionMark,
     textMark,
     clearMarks,
+    applyMarks,
   };
 })();
