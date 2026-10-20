@@ -284,6 +284,20 @@ test("full page: imported/pasted structured questions use bank answers, update d
   assert.equal(ui.$("results").hidden, false);
   assert(ui.$("resultRows").textContent.includes("A. 短程排程器"));
   assert.equal(ui.$("staleNotice").hidden, true);
+  // Transfer is a distinct explicit action; stale results cannot be transferred.
+  ui.$("batchText").value += "\n\n2. 未收錄的額外問題 ______";
+  ui.fire("batchText", "input");
+  assert.equal(ui.$("transferUnmatched").disabled, true);
+  ui.fire("transferUnmatched", "click");
+  assert.equal(storage.has("course-library.submission-inbox.v1"), false);
+  ui.fire("batchForm", "submit");
+  assert.equal(ui.$("transferUnmatched").disabled, false);
+  ui.fire("transferUnmatched", "click");
+  const pending = JSON.parse(storage.get("course-library.submission-inbox.v1"));
+  assert.equal(pending.items.length, 1);
+  assert.equal(pending.items[0].stem, "未收錄的額外問題 ______");
+  assert.equal(pending.items[0].answer, "");
+  assert.equal(context.location.href, "submit.html?v=draft-transfer-20261020#pendingHeading");
   await ui.choose([file("more.txt", "2. 未收錄填空 ______")]);
   ui.fire("applyImport", "click");
   assert.equal(ui.$("staleNotice").hidden, false);

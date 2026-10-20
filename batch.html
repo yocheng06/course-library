@@ -286,9 +286,13 @@ D. 巨集排程器
             ><button id="copyReview" type="button" class="text-button">
               複製待確認題目給 AI
             </button>
+            <button id="transferUnmatched" type="button" class="button secondary" disabled>
+              轉入投稿草稿
+            </button>
           </div>
         </div>
         <p class="muted result-help">
+          未收錄題目可轉入待補草稿，補上答案與解析後送審；已收錄與需確認題目不會轉入。
           選項代號依你貼上的版本對應；其他單元已收錄會另外標示。重要成立條件會隨答案顯示並一起複製，展開每題可核對原題。
         </p>
         <div
@@ -330,7 +334,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=recognition-v2-20261020"
+      src="assets/batch-ui.mjs?v=draft-transfer-20261020"
     ></script>
   </body>
 </html>

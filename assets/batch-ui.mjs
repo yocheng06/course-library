@@ -7,6 +7,7 @@ import {
 } from "./batch-model.mjs?v=batch-math-and-option-variants-20261017";
 import { parseBatchInput } from "./batch-import.mjs?v=recognition-v2-20261020";
 import { setupBatchImport } from "./batch-import-ui.mjs?v=recognition-v2-20261020";
+import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
   String(value ?? "").replace(
@@ -70,6 +71,9 @@ function markChanged() {
   for (const id of ["copyAnswers", "copyUnmatched", "copyReview"])
     $(id).disabled =
       stale || loading || !index || !results.length || !copyItems(id).length;
+  const unmatchedCount = copyItems("copyUnmatched").length;
+  $("transferUnmatched").disabled = stale || loading || !index || !unmatchedCount || !!courseSuggestion;
+  $("transferUnmatched").textContent = `轉入投稿草稿${unmatchedCount ? `（${unmatchedCount} 題）` : ""}`;
   $("inputCount").textContent =
     `${$("batchText").value.length.toLocaleString()} / ${MAX_TEXT.toLocaleString()} 字・最多 30 題`;
   try {
@@ -329,6 +333,15 @@ for (const id of ["copyUnmatched", "copyReview"])
     if (!isStale() && !loading && index)
       copy(aiPrompt(copyItems(id).map((r) => r.question)));
   });
+$("transferUnmatched").addEventListener("click", () => {
+  if (isStale() || loading || !index || courseSuggestion) return;
+  try {
+    stageUnmatched(results, { course: snapshotCourse, unit: snapshotUnit }, localStorage);
+    location.href = "submit.html?v=draft-transfer-20261020#pendingHeading";
+  } catch (error) {
+    message(`未能轉入投稿草稿：${error.message}。題目仍保留在本頁，可先複製備份。`, true);
+  }
+});
 $("expandScope").addEventListener("click", () => {
   $("unit").value = "all";
   markChanged();

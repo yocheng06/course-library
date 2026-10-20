@@ -2,7 +2,8 @@
   "name": "course-library-frontend-checks",
   "private": true,
   "scripts": {
-    "test:batch-import": "node tests/batch-import.test.mjs && node --experimental-vm-modules tests/batch-import-ui.test.mjs && node tests/batch-import-recognition.test.mjs"
+    "test:batch-import": "node tests/batch-import.test.mjs && node --experimental-vm-modules tests/batch-import-ui.test.mjs && node tests/batch-import-recognition.test.mjs",
+    "test:submission-inbox": "node --experimental-vm-modules tests/submission-inbox.test.mjs"
   },
   "devDependencies": {
     "json5": "2.2.3",
