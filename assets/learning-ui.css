@@ -71,7 +71,7 @@ body[data-course="os"] { --ui-accent:#38678f; --ui-soft:#e4f1fc; --ui-line:#c8dc
   .unit-picker label { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
   .review-button { font-size:13px; padding:7px 10px; }
   [data-course="algorithms"] .sidebar { display:block; padding:10px 16px 12px; overflow:visible; }
-  [data-course="algorithms"] .unit-menu > summary.navtitle { color:#d2c9ce; }
+  [data-course="algorithms"] .course-menu,[data-course="algorithms"] .navtitle { display:none; }
   [data-course="algorithms"] .unit-picker label { color:#d2c9ce; }
   [data-course="algorithms"] .unit-picker select { background:#36373e; color:#fff; border-color:#6b5962; }
   [data-course="algorithms"] .main { padding-top:18px; }
