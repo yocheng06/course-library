@@ -2,9 +2,10 @@
 body { scrollbar-gutter: stable; }
 .topbar,.sidebar,.main,.toolbar,.site-nav,.course-menu { box-sizing:border-box; }
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible { outline:3px solid var(--ui-accent); outline-offset:3px; }
-.sidebar { display:flex !important; flex-direction:column; overflow:hidden !important; }
+.sidebar { display:flex !important; flex-direction:column; overflow-x:hidden !important; overflow-y:auto !important; }
 .site-nav,.navtitle { flex-shrink:0; }
 .unit-menu { display:flex; min-height:0; flex-direction:column; overflow:hidden; }
+.unit-menu:not([open]) > .course-menu { display:none !important; }
 .unit-menu > summary { list-style:none; cursor:pointer; }
 .unit-menu > summary::-webkit-details-marker { display:none; }
 .unit-menu > summary::after { content:'−'; margin-left:auto; }
@@ -42,7 +43,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 /* OS uses the algorithm layout with a blue palette. */
 body[data-course="os"] { --page:#eef4f9; --surface:#f9fcff; --ink:#293f56; --muted:#637990; --line:#d3dfeb; --green:#38678f; --tint:#e4f1fc; --rose:#76a7d0; --rose-strong:#38678f; --rose-soft:#e4f1fc; --rail:#203447; --rail-card:#304a62; --rail-line:#3e566d; --rail-ink:#ecf4fb; background:var(--page); color:var(--ink); }
 [data-course="os"] .topbar { position:fixed; top:0; color:var(--rail-ink); }
-[data-course="os"] .sidebar { position:fixed; top:94px; height:auto; padding-top:26px; }
+[data-course="os"] .sidebar { position:fixed; top:94px; bottom:0; height:auto; padding-top:26px; }
 [data-course="os"] .navtitle { color:#b8cce0; }
 [data-course="os"] #units { display:grid; padding:0; }
 [data-course="os"] .site-nav a { background:#2c4258; border-color:#597189; color:#eef5fc; }
