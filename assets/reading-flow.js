@@ -9,6 +9,36 @@
   const searchScope = document.getElementById('searchScopeSelect');
   const unit = document.getElementById(config.course === 'os' ? 'unitPicker' : 'lessonPicker');
   const drawerToggle = document.querySelector('.course-drawer-toggle');
+  const navigation = document.createElement('details');
+  navigation.className = 'mobile-navigation';
+  navigation.innerHTML = '<summary>課程／單元</summary><div class="mobile-navigation-panel"></div>';
+  const navigationPanel = navigation.querySelector('.mobile-navigation-panel');
+  const courseLinks = config.sidebar.querySelector('.site-nav').cloneNode(true);
+  courseLinks.setAttribute('aria-label', '科目與首頁');
+  navigationPanel.append(courseLinks);
+  const unitLabel = document.createElement('label');
+  unitLabel.textContent = '切換課程單元';
+  const unitSelect = document.createElement('select');
+  unitSelect.setAttribute('aria-label', '切換課程單元');
+  unitLabel.append(unitSelect);
+  navigationPanel.append(unitLabel);
+  const searchJump = document.createElement('button');
+  searchJump.type = 'button';
+  searchJump.className = 'plain';
+  searchJump.textContent = '搜尋題目';
+  navigationPanel.append(searchJump);
+  document.querySelector('.topbar').append(navigation);
+  unitSelect.addEventListener('change', () => {
+    unit.value = unitSelect.value;
+    unit.dispatchEvent(new Event('change', {bubbles:true}));
+    navigation.open = false;
+    document.querySelector('.heading').scrollIntoView({block:'start'});
+  });
+  searchJump.addEventListener('click', () => {
+    navigation.open = false;
+    config.toolbar.scrollIntoView({block:'start'});
+    search.focus({preventScroll:true});
+  });
   const tools = document.querySelector('.learning-tools');
   const filterDetails = document.querySelector('.filter-details');
   const modeHint = document.getElementById('modeHint');
@@ -29,10 +59,12 @@
   tools.after(chips);
 
   document.addEventListener('click', event => {
+    if (navigation.open && !navigation.contains(event.target)) navigation.open = false;
     if (settings.open && !settings.contains(event.target)) settings.open = false;
   });
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && settings.open) { settings.open = false; settings.querySelector('summary').focus(); }
+    if (event.key === 'Escape' && navigation.open) { navigation.open = false; navigation.querySelector('summary').focus(); }
+    else if (event.key === 'Escape' && settings.open) { settings.open = false; settings.querySelector('summary').focus(); }
   });
 
   const quickPager = document.createElement('nav');
@@ -49,7 +81,12 @@
   const switchUnit = document.createElement('button'); switchUnit.type = 'button';
   switchUnit.className = 'plain'; switchUnit.textContent = '切換單元'; empty.append(switchUnit);
   switchUnit.addEventListener('click', () => {
-    drawerToggle?.click();
+    if (window.matchMedia('(max-width: 1000px)').matches) {
+      navigation.open = true;
+      unitSelect.focus();
+      return;
+    }
+    if (document.body.classList.contains('course-drawer-collapsed')) drawerToggle?.click();
     const active = config.sidebar.querySelector('.course-nav.active') || config.sidebar.querySelector('.unit-picker select');
     active?.focus({preventScroll:true});
   });
@@ -61,6 +98,8 @@
   }
   function clearSelect(select) { select.selectedIndex = 0; select.dispatchEvent(new Event('change', {bubbles:true})); }
   function refresh() {
+    unitSelect.innerHTML = unit.innerHTML;
+    unitSelect.value = unit.value;
     const label = config.scopeLabel();
     filterDetails.querySelector('summary').textContent = modeHint.hidden ? '篩選設定' : '篩選／說明';
     scope.textContent = '搜尋範圍：' + label;
