@@ -73,6 +73,22 @@ body[data-course="algorithms"] { --muted:#66636a; }
 .practice-feedback .feedback { margin:10px 0; }
 .practice-feedback button { min-height:44px; }
 
+/* Practice retry feedback keeps choices editable until the answer is correct. */
+[data-course] .option.practice-correct { background:#edf8f0; border-color:#73c596; }
+[data-course] .option.practice-incorrect { background:#fff0f0; border-color:#e18d8d; }
+.option-feedback-icon { flex:0 0 auto; align-self:center; margin-left:auto; font-size:20px; font-weight:750; line-height:1; }
+.option.practice-correct .option-feedback-icon,.entry-feedback-icon { color:#218052; }
+.option.practice-incorrect .option-feedback-icon { color:#c63f3f; }
+.practice-entry { position:relative; margin:0 0 12px; }
+.practice-entry .entry { display:block; width:100%; margin:0; padding-right:48px; }
+.practice-entry.practice-correct .entry { background:#edf8f0; border-color:#73c596; }
+.practice-entry.practice-incorrect .entry { background:#fff0f0; border-color:#e18d8d; }
+.entry-feedback-icon { position:absolute; top:14px; right:16px; font-size:22px; font-weight:750; line-height:1; pointer-events:none; }
+.practice-entry.practice-incorrect .entry-feedback-icon { color:#c63f3f; }
+.practice-entry.practice-correct .entry-feedback-icon { color:#218052; }
+.feedback.neutral { color:var(--muted); }
+[data-course] [aria-invalid="true"] { border-color:#c63f3f; }
+
 /* Search scope and question quality stay readable at narrow widths and zoom. */
 body[data-course="os"] { --control-line:#70869a; --rail-focus:#b8dcfa; }
 body[data-course="algorithms"] { --control-line:#8a7780; --rail-focus:#f2bdd0; --rose-strong:#85475e; }
