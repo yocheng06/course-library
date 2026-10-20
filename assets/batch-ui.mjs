@@ -1,11 +1,12 @@
 import {
-  parseQuestions,
   buildIndex,
   matchQuestions,
   expandLibraryQuestion,
   aiPrompt,
   MAX_TEXT,
 } from "./batch-model.mjs?v=batch-math-and-option-variants-20261017";
+import { parseBatchInput } from "./batch-import.mjs?v=multi-format-20261020";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=multi-format-20261020";
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
   String(value ?? "").replace(
@@ -230,7 +231,7 @@ $("batchForm").addEventListener("submit", (event) => {
   event.preventDefault();
   if (!index || loading) return;
   try {
-    const parsed = parseQuestions($("batchText").value);
+    const { questions: parsed } = parseBatchInput($("batchText").value);
     results = matchQuestions(parsed, index, scope());
     snapshot = currentSnapshot();
     snapshotGeneration = libraryGeneration;
@@ -374,6 +375,7 @@ try {
   }
 } catch {}
 units();
+setupBatchImport({ document, onApply: markChanged });
 markChanged();
 loadLibrary();
 

@@ -45,6 +45,62 @@ body[data-course="os"] .button.secondary {
   margin: 4px 0 12px;
   line-height: 1.7;
 }
+.import-tools {
+  margin: 8px 0 18px;
+}
+.import-tools p,
+.import-preview p {
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+#importStatus:empty {
+  display: none;
+}
+#importStatus.error,
+.import-warning {
+  color: #843b35;
+}
+.import-preview {
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 0 0 20px;
+  min-width: 0;
+}
+.import-preview h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+.import-list {
+  max-height: 360px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.import-list details {
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+.import-list summary {
+  min-height: 44px;
+  padding: 8px 0;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.import-list p,
+.import-list li {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+.import-list ul {
+  padding-left: 24px;
+}
+#importModeField {
+  max-width: 320px;
+}
 #batchText {
   font-size: 16px;
   line-height: 1.8;
@@ -239,6 +295,10 @@ select:focus-visible,
 summary:focus-visible,
 .table-scroll:focus-visible,
 #resultsHeading:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+#importPreviewHeading:focus {
   outline: 3px solid var(--accent);
   outline-offset: 3px;
 }

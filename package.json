@@ -1,0 +1,10 @@
+{
+  "name": "course-library-frontend-checks",
+  "private": true,
+  "scripts": {
+    "test:batch-import": "node tests/batch-import.test.mjs && node --experimental-vm-modules tests/batch-import-ui.test.mjs"
+  },
+  "devDependencies": {
+    "linkedom": "0.18.13"
+  }
+}

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta
       name="description"
-      content="一次貼上最多 30 題，核對課程題庫答案，依選項換序對應答案，複製未找到的題目給 AI。"
+      content="貼上或匯入 TXT、Markdown、JSON、CSV、TSV、HTML，一次核對最多 30 題的題庫答案，複製未找到的題目給 AI。"
     />
     <title>批次查題｜課程學習站</title>
     <link rel="icon" href="assets/icons/course-mascot.png" />
@@ -13,11 +13,11 @@
       rel="stylesheet"
       href="assets/contributions.css?v=global-dedup-20261016"
     />
+    <link rel="stylesheet" href="assets/batch.css?v=multi-format-20261020" />
     <link
       rel="stylesheet"
-      href="assets/batch.css?v=batch-audit-fixes-20261017"
+      href="assets/ui-consistency.css?v=original-toolbar-20261018"
     />
-  <link rel="stylesheet" href="assets/ui-consistency.css?v=original-toolbar-20261018">
   </head>
   <body data-course="os">
     <a class="skip-link" href="#batchText">跳至貼上題目</a>
@@ -32,12 +32,10 @@
     <main class="contribution-page batch-page">
       <div class="page-heading">
         <h1>批次查題</h1>
-        <p>
-          貼上完整題幹與選項，一次比對最多 30 題。
-        </p>
+        <p>貼上或匯入完整題幹與選項，一次比對最多 30 題。</p>
       </div>
       <form id="batchForm" class="panel" aria-labelledby="inputHeading">
-        <h2 id="inputHeading">貼上這批題目</h2>
+        <h2 id="inputHeading">貼上或匯入題目</h2>
         <div class="field-grid">
           <label
             >科目<select id="course">
@@ -51,8 +49,62 @@
             </select></label
           >
         </div>
+        <div id="importTools" class="import-tools">
+          <button
+            id="chooseBatchFiles"
+            class="button secondary"
+            type="button"
+            aria-describedby="importHelp"
+          >
+            匯入題目檔案
+          </button>
+          <input
+            id="batchFiles"
+            type="file"
+            multiple
+            accept=".txt,.md,.markdown,.json,.csv,.tsv,.html,.htm"
+            aria-label="選擇題目檔案"
+            hidden
+          />
+          <p id="importHelp" class="muted">
+            支援 TXT／Markdown、JSON、CSV／TSV、HTML，可一次選多個檔案。合計最多
+            30 題、2 MB；檔案在這台裝置讀取。
+          </p>
+          <p id="importStatus" role="status" aria-live="polite"></p>
+        </div>
+        <section
+          id="importPreview"
+          class="import-preview"
+          aria-labelledby="importPreviewHeading"
+          hidden
+        >
+          <h3 id="importPreviewHeading" tabindex="-1">匯入預覽</h3>
+          <p id="importSummary"></p>
+          <div id="importList" class="import-list"></div>
+          <label id="importModeField" for="importMode"
+            >匯入方式
+            <select id="importMode">
+              <option value="append">加入目前文字</option>
+              <option value="replace">取代目前文字</option>
+            </select>
+          </label>
+          <p class="muted">
+            保留題號與選項順序；題號衝突時，新增題目會接續編號。含圖片但未轉錄的內容會標為需確認。
+          </p>
+          <div class="actions">
+            <button id="applyImport" class="button secondary" type="button">
+              匯入下方文字區
+            </button>
+            <button id="cancelImport" class="text-button" type="button">
+              取消
+            </button>
+          </div>
+        </section>
         <label for="batchText">題幹與選項</label>
-        <p id="formatHint" class="muted input-help">保留題號與完整選項；填空題只需題幹。</p>
+        <p id="formatHint" class="muted input-help">
+          保留題號與完整選項；填空題只需題幹。也可直接貼上 JSON、CSV／TSV 或
+          HTML，系統會辨識格式。檔案內附的答案、解析不會當成查題答案。
+        </p>
         <textarea
           id="batchText"
           rows="8"
@@ -72,16 +124,36 @@
           ><button class="text-button" id="clearInput" type="button">
             清空文字
           </button>
+          <button id="recognizePaste" class="text-button" type="button">
+            辨識貼上格式
+          </button>
         </div>
         <details class="format-example">
-          <summary>貼上格式、範例與抄題指令</summary>
-          <p class="format-rules">只核對已收錄題庫；未找到的題目可複製給 AI 另行處理。</p>
-          <p class="format-rules">先選擇科目，再直接貼上常見 AI 抄題文字。支援「1.」、「題目 1.」、 「第
-          1 題」與「Beast 1.／妖獸 2.」等獨立題號， A.、◯
-          A.、(A)、全形選項及常見 LaTeX 數學寫法。
-          填空題可省略選項；「題目：／選項：」標籤、粗體、星號、空行和分隔線可直接保留。
-          「請用數字／小寫英文回答」等填答提示可保留。中英文選項會依已核對的對照比對；
-          有填答提示但漏掉一條填空線時，會核對其餘完整文字及答案。條件或選項內容不同仍列為需確認。</p>
+          <summary>匯入格式、範例與抄題指令</summary>
+          <p class="format-rules">
+            TXT／Markdown：保留題號與選項。JSON：支援題目陣列、questions
+            欄位與分單元題庫；題幹可用 stem、question、q 或「題目」，選項可用
+            options、opts 或
+            choices。CSV／TSV：第一列為欄位名稱，使用「題目、A、B、C、D」或
+            stem、options；含逗號或換行的欄位請加雙引號。HTML：支援內嵌 JSON
+            題庫、帶題號與選項的靜態內容；不會執行檔案內的程式。文字檔請使用
+            UTF-8 或含 BOM 的 UTF-16。
+          </p>
+          <p class="format-rules">
+            整份檔案超過 30
+            題時請先分批，不會自動截掉題目。PDF、Word、照片或掃描檔請先轉成題目文字。
+          </p>
+          <p class="format-rules">
+            只核對已收錄題庫；未找到的題目可複製給 AI 另行處理。
+          </p>
+          <p class="format-rules">
+            先選擇科目，再直接貼上常見 AI 抄題文字。支援「1.」、「題目 1.」、
+            「第 1 題」與「Beast 1.／妖獸 2.」等獨立題號， A.、◯
+            A.、(A)、全形選項及常見 LaTeX 數學寫法。
+            填空題可省略選項；「題目：／選項：」標籤、粗體、星號、空行和分隔線可直接保留。
+            「請用數字／小寫英文回答」等填答提示可保留。中英文選項會依已核對的對照比對；
+            有填答提示但漏掉一條填空線時，會核對其餘完整文字及答案。條件或選項內容不同仍列為需確認。
+          </p>
           <pre id="exampleText">
 1. CPU 排程器是哪一種類型的排程器？
 A. 長程排程器
@@ -188,8 +260,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=quicksort-corrected-20261017"
+      src="assets/batch-ui.mjs?v=multi-format-20261020"
     ></script>
   </body>
 </html>
-
