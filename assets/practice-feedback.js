@@ -82,8 +82,8 @@
         text: correct
           ? `答對了，${label}與你的選擇一致。`
           : correctIndices.length
-            ? "部分選項正確，請調整後再試。"
-            : "選項不正確，請調整後再試。",
+            ? "部分選項正確，調整後再按「檢查答案」。"
+            : "選項不正確，調整後再按「檢查答案」。",
       };
     }
 
@@ -129,7 +129,9 @@
       correctIndices: [],
       incorrectIndices: [],
       revealAnswer: correct,
-      text: correct ? "答對了，已顯示答案與解析。" : "答案不正確，修改後再試。",
+      text: correct
+        ? "答對了，已顯示答案與解析。"
+        : "答案不正確，修改後再按「檢查答案」。",
     };
   }
 
@@ -145,8 +147,7 @@
   function show(card, result, id) {
     applyMarks(card, result);
     card.querySelector(".practice-feedback")?.remove();
-    card
-      .querySelector("[data-reveal]")
+    (card.querySelector(".practice-actions") || card.querySelector("[data-reveal]"))
       .insertAdjacentHTML("afterend", markup(result, id));
   }
 

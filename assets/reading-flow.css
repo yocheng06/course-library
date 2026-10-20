@@ -72,6 +72,9 @@ body[data-course="algorithms"] { --muted:#66636a; }
 
 .practice-feedback .feedback { margin:10px 0; }
 .practice-feedback button { min-height:44px; }
+.practice-actions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+.practice-actions button { min-height:44px; margin:0; }
+.practice-actions button:disabled { opacity:.45; cursor:not-allowed; }
 
 /* Practice retry feedback keeps choices editable until the answer is correct. */
 [data-course] .option.practice-correct { background:#edf8f0; border-color:#73c596; }

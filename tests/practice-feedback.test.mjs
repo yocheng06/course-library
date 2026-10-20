@@ -128,6 +128,7 @@ test("show applies choice colors and symbols immediately without rerendering", (
   assert.equal(options[2].classList.contains("practice-correct"), true);
   assert.equal(options[2].icon.textContent, "✓");
   assert.match(card.feedbackHtml, /不正確/);
+  assert.match(card.feedbackHtml, /再按「檢查答案」/);
 });
 
 test("show immediately marks a wrong fill-in response and keeps it editable", () => {
@@ -147,6 +148,7 @@ test("show immediately marks a wrong fill-in response and keeps it editable", ()
   assert.equal(entry.icon.textContent, "✕");
   assert.equal(entry.querySelector("textarea").value, "wrong answer");
   assert.equal(entry.querySelector("textarea").getAttribute("aria-invalid"), "true");
+  assert.match(card.feedbackHtml, /再按「檢查答案」/);
 });
 
 test("multi-select retry marks selected correct and incorrect choices only", () => {
