@@ -83,8 +83,8 @@ function cardMarkup({q, unit, unitIndex, i}) {
   const entry=practice&&!q.options?.length?`<div class="practice-entry ${textMark.className}"><textarea class="entry" data-draft="${q.id}" aria-label="${q.id} 你的答案" placeholder="先寫下你的答案或解題想法…" ${textMark.className==='practice-incorrect'?'aria-invalid="true"':''}>${esc(drafts.get(q.id)||'')}</textarea>${textMark.icon}</div>`:'';
   const pending = window.courseQuestionTools.qualityReasons(q, 'os').length > 0;
   const hasResponse=chosen.length>0||Boolean(drafts.get(q.id)?.trim());
-  const buttonText=open?'收起答案':practice?(result?.correct===true||result?.revealAnswer?'查看答案與解析':'檢查答案'):'查看答案與解析';
-  return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">UNIT ${unitNumber(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(i+1).padStart(3,'0')}</span></div><h3 class="question" tabindex="-1">${highlighted(q.stem)}</h3>${q.translation?`<p class="translation">${highlighted(q.translation)}</p>`:''}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${entry}${practice?`<div class="practice-actions"><button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${buttonText}</button><button type="button" class="plain" data-clear-response="${q.id}" ${hasResponse?'':'disabled'}>清除作答</button></div>`:!$('showAnswers').checked?`<button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${buttonText}</button>`:''}${practice&&result?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
+  const buttonText=practice?'檢查答案':open?'收起答案':'查看答案與解析';
+  return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">UNIT ${unitNumber(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(i+1).padStart(3,'0')}</span></div><h3 class="question" tabindex="-1">${highlighted(q.stem)}</h3>${q.translation?`<p class="translation">${highlighted(q.translation)}</p>`:''}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${entry}${practice?`<div class="practice-actions"><button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}">${buttonText}</button><button type="button" class="plain" data-clear-response="${q.id}" ${hasResponse?'':'disabled'}>清除作答</button><button type="button" class="plain" data-show-answer="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${open?'收起答案與解析':'顯示答案與解析'}</button></div>`:!$('showAnswers').checked?`<button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${buttonText}</button>`:''}${practice&&result?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
 }
 function render(preserveCards = false) {
   const filtered=matches(), entries=scopedEntries(), pages=Math.max(1,Math.ceil(filtered.length/pageSize)); page=Math.min(page,pages); totalPages=pages;
@@ -108,24 +108,27 @@ function switchMode(next) { mode=next; revealed.clear(); feedback.clear(); rende
 function toggleAnswer(id,button) {
   const card=button.closest('.card'), panel=card.querySelector('[data-answer]');
   if(mode==='practice') {
-    if(!panel.hidden) {
-      const result=feedback.get(id);panel.hidden=true; revealed.delete(id); button.setAttribute('aria-expanded','false');
-      button.textContent=result?.correct===true||result?.revealAnswer?'查看答案與解析':'檢查答案'; return;
-    }
+    const wasRevealed=revealed.has(id);
     const q=findEntry(id).q,response=card.querySelector('[data-draft]')?.value||'';
     const result=window.coursePractice.evaluate(q.answer,q.options||[],selections.get(id)||[],q,response);
     feedback.set(id,result);
-    const shouldOpen=result.correct===true||result.revealAnswer;
+    const shouldOpen=result.correct===true||result.revealAnswer||wasRevealed;
     panel.hidden=!shouldOpen;
     if(shouldOpen)revealed.add(id);else revealed.delete(id);
-    button.setAttribute('aria-expanded',String(shouldOpen));
-    button.textContent=shouldOpen?'收起答案':'檢查答案';
+    button.textContent='檢查答案';
+    const answerButton=card.querySelector('[data-show-answer]');
+    if(answerButton){answerButton.setAttribute('aria-expanded',String(shouldOpen));answerButton.textContent=shouldOpen?'收起答案與解析':'顯示答案與解析';}
     window.coursePractice.show(card,result,id); return;
   }
   const open=panel.hidden;panel.hidden=!open;
   updateCorrectOptions(card,findEntry(id)?.q,open);
   if(open)revealed.add(id);else revealed.delete(id);
   button.setAttribute('aria-expanded',String(open));button.textContent=open?'收起答案':'查看答案與解析';
+}
+function togglePracticeAnswer(id,button) {
+  const card=button.closest('.card'),panel=card.querySelector('[data-answer]'),open=panel.hidden;
+  panel.hidden=!open;if(open)revealed.add(id);else revealed.delete(id);
+  button.setAttribute('aria-expanded',String(open));button.textContent=open?'收起答案與解析':'顯示答案與解析';
 }
 function clearResponse(id,button) {
   const card=button.closest('.card');
@@ -136,6 +139,7 @@ function clearResponse(id,button) {
   card.querySelector('[data-answer]').hidden=true;card.querySelector('.practice-feedback')?.remove();
   window.coursePractice.clearMarks(card);
   const check=card.querySelector('[data-reveal]');check.textContent='檢查答案';check.setAttribute('aria-expanded','false');
+  const answerButton=card.querySelector('[data-show-answer]');answerButton.textContent='顯示答案與解析';answerButton.setAttribute('aria-expanded','false');
   button.disabled=true;(draft||card.querySelector('[data-choice]'))?.focus();
 }
 document.addEventListener('click',e=>{
@@ -143,6 +147,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.unit!==undefined)switchUnit(Number(b.dataset.unit));
   else if(b.dataset.page){page=Number(b.dataset.page);render();window.courseQuestionTools.focusResults();}
   else if(b.dataset.clearResponse!==undefined)clearResponse(b.dataset.clearResponse,b);
+  else if(b.dataset.showAnswer!==undefined)togglePracticeAnswer(b.dataset.showAnswer,b);
   else if(b.dataset.reveal)toggleAnswer(b.dataset.reveal,b);
 });
 $('search').addEventListener('input',()=>{page=1;render();});
@@ -160,6 +165,7 @@ $('cards').addEventListener('input',e=>{
   if(!feedback.has(id)&&!revealed.has(id))return;
   feedback.delete(id);revealed.delete(id);card.querySelector('[data-answer]').hidden=true;card.querySelector('.practice-feedback')?.remove();
   window.coursePractice.clearMarks(card);button.textContent='檢查答案';button.setAttribute('aria-expanded','false');
+  const answerButton=card.querySelector('[data-show-answer]');if(answerButton){answerButton.textContent='顯示答案與解析';answerButton.setAttribute('aria-expanded','false');}
 });
 $('cards').addEventListener('change',e=>{
   const input=e.target,id=input.dataset.choice;if(!id)return;
@@ -170,6 +176,7 @@ $('cards').addEventListener('change',e=>{
   revealed.delete(id);feedback.delete(id);card.querySelector('[data-answer]').hidden=true;
   card.querySelector('.practice-feedback')?.remove();window.coursePractice.clearMarks(card);
   const b=card.querySelector('[data-reveal]');b.textContent='檢查答案';b.setAttribute('aria-expanded','false');
+  const answerButton=card.querySelector('[data-show-answer]');if(answerButton){answerButton.textContent='顯示答案與解析';answerButton.setAttribute('aria-expanded','false');}
 });
 const linkedQuestion = new URLSearchParams(location.search).get('question');
 const linkedEntry = findEntry(linkedQuestion);
