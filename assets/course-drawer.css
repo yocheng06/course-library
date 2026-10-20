@@ -33,6 +33,19 @@ body[data-course] .course-drawer-toggle span {
 }
 
 @media (min-width: 1001px) {
+  body[data-course] .course-drawer-toggle {
+    position: fixed;
+    top: 28px;
+    left: 27px;
+    z-index: 31;
+  }
+
+  /* Reserve the toggle's former flex space so the brand stays in place. */
+  body[data-course] .topbar::before {
+    content: "";
+    flex: 0 0 38px;
+  }
+
   body[data-course="algorithms"] .topbar,
   body[data-course="algorithms"] .sidebar,
   body[data-course="algorithms"] .main,
