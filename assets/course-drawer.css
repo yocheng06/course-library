@@ -1,4 +1,4 @@
-/* Desktop navigation stays in the original layout until the reader hides it. */
+/* Keep the original course rails; the hamburger only changes the content width. */
 body[data-course] .course-drawer-toggle {
   display: inline-flex;
   width: 38px;
@@ -35,37 +35,28 @@ body[data-course] .course-drawer-toggle span {
 @media (min-width: 1001px) {
   body[data-course="algorithms"] .topbar,
   body[data-course="algorithms"] .sidebar,
-  body[data-course="algorithms"] .main {
+  body[data-course="algorithms"] .main,
+  body[data-course="os"] .topbar,
+  body[data-course="os"] .sidebar,
+  body[data-course="os"] .main {
     transition: width 200ms ease, margin-left 200ms ease, transform 200ms ease;
   }
 
-  body[data-course="algorithms"].course-drawer-collapsed .topbar {
-    width: 100%;
-  }
-
-  body[data-course="algorithms"] .sidebar {
-    transform: translateX(0);
-    visibility: visible;
-    transition: transform 200ms ease, visibility 200ms ease;
-  }
-
-  body[data-course="algorithms"].course-drawer-collapsed .sidebar {
-    transform: translateX(-102%);
-    visibility: hidden;
-    pointer-events: none;
-  }
-
-  body[data-course="algorithms"].course-drawer-collapsed .main {
-    width: 100%;
-    margin-left: 0;
-  }
-
+  /* Restore the operating-systems rail geometry independently of the algorithm theme. */
   body[data-course="os"] .app {
-    display: grid;
-    grid-template-columns: 265px minmax(0, 1fr);
+    display: block;
     max-width: none;
     margin: 0;
-    transition: grid-template-columns 200ms ease;
+  }
+
+  body[data-course="os"] .topbar {
+    width: 265px;
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  body[data-course="os"] .topbar .brand {
+    color: var(--rail-ink);
   }
 
   body[data-course="os"] .sidebar {
@@ -77,18 +68,47 @@ body[data-course] .course-drawer-toggle span {
   }
 
   body[data-course="os"] .main {
-    grid-column: 2;
+    width: calc(100% - 265px);
+    margin-left: 265px;
     min-width: 0;
   }
 
-  body[data-course="os"].course-drawer-collapsed .app {
-    grid-template-columns: 0 minmax(0, 1fr);
+  body[data-course="algorithms"] .sidebar {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform 200ms ease, visibility 200ms ease;
   }
 
+  body[data-course].course-drawer-collapsed .topbar {
+    width: 60px;
+    height: 60px;
+    padding: 8px;
+    border: 0;
+    background: transparent;
+  }
+
+  body[data-course].course-drawer-collapsed .topbar .brand,
+  body[data-course].course-drawer-collapsed .topbar .tagline {
+    display: none;
+  }
+
+  body[data-course="algorithms"].course-drawer-collapsed .sidebar,
   body[data-course="os"].course-drawer-collapsed .sidebar {
     transform: translateX(-102%);
     visibility: hidden;
     pointer-events: none;
+  }
+
+  body[data-course="algorithms"].course-drawer-collapsed .main {
+    width: 100%;
+    margin-left: 0;
+    padding-top: 86px;
+  }
+
+  body[data-course="os"].course-drawer-collapsed .main {
+    width: 100%;
+    margin-left: 0;
+    padding-top: 86px;
   }
 }
 
@@ -99,7 +119,6 @@ body[data-course] .course-drawer-toggle span {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body[data-course] .app,
   body[data-course] .topbar,
   body[data-course] .sidebar,
   body[data-course] .main {
