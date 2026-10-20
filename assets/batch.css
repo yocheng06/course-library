@@ -54,6 +54,48 @@ body[data-course="os"] .button.secondary {
   line-height: 1.7;
   overflow-wrap: anywhere;
 }
+#importStatus,
+#mappingSource {
+  white-space: pre-line;
+}
+.mapping-fieldset {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 0;
+}
+#importMapping select {
+  min-width: 0;
+  max-width: 100%;
+}
+.mapping-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  gap: 8px 16px;
+}
+.mapping-columns label,
+.mapping-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-wrap: anywhere;
+  min-height: 44px;
+}
+.mapping-columns input,
+.mapping-check input {
+  width: auto;
+  flex: 0 0 auto;
+  margin: 0;
+}
+#importWarnings:empty {
+  display: none;
+}
+#importWarnings {
+  padding-left: 22px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
 #importStatus:empty {
   display: none;
 }
@@ -298,7 +340,8 @@ summary:focus-visible,
   outline: 3px solid var(--accent);
   outline-offset: 3px;
 }
-#importPreviewHeading:focus {
+#importPreviewHeading:focus,
+#mappingHeading:focus {
   outline: 3px solid var(--accent);
   outline-offset: 3px;
 }

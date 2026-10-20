@@ -13,7 +13,7 @@
       rel="stylesheet"
       href="assets/contributions.css?v=global-dedup-20261016"
     />
-    <link rel="stylesheet" href="assets/batch.css?v=multi-format-20261020" />
+    <link rel="stylesheet" href="assets/batch.css?v=recognition-v2-20261020" />
     <link
       rel="stylesheet"
       href="assets/ui-consistency.css?v=original-toolbar-20261018"
@@ -62,7 +62,7 @@
             id="batchFiles"
             type="file"
             multiple
-            accept=".txt,.md,.markdown,.json,.csv,.tsv,.html,.htm"
+            accept=".txt,.md,.markdown,.json,.json5,.csv,.tsv,.html,.htm"
             aria-label="選擇題目檔案"
             hidden
           />
@@ -70,8 +70,60 @@
             支援 TXT／Markdown、JSON、CSV／TSV、HTML，可一次選多個檔案。合計最多
             30 題、2 MB；檔案在這台裝置讀取。
           </p>
+          <p class="muted input-help">
+            支援 AI 常見排版、Markdown
+            表格及不同欄位名稱；找不到題幹欄時可手動對應，不必重寫檔案。
+          </p>
           <p id="importStatus" role="status" aria-live="polite"></p>
         </div>
+        <section
+          id="importMapping"
+          class="import-preview"
+          aria-labelledby="mappingHeading"
+          hidden
+        >
+          <h3 id="mappingHeading" tabindex="-1">對應題目欄位</h3>
+          <p id="mappingSource"></p>
+          <p>
+            請指定哪一欄是題幹。選項在同一欄時使用「整組選項」；分欄時勾選下方選項欄。答案、解析欄不用選。
+          </p>
+          <label id="mappingHeaderField" class="mapping-check"
+            ><input
+              id="mappingHasHeader"
+              type="checkbox"
+              checked
+            />第一列是欄位名稱（取消勾選可保留第一列題目）</label
+          >
+          <div class="field-grid">
+            <label>題幹欄<select id="mappingStem"></select></label>
+            <label
+              >原題號欄（可不選）<select id="mappingNumber"></select
+            ></label>
+            <label
+              >整組選項欄（可不選）<select id="mappingOptions"></select
+            ></label>
+          </div>
+          <fieldset class="mapping-fieldset">
+            <legend>分開的選項欄（最多 8 欄）</legend>
+            <p class="muted">
+              依檔案欄位順序整理；已標示 A、B 等代號的欄位會保留代號。
+            </p>
+            <div id="mappingColumns" class="mapping-columns"></div>
+          </fieldset>
+          <p
+            id="mappingStatus"
+            class="import-warning"
+            role="status"
+            aria-live="polite"
+          ></p>
+          <div class="actions">
+            <button id="applyMapping" class="button secondary" type="button">
+              用這些欄位重新辨識</button
+            ><button id="cancelMapping" class="text-button" type="button">
+              取消對應
+            </button>
+          </div>
+        </section>
         <section
           id="importPreview"
           class="import-preview"
@@ -80,6 +132,11 @@
         >
           <h3 id="importPreviewHeading" tabindex="-1">匯入預覽</h3>
           <p id="importSummary"></p>
+          <ul
+            id="importWarnings"
+            class="import-warning"
+            aria-label="格式整理提醒"
+          ></ul>
           <div id="importList" class="import-list"></div>
           <label id="importModeField" for="importMode"
             >匯入方式
@@ -130,15 +187,28 @@
         </div>
         <details class="format-example">
           <summary>匯入格式、範例與抄題指令</summary>
-          <p class="format-rules">
-            TXT／Markdown：保留題號與選項。JSON：支援題目陣列、questions
-            欄位與分單元題庫；題幹可用 stem、question、q 或「題目」，選項可用
-            options、opts 或
-            choices。CSV／TSV：第一列為欄位名稱，使用「題目、A、B、C、D」或
-            stem、options；含逗號或換行的欄位請加雙引號。HTML：支援內嵌 JSON
-            題庫、帶題號與選項的靜態內容；不會執行檔案內的程式。文字檔請使用
-            UTF-8 或含 BOM 的 UTF-16。
-          </p>
+          <ul class="format-rules">
+            <li>
+              文字／Markdown：支援常見 AI 抄題排版、中文數字題號與 Markdown
+              表格。
+            </li>
+            <li>
+              JSON／JSON5：可使用單引號、註解與結尾逗號；欄位名稱不區分大小寫、空格、底線或連字號。
+            </li>
+            <li>
+              CSV／TSV：辨識逗號、Tab 或分號分隔。選項可放在同一欄，或分成
+              A、B／選項1、選項2 等欄。
+            </li>
+            <li>
+              HTML：支援內嵌題庫資料、題目表格、選項清單與表單選項；不執行檔案內的程式。
+            </li>
+            <li>
+              欄位名稱無法辨識時，可手動指定題幹、題號與選項。若檔案沒有標題列，取消「第一列是欄位名稱」以保留第一題。
+            </li>
+            <li>
+              支援 UTF-8、含 BOM 的 UTF-16；Big5 中文檔會在預覽提醒核對編碼。
+            </li>
+          </ul>
           <p class="format-rules">
             整份檔案超過 30
             題時請先分批，不會自動截掉題目。PDF、Word、照片或掃描檔請先轉成題目文字。
@@ -260,7 +330,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=multi-format-20261020"
+      src="assets/batch-ui.mjs?v=recognition-v2-20261020"
     ></script>
   </body>
 </html>

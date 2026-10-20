@@ -193,13 +193,12 @@ test("HTML supports embedded JSON and static numbered content without executing 
     "review",
   );
   assert.throws(() => input("<p>只連到題庫的網站</p>", "page.html"), /找不到/);
-  assert.throws(
-    () =>
-      input(
-        "<script>const questions = [{stem: '不能執行的 JS'}];</script>",
-        "page.html",
-      ),
-    /JSON/,
+  assert.equal(
+    input(
+      "<script>const questions = [{stem: '不能執行的 JS'}];</script>",
+      "page.html",
+    ).questions[0].stem,
+    "不能執行的 JS",
   );
   assert.throws(
     () =>

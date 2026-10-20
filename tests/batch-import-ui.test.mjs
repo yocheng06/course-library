@@ -151,6 +151,66 @@ test("clearing or starting another import invalidates pending async reads", asyn
   assert(!ui.$("importList").textContent.includes("過期的題目"));
 });
 
+test("unknown fields can be mapped, previewed and applied without changing the original draft early", async () => {
+  const ui = dom();
+  let changes = 0;
+  setupBatchImport({ document: ui.document, onApply: () => changes++ });
+  ui.$("batchText").value = "11. 保留原題 _____";
+  await ui.choose([
+    file(
+      "custom.csv",
+      `描述,候選甲,候選乙\n${rawQuestion.stem},短程排程器,長程排程器`,
+    ),
+  ]);
+  assert.equal(ui.$("importMapping").hidden, false);
+  assert.equal(ui.$("batchText").value, "11. 保留原題 _____");
+  assert.equal(ui.focused(), "mappingHeading");
+  ui.$("mappingStem").value = "0";
+  ui.$("mappingNumber").value = "0";
+  ui.fire("applyMapping", "click");
+  assert(ui.$("mappingStatus").textContent.includes("同一欄"));
+  assert.equal(changes, 0);
+  ui.$("mappingNumber").value = "-1";
+  const columns = ui.$("mappingColumns").querySelectorAll("input");
+  columns[1].checked = true;
+  columns[2].checked = true;
+  ui.fire("applyMapping", "click");
+  assert.equal(ui.$("importMapping").hidden, true);
+  assert.equal(ui.$("importPreview").hidden, false);
+  assert(ui.$("importWarnings").textContent.includes("指定的欄位"));
+  assert.equal(changes, 0);
+  ui.fire("applyImport", "click");
+  assert.equal(changes, 1);
+  assert(ui.$("batchText").value.includes("保留原題"));
+  assert(ui.$("batchText").value.includes("A. 短程排程器"));
+});
+test("normalization warnings are shown, and cancelled mappings or edited pasted data do not overwrite drafts", async () => {
+  const ui = dom();
+  setupBatchImport({ document: ui.document, onApply() {} });
+  await ui.choose([
+    file(
+      "ai.json5",
+      `[{stem: '${rawQuestion.stem}', options: ['短程排程器','長程排程器',],},]`,
+    ),
+  ]);
+  assert(ui.$("importWarnings").textContent.includes("引號"));
+  const original = JSON.stringify([
+    { 描述: rawQuestion.stem, 候選: ["短程排程器", "長程排程器"] },
+  ]);
+  ui.$("batchText").value = original;
+  ui.fire("recognizePaste", "click");
+  assert.equal(ui.$("importMapping").hidden, false);
+  ui.$("mappingStem").value = "0";
+  ui.$("mappingOptions").value = "1";
+  ui.$("batchText").value = "1. 使用者已修改的文字";
+  ui.fire("applyMapping", "click");
+  assert(ui.$("mappingStatus").textContent.includes("已變更"));
+  assert.equal(ui.$("batchText").value, "1. 使用者已修改的文字");
+  ui.fire("cancelMapping", "click");
+  assert.equal(ui.$("importMapping").hidden, true);
+  assert.equal(ui.$("batchText").value, "1. 使用者已修改的文字");
+});
+
 test("full page: imported/pasted structured questions use bank answers, update drafts and invalidate old results", async () => {
   const ui = dom();
   const storage = new Map();
@@ -233,4 +293,18 @@ test("full page: imported/pasted structured questions use bank answers, update d
   ui.fire("batchForm", "submit");
   assert(ui.$("resultRows").textContent.includes("A. 短程排程器"));
   assert(!ui.$("resultRows").textContent.includes("尚無可確認答案"));
+  ui.$("batchText").value =
+    `描述,候選甲,候選乙,提供答案\n${rawQuestion.stem},短程排程器,長程排程器,B`;
+  ui.fire("batchText", "input");
+  ui.fire("batchForm", "submit");
+  assert.equal(ui.$("importMapping").hidden, false);
+  ui.$("mappingStem").value = "0";
+  const columns = ui.$("mappingColumns").querySelectorAll("input");
+  columns[1].checked = true;
+  columns[2].checked = true;
+  ui.fire("applyMapping", "click");
+  ui.fire("applyImport", "click");
+  ui.fire("batchForm", "submit");
+  assert(ui.$("resultRows").textContent.includes("A. 短程排程器"));
+  assert.equal(ui.$("staleNotice").hidden, true);
 });

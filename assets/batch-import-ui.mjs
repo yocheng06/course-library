@@ -2,12 +2,14 @@ import {
   parseBatchInput,
   prepareImport,
   readBatchFiles,
-} from "./batch-import.mjs?v=multi-format-20261020";
+  resolveImportMapping,
+} from "./batch-import.mjs?v=recognition-v2-20261020";
 
 export function setupBatchImport({ document, onApply }) {
   const $ = (id) => document.getElementById(id);
   const formats = {
     text: "文字／Markdown",
+    markdown: "Markdown 表格",
     json: "JSON",
     csv: "CSV",
     tsv: "TSV",
@@ -15,6 +17,7 @@ export function setupBatchImport({ document, onApply }) {
   };
   let pending = null;
   let generation = 0;
+  let mapping = null;
   function status(text, error = false) {
     $("importStatus").textContent = text;
     $("importStatus").classList.toggle("error", error);
@@ -23,6 +26,9 @@ export function setupBatchImport({ document, onApply }) {
     pending = null;
     $("importPreview").hidden = true;
     $("importList").replaceChildren();
+    $("importWarnings").replaceChildren();
+    $("importMapping").hidden = true;
+    mapping = null;
   }
   function preview(batch, source, original = "") {
     pending = { ...batch, source, original };
@@ -30,7 +36,12 @@ export function setupBatchImport({ document, onApply }) {
     $("applyImport").textContent =
       source === "paste" ? "使用整理後的文字" : "匯入下方文字區";
     $("importSummary").textContent =
-      `共 ${batch.questions.length} 題。請檢查題幹與選項，再套用至下方文字區。`;
+      `共 ${batch.questions.length} 題${batch.questions.some((q) => q.issues.length) ? `・${batch.questions.filter((q) => q.issues.length).length} 題需檢查` : ""}。請核對後再套用至下方文字區。`;
+    for (const warning of batch.warnings || []) {
+      const item = document.createElement("li");
+      item.textContent = warning;
+      $("importWarnings").append(item);
+    }
     for (const [i, q] of batch.questions.entries()) {
       const item = document.createElement("details");
       const summary = document.createElement("summary");
@@ -48,6 +59,7 @@ export function setupBatchImport({ document, onApply }) {
         item.append(list);
       }
       if (q.issues.length) {
+        item.open = true;
         const warning = document.createElement("p");
         warning.className = "import-warning";
         warning.textContent = q.issues.join(" ");
@@ -64,6 +76,46 @@ export function setupBatchImport({ document, onApply }) {
     status(`已讀取 ${sources}。尚未更動目前文字。`);
     $("importPreviewHeading").focus();
   }
+  function showMapping(error, source, original = "") {
+    if (!error.mapping) return;
+    mapping = { ...error.mapping, source, original };
+    $("mappingSource").textContent = mapping.name
+      ? error.message
+      : `貼上內容：${error.message}`;
+    const selects = ["mappingStem", "mappingNumber", "mappingOptions"];
+    for (const id of selects) {
+      $(id).replaceChildren();
+      const empty = document.createElement("option");
+      empty.value = "-1";
+      empty.textContent = id === "mappingStem" ? "請選擇題幹欄" : "不使用";
+      $(id).append(empty);
+      mapping.headers.forEach((header, i) => {
+        const option = document.createElement("option");
+        option.value = String(i);
+        const row = mapping.rows[mapping.hasHeader ? 1 : 0];
+        const sample = row?.[i];
+        option.textContent = `${i + 1}. ${header || "未命名"}｜${(typeof sample === "string" ? sample : JSON.stringify(sample) || "").slice(0, 65)}`;
+        $(id).append(option);
+      });
+    }
+    $("mappingHasHeader").checked = mapping.hasHeader;
+    $("mappingHeaderField").hidden = mapping.format === "json";
+    $("mappingColumns").replaceChildren();
+    mapping.headers.forEach((header, i) => {
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = String(i);
+      label.append(
+        checkbox,
+        document.createTextNode(`${i + 1}. ${header || "未命名欄位"}`),
+      );
+      $("mappingColumns").append(label);
+    });
+    $("mappingStatus").textContent = "";
+    $("importMapping").hidden = false;
+    $("mappingHeading").focus();
+  }
   $("chooseBatchFiles").addEventListener("click", () =>
     $("batchFiles").click(),
   );
@@ -79,8 +131,10 @@ export function setupBatchImport({ document, onApply }) {
       const batch = await readBatchFiles(files, { document });
       if (generation === current) preview(batch, "files");
     } catch (error) {
-      if (generation === current)
+      if (generation === current) {
         status(`無法匯入：${error.message} 目前文字已保留。`, true);
+        showMapping(error, "files");
+      }
     } finally {
       if (generation === current) $("importTools").removeAttribute("aria-busy");
     }
@@ -108,7 +162,51 @@ export function setupBatchImport({ document, onApply }) {
       );
     } catch (error) {
       status(`無法辨識：${error.message} 目前文字已保留。`, true);
+      showMapping(error, "paste", $("batchText").value);
     }
+  });
+  $("applyMapping").addEventListener("click", () => {
+    if (!mapping) return;
+    try {
+      if (
+        mapping.source === "paste" &&
+        $("batchText").value !== mapping.original
+      )
+        throw new Error("貼上內容已變更，請重新辨識。");
+      const batch = resolveImportMapping(mapping, {
+        stem: Number($("mappingStem").value),
+        number: Number($("mappingNumber").value),
+        options: Number($("mappingOptions").value),
+        columns: [...$("mappingColumns").querySelectorAll("input")]
+          .filter((input) => input.checked)
+          .map((input) => Number(input.value)),
+        hasHeader: $("mappingHasHeader").checked,
+      });
+      const { source, original, name } = mapping;
+      close();
+      preview(
+        {
+          ...batch,
+          files: [
+            {
+              name: name || "貼上內容",
+              format: batch.format,
+              count: batch.questions.length,
+            },
+          ],
+        },
+        source,
+        original,
+      );
+    } catch (error) {
+      $("mappingStatus").textContent = error.message;
+    }
+  });
+  $("cancelMapping").addEventListener("click", () => {
+    generation++;
+    close();
+    status("已取消欄位對應，目前文字已保留。");
+    $("chooseBatchFiles").focus();
   });
   $("cancelImport").addEventListener("click", () => {
     generation++;
@@ -149,4 +247,13 @@ export function setupBatchImport({ document, onApply }) {
     $("importTools").removeAttribute("aria-busy");
     status("");
   });
+  return {
+    showError(error) {
+      generation++;
+      close();
+      $("importTools").removeAttribute("aria-busy");
+      status(`無法辨識：${error.message} 目前文字已保留。`, true);
+      showMapping(error, "paste", $("batchText").value);
+    },
+  };
 }

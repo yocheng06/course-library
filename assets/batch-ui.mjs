@@ -5,8 +5,8 @@ import {
   aiPrompt,
   MAX_TEXT,
 } from "./batch-model.mjs?v=batch-math-and-option-variants-20261017";
-import { parseBatchInput } from "./batch-import.mjs?v=multi-format-20261020";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=multi-format-20261020";
+import { parseBatchInput } from "./batch-import.mjs?v=recognition-v2-20261020";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=recognition-v2-20261020";
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
   String(value ?? "").replace(
@@ -231,7 +231,9 @@ $("batchForm").addEventListener("submit", (event) => {
   event.preventDefault();
   if (!index || loading) return;
   try {
-    const { questions: parsed } = parseBatchInput($("batchText").value);
+    const { questions: parsed, warnings } = parseBatchInput(
+      $("batchText").value,
+    );
     results = matchQuestions(parsed, index, scope());
     snapshot = currentSnapshot();
     snapshotGeneration = libraryGeneration;
@@ -243,9 +245,10 @@ $("batchForm").addEventListener("submit", (event) => {
     const otherMatches = matchQuestions(parsed, index, {
       course: otherCourse,
     }).filter((r) => r.status === "matched").length;
-    courseSuggestion = otherMatches >= 2 && otherMatches > count("matched")
-      ? { course: otherCourse, count: otherMatches }
-      : null;
+    courseSuggestion =
+      otherMatches >= 2 && otherMatches > count("matched")
+        ? { course: otherCourse, count: otherMatches }
+        : null;
     const scopeHint = courseSuggestion
       ? `目前比對科目為「${names[snapshotCourse]}」，這批有 ${otherMatches} 題在「${names[otherCourse]}」找到一致原題。請切換科目後重新比對。`
       : "請展開有疑義的項目，核對題幹與選項是否完整。";
@@ -253,15 +256,19 @@ $("batchForm").addEventListener("submit", (event) => {
     $("switchCourse").textContent = `改用${names[otherCourse]}比對`;
     const unmatchedLabel = courseSuggestion
       ? "此科目未找到"
-      : !snapshotCoverage ? "未找到"
-      : snapshotUnit === "all" ? "未收錄" : "此範圍未找到";
+      : !snapshotCoverage
+        ? "未找到"
+        : snapshotUnit === "all"
+          ? "未收錄"
+          : "此範圍未找到";
     $("resultCount").textContent =
       `共 ${results.length} 題・${names[snapshotCourse]}・已收錄 ${count("matched")}・${unmatchedLabel} ${count("unmatched")}・需確認 ${count("review")}`;
     $("expandScope").hidden = !results.some((r) => r.outsideScope);
     $("coverageNotice").hidden = snapshotCoverage;
     $("coverageNotice").textContent =
       "公開投稿題庫尚未同步。本次結果只涵蓋內建題庫，「未找到」不代表網站一定未收錄，請重新同步後核對。";
-    $("resultFilter").querySelector('[value="unmatched"]').textContent = unmatchedLabel;
+    $("resultFilter").querySelector('[value="unmatched"]').textContent =
+      unmatchedLabel;
     $("copyUnmatched").textContent = `複製${unmatchedLabel}題目給 AI`;
     $("staleNotice").textContent =
       "文字、科目或範圍已變更，請重新比對。下方保留的是上一批結果。";
@@ -271,11 +278,14 @@ $("batchForm").addEventListener("submit", (event) => {
     $("copyHelp").hidden = true;
     renderResults();
     markChanged();
-    message(`已辨識 ${parsed.length} 題。${scopeHint}`);
+    message(
+      `已辨識 ${parsed.length} 題。${warnings.length ? warnings.join(" ") + " " : ""}${scopeHint}`,
+    );
     $("resultsHeading").focus({ preventScroll: true });
     $("results").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
     message(error.message, true);
+    if (error.mapping) importUI.showError(error);
   }
 });
 async function copy(text) {
@@ -299,7 +309,9 @@ $("copyAnswers").addEventListener("click", () => {
   const text =
     `${names[snapshotCourse]}・答案總表\n` +
     (!snapshotCoverage ? "注意：投稿題庫未同步，僅比對內建題庫。\n" : "") +
-    (courseSuggestion ? `注意：這批有 ${courseSuggestion.count} 題在${names[courseSuggestion.course]}找到一致原題，請切換科目重新比對；以下僅為${names[snapshotCourse]}範圍結果。\n` : "") +
+    (courseSuggestion
+      ? `注意：這批有 ${courseSuggestion.count} 題在${names[courseSuggestion.course]}找到一致原題，請切換科目重新比對；以下僅為${names[snapshotCourse]}範圍結果。\n`
+      : "") +
     results
       .map(
         (r) =>
@@ -375,7 +387,6 @@ try {
   }
 } catch {}
 units();
-setupBatchImport({ document, onApply: markChanged });
+const importUI = setupBatchImport({ document, onApply: markChanged });
 markChanged();
 loadLibrary();
-
