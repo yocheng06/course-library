@@ -1,0 +1,36 @@
+以下是為您提取的題目與選項內容：
+妖獸 21. 在優先權排程中，什麼問題可能導致低優先權程序永遠無法執行？
+ * A. 飢餓（Starvation）
+ * B. 活鎖
+ * C. 護航效應
+ * D. 死鎖（Deadlock）
+妖獸 22. 短工作優先 (SJF) 排程的優點包含哪些？
+ * A. 易於實現
+ * B. 適合即時系統
+ * C. 給定程序集的最小平均等待時間
+ * D. 可以預測下一個 CPU burst 的長度
+妖獸 23.
+________ 是一個可以被系統管理員載入和設定的表格，用於管理Solaris中的多層級回饋佇列。(請用小寫英文回答 字母間留一個空白)
+妖獸 24. 多核心處理器的優點是什麼？
+ * A. 每個核心都有自己的專用內存
+ * B. 消耗更少電力
+ * C. 更快
+ * D. 可以利用記憶體停頓來進行多執行緒
+Beast 25. In the Solaris operating system, what is the default scheduling class?
+ * A. Time Sharing
+ * B. Real Time
+ * C. System
+ * D. Interactive
+妖獸 26. 當一個程序從「執行中」狀態切換到「等待中」狀態時，排程決策屬於哪種類型？
+ * A. 非搶佔式
+ * B. 中斷式
+ * C. 無關
+ * D. 搶佔式
+Beast 27.
+In the Round Robin (RR) algorithm, the unit of a small amount of CPU time given to each process is called a ________.(Please answer in lowercase English, leaving a space between each word)
+妖獸 28.
+________ 是每單位時間完成執行的程序數量，用於衡量排程演算法的效率。(請用小寫英文回答)
+妖獸 29.
+吞吐量是單位時間內完成的 ________ 數量。(請用小寫英文回答)
+妖獸 30.
+在Linux核心版本2.6.23之後，排程器選擇下一個要執行的任務是基於最低的 ________ 值。(請用小寫英文回答 字母間留一個空白)

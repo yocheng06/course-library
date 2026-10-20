@@ -42,6 +42,9 @@ const header =
 // Require a letter-only prefix, a separated number and terminal punctuation;
 // expressions, decimals and option content remain ordinary question text.
 const namedHeader = /^[\p{L}][\p{L}\p{M} _-]{0,30}?\s+(\d{1,4})[.)、:]\s*$/u;
+// These two AI transcription labels also occur with the stem on the same line.
+// Requiring whitespace after the punctuation avoids splitting decimals such as "CPU 2.6".
+const inlineNamedHeader = /^(?:妖獸|Beast)\s+(\d{1,4})[.)、:]\s+(.+)$/iu;
 function questionHeader(line) {
   const standard = line.match(header);
   if (standard)
@@ -49,6 +52,8 @@ function questionHeader(line) {
       number: standard[1] || standard[2] || standard[3] || standard[4],
       text: standard[5],
     };
+  const inlineNamed = line.match(inlineNamedHeader);
+  if (inlineNamed) return { number: inlineNamed[1], text: inlineNamed[2] };
   const named = line.match(namedHeader);
   return named ? { number: named[1], text: "" } : null;
 }

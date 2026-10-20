@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { parseHTML } from "linkedom";
 import {
   parseBatchInput,
@@ -47,6 +48,42 @@ function getMapping(raw, name = "") {
   }
   assert.fail("Expected a recoverable field-mapping request");
 }
+
+test("inline 妖獸／Beast headings keep all 10 scheduling questions separate", async () => {
+  const raw = await readFile(
+    new URL("fixtures/batch-scheduling-21-30.txt", import.meta.url),
+    "utf8",
+  );
+  const questions = input(raw).questions;
+  assert.deepEqual(
+    questions.map((q) => q.number),
+    ["21", "22", "23", "24", "25", "26", "27", "28", "29", "30"],
+  );
+  assert.deepEqual(
+    questions.map((q) => q.options.length),
+    [4, 4, 0, 4, 4, 4, 0, 0, 0, 0],
+  );
+  assert(questions.every((q) => !q.issues.length));
+  assert.equal(questions[0].options[0].text, "飢餓(Starvation)");
+  const built = JSON.parse(
+    await readFile(new URL("../assets/batch-library.json", import.meta.url), "utf8"),
+  );
+  const results = matchQuestions(questions, buildIndex(built.entries), {
+    course: "os",
+  });
+  assert(results.every((r) => r.status === "matched"));
+  assert.equal(results[0].answer, "A. 飢餓(Starvation)");
+  assert.equal(results[4].answer, "A. Time Sharing");
+  assert.equal(results[6].answer, "time quantum");
+});
+
+test("an OS version number does not become a named question heading", () => {
+  const questions = input(
+    "1. 下列敘述何者正確？\\nCPU 2.6 核心變更了排程器。\\nA. 是\\nB. 否",
+  ).questions;
+  assert.equal(questions.length, 1);
+  assert.match(questions[0].stem, /CPU 2\.6/);
+});
 
 test("JSON field names tolerate case, spaces and punctuation, while legacy answer aliases stay out of options", () => {
   for (const record of [

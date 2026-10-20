@@ -4,7 +4,7 @@ import {
   expandLibraryQuestion,
   aiPrompt,
   MAX_TEXT,
-} from "./batch-model.mjs?v=batch-math-and-option-variants-20261017";
+} from "./batch-model.mjs?v=inline-beast-headings-20261020";
 import { parseBatchInput } from "./batch-import.mjs?v=recognition-v2-20261020";
 import { setupBatchImport } from "./batch-import-ui.mjs?v=recognition-v2-20261020";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
