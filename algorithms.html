@@ -9,8 +9,8 @@
 
 <link rel="stylesheet" href="assets/course-base.css?v=global-dedup-20261016">
 <link rel="stylesheet" href="assets/algorithms-charcoal-rose.css?v=reader-answer-highlight-20261017">
-<link rel="stylesheet" href="assets/learning-ui.css?v=global-dedup-20261016">
-<link rel="stylesheet" href="assets/course-layout.css?v=global-dedup-20261016">
+<link rel="stylesheet" href="assets/learning-ui.css?v=collapsible-unit-menu-20261020">
+<link rel="stylesheet" href="assets/course-layout.css?v=collapsible-unit-menu-20261020">
 <link rel="stylesheet" href="assets/reading-flow.css?v=global-dedup-20261016">
 <meta name="course-layout-version" content="layout-fixes-20261013">
 <link rel="stylesheet" href="assets/community-entry.css?v=global-dedup-20261016">
@@ -19,7 +19,30 @@
 <body data-course="algorithms">
 <a class="skip" href="#main">跳至學習內容</a>
 <header class="topbar"><div class="brand"><span class="logo" aria-hidden="true"><img src="assets/icons/code-slash.svg" alt=""></span>演算法學習室</div><div class="tagline">一課一課，把觀念學會。 <span data-course-total style="margin-left:18px">4 個單元 · 240 道題目</span></div></header>
-<div class="app"><aside class="sidebar" aria-label="課程單元導覽"><nav class="site-nav" aria-label="科目與首頁"><a href="index.html?v=global-dedup-20261016">← 課程首頁</a><a href="os.html?v=original-toolbar-20261018" >作業系統</a><a href="algorithms.html?v=original-toolbar-20261018" aria-current="page">演算法</a></nav><div class="unit-picker"><label for="lessonPicker">課程單元</label><select id="lessonPicker"></select></div><p class="navtitle">課程單元</p><nav id="courseMenu" class="course-menu" aria-label="選擇課程"></nav></aside>
+<div class="app"><aside class="sidebar" aria-label="課程單元導覽"><nav class="site-nav" aria-label="科目與首頁"><a href="index.html?v=global-dedup-20261016">← 課程首頁</a><a href="os.html?v=original-toolbar-20261018" >作業系統</a><a href="algorithms.html?v=original-toolbar-20261018" aria-current="page">演算法</a></nav><div class="unit-picker"><label for="lessonPicker">課程單元</label><select id="lessonPicker"></select></div><details id="unitMenu" class="unit-menu" open><summary class="navtitle">課程單元</summary><nav id="courseMenu" class="course-menu" aria-label="選擇課程"></nav></details></aside>
+<script>
+(() => {
+  const menu = document.getElementById("unitMenu");
+  const mobile = matchMedia("(max-width: 720px)");
+  const key = `course-library.unit-menu.v1.${document.body.dataset.course}`;
+  let saved = false;
+  try {
+    const preference = localStorage.getItem(key);
+    saved = preference !== null;
+    menu.open = saved ? preference === "open" : !mobile.matches;
+    let userToggle = false;
+    menu.querySelector("summary").addEventListener("click", () => { userToggle = true; });
+    menu.addEventListener("toggle", () => {
+      if (!userToggle) return;
+      userToggle = false;
+      try { localStorage.setItem(key, menu.open ? "open" : "closed"); saved = true; } catch {}
+    });
+    mobile.addEventListener("change", () => { if (!saved) menu.open = !mobile.matches; });
+  } catch {
+    menu.open = !mobile.matches;
+  }
+})();
+</script>
 <main class="main" id="main" tabindex="-1"><div class="breadcrumb"><span>我的演算法課程</span><span class="dot"></span><span id="crumb"></span></div><section class="heading"><div><div class="eyebrow" id="eyebrow"></div><h1 id="lessonTitle"></h1><p class="subtitle" id="lessonSub"></p></div><div class="count"><strong id="lessonCount"></strong><span>本單元題目</span></div></section>
 <nav class="lesson-tabs" id="lessonTabs" aria-label="切換課程單元"></nav>
 <details class="guide" id="conceptGuide" open><summary class="guide-head"><span class="guide-title" id="guideHeading"><img class="guide-icon" src="assets/icons/lightbulb.svg" alt="" aria-hidden="true">這一課，先抓住這個觀念</span><small>補充學習提示</small></summary><p id="guideText"></p></details>

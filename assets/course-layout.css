@@ -4,6 +4,11 @@ body { scrollbar-gutter: stable; }
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible { outline:3px solid var(--ui-accent); outline-offset:3px; }
 .sidebar { display:flex !important; flex-direction:column; overflow:hidden !important; }
 .site-nav,.navtitle { flex-shrink:0; }
+.unit-menu { display:flex; min-height:0; flex-direction:column; overflow:hidden; }
+.unit-menu > summary { list-style:none; cursor:pointer; }
+.unit-menu > summary::-webkit-details-marker { display:none; }
+.unit-menu > summary::after { content:'−'; margin-left:auto; }
+.unit-menu:not([open]) > summary::after { content:'＋'; }
 .course-menu { min-height:0; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; }
 .heading { min-height:128px; }
 .guide[open] p { height:3.6em; overflow-y:auto; scrollbar-width:thin; overscroll-behavior:contain; }
@@ -87,7 +92,14 @@ body[data-course="os"] { --page:#eef4f9; --surface:#f9fcff; --ink:#293f56; --mut
 @media (max-width:720px) {
   .topbar { height:52px; }
   .sidebar { display:block !important; overflow:visible !important; padding:10px 16px 12px; }
-  .course-menu,.navtitle,[data-course="os"] #units { display:none; }
+  .unit-menu { display:block; overflow:visible; margin-top:4px; }
+  .unit-menu > summary.navtitle { display:flex; align-items:center; min-height:44px; padding:8px 10px; list-style:none; cursor:pointer; }
+  .unit-menu > summary.navtitle::-webkit-details-marker { display:none; }
+  .unit-menu > summary.navtitle::after { content:'＋'; margin-left:auto; }
+  .unit-menu[open] > summary.navtitle::after { content:'−'; }
+  [data-course="os"] .unit-menu #units { display:none; }
+  [data-course="os"] .unit-menu[open] #units,
+  [data-course="algorithms"] .unit-menu[open] .course-menu { display:grid; max-height:35dvh; margin-top:4px; overflow-y:auto; }
   [data-course="os"] .topbar { position:sticky; top:0; }
   [data-course="os"] .sidebar { position:static; height:auto; padding:10px 16px 12px; }
   [data-course="os"] .unit-picker select { background:#304a62; color:#fff; border-color:#779cbf; }
