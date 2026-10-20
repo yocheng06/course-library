@@ -8,6 +8,7 @@
   const quality = document.getElementById('qualitySelect');
   const searchScope = document.getElementById('searchScopeSelect');
   const unit = document.getElementById(config.course === 'os' ? 'unitPicker' : 'lessonPicker');
+  const drawerToggle = document.querySelector('.course-drawer-toggle');
   const tools = document.querySelector('.learning-tools');
   const filterDetails = document.querySelector('.filter-details');
   const modeHint = document.getElementById('modeHint');
@@ -27,33 +28,11 @@
   chips.className = 'active-filters'; chips.setAttribute('aria-label', '目前套用的篩選');
   tools.after(chips);
 
-  // Compact navigation leaves room for reading on phones and tablets.
-  const navigation = document.createElement('details');
-  navigation.className = 'mobile-navigation';
-  navigation.innerHTML = '<summary>課程／單元</summary><div class="mobile-navigation-panel"></div>';
-  const panel = navigation.querySelector('div');
-  const courseLinks = config.sidebar.querySelector('.site-nav').cloneNode(true);
-  courseLinks.setAttribute('aria-label', '科目與首頁'); panel.append(courseLinks);
-  const unitLabel = document.createElement('label'); unitLabel.textContent = '切換課程單元';
-  const unitSelect = document.createElement('select'); unitSelect.setAttribute('aria-label', '切換課程單元');
-  unitLabel.append(unitSelect); panel.append(unitLabel);
-  const searchJump = document.createElement('button'); searchJump.type = 'button';
-  searchJump.className = 'plain'; searchJump.textContent = '搜尋題目'; panel.append(searchJump);
-  document.querySelector('.topbar').append(navigation);
-  unitSelect.addEventListener('change', () => {
-    unit.value = unitSelect.value; unit.dispatchEvent(new Event('change', {bubbles:true}));
-    navigation.open = false; document.querySelector('.heading').scrollIntoView({block:'start'});
-  });
-  searchJump.addEventListener('click', () => {
-    navigation.open = false; config.toolbar.scrollIntoView({block:'start'}); search.focus({preventScroll:true});
-  });
   document.addEventListener('click', event => {
-    if (navigation.open && !navigation.contains(event.target)) navigation.open = false;
     if (settings.open && !settings.contains(event.target)) settings.open = false;
   });
   document.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && navigation.open) { navigation.open = false; navigation.querySelector('summary').focus(); }
-    else if (event.key === 'Escape' && settings.open) { settings.open = false; settings.querySelector('summary').focus(); }
+    if (event.key === 'Escape' && settings.open) { settings.open = false; settings.querySelector('summary').focus(); }
   });
 
   const quickPager = document.createElement('nav');
@@ -70,11 +49,9 @@
   const switchUnit = document.createElement('button'); switchUnit.type = 'button';
   switchUnit.className = 'plain'; switchUnit.textContent = '切換單元'; empty.append(switchUnit);
   switchUnit.addEventListener('click', () => {
-    if (matchMedia('(max-width:1000px)').matches) { navigation.open = true; unitSelect.focus(); }
-    else {
-      const active = config.sidebar.querySelector('.course-nav.active');
-      active?.scrollIntoView({block:'nearest'}); active?.focus();
-    }
+    drawerToggle?.click();
+    const active = config.sidebar.querySelector('.course-nav.active') || config.sidebar.querySelector('.unit-picker select');
+    active?.focus({preventScroll:true});
   });
   function chip(text, clear) {
     const button = document.createElement('button'); button.type = 'button';
@@ -90,7 +67,6 @@
     search.placeholder = '搜尋題目、答案或解析…';
     search.setAttribute('aria-label', `搜尋${label}的題目、答案與解析`);
     tools.querySelector('.review-filter').firstChild.textContent = config.allUnits() ? '全部單元待複習 ' : '本單元待複習 ';
-    unitSelect.innerHTML = unit.innerHTML; unitSelect.value = unit.value;
     chips.replaceChildren();
     if (search.value.trim()) chip('搜尋：' + search.value.trim(), () => { search.value = ''; search.dispatchEvent(new Event('input', {bubbles:true})); });
     if (chapter.selectedIndex > 0) chip('章節：' + chapter.selectedOptions[0].textContent, () => clearSelect(chapter));

@@ -16,11 +16,13 @@
 <link rel="stylesheet" href="assets/community-entry.css?v=global-dedup-20261016">
 <link rel="stylesheet" href="assets/os-ice-blue.css?v=answer-highlight-dbe5f0-20261017">
 <link rel="stylesheet" href="assets/ui-consistency.css?v=original-toolbar-20261018">
+<link rel="stylesheet" href="assets/course-drawer.css?v=youtube-drawer-20261020">
 </head>
 <body data-course="os">
 <a class="skip" href="#main">跳至學習內容</a>
-<header class="topbar"><div class="brand"><span class="logo" aria-hidden="true"><img src="assets/icons/monitor.svg" alt=""></span>作業系統學習室</div><div class="tagline">一課一課，把觀念學會。 <span data-course-total style="margin-left:18px">6 個單元 · 639 道題目</span></div></header>
-<div class="app"><aside class="sidebar" aria-label="課程單元導覽"><nav class="site-nav" aria-label="科目與首頁"><a href="index.html?v=global-dedup-20261016">← 課程首頁</a><a href="os.html?v=original-toolbar-20261018" aria-current="page">作業系統</a><a href="algorithms.html?v=original-toolbar-20261018">演算法</a></nav><div class="unit-picker"><label for="unitPicker">課程單元</label><select id="unitPicker"></select></div><p class="navtitle">課程單元</p><nav id="units" class="course-menu" aria-label="選擇課程"></nav></aside>
+<header class="topbar"><button class="course-drawer-toggle" type="button" aria-label="開啟課程導覽" aria-expanded="false" aria-controls="courseSidebar"><span></span><span></span><span></span></button><div class="brand"><span class="logo" aria-hidden="true"><img src="assets/icons/monitor.svg" alt=""></span>作業系統學習室</div><div class="tagline">一課一課，把觀念學會。 <span data-course-total style="margin-left:18px">6 個單元 · 639 道題目</span></div></header>
+<button class="course-drawer-backdrop" type="button" aria-label="關閉課程導覽" tabindex="-1" hidden></button>
+<div class="app"><aside id="courseSidebar" class="sidebar" role="dialog" aria-modal="true" aria-label="課程單元導覽"><nav class="site-nav" aria-label="科目與首頁"><a href="index.html?v=global-dedup-20261016">← 課程首頁</a><a href="os.html?v=original-toolbar-20261018" aria-current="page">作業系統</a><a href="algorithms.html?v=original-toolbar-20261018">演算法</a></nav><div class="unit-picker"><label for="unitPicker">課程單元</label><select id="unitPicker"></select></div><p class="navtitle">課程單元</p><nav id="units" class="course-menu" aria-label="選擇課程"></nav></aside>
 <main class="main" id="main" tabindex="-1"><section class="heading"><div><div class="eyebrow" id="unitEn"></div><h1 id="title"></h1><p class="subtitle" id="description"></p></div><div class="count"><strong id="unitCount"></strong><span>本單元題目</span></div></section>
 
 <details class="guide" id="conceptGuide" open><summary class="guide-head"><span class="guide-title" id="guideHeading"><img class="guide-icon" src="assets/icons/lightbulb.svg" alt="" aria-hidden="true">這一課，先抓住這個觀念</span><small>補充學習提示</small></summary><p id="guideText"></p></details>
@@ -40,6 +42,7 @@ const UNITS = [{"id":"basics","label":"作業系統基礎","en":"OS FUNDAMENTALS
 <script src="assets/os-learning.js?v=answer-highlight-final-20261017"></script>
 <script src="assets/learning-tools.js?v=global-dedup-20261016"></script>
 <script src="assets/reading-flow.js?v=global-dedup-20261016"></script>
+<script src="assets/course-drawer.js?v=youtube-drawer-20261020"></script>
 <script src="assets/question-viewer.js?v=global-dedup-20261016"></script>
 <script src="assets/music-feature.js?v=global-dedup-20261016"></script>
 <script src="assets/course-bootstrap.js?v=global-dedup-20261016"></script>
