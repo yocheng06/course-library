@@ -64,21 +64,10 @@
   }
   function explanationMarkup(question, format = escape) {
     const text = String(question.explanation ?? question.ex ?? '');
-    const primary = text.split(/\n\s*\n/).filter(Boolean).map(block => {
+    return text.split(/\n\s*\n/).filter(Boolean).map(block => {
       const section = block.match(/^(核心觀念|解題步驟|判讀步驟|適用條件|選項判讀)：\s*([\s\S]*)$/);
       return section ? `<div class="explanation-section"><strong>${escape(section[1])}</strong><p>${mathMarkup(section[2], format)}</p></div>` : `<p>${mathMarkup(block, format)}</p>`;
     }).join('');
-    const seen = new Set([text.trim()]);
-    const additional = (question.sourceExplanations || []).map(item => {
-      const value = typeof item === 'string' ? item : item.text;
-      if (!value || seen.has(value.trim())) return '';
-      seen.add(value.trim());
-      const source = (question.sourceVariants || []).find(q =>
-        typeof item === 'object' ? (q.id ?? q.bookmarkId) === item.sourceId : (q.explanation ?? q.ex) === value);
-      const options = source?.options ?? source?.opts ?? [];
-      return `<div class="source-version">${source ? `<p><strong>原版本題目</strong><br>${format(source.stem ?? source.q)}</p>${options.length ? `<ul>${options.map(option=>`<li>${format(option)}</li>`).join('')}</ul>` : ''}<p><strong>原版本答案：</strong>${format(source.answer ?? source.a)}</p>` : ''}<p>${mathMarkup(value,format)}</p></div>`;
-    }).filter(Boolean);
-    return primary + (additional.length ? `<details class="source-explanations"><summary>合併題目的原版本與補充解析</summary>${additional.join('')}</details>` : '');
   }
   function qualityReasons(question, course) {
     if (hasProvidedAnswer(question)) return [];
