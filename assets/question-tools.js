@@ -50,6 +50,36 @@
     return labels.length ? `<p class="search-match">命中：${labels.map(escape).join('、')}</p>` : '';
   }
 
+  function createPracticeOrder(random = Math.random) {
+    let signature = null;
+    let indices = [];
+    let shuffled = false;
+    return {
+      reset() {
+        signature = null;
+        indices = [];
+        shuffled = false;
+      },
+      apply(items, shuffle = false, identity = item => item?.id ?? item?.q?.id) {
+        const nextSignature = JSON.stringify(items.map(identity));
+        if (nextSignature !== signature) {
+          signature = nextSignature;
+          indices = items.map((_, index) => index);
+          shuffled = false;
+        }
+        if (shuffle && !shuffled) {
+          for (let index = indices.length - 1; index > 0; index--) {
+            const other = Math.floor(random() * (index + 1));
+            [indices[index], indices[other]] = [indices[other], indices[index]];
+          }
+          shuffled = true;
+        }
+        if (!shuffle) return items;
+        return indices.map(index => items[index]).filter(item => item !== undefined);
+      }
+    };
+  }
+
   function mathMarkup(text, format) {
     const candidates = /[A-Za-z0-9Α-Ωα-ωΣ√][A-Za-z0-9Α-Ωα-ωΣ√²³¹ᵢⱼ\u2070-\u209f()\[\]{}^=+*×÷\/−<>≤≥→∞-]*(?:[ \t]+[A-Za-z0-9Α-Ωα-ωΣ√][A-Za-z0-9Α-Ωα-ωΣ√²³¹ᵢⱼ\u2070-\u209f()\[\]{}^=+*×÷\/−<>≤≥→∞-]*)*/gu;
     let markup = '', previous = 0;
@@ -144,5 +174,5 @@
     return (q.images||[]).filter(img=>/^assets\/questions\/[a-z0-9/_-]+\.(png|jpe?g)$/i.test(img.src)||/^https:\/\//.test(img.src)).map(img=>`<figure class="question-figure"><button type="button" class="question-image-open" data-image-viewer aria-haspopup="dialog" aria-controls="question-image-viewer"><img src="${esc(img.src)}" alt="${esc(img.alt||q.stem||q.q)}" ${img.width&&img.height?`width="${Number(img.width)}" height="${Number(img.height)}"`:''} loading="lazy"><span>放大題圖（可縮放）</span></button></figure>`).join('');
   }
 
-  window.courseQuestionTools = { questionType, answerType, questionImagesMarkup, hasProvidedAnswer, matchesSearch, searchMatchMarkup, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion };
+  window.courseQuestionTools = { questionType, answerType, questionImagesMarkup, hasProvidedAnswer, matchesSearch, searchMatchMarkup, createPracticeOrder, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion };
 })();

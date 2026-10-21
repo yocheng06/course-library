@@ -12,6 +12,7 @@ const guides = {
 };
 let active = 0, page = 1, totalPages = 1, mode = 'study';
 const pageSize = 20, drafts = new Map(), selections = new Map(), revealed = new Set(), feedback = new Map();
+const practiceSequence = window.courseQuestionTools.createPracticeOrder();
 const kind = window.courseQuestionTools.questionType;
 const unitNumber = i => String(i + 2).padStart(2, '0');
 const questionEntries = UNITS.flatMap((unit, unitIndex) => unit.questions.map((q, i) => ({q, unit, unitIndex, i})));
@@ -87,7 +88,7 @@ function cardMarkup({q, unit, unitIndex, i}) {
   return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">UNIT ${unitNumber(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(i+1).padStart(3,'0')}</span></div><h3 class="question" tabindex="-1">${highlighted(q.stem)}</h3>${q.translation?`<p class="translation">${highlighted(q.translation)}</p>`:''}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${entry}${practice?`<div class="practice-actions"><button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}">${buttonText}</button><button type="button" class="plain" data-clear-response="${q.id}" ${hasResponse?'':'disabled'}>清除作答</button><button type="button" class="plain" data-show-answer="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${open?'收起答案與解析':'顯示答案與解析'}</button></div>`:!$('showAnswers').checked?`<button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${buttonText}</button>`:''}${practice&&result?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
 }
 function render(preserveCards = false) {
-  const filtered=matches(), entries=scopedEntries(), pages=Math.max(1,Math.ceil(filtered.length/pageSize)); page=Math.min(page,pages); totalPages=pages;
+  const filtered=practiceSequence.apply(matches(),mode==='practice'&&$('practiceOrder').value==='random',entry=>entry.q.id), entries=scopedEntries(), pages=Math.max(1,Math.ceil(filtered.length/pageSize)); page=Math.min(page,pages); totalPages=pages;
   const start=(page-1)*pageSize;
   $('qualitySelect').options[1].textContent=`待確認（${entries.filter(({q})=>window.courseQuestionTools.qualityReasons(q,'os').length).length} 題）`;
   $('resultCount').innerHTML=`<strong>${allUnits()?'全部單元':'目前單元'} · ${$('chapter').value==='all'?'全部章節':esc($('chapter').value)}</strong> · ${filtered.length} / ${entries.length} 題`;
@@ -100,6 +101,7 @@ function render(preserveCards = false) {
   $('studyMode').classList.toggle('active',mode==='study'); $('practiceMode').classList.toggle('active',mode==='practice');
   $('studyMode').setAttribute('aria-pressed',mode==='study'); $('practiceMode').setAttribute('aria-pressed',mode==='practice');
   $('answerToggle').hidden=mode==='practice'; $('modeHint').hidden=mode!=='practice';
+  $('practiceOrderControl').hidden=mode!=='practice';
   $('footer').textContent=`共 ${UNITS.length} 個單元 · ${UNITS.reduce((n,u)=>n+u.questions.length,0)} 題`;
   window.learningUI?.refresh();
 }
@@ -157,6 +159,7 @@ $('showAnswers').addEventListener('change',()=>{revealed.clear();render();});
 $('unitPicker').addEventListener('change',e=>switchUnit(Number(e.target.value)));
 $('clear').onclick=resetFilters; $('emptyReset').onclick=resetFilters;
 $('studyMode').onclick=()=>switchMode('study'); $('practiceMode').onclick=()=>switchMode('practice');
+$('practiceOrder').addEventListener('change',()=>{practiceSequence.reset();page=1;render();});
 $('cards').addEventListener('input',e=>{
   if(!e.target.dataset.draft)return;
   const id=e.target.dataset.draft;drafts.set(id,e.target.value);
