@@ -100,7 +100,7 @@ export function normalizeText(value) {
 function answerFormat(value) {
   const normalized = normalizeText(value).replace(/[?？。]+$/, "");
   const match = normalized.match(
-    /\((請用(?:小寫英文|大寫英文|英文|數字)回答[^()]*)\)$/,
+    /\((請用(?:小寫英文|大寫英文|英文|數字)回答[\s\S]*)\)$/,
   );
   if (!match) return { stem: normalized, hint: "" };
   const remainder = match[1]
@@ -110,14 +110,22 @@ function answerFormat(value) {
     .replace(/請用log/g, "")
     .replace(/不可用lg(?:替代log)?/g, "")
     .replace(/上標(?:請)?用\^/g, "")
-    .replace(/符號請用\{big-theta,theta,big-omega,omega,O,o\}/g, "")
+    .replace(/下標(?:請)?用_/g, "")
+    .replace(/符號請用\{big-theta,theta,big-omega,omega,O,o,?\}/g, "")
+    // Some copied answer-format notes include a parenthesized log example.
+    // The instruction is still presentation-only; nested parentheses must not
+    // prevent the rest of the question from matching its library entry.
+    .replace(/如log_\([^)]+\)\([^)]+\)/gi, "")
     .replace(/(?:符號)?中間不留空白/g, "")
-    .replace(/[,;\s]/g, "");
+    .replace(/[,;\s()[\]]/g, "");
   if (remainder) return { stem: normalized, hint: "" };
   return {
     stem: normalized
       .slice(0, match.index)
       .trim()
+      // Treat a trailing blank with or without a preceding question mark as
+      // the same question while retaining the blank slot for blankless lookup.
+      .replace(/[?？。]+(?=_{2,}$)/, "")
       .replace(/[?？。]+$/, ""),
     hint: match[1],
   };
@@ -223,10 +231,13 @@ export function parseQuestions(text) {
   });
   const tailRequest =
     /^(?:請)?給我(?:全部)?答案(?:[，, ]*(?:並|請)?(?:確定|確認)(?:答案)?正確)?[。.!！]?$/;
+  const trailingSearchNote = /^(?:批次)?搜尋題目有問題[。.!！]?\\{0,2}$/;
   if (cleanedLines.some(questionHeader))
     while (
       cleanedLines.length &&
-      (!cleanedLines.at(-1) || tailRequest.test(cleanedLines.at(-1)))
+      (!cleanedLines.at(-1) ||
+        tailRequest.test(cleanedLines.at(-1)) ||
+        trailingSearchNote.test(cleanedLines.at(-1)))
     )
       cleanedLines.pop();
   const lines = cleanedLines.flatMap((line, i) => {

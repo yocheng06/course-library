@@ -540,6 +540,35 @@ test("only known English/math answer instructions are presentation aliases; case
   assert.equal(extra.answer, "");
 });
 
+test("quicksort batch recognizes nested log examples and ignores a trailing search note", async () => {
+  const text = await readFile(
+    new URL("./fixtures/batch-quicksort-search-edge-cases.txt", import.meta.url),
+    "utf8",
+  );
+  const questions = parseQuestions(text);
+  assert.deepEqual(questions.map((q) => q.number), ["3", "12", "25"]);
+  assert(!questions.at(-1).stem.includes("搜尋題目有問題"));
+
+  const data = JSON.parse(
+    await readFile(
+      new URL("../assets/batch-library.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const rows = matchQuestions(questions, buildIndex(data.entries), {
+    course: "algorithms",
+    unit: "all",
+  });
+  assert.equal(rows[0].status, "matched");
+  assert.equal(rows[0].answer, "log_(10/9)(n)");
+  // Only A and B were included for Q12; the full option set is needed to
+  // safely remap the answer, so this remains a review instead of a guess.
+  assert.equal(rows[1].status, "review");
+  assert.equal(rows[1].answer, "");
+  assert.equal(rows[2].status, "matched");
+  assert.equal(rows[2].answer, "pivot");
+});
+
 test("user's bold recurrence batch keeps all 25 numbers, accepts answer hints and only reviews actual option differences", async () => {
   const text = await readFile(
     new URL("./fixtures/batch-recurrence.txt", import.meta.url),
