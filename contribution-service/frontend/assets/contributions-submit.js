@@ -15,6 +15,7 @@ import {
   downloadJSON,
   copyText,
 } from "./contributions-ui.js?v=site-audit-20261017";
+import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
@@ -56,11 +57,13 @@ function save() {
         editIndex,
       }),
     );
+    return true;
   } catch {
     if (!storageWarning) {
       storageWarning = true;
       message("此裝置無法自動保存草稿，請使用「下載草稿」備份。", true);
     }
+    return false;
   }
 }
 function ready() {
@@ -659,3 +662,40 @@ $("draftList").addEventListener("click", () => {
   if (check) check.checked = false;
 });
 renderReceipts();
+setupSubmissionInbox({
+  document,
+  storage: localStorage,
+  courses: COURSE_UNITS,
+  download,
+  message,
+  onStorage: handler => window.addEventListener("storage", handler),
+  addQuestion(q) {
+    if (submitPending || imageReadPending) throw new Error("請等待目前操作完成。");
+    const hasEditor = editIndex !== -1 || images.length ||
+      ["category", "stem", "options", "answer", "explanation"].some(name => form.elements[name].value.trim());
+    const differentScope = q.course !== $("course").value || q.unit !== $("unit").value;
+    if (differentScope && (questions.length || hasEditor))
+      throw new Error("原投稿草稿屬於不同科目或單元，請先完成原清單的送審，再加入這題。待補內容仍保留。");
+    const nextMetadata = { ...metadata(), course: q.course, unit: q.unit, title: $("batchTitle").value || "批次查題補充題" };
+    const candidate = normalizeBatch({ ...nextMetadata, questions: [{
+      category: q.category, type: q.type, stem: q.stem,
+      options: q.optionsText.split(/\r?\n/).map(s => s.trim()).filter(Boolean),
+      answer: q.answer, explanation: q.explanation, images: [],
+    }] }).questions[0];
+    const merged = uniqueQuestions(q.course, q.unit, [...questions, candidate]);
+    const normalized = normalizeBatch({ ...nextMetadata, questions: merged });
+    if (differentScope) {
+      $("course").value = q.course;
+      units();
+      $("unit").value = q.unit;
+    }
+    $("batchTitle").value = normalized.title;
+    questions = normalized.questions;
+    render();
+    if (!save()) throw new Error("題目已顯示於投稿清單，但此裝置無法保存；待補草稿仍保留，請下載備份。");
+  },
+});
+if (location.hash === "#pendingHeading" && !$("pendingDrafts").hidden) {
+  $("pendingHeading").focus({ preventScroll: true });
+  $("pendingHeading").scrollIntoView({ block: "start" });
+}

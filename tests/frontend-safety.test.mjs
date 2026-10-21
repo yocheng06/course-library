@@ -6,7 +6,7 @@ import { questionPreview } from '../assets/contributions-ui.js';
 const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
 
 test('credential forms never default to GET and cannot submit before handlers load', async () => {
-  const html = await read('review.html');
+  const html = await read('contribution-service/frontend/review.html');
   for (const [id, action] of [['passwordLoginForm', '/api/login'], ['passwordSetupForm', '/api/password/setup']]) {
     const form = html.match(new RegExp('<form[^>]*id="' + id + '"[^>]*>'))[0];
     assert.match(form, /method="post"/);
@@ -16,7 +16,7 @@ test('credential forms never default to GET and cannot submit before handlers lo
     assert.match(html.match(new RegExp('<button[^>]*id="' + id + '"[^>]*>'))[0], /disabled/);
   }
   assert.doesNotMatch(html.match(/<form[^>]*id="passwordLoginForm"[^>]*>/)[0], /hidden/);
-  const js = await read('assets/contributions-review.js');
+  const js = await read('contribution-service/frontend/assets/contributions-review.js');
   assert.ok(js.indexOf('$("setupSubmit").disabled = false') > js.indexOf('$("passwordSetupForm").addEventListener("submit"'));
 });
 
@@ -34,8 +34,10 @@ test('preview letters align with the answer and imported text remains escaped', 
   assert.match(html, /&lt;img&gt;/);
 });
 
-test('GitHub frontend matches the deployable service frontend', async () => {
-  for (const path of ['submit.html','review.html','assets/contributions-submit.js','assets/contributions-review.js','assets/contributions-ui.js']) {
+test('GitHub submission frontend matches the service while its review page remains service-owned', async () => {
+  for (const path of ['submit.html','assets/contributions-submit.js','assets/contributions-review.js','assets/contributions-ui.js']) {
     assert.equal(await read(path), await read('contribution-service/frontend/' + path), path);
   }
+  assert.match(await read('review.html'), /course-library-submissions-yocheng06\.yocheng06\.chatgpt\.site\/review/);
+  assert.match(await read('contribution-service/frontend/review.html'), /id="passwordLoginForm"/);
 });

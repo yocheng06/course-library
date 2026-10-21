@@ -11,14 +11,16 @@
     <link rel="icon" href="assets/icons/course-mascot.png" />
     <link
       rel="stylesheet"
-      href="assets/contributions.css?v=global-dedup-20261016"
+      href="assets/contributions.css?v=nav-center-20261017"
     />
+  <link rel="stylesheet" href="assets/ui-consistency.css?v=original-toolbar-20261018">
   </head>
   <body>
     <header class="contribution-nav">
       <a class="brand" href="https://yocheng06.github.io/course-library/">課程學習站</a>
       <nav aria-label="網站導覽">
         <a href="https://yocheng06.github.io/course-library/">課程首頁</a>
+        <a class="button secondary" href="https://yocheng06.github.io/course-library/review.html">站主審核</a>
       </nav>
     </header>
     <main class="contribution-page">
@@ -35,6 +37,16 @@
       <p class="notice">
         同學投稿不需要登入。投稿內容會交給站主；審核通過的題目、答案與解析會公開。
       </p>
+      <section id="pendingDrafts" class="panel" aria-labelledby="pendingHeading" hidden>
+        <div class="section-heading">
+          <h2 id="pendingHeading" tabindex="-1">批次查題待補草稿 <span id="pendingCount"></span></h2>
+          <button id="downloadPending" class="text-button" type="button">下載待補草稿</button>
+        </div>
+        <p>這裡保留未收錄題目的題幹與選項順序。逐題確認單元與題型，補上答案及解析後，按「補齊並加入投稿清單」。</p>
+        <p class="muted">待補題目會另外暫存，不會覆蓋原投稿草稿，也不會自動送出。同一份投稿清單限同一科目、單元；不同單元請分批送審。</p>
+        <p id="pendingStatus" role="status" aria-live="polite"></p>
+        <div id="pendingList"></div>
+      </section>
       <section class="panel" aria-labelledby="batchHeading">
         <h2 id="batchHeading">這份題庫</h2>
         <div class="field-grid">
@@ -69,6 +81,7 @@
               accept=".json,.html,.htm,application/json,text/html"
               hidden /><button class="text-button" id="downloadExample" type="button">
             下載匯入範例</button
+          ><button id="restorePending" class="text-button" type="button">載入待補備份</button><input id="pendingFile" type="file" accept=".json,application/json" hidden
           ><span class="muted"
             >一次最多 200 題。HTML 須含結構化題目資料，也可逐題填寫。</span
           >
@@ -233,7 +246,7 @@
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/contributions-submit.js?v=site-audit-20261017"
+      src="assets/contributions-submit.js?v=draft-transfer-20261020"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
   </body>
