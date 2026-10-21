@@ -3,7 +3,7 @@ import {
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=recognition-v2-20261020";
+} from "./batch-import.mjs?v=batch-recognition-fixes-20261021";
 
 export function setupBatchImport({ document, onApply }) {
   const $ = (id) => document.getElementById(id);

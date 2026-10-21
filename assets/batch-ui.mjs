@@ -4,9 +4,9 @@ import {
   expandLibraryQuestion,
   aiPrompt,
   MAX_TEXT,
-} from "./batch-model.mjs?v=batch-quicksort-answer-hints-20261021";
-import { parseBatchInput } from "./batch-import.mjs?v=recognition-v2-20261020";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=recognition-v2-20261020";
+} from "./batch-model.mjs?v=batch-recognition-fixes-20261021";
+import { parseBatchInput } from "./batch-import.mjs?v=batch-recognition-fixes-20261021";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=batch-recognition-fixes-20261021";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
@@ -127,7 +127,7 @@ async function loadLibrary() {
   $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
   try {
     const built = fetch(
-      "assets/batch-library.json?v=os7-signal-full-20261021",
+      "assets/batch-library.json?v=batch-recognition-fixes-20261021",
       {
         signal: AbortSignal.timeout(12000),
       },

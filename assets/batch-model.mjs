@@ -99,6 +99,17 @@ export function normalizeText(value) {
 // The pasted text itself is kept for display/copy.
 function answerFormat(value) {
   const normalized = normalizeText(value).replace(/[?？。]+$/, "");
+  const englishMatch = normalized.match(
+    /\((Please\s+answer\s+in\s+(?:lowercase|uppercase)\s+English(?:,\s*leaving\s+a\s+space\s+between\s+each\s+word)?)\)$/i,
+  );
+  if (englishMatch)
+    return {
+      stem: normalized
+        .slice(0, englishMatch.index)
+        .trim()
+        .replace(/[?？。.!！]+$/u, ""),
+      hint: englishMatch[1],
+    };
   const match = normalized.match(
     /\((請用(?:小寫英文|大寫英文|英文|數字)回答[\s\S]*)\)$/,
   );
@@ -112,6 +123,7 @@ function answerFormat(value) {
     .replace(/上標(?:請)?用\^/g, "")
     .replace(/下標(?:請)?用_/g, "")
     .replace(/符號請用\{big-theta,theta,big-omega,omega,O,o,?\}/g, "")
+    .replace(/字母間(?:請)?留一個空白/g, "")
     // Some copied answer-format notes include a parenthesized log example.
     // The instruction is still presentation-only; nested parentheses must not
     // prevent the rest of the question from matching its library entry.
@@ -130,7 +142,11 @@ function answerFormat(value) {
     hint: match[1],
   };
 }
-export const normalizeStem = (value) => answerFormat(value).stem;
+export const normalizeStem = (value) =>
+  answerFormat(value)
+    .stem.replace(/使用著空間/g, "使用者空間")
+    .replace(/[?？。.!！]+$/u, "")
+    .trim();
 export const optionText = (value) =>
   normalizeUnicode(value)
     .replace(/^(?:\([A-H]\)|\[[A-H]\]|[A-H][.)、:])\s*/i, "")
@@ -554,8 +570,10 @@ function remapAnswer(question, entry) {
     if (
       hint &&
       (/[\p{Script=Han}]/u.test(entry.answer) ||
-        (/小寫英文/.test(hint) && /[A-Z]/.test(entry.answer)) ||
-        (/大寫英文/.test(hint) && /[a-z]/.test(entry.answer)) ||
+        (/(?:小寫英文|lowercase\s+English)/i.test(hint) &&
+          /[A-Z]/.test(entry.answer)) ||
+        (/(?:大寫英文|uppercase\s+English)/i.test(hint) &&
+          /[a-z]/.test(entry.answer)) ||
         (/請用數字回答/.test(hint) &&
           !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(entry.answer.trim())) ||
         (/單字間(?:請)?留-/.test(hint) && /[\s_]/.test(entry.answer)) ||

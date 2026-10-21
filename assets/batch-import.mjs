@@ -4,7 +4,7 @@ import {
   normalizeText,
   MAX_TEXT,
   MAX_QUESTIONS,
-} from "./batch-model.mjs?v=batch-quicksort-answer-hints-20261021";
+} from "./batch-model.mjs?v=batch-recognition-fixes-20261021";
 import JSON5 from "./vendor/json5.mjs?v=2.2.3";
 
 export const MAX_FILE_BYTES = 2 * 1024 * 1024;

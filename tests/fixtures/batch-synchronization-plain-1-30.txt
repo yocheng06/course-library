@@ -1,0 +1,139 @@
+題目 1. 關於監視器（Monitors），以下哪些陳述是正確的？
+A. 一次只能有一個程序在監視器內活躍
+B. 內部變數只能被監視器內的程式碼存取
+C. 它是高階的抽象概念
+D. 它可以解決所有同步問題
+
+題目 2. 關於 test_and_set() 指令，以下哪些陳述是正確的？
+A. 它會原子地執行
+B. 它會返回參數的原始值
+C. 它會將參數的新值設定為TRUE
+D. 它會返回TRUE和FALSE之間的隨機值
+
+題目 3. 在有界緩衝區問題（Bounded-Buffer Problem）中，wait() 操作用於哪些信號量？
+A. synch
+B. empty
+C. mutex
+D. full
+
+題目 4. 在test_and_set 指令中，*target 的新值總是會被設定為 ____________________ 。(請用數字回答)
+
+題目 5. 在哲學家進餐問題中，共享的資料集是什麼？
+A. 刀子
+B. 叉子
+C. 麵包
+D. 米飯
+
+題目 6. 在無忙碌等待的信號量實施中，block() 操作會將調用它的程序放入一個適當的 ____________________ 佇列。(請用小寫英文回答)
+
+Question 7. A semaphore is a synchronization tool that provides more ____________________ ways than mutex locks for processes to synchronize their activities.(Please answer in lowercase English)
+
+Question 8. Which of the following are synchronization mechanisms of the Windows kernel?
+A. Spinlocks
+B. Semaphores
+C. Events
+D. Mutexes
+
+題目 9. 在一個非搶佔式核心（non-preemptive kernel）中，臨界區的問題會變得如何？
+A. 保持不變
+B. 更頻繁
+C. 幾乎不存在
+D. 僅在多處理器系統中發生
+
+題目 10. 哪些情況可能導致死鎖？
+A. 兩個程序互相等待對方釋放鎖
+B. 只有一個程序在等待
+C. 多個程序競爭同一個資源
+D. 一個程序在等待一個永不發生的事件
+
+題目 11. compare_and_swap 硬體指令在什麼條件下才會進行交換？
+A. 永遠進行交換
+B. 當值等於新值時
+C. 當值不等於預期值時
+D. 當值等於預期值時
+
+Question 12. Which of the following is not a classic synchronization problem in operating systems?
+A. Producer-Consumer Problem
+B. Banker's Algorithm
+C. Readers-Writers Problem
+D. Dining-Philosophers Problem
+
+題目 13. 哪些陳述是關於「競爭條件」（race condition）的？
+A. 結果取決於執行緒執行的特定順序
+B. 它可能導致資料不一致
+C. 它只會發生在多處理器系統中
+D. 多個行程或執行緒同時存取共享資料
+
+Question 14. One way to implement a semaphore is to use a ____________________ queue where each entry contains a value and a pointer to the next record in the list.(Please answer in lowercase English)
+
+Question 15. In the Windows operating system, which synchronization mechanism uses an integer counter?
+A. Event
+B. Mutex
+C. Semaphore
+D. Spinlock
+
+Question 16. What are the challenges of synchronized programming?
+A. Livelock
+B. Priority inversion
+C. Starvation
+D. Deadlock
+
+Question 17. The atomicity of signal(S) is implemented by which of the following?
+A. Disabling interrupts
+B. Placing the signal(S) code within a critical section
+C. Using a software algorithm
+D. Using atomic hardware instructions
+
+題目 18. 哪兩種同步工具通常會導致忙碌等待（busy waiting）？
+A. Monitor
+B. Semaphore with a waiting queue
+C. Spinlock
+D. Mutex Lock
+
+題目 19. 下列哪種機制確保只有一個程序可以同時在監視器（monitor）內活躍？
+A. 條件變數
+B. 互斥鎖
+C. 抽象資料型別
+D. 訊號量
+
+題目 20. 信號（Semaphore）的 wait() 操作在信號量值小於或等於零時，會導致程序進入什麼狀態？
+A. 運行
+B. 就緒
+C. 等待
+D. 終止
+
+Question 21. The value of a ____________________ semaphore can range over an unrestricted integer domain.(Please answer in lowercase English)
+
+題目 22. signal(full) 是在 ____________________ 之後執行的操作，用於通知消費者可以從緩衝區中取出一個項目。(請用小寫英文回答 字母間留一個空白)
+
+題目 23. 在 Linux 中， ____________________ 是一種混合的同步機制，它在使用著空間和核心之間提供高效的互斥。(請用小寫英文回答)
+
+題目 24. 哪些是作業系統中用來解決同步問題的經典範例？
+A. Dining-Philosophers Problem
+B. Banker's Algorithm
+C. Bounded-Buffer Problem
+D. Readers and Writers Problem
+
+Question 25. The definition of the wait(S) operation is while (S <= 0) ; S--; What type of waiting is this? ____________________ (Please answer in lowercase English, leaving a space between each word)
+
+Question 26. The shared dataset in the Dining-Philosophers Problem is the ____________________ (Please answer in lowercase English, leaving a space between each word)
+
+題目 27. 在讀者-寫者問題的解決方案中，read_count 變數用來追蹤有多少個 ____________________ 正在讀取。(請用小寫英文回答)
+
+Question 28. A binary semaphore's value can only range between what values?
+A. Negative infinity to positive infinity
+B. 0 and 1
+C. 0 and n
+D. 1 and n
+
+Question 29. What problem do Solaris synchronization mechanisms, such as adaptive mutexes, primarily aim to solve?
+A. Performance and efficiency
+B. Memory management
+C. Busy waiting
+D. Code complexity
+
+題目 30. 監視器（Monitor）中的 x.wait() 操作會將程序掛起直到什麼情況發生？
+A. 直到另一個程序呼叫 x.signal()
+B. 直到定時器過期
+C. 直到所有其他程序都進入臨界區
+D. 直到程序被排程器喚醒
