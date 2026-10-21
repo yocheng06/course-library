@@ -113,6 +113,43 @@ test("mixed Markdown sync questions split inline headings and discard hard-break
   );
 });
 
+test("the pasted OS synchronization batch matches filled blanks and verified wording variants", async () => {
+  const raw = await readFile(
+    new URL("fixtures/batch-os-synchronization-1-30.txt", import.meta.url),
+    "utf8",
+  );
+  const questions = input(raw).questions;
+  assert.equal(questions.length, 30);
+  const built = JSON.parse(
+    await readFile(new URL("../assets/batch-library.json", import.meta.url), "utf8"),
+  );
+  const results = matchQuestions(questions, buildIndex(built.entries), {
+    course: "os",
+    unit: "synchronization",
+  });
+  assert.deepEqual(
+    results.map((row) => row.status),
+    [...Array(20).fill("matched"), "review", ...Array(9).fill("matched")],
+  );
+  for (const [number, answer, id] of [
+    [1, "io", "os7-059"],
+    [6, "C. Mutex Lock", "os7-116"],
+    [10, '"0"、"1"', "os7-055"],
+    [11, "producer", "os7-083"],
+    [19, "C. full", "os7-078"],
+    [22, "B. Monitor", "os7-318"],
+    [27, "adding a new item", "os7-391"],
+    [30, "waiting", "os7-066"],
+  ]) {
+    assert.equal(results[number - 1].answer, answer, `question ${number}`);
+    assert.equal(results[number - 1].references[0]?.id, id, `question ${number}`);
+  }
+  assert.match(results[26].reason, /拼字差異/);
+  assert.equal(results[20].references[0]?.id, "os7-070");
+  assert.match(results[20].reason, /找到相似題/);
+  assert.doesNotMatch(results[20].reason, /其他單元/);
+});
+
 test("an OS version number does not become a named question heading", () => {
   const questions = input(
     "1. 下列敘述何者正確？\\nCPU 2.6 核心變更了排程器。\\nA. 是\\nB. 否",

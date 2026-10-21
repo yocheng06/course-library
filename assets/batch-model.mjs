@@ -99,6 +99,17 @@ export function normalizeText(value) {
 // The pasted text itself is kept for display/copy.
 function answerFormat(value) {
   const normalized = normalizeText(value).replace(/[?？。]+$/, "");
+  const quotedNumberHint = normalized.match(
+    /\((Please\s+enclose\s+numbers\s+in\s+quotation\s+marks(?:,\s*e\.g\.,?\s*"\d+")?)\)$/i,
+  );
+  if (quotedNumberHint)
+    return {
+      stem: normalized
+        .slice(0, quotedNumberHint.index)
+        .trim()
+        .replace(/[?？。.!！]+$/u, ""),
+      hint: quotedNumberHint[1],
+    };
   const englishMatch = normalized.match(
     /\((Please\s+answer\s+in\s+(?:lowercase|uppercase)\s+English(?:,\s*leaving\s+a\s+space\s+between\s+each\s+word)?)\)$/i,
   );
@@ -547,6 +558,48 @@ function blanklessStem(value, allowMissing = false) {
     normalized.slice(slot.index + slot[0].length)
   ).trim();
 }
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function filledBlankValues(questionStem, entryStem) {
+  const expected = normalizeStem(entryStem);
+  const slots = [
+    ...expected.matchAll(/___|(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/gu),
+  ];
+  if (!slots.length) return null;
+  const pieces = [];
+  let cursor = 0;
+  for (const slot of slots) {
+    pieces.push(
+      escapeRegex(expected.slice(cursor, slot.index)),
+      "([\\s\\S]+?)",
+    );
+    cursor = slot.index + slot[0].length;
+  }
+  pieces.push(escapeRegex(expected.slice(cursor)));
+  const match = normalizeStem(questionStem).match(
+    new RegExp(`^${pieces.join("")}$`, "u"),
+  );
+  return match ? match.slice(1) : null;
+}
+function matchesFilledAnswer(question, entry) {
+  if (question.options.length || entry.options.length) return null;
+  const captured = filledBlankValues(question.stem, entry.stem);
+  if (!captured) return null;
+  const expectedVersions = [entry.answer];
+  if (captured.length === 1)
+    expectedVersions.push(...(entry.answerAliases || []));
+  for (const [version, answer] of expectedVersions.entries()) {
+    const expected =
+      captured.length === 1
+        ? [answer]
+        : answer.split(/\s*[、，,;；]\s*/).filter(Boolean);
+    if (expected.length !== captured.length) continue;
+    const actualKeys = captured.map(normalizeText).sort();
+    const expectedKeys = expected.map(normalizeText).sort();
+    if (actualKeys.every((value, i) => value === expectedKeys[i]))
+      return { correctedTypo: version > 0 };
+  }
+  return null;
+}
 function choiceMatches(text, entry, index) {
   return (entry.optionAliases?.[index] || [entry.options[index]]).some(
     (alias) => optionKey(alias) === optionKey(text),
@@ -655,6 +708,25 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     missingBlank = sameStem.length > 0;
   }
   let exact = sameStem.filter((e) => sameOptions(question, e));
+  let filledAnswerMatch = false;
+  let correctedFilledTypo = false;
+  if (!exact.length && !question.options.length) {
+    const filled = index.entries
+      .filter(eligible)
+      .map((entry) => ({
+        entry,
+        result: matchesFilledAnswer(question, entry),
+      }))
+      .filter((item) => item.result);
+    const preferred = filled.some((item) => item.entry.preferred)
+      ? filled.filter((item) => item.entry.preferred)
+      : filled;
+    if (preferred.length) {
+      exact = preferred.map((item) => item.entry);
+      filledAnswerMatch = true;
+      correctedFilledTypo = preferred.some((item) => item.result.correctedTypo);
+    }
+  }
   let textAnswerBridge = false;
   let answerOnlyMatch = false;
   // A text-answer question can be transcribed as MCQ. Accept only an exact
@@ -719,6 +791,9 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
         ? "填空標記格式不同或未貼出；其餘文字符合題庫，已核對答案一致且符合填答格式。"
         : textAnswerBridge
           ? "題幹符合，題庫的文字答案唯一對應本次選項。"
+          : filledAnswerMatch
+            ? "題庫答案已直接寫在題幹中，題幹與答案均符合已收錄題目。" +
+              (correctedFilledTypo ? "已辨識題幹中的拼字差異。" : "")
           : answerOnlyMatch
             ? "題幹相同，題庫正確答案可唯一對應本次選項；其他選項與題庫版本不同。"
           : "題幹與選項符合題庫（含已核對的中英文對照），答案已依貼上的選項代號對應。" +
@@ -742,7 +817,8 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     if (
       elsewhere.status === "review" &&
       !sameStem.length &&
-      elsewhere.references.length
+      elsewhere.references.length &&
+      elsewhere.references.every((reference) => reference.unit !== unit)
     )
       return {
         ...elsewhere,

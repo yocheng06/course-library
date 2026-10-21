@@ -1,0 +1,23 @@
+{
+  "os7-083": [
+    {
+      "stem": "In the bounded-buffer problem, wait(empty) and wait(mutex) are both used in the ______ process.",
+      "answer": "producer"
+    }
+  ],
+  "os7-078": [
+    "在有界緩衝區問題中，消費者等待的信號量是哪一個？"
+  ],
+  "os7-116": [
+    "哪種同步機制被稱為「自旋鎖」（spinlock）？"
+  ],
+  "os7-318": [
+    "Which synchronization tool is considered a high-level abstraction that provides a convenient and effective mechanism for process synchronization?"
+  ],
+  "os7-391": [
+    {
+      "stem": "signal(full) is an operation executed after ______ to notify the consumer that an item can be taken from the buffer.",
+      "answerAliases": ["adding a new iten"]
+    }
+  ]
+}

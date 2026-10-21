@@ -8,6 +8,9 @@ import {
 import { COURSE_UNITS } from "../assets/contribution-model.js";
 const root = resolve(import.meta.dirname, ".."),
   entries = [];
+const searchAliases = JSON.parse(
+  await readFile(resolve(root, "assets/batch-search-aliases.json"), "utf8"),
+);
 const courses = {};
 for (const [course, file, pattern] of [
   ["os", "os.html", /const UNITS\s*=\s*(\[.*?\]);/s],
@@ -31,6 +34,23 @@ for (const [course, file, pattern] of [
     for (const q of unit.questions)
       entries.push(...expandLibraryQuestion(course, unit.id, q));
 }
+for (const entry of [...entries])
+  if (entry.preferred)
+    for (const alias of searchAliases[entry.id] || []) {
+      const stem = typeof alias === "string" ? alias : alias?.stem;
+      if (typeof stem !== "string" || !stem.trim()) continue;
+      entries.push({
+        ...entry,
+        ...(typeof alias === "object" && alias?.answer
+          ? { answer: alias.answer, options: [], choiceKey: null }
+          : {}),
+        ...(typeof alias === "object" && Array.isArray(alias?.answerAliases)
+          ? { answerAliases: alias.answerAliases }
+          : {}),
+        stem: stem.trim(),
+        preferred: false,
+      });
+    }
 const unique = new Map();
 for (const entry of entries) {
   const key = JSON.stringify([

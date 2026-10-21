@@ -1,0 +1,110 @@
+題目 1. 程序的執行由一個CPU執行和一個 io 等待的週期組成。(請用小寫英文回答)
+Question 2. Which synchronization tool can be used to solve various synchronization problems, not just mutual exclusion?
+A. Binary Semaphore
+B. Spinlock
+C. Mutex Lock
+D. Counting Semaphore
+題目 3. 關於無忙碌等待的信號量（Semaphore），以下哪些陳述是正確的？
+A. wakeup() 操作會將程序從等待佇列移到就緒佇列
+B. block() 操作會將程序放入等待佇列
+C. 它有一個關聯的等待佇列
+D. S->value 的值可以小於0
+題目 4. 哪些是解決同步問題的替代方法？
+A. OpenMP
+B. 事務記憶體
+C. 忙碌等待
+D. 功能性程式設計語言
+題目 5. 信號（Semaphore）的 wait() 和 signal() 操作必須是不可分割的（indivisible），這是為了什麼？
+A. 確保公平性
+B. 增加吞吐量
+C. 提高效率
+D. 防止競爭條件
+題目 6. 哪種同步機制被稱為「自旋鎖」（spinlock）？
+A. Monitor
+B. Condition Variable
+C. Mutex Lock
+D. Semaphore with waiting queue
+Question 7. openmp is a high-level parallel programming API that uses compiler directives to handle critical sections.(Please answer in lowercase English)
+Question 8. The signal(full) operation is used in which process of the Bounded-Buffer Problem?
+A. Neither uses it
+B. Both use it
+C. Producer
+D. Consumer
+題目 9. 哪種同步工具提供了 wait() 和 signal() 操作？
+A. Condition variables
+B. Mutex locks
+C. Monitors
+D. Semaphores
+Question 10. The value of a binary semaphore can only range between "1" and "0".(Please enclose numbers in quotation marks, e.g., "9")
+Question 11. In the bounded-buffer problem, wait(empty) and wait(mutex) are both used in the producer process.(Please answer in lowercase English)
+題目 12. 在哲學家進餐問題中，共享的資料集是什麼？
+A. 麵包
+B. 米飯
+C. 刀子
+D. 叉子
+題目 13. 關於監視器（Monitors），以下哪些陳述是正確的？
+A. 它是高階的抽象概念
+B. 內部變數只能被監視器內的程式碼存取
+C. 一次只能有一個程序在監視器內活躍
+D. 它可以解決所有同步問題
+Question 14. When a process calls wait(mutex) and the lock is not available, it enters busy waiting.(Please answer in lowercase English)
+Question 15. In the solution to the Dining Philosophers Problem, which methods can be adopted to prevent deadlock?
+A. A philosopher always eats only after all their neighbors have finished eating
+B. Allow at most four philosophers to try to eat at the same time
+C. Odd-numbered philosophers pick up the left chopstick first, and even-numbered philosophers pick up the right chopstick first
+D. A philosopher cannot pick up any chopstick unless they have both chopsticks
+題目 16. 哪些是 Peterson's Solution 的優點？
+A. 實作簡單
+B. 滿足互斥、進度和有限等待要求
+C. 適用於多於兩個程序
+D. 不會導致忙碌等待
+題目 17. 在Reader-Writer問題的解決方案中，哪些Semaphores被使用？
+A. full
+B. rw_mutex
+C. mutex
+D. read_count
+題目 18. 在 Java 中，哪一個關鍵字可以用來確保方法或程式碼區塊的原子性？
+A. synchronized
+B. transient
+C. atomic
+D. volatile
+題目 19. 在有界緩衝區問題中，消費者等待的信號量是哪一個？
+A. mutex
+B. empty
+C. full
+D. buffer
+Question 20. Peterson's Solution 是一種針對兩個程序解決臨界區問題的 software 解決方案。(請用小寫英文回答)
+題目 21. 哪種同步工具提供了 wait() 和 signal() 兩個原子操作？
+A. Monitor
+B. Mutex Lock
+C. Semaphore
+D. Spinlock
+Question 22. Which synchronization tool is considered a high-level abstraction that provides a convenient and effective mechanism for process synchronization?
+A. Mutex
+B. Monitor
+C. Semaphore
+D. Spinlock
+Question 23. The x.wait() operation in a monitor suspends a process until what happens?
+A. Until another process calls x.signal()
+B. Until a timer expires
+C. Until all other processes enter the critical section
+D. Until the process is woken up by the scheduler
+Question 24. In the solution to the Readers-Writers Problem, the read_count variable is used to track how many readers are currently reading.(Please answer in lowercase English)
+題目 25. 哪兩種同步工具通常會導致忙碌等待（busy waiting）？
+A. Spinlock
+B. Monitor
+C. Mutex Lock
+D. Semaphore with a waiting queue
+題目 26. 監視器中條件變數的兩個主要操作是什麼？
+A. wait()
+B. signal()
+C. release()
+D. acquire()
+Question 27. signal(full) is an operation executed after adding a new iten to notify the consumer that an item can be taken from the buffer.(Please answer in lowercase English, leaving a space between each word)
+題目 28. 信號量是一種同步工具，它提供了比互斥鎖更 sophisticated 的方式來同步程序的活動。(請用小寫英文回答)
+題目 29. signal(mutex) 和 signal(full) 都是在有界緩衝區問題的哪一個程序中使用的？
+A. 消費者
+B. 都不使用
+C. 兩者都使用
+D. 生產者
+Question 30. One way to implement a semaphore is to use a waiting queue where each entry contains a value and a pointer to the next record in the list.(Please answer in lowercase English)
