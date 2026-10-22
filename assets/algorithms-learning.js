@@ -128,12 +128,5 @@ window.courseLearning={
  questionLabel:id=>{const entry=findEntry(id);return entry?meta[entry.unit.id].short+' 第 '+String(entry.i+1).padStart(3,'0')+' 題':'題目';},
  questionDetails:id=>{const {q,unit,i}=findEntry(id);return {course:'algorithms',id,unit:meta[unit.id].short,number:i+1,question:q.q,answer:q.a};},
  currentPage:()=>page,pageCount:()=>totalPages,practiceMode:()=>mode==='practice',
- currentPosition:()=>({unit:lesson,unitLabel:meta[lesson].short,page,question:$('list').firstElementChild?.dataset.id||null}),
- restorePosition:position=>{
-  if(!position||typeof position!=='object'||!COURSES.some(unit=>unit.id===position.unit))return false;
-  const entry=typeof position.question==='string'?findEntry(position.question):null;
-  lesson=entry?.unit.id||position.unit;$('searchScopeSelect').value='current';$('search').value='';chapter='全部';type='全部';$('qualitySelect').value='all';setupLesson();
-  page=entry?Math.floor(entry.i/PAGE_SIZE)+1:Math.max(1,Math.min(totalPages,Number.isInteger(position.page)?position.page:1));render();return true;
- },
  resetPractice:()=>{drafts.clear();selections.clear();revealed.clear();feedback.clear();practiceSequence.reset();page=1;render();}
 };

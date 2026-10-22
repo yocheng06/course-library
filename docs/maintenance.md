@@ -57,11 +57,11 @@ GitHub Pages 與 Sites 投稿服務分開發布；更新 GitHub 不代表 Sites 
 
 `npm run test:all` 會依序執行前端檢查、投稿服務建置與服務測試。同步器會讀取目前題庫、已核對的來源版本與 `assets/batch-search-aliases.json`；`tests/submission-index.test.mjs` 驗證投稿索引涵蓋全部已核對選項語言組合，不能省略。
 
-## 練習、續讀與待複習備份
+## 練習與待複習備份
 
-兩科腳本依序載入 `question-tools.js`、作答判斷與課程 loader、`learning-tools.js`、`practice-progress.js`、`reading-flow.js`。進度模組使用課程 loader 的固定 ID 與位置還原 API，明確題目連結優先於本機續讀；側欄預設展開、題目順序預設依題庫順序。
+兩科腳本依序載入 `question-tools.js`、作答判斷與課程 loader、`learning-tools.js`、`practice-progress.js`、`reading-flow.js`。進度模組使用課程 loader 的固定題目 ID；側欄預設展開、題目順序預設依題庫順序。重新開啟課程時從課程預設位置開始，不保存續讀位置。
 
-待複習與閱讀字級保存在 `course-library.learning.v1.{course}`；本輪統計與續讀位置在 `course-library.practice.v1.{course}`，首頁讀取 `course-library.last-course.v1`。這些資料只在目前瀏覽器保存；作答原文不寫入網址，逐題作答欄位不跨重新整理保留。
+待複習與閱讀字級保存在 `course-library.learning.v1.{course}`；本輪統計保存在 `course-library.practice.v1.{course}`。這些資料只在目前瀏覽器保存；作答原文不寫入網址，逐題作答欄位不跨重新整理保留。
 
 待複習備份使用有版本與科目的 JSON；匯入先完整驗證，再合併寫入。錯誤科目、無效 ID、超量或儲存失敗必須保留原有清單；未同步的投稿 ID 可保留，舊 ID 透過合併對照遷移。
 

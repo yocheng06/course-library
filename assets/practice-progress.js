@@ -1,11 +1,10 @@
-/* Local practice rounds and resume position, shared by both course pages. */
+/* Local practice rounds, shared by both course pages. */
 (() => {
   'use strict';
   const config = window.courseLearning, ui = window.learningUI;
-  if (!config || !ui || !config.currentPosition || !config.restorePosition) return;
+  if (!config || !ui) return;
 
   const key = `course-library.practice.v1.${config.course}`;
-  const lastCourseKey = 'course-library.last-course.v1';
   const communityId = id => /^community-[0-9a-f-]{36}-[1-9]\d*$/.test(id);
   const canonicalId = id => typeof id === 'string' ? config.resolveId?.(id) || (communityId(id) ? id : null) : null;
   const records = new Map();
@@ -54,9 +53,7 @@
   panel.className = 'practice-progress';
   panel.setAttribute('aria-label', '本次練習進度');
   panel.innerHTML = '<p class="practice-summary" role="status" aria-live="polite"></p><div class="practice-round-controls"><label><input type="checkbox" data-practice-wrong-only>只練本次錯題 <span data-practice-wrong-count></span></label><label><input type="checkbox" data-practice-auto-review>答錯自動加入待複習</label><button type="button" class="plain" data-practice-new-round>開始新一輪練習</button></div><p class="practice-round-hint">本課程本輪紀錄保存在這台裝置；錯題仍套用目前單元與篩選，答對訂正後也可繼續重練。</p><p class="practice-storage-warning" role="status" hidden></p>';
-  const resumeNotice = document.createElement('p');
-  resumeNotice.className = 'resume-notice'; resumeNotice.setAttribute('role', 'status'); resumeNotice.hidden = true;
-  (document.querySelector('.learning-tools') || config.toolbar).after(resumeNotice, panel);
+  (document.querySelector('.learning-tools') || config.toolbar).after(panel);
   const summary = panel.querySelector('.practice-summary');
   const wrongControl = panel.querySelector('[data-practice-wrong-only]');
   const autoControl = panel.querySelector('[data-practice-auto-review]');
@@ -88,12 +85,10 @@
   }
 
   function persist() {
-    const position = config.currentPosition();
     try {
       localStorage.setItem(key, JSON.stringify({
-        version: 1, autoReview, records: [...records].map(([id, record]) => ({id, ...record})), lastPosition: position,
+        version: 1, autoReview, records: [...records].map(([id, record]) => ({id, ...record})),
       }));
-      localStorage.setItem(lastCourseKey, JSON.stringify({version:1, course:config.course, ...position, updatedAt:Date.now()}));
       storageFailed = false;
     } catch { storageFailed = true; }
   }
@@ -138,12 +133,6 @@
   });
   const originalRefresh = ui.refresh;
   ui.refresh = () => { originalRefresh(); persist(); refresh(); };
-  const query = new URLSearchParams(location.search);
-  if (!query.has('question') && query.get('resume') !== '0' && initial.lastPosition && config.restorePosition(initial.lastPosition)) {
-    const restored = config.currentPosition();
-    resumeNotice.textContent = `已回到上次的「${restored.unitLabel}」第 ${restored.page} 頁。`;
-    resumeNotice.hidden = false;
-  }
   window.addEventListener('pagehide', persist);
   persist(); refresh();
 })();

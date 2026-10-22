@@ -129,24 +129,23 @@ test('the current wrong-question deck remains stable after correction when rando
   h.document.getElementById('clear').onclick();assert.equal(h.progress.onlyWrong,false);assert.equal(h.cards().length,20);
 });
 
-test('both courses restore saved unit and page while explicit question links win and source order remains the default', async () => {
+test('both courses keep practice statistics after reopening without restoring position', async () => {
   for(const course of ['os','algorithms']){
     const storage=new Map(),h=await coursePage(course,{storage});
     h.click(course==='os'?'[data-unit="4"]':'[data-lesson="L4"]');h.click('#pager [data-page="2"]');
-    const saved=plain(h.config.currentPosition());
-    h.progress.record(saved.question,{correct:true},{text:'first'});
-    const resumed=await coursePage(course,{storage});
-    assert.equal(resumed.config.currentPosition().unit,saved.unit);
-    assert.equal(resumed.config.currentPosition().page,saved.page);
-    assert.equal(resumed.document.getElementById('practiceOrder').value,'ordered');
-    assert.equal(resumed.progress.getStats().firstCorrect,1);
-    assert.equal(resumed.document.body.classList.contains('course-drawer-collapsed'),false);
-    assert.equal(resumed.document.querySelector('.resume-notice').hidden,false);
+    const question=h.cards()[0]?.dataset.id;assert(question);
+    h.progress.record(question,{correct:true},{text:'first'});
+    const reopened=await coursePage(course,{storage});
+    assert.equal(reopened.config.currentPage(),1);
+    assert.equal(reopened.document.getElementById('practiceOrder').value,'ordered');
+    assert.equal(reopened.progress.getStats().firstCorrect,1);
+    assert.equal(reopened.document.body.classList.contains('course-drawer-collapsed'),false);
+    assert.equal(reopened.document.querySelector('.resume-notice'),null);
     const target=course==='os'?'process-11':'L3-035';
     const linked=await coursePage(course,{storage,search:'?question='+target});
     assert(linked.document.querySelector(`article[data-id="${target}"]`));
-    assert.equal(linked.document.querySelector('.resume-notice').hidden,true);
-    assert.equal(JSON.parse(storage.get('course-library.last-course.v1')).course,course);
+    assert.equal(linked.document.querySelector('.resume-notice'),null);
+    assert.equal(storage.has('course-library.last-course.v1'),false);
   }
 });
 

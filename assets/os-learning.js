@@ -286,19 +286,5 @@ window.courseLearning={
   questionLabel:id=>{const entry=findEntry(id);return `${entry.unit.label} 第 ${entry.i+1} 題`;},
   questionDetails:id=>{const {q,unit,i}=findEntry(id);return {course:'os',id,unit:unit.label,number:i+1,question:q.stem,answer:q.answer};},
   currentPage:()=>page, pageCount:()=>totalPages, practiceMode:()=>mode==='practice',
-  currentPosition:()=>({unit:UNITS[active].id,unitLabel:UNITS[active].label,page,question:$('cards').firstElementChild?.dataset.id||null}),
-  restorePosition:position=>{
-    if (!position || typeof position!=='object') return false;
-    let index=UNITS.findIndex(unit=>unit.id===position.unit);
-    if(index<0)return false;
-    const target=typeof position.question==='string'?canonicalId(position.question):null;
-    const questionUnit=questionUnitIndex.get(target);
-    if(questionUnit!==undefined)index=questionUnit;
-    $('searchScopeSelect').value='current';$('search').value='';
-    switchUnit(index);
-    const entry=target&&findEntry(target);
-    page=entry?.unitIndex===index?Math.floor(entry.i/pageSize)+1:Math.max(1,Math.min(totalPages,Number.isInteger(position.page)?position.page:1));
-    render();return true;
-  },
   resetPractice:()=>{drafts.clear();selections.clear();revealed.clear();feedback.clear();practiceSequence.reset();page=1;render();}
 };
