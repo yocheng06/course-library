@@ -10,6 +10,7 @@ import {
   aiPrompt,
   normalizeText,
 } from "../assets/batch-model.mjs";
+import { parseOSCourseHTML } from "../scripts/course-data.mjs";
 const make = (overrides = {}) =>
   toLibraryQuestion(
     "os",
@@ -243,19 +244,14 @@ test("generated canonical index stays aligned with current course files", async 
       "utf8",
     ),
   );
-  for (const [course, file, pattern] of [
-    ["os", "os.html", /const UNITS\s*=\s*(\[.*?\]);/s],
-    [
-      "algorithms",
-      "algorithms.html",
-      /<script id="course-data" type="application\/json">(.*?)<\/script>/s,
-    ],
+  for (const [course, file] of [
+    ["os", "os.html"],
+    ["algorithms", "algorithms.html"],
   ]) {
-    const source = JSON.parse(
-      (await readFile(new URL("../" + file, import.meta.url), "utf8")).match(
-        pattern,
-      )[1],
-    );
+    const html = await readFile(new URL("../" + file, import.meta.url), "utf8");
+    const source = course === "os"
+      ? parseOSCourseHTML(html)
+      : JSON.parse(html.match(/<script id="course-data" type="application\/json">(.*?)<\/script>/s)[1]);
     const canonical = source.flatMap((unit) =>
       unit.questions.flatMap((q) =>
         expandLibraryQuestion(course, unit.id, q).filter((e) => e.preferred),

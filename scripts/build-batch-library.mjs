@@ -6,23 +6,21 @@ import {
   optionKey,
 } from "../assets/batch-model.mjs";
 import { COURSE_UNITS } from "../assets/contribution-model.js";
+import { parseOSCourseHTML } from "./course-data.mjs";
 const root = resolve(import.meta.dirname, ".."),
   entries = [];
 const searchAliases = JSON.parse(
   await readFile(resolve(root, "assets/batch-search-aliases.json"), "utf8"),
 );
 const courses = {};
-for (const [course, file, pattern] of [
-  ["os", "os.html", /const UNITS\s*=\s*(\[.*?\]);/s],
-  [
-    "algorithms",
-    "algorithms.html",
-    /<script id="course-data" type="application\/json">(.*?)<\/script>/s,
-  ],
+for (const [course, file] of [
+  ["os", "os.html"],
+  ["algorithms", "algorithms.html"],
 ]) {
-  const units = JSON.parse(
-    (await readFile(resolve(root, file), "utf8")).match(pattern)[1],
-  );
+  const source = await readFile(resolve(root, file), "utf8");
+  const units = course === "os"
+    ? parseOSCourseHTML(source)
+    : JSON.parse(source.match(/<script id="course-data" type="application\/json">(.*?)<\/script>/s)[1]);
   courses[course] = {
     units: units.map((u) => ({
       id: u.id,

@@ -7,6 +7,7 @@
 
   const normalize = value => String(value ?? '').normalize('NFKC').toLowerCase();
   const searchTokens = query => [...new Set(normalize(query).trim().split(/\s+/).filter(Boolean))];
+  const searchableText = new WeakMap();
   function questionType(question) {
     return question.images?.length || question.type === '圖片題' ? '圖片題' : answerType(question);
   }
@@ -36,8 +37,14 @@
   }
 
   function matchesSearch(question, query) {
-    const text = normalize(searchFields(question).flatMap(field => field.values).filter(Boolean).join(' '));
-    return searchTokens(query).every(token => text.includes(token));
+    const tokens = searchTokens(query);
+    if (!tokens.length) return true;
+    let text = searchableText.get(question);
+    if (text === undefined) {
+      text = normalize(searchFields(question).flatMap(field => field.values).filter(Boolean).join(' '));
+      searchableText.set(question, text);
+    }
+    return tokens.every(token => text.includes(token));
   }
 
   function searchMatchMarkup(question, query) {
