@@ -75,11 +75,14 @@ const paths = [
   "submit.html",
   "review.html",
   "assets/contributions.css",
+  "assets/ui-consistency.css",
   "assets/contributions-config.js",
   "assets/contribution-model.js",
   "assets/choice-answers.js",
   "assets/contributions-ui.js",
   "assets/contributions-submit.js",
+  "assets/submission-inbox-ui.mjs",
+  "assets/submission-inbox.mjs",
   "assets/contributions-review.js",
 ];
 const assets = {};

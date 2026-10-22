@@ -152,6 +152,49 @@ async function call(
   } catch {}
   return { response, data };
 }
+
+test("submission and review pages serve their complete local module graph with correct MIME types", async () => {
+  const env = await setup({ provisionAdmin: false });
+  const queue = [];
+  for (const route of ["/submit", "/review"]) {
+    const response = await worker.fetch(new Request(origin + route), env);
+    assert.equal(response.status, 200, route + " must serve a page");
+    assert.match(response.headers.get("content-type"), /^text\/html\b/);
+    const html = await response.text();
+    for (const match of html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi))
+      queue.push(new URL(match[1], origin + route));
+    for (const match of html.matchAll(/<link\b[^>]*\bhref=["']([^"']+\.css(?:\?[^"']*)?)["']/gi))
+      queue.push(new URL(match[1], origin + route));
+  }
+  const visited = new Set();
+  while (queue.length) {
+    const url = queue.shift();
+    if (url.origin !== origin || visited.has(url.pathname)) continue;
+    visited.add(url.pathname);
+    const response = await worker.fetch(new Request(url), env);
+    assert.equal(response.status, 200, url.pathname + " must be included in the Worker assets");
+    const content = await response.text();
+    assert.equal(
+      content,
+      await readFile(new URL("../frontend" + url.pathname, import.meta.url), "utf8"),
+      url.pathname + " must match its synchronized frontend file",
+    );
+    if (url.pathname.endsWith(".css")) {
+      assert.match(response.headers.get("content-type"), /^text\/css\b/);
+      continue;
+    }
+    assert.match(response.headers.get("content-type"), /^text\/javascript\b/);
+    assert(!/^\s*</.test(content), url.pathname + " must not return an HTML fallback");
+    for (const match of content.matchAll(/(?:^|\n)\s*(?:import|export)\s+(?:[^"';]*?\s+from\s*)?["'](\.[^"']+)["']/g))
+      queue.push(new URL(match[1], url));
+  }
+  for (const path of [
+    "/assets/submission-inbox-ui.mjs",
+    "/assets/submission-inbox.mjs",
+    "/assets/ui-consistency.css",
+  ]) assert(visited.has(path), path + " must be exercised by the page dependency graph");
+});
+
 test("reviewer password setup requires the bound owner and protects review endpoints", async () => {
   const env = await setup({ provisionAdmin: false });
   const anonymous = await call(env, "/api/session");
@@ -1156,7 +1199,12 @@ test("L7 merges option-order duplicates and recognizes every reviewed source ver
   const l7 = entries.filter(
     (q) => q.course === "os" && q.unit === "synchronization",
   );
-  assert.equal(new Set(l7.map((q) => q.canonicalId)).size, 137);
+  // Canonical-source coverage is checked against the current course files by
+  // tests/submission-index.test.mjs. Keep this service test about behavior for
+  // every generated version rather than a question count that ages on import.
+  const canonicalIds = new Set(l7.map((q) => q.canonicalId));
+  assert(canonicalIds.size > 0);
+  assert([...canonicalIds].every((id) => typeof id === "string" && id.trim()));
   assert.equal(
     new Set(l7.map((q) => questionKey(q.course, q.unit, q))).size,
     l7.length,
@@ -1564,4 +1612,63 @@ test("verified translated and mixed-language choices are skipped as built-in dup
   assert.equal(result.data.status, "duplicates_only");
   assert.equal(result.data.skippedCount, 5);
   assert.equal(result.data.acceptedCount, 0);
+});
+
+test("reviewed L7 aliases and reordered mixed-language choices deduplicate, while unreviewed option changes remain new", async () => {
+  const env = await setup();
+  const cases = [
+    {
+      stem: "哪種同步機制被稱為「自旋鎖」（spinlock）？",
+      options: [
+        "A. 互斥鎖",
+        "B. Condition Variable",
+        "C. 具有等待佇列的信號量",
+        "D. Monitor",
+      ],
+      answer: "A",
+    },
+    {
+      stem: "Which synchronization tool is considered a high-level abstraction that provides a convenient and effective mechanism for process synchronization?",
+      options: [
+        "A. 信號量",
+        "B. Monitor",
+        "C. 自旋鎖",
+        "D. Mutex",
+      ],
+      answer: "B",
+    },
+    {
+      stem: "In the bounded-buffer problem, wait(empty) and wait(mutex) are both used in the ______ process.",
+      options: [],
+      answer: "producer",
+    },
+  ];
+  const batch = {
+    ...payload(),
+    unit: "synchronization",
+    questions: cases.map((q) => ({
+      category: "查重回歸",
+      type: q.options.length ? "單選題" : "填空題",
+      explanation: "",
+      images: [],
+      ...q,
+    })),
+  };
+  const duplicate = await call(env, "/api/submissions", { method: "POST", body: batch });
+  assert.equal(duplicate.response.status, 200, JSON.stringify(duplicate.data));
+  assert.equal(duplicate.data.status, "duplicates_only");
+  assert.equal(duplicate.data.skippedCount, cases.length);
+  assert.equal(duplicate.data.acceptedCount, 0);
+
+  const changed = {
+    ...batch,
+    questions: [{
+      ...batch.questions[0],
+      options: batch.questions[0].options.map((option, index) => index === 1 ? "B. 新版本中尚未核對的同步機制" : option),
+    }],
+  };
+  const newVersion = await call(env, "/api/submissions", { method: "POST", body: changed });
+  assert.equal(newVersion.response.status, 201, JSON.stringify(newVersion.data));
+  assert.equal(newVersion.data.acceptedCount, 1);
+  assert.equal(newVersion.data.skippedCount, 0);
 });

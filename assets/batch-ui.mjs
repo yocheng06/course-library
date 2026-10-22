@@ -4,9 +4,9 @@ import {
   expandLibraryQuestion,
   aiPrompt,
   MAX_TEXT,
-} from "./batch-model.mjs?v=batch-filled-answer-20261021";
-import { parseBatchInput } from "./batch-import.mjs?v=batch-filled-answer-20261021";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=batch-filled-answer-20261021";
+} from "./batch-model.mjs?v=review-fixes-20261022";
+import { parseBatchInput } from "./batch-import.mjs?v=review-fixes-20261022";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=review-fixes-20261022";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
@@ -23,9 +23,11 @@ const draftKey = "course-library.batch-draft.v1";
 let library,
   index,
   coverage = { os: false, algorithms: false },
+  invalidPublicData = { os: false, algorithms: false },
   results = [],
   snapshot = null,
   loading = false,
+  syncing = false,
   libraryGeneration = 0,
   snapshotGeneration = -1,
   courseSuggestion = null;
@@ -111,10 +113,34 @@ function libraryStatus() {
     `${names[course]}：${count} 題可供比對。` +
     (coverage[course]
       ? "已同步內建與公開投稿題庫。"
+      : syncing
+        ? "正在同步公開投稿，現在可先比對內建題庫。"
+      : invalidPublicData[course]
+        ? "公開投稿資料不完整，目前僅比對內建題庫。可按「重新同步題庫」重試。"
       : "投稿題庫暫時無法同步，目前僅比對內建題庫。可按「重新同步題庫」重試。");
 }
+function validPublicQuestion(raw, sourceVariant = false) {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return false;
+  const options = raw.options ?? raw.opts;
+  if (
+    typeof (raw.stem ?? raw.q) !== "string" ||
+    typeof (raw.answer ?? raw.a) !== "string" ||
+    !Array.isArray(options) || options.some((option) => typeof option !== "string")
+  ) return false;
+  for (const field of ["answerConditions", "optionTranslations"])
+    if (raw[field] !== undefined &&
+        (!Array.isArray(raw[field]) || raw[field].some((value) => typeof value !== "string"))) return false;
+  if (raw.translation !== undefined && typeof raw.translation !== "string") return false;
+  if (raw.images !== undefined &&
+      (!Array.isArray(raw.images) || raw.images.some((image) =>
+        !image || typeof image !== "object" || typeof image.src !== "string"))) return false;
+  if (!sourceVariant && raw.sourceVariants !== undefined &&
+      (!Array.isArray(raw.sourceVariants) || raw.sourceVariants.some((variant) => !validPublicQuestion(variant, true)))) return false;
+  return true;
+}
 async function loadLibrary() {
-  if (loading) return;
+  if (syncing) return;
+  syncing = true;
   loading = true;
   libraryGeneration++;
   if (results.length) {
@@ -127,7 +153,7 @@ async function loadLibrary() {
   $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
   try {
     const built = fetch(
-      "assets/batch-library.json?v=batch-filled-answer-20261021",
+      "assets/batch-library.json?v=review-fixes-20261022",
       {
         signal: AbortSignal.timeout(12000),
       },
@@ -157,36 +183,61 @@ async function loadLibrary() {
     )
       throw new Error("library");
     library = base;
-    let entries = base.entries.slice();
+    const entries = base.entries.slice();
     coverage = { os: false, algorithms: false };
+    invalidPublicData = { os: false, algorithms: false };
+    index = buildIndex(entries);
+    units();
+    loading = false;
+    $("compare").disabled = false;
+    libraryStatus();
+    if (results.length)
+      $("staleNotice").textContent =
+        "內建題庫已載入，可先重新比對；公開投稿仍在背景同步。";
+    markChanged();
+
+    // Public submissions must not block built-in question lookup. Publishing
+    // this later index invalidates results produced against the earlier data.
+    let publicChanged = false;
+    let nextIndex = index;
     for (const result of await publicResults) {
       if (result.status !== "fulfilled") continue;
       const { course, questions } = result.value;
-      coverage[course] = true;
-      for (const row of questions) {
-        const raw = row?.question;
-        if (
-          !library.courses[course].units.some((u) => u.id === row?.unit) ||
-          !raw ||
-          !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(
-            raw.id || raw.bookmarkId || "",
-          )
-        )
-          continue;
-        entries.push(...expandLibraryQuestion(course, row.unit, raw));
+      try {
+        // Validate and build each course atomically. A malformed public record
+        // must not erase the ready built-in index or imply complete coverage.
+        const additions = [];
+        for (const row of questions) {
+          const raw = row?.question;
+          if (
+            !library.courses[course].units.some((u) => u.id === row?.unit) ||
+            !validPublicQuestion(raw) ||
+            !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(raw.id || raw.bookmarkId || "")
+          ) throw new Error("public-data");
+          const expanded = expandLibraryQuestion(course, row.unit, raw);
+          if (!expanded.length) throw new Error("public-data");
+          additions.push(...expanded);
+        }
+        const candidate = buildIndex([...entries, ...additions]);
+        entries.push(...additions);
+        nextIndex = candidate;
+        coverage[course] = true;
+        publicChanged = true;
+      } catch {
+        invalidPublicData[course] = true;
       }
     }
-    index = buildIndex(entries);
-    units();
-    libraryStatus();
-    $("compare").disabled = false;
-    if (results.length) {
-      $("staleNotice").textContent =
-        "題庫已重新同步，請重新比對。下方保留的是上一批結果。";
-      $("staleNotice").hidden = false;
-      for (const id of ["copyAnswers", "copyUnmatched", "copyReview"])
-        $(id).disabled = true;
+    if (publicChanged) {
+      index = nextIndex;
+      libraryGeneration++;
     }
+    syncing = false;
+    libraryStatus();
+    if (publicChanged && results.length) {
+      $("staleNotice").textContent =
+        "題庫比對資料已更新，請重新比對。下方保留的是上一批結果。";
+    }
+    markChanged();
   } catch {
     index = null;
     $("libraryStatus").textContent =
@@ -198,7 +249,10 @@ async function loadLibrary() {
     }
   } finally {
     loading = false;
+    syncing = false;
+    $("compare").disabled = !index;
     $("reloadLibrary").disabled = false;
+    markChanged();
   }
 }
 function sourceURL(id) {

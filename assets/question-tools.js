@@ -134,6 +134,39 @@
     return !hasProvidedAnswer(question) && (question.reviewIssue || question.missingContext) ? `${label}（待確認）` : label;
   }
 
+  // Display the same verified option mapping used by practice grading.
+  // Source answers remain unchanged, including text answers that cannot map.
+  function answerValues(question) {
+    const answer = String(question.answer ?? question.a ?? '');
+    const options = question.options ?? question.opts ?? [];
+    if (!hasProvidedAnswer(question) || !options.length) return [answer];
+    const key = question.choiceKey || window.courseChoiceAnswers?.expectedChoiceKey(answer, options);
+    if (!/^[A-H]+$/.test(key || '') || new Set(key).size !== key.length ||
+        [...key].some(letter => letter.charCodeAt(0) - 65 >= options.length)) return [answer];
+    return [...key].sort().map(letter => {
+      const index = letter.charCodeAt(0) - 65;
+      const content = String(options[index]).replace(/^[A-H][.、．:：]\s*/, '');
+      const translation = question.optionTranslations?.[index];
+      return `${letter}. ${content}${translation ? ` ／ ${translation}` : ''}`;
+    });
+  }
+
+  const answerText = question => answerValues(question).join('；');
+  const answerValueMarkup = (question, format = escape) => answerValues(question).map(format).join('<br>');
+
+  function incompleteReasons(question) {
+    const reasons = [];
+    if (question.missingContext) reasons.push('缺少題圖或解題所需資料');
+    if ((question.options ?? question.opts ?? []).some(option => /選項因遮罩|未能完整辨識|原始選項未完整/.test(String(option))) ||
+        /選項.*(?:不完整|未完整|缺少)/.test(question.note || '')) reasons.push('原始選項不完整');
+    return reasons;
+  }
+
+  function incompleteMarkup(question) {
+    const reasons = incompleteReasons(question);
+    return reasons.length ? `<p class="data-incomplete-note"><strong>資料不完整</strong>：${escape(reasons.join('、'))}。請搭配原始教材核對；已提供的題庫答案保留顯示。</p>` : '';
+  }
+
   function reviewMarkup(question) {
     return question.originalAnswer
       ? `<details class="answer-history"><summary>查看修正前的題庫答案</summary><p>${escape(question.originalAnswer)}</p></details>` : '';
@@ -181,5 +214,5 @@
     return (q.images||[]).filter(img=>/^assets\/questions\/[a-z0-9/_-]+\.(png|jpe?g)$/i.test(img.src)||/^https:\/\//.test(img.src)).map(img=>`<figure class="question-figure"><button type="button" class="question-image-open" data-image-viewer aria-haspopup="dialog" aria-controls="question-image-viewer"><img src="${esc(img.src)}" alt="${esc(img.alt||q.stem||q.q)}" ${img.width&&img.height?`width="${Number(img.width)}" height="${Number(img.height)}"`:''} loading="lazy"><span>放大題圖（可縮放）</span></button></figure>`).join('');
   }
 
-  window.courseQuestionTools = { questionType, answerType, questionImagesMarkup, hasProvidedAnswer, matchesSearch, searchMatchMarkup, createPracticeOrder, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion };
+  window.courseQuestionTools = { questionType, answerType, questionImagesMarkup, hasProvidedAnswer, matchesSearch, searchMatchMarkup, createPracticeOrder, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion };
 })();

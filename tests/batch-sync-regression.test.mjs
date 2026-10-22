@@ -26,8 +26,13 @@ test("plain numbered mixed-language synchronization batch parses 30 items and on
   const results = matchQuestions(questions, buildIndex(library.entries), {
     course: "os",
   });
-  assert.equal(results.filter((result) => result.status === "matched").length, 29);
-  assert.equal(results.filter((result) => result.status === "review").length, 0);
+  assert.equal(results.filter((result) => result.status === "matched").length, 28);
+  assert.equal(results.filter((result) => result.status === "review").length, 1);
+  // This imported option says 訊號量, while the only source option is 網絡量.
+  // Until that source wording is explicitly verified, do not reuse its key.
+  assert.equal(results[18].status, "review");
+  assert.equal(results[18].answer, "");
+  assert.match(results[18].reason, /選項不同/);
   assert.equal(results.filter((result) => result.status === "unmatched").length, 1);
 
   assert.equal(results[4].answer, "D. 米飯");

@@ -1,0 +1,11 @@
+.review-backup { display: grid; gap: .5rem; }
+.review-backup-controls { display: flex; flex-wrap: wrap; gap: .5rem; }
+.review-backup-controls .plain { min-height: 44px; white-space: normal; }
+.review-backup-hint { margin: 0; font-size: .85rem; line-height: 1.5; }
+.question-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .7rem 1rem; }
+.question-copy { min-height: 44px; }
+.question-copy-status { font-size: .85rem; line-height: 1.4; }
+.question-copy-status:empty { display: none; }
+.question-copy-manual { display: grid; gap: .5rem; margin-top: .75rem; }
+.question-copy-manual textarea { box-sizing: border-box; width: 100%; min-height: 6.5rem; font: inherit; line-height: 1.5; }
+.question-copy-temp { position: fixed; inset: 0 auto auto -10000px; width: 1px; height: 1px; opacity: 0; }

@@ -1,0 +1,25 @@
+.practice-progress {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--line, #c8d6e7);
+  border-radius: 12px;
+  background: var(--surface, var(--paper, #fff));
+  color: inherit;
+}
+.practice-progress[hidden], .resume-notice[hidden] { display: none; }
+.practice-summary { margin: 0 0 10px; font-weight: 600; line-height: 1.7; }
+.practice-round-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.practice-round-controls label { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 7px; font-size: .9rem; cursor: pointer; }
+.practice-round-controls input { width: 17px; height: 17px; margin: 0; accent-color: var(--ui-accent, var(--green, #47658b)); }
+.practice-round-controls .plain { margin-left: auto; }
+.practice-round-hint, .practice-storage-warning, .resume-notice { font-size: .85rem; line-height: 1.6; }
+.practice-round-hint { margin: 10px 0 0; color: var(--muted, #64748b); }
+.practice-storage-warning { margin: 8px 0 0; color: #8a4b16; }
+.resume-notice { margin: 0 0 12px; color: var(--muted, #64748b); }
+.data-incomplete-note { padding: 10px 12px; border: 1px solid #d4b880; border-radius: 8px; background: #fff8ea; color: #70541d; font-size: .9rem; line-height: 1.6; }
+@media (max-width: 600px) {
+  .practice-progress { padding: 12px; }
+  .practice-round-controls { align-items: stretch; gap: 12px; }
+  .practice-round-controls label { min-height: 30px; width: 100%; }
+  .practice-round-controls .plain { margin-left: 0; width: 100%; }
+}

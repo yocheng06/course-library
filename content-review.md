@@ -366,3 +366,36 @@ Two-level 綁定題與 Max-Heap 的 greater 填空仍需確認題幹限定；雖
 - [Linux CFS 設計](https://www.kernel.org/doc/html/v6.6/scheduler/sched-design-CFS.html)與 [EEVDF](https://docs.kernel.org/scheduler/sched-eevdf.html)
 - [Windows 優先權](https://learn.microsoft.com/en-us/windows/win32/procthread/scheduling-priorities)、[優先權提升](https://learn.microsoft.com/en-us/windows/win32/procthread/priority-boosts)與 [UMS](https://learn.microsoft.com/en-us/windows/win32/procthread/user-mode-scheduling)
 - [Solaris 排程器](https://docs.oracle.com/cd/E53394_01/html/E54815/psched-82475.html)
+
+## 2026-10-22：作業系統 L7 解析逐題檢視
+
+逐一檢視 L7 的 137 題，重寫其中 90 題的目前顯示解析，將不相干或只列同步工具名稱的模板改為題目所問的原因、操作順序、選項區別與成立條件。其餘 47 題已有對應題意的說明，沿用原文。
+
+| 主題 | 更新解析數 |
+| --- | ---: |
+| 臨界區、核心與同步風險 | 17 |
+| 硬體原子指令與 Peterson 解法 | 8 |
+| 同步工具、Semaphore 與 Monitor | 30 |
+| 經典同步案例、有界緩衝區與讀者寫者 | 15 |
+| 哲學家進餐 | 5 |
+| 系統實作與替代同步方法 | 15 |
+
+- `os7-059` 改為說明 CPU burst 與 I/O burst 的交替；`os7-176` 說明 OpenMP 的編譯器指示詞與 critical 區域，不再套用泛用臨界區模板。
+- Semaphore 解析區分忙碌等待與阻塞式實作、許可計數與負值等待者模型；Monitor 解析區分互斥進入與條件變數，說明被通知後仍可能需要重新取得鎖並重查條件。
+- 生產者／消費者題依序解釋 empty、full、mutex 的工作；讀者寫者題說明 read_count、mutex 與 rw_mutex 的分工；哲學家題區分死鎖避免與飢餓保證。
+- Linux futex、Solaris adaptive mutex、Windows 同步物件、POSIX API 與 Java 記憶體模型均補入對應用途或實作條件，避免把教材的簡化模型擴大為所有版本與實作。
+- `os7-091` 移除和目前答案代號不一致的「官方只接受 D」說法；`os7-082` 說明既有答案以生產者流程為前提；`os7-321` 明示題目在一般 Windows 同步物件分類下存在單選歧義。這些調整僅澄清來源與一般觀念的差異，沒有重新指定答案。
+- `os7-278` 缺漏的選項 A 及其提示完整保留，未自行補造選項。來源版本的原始解析、來源答案與合併紀錄也都保留，未以新解析覆寫原稿。
+
+驗證：對照修改前後的全部 579 道作業系統題目，排除目前解析欄位後，逐筆資料完全相同；題幹、選項、翻譯、備註、答案、`choiceKey`、ID、別名、題序、來源版本及來源答案均未更動。L7 維持 137 題，`process-11` 的答案仍為 `process control block`。單元 JSON 外的 HTML 完全相同，資料可經 `scripts/course-data.mjs` 解析；90 題舊／新解析及雜湊比對結果另存於本次工作階段的驗證紀錄。
+
+查核資料（只供維護查核，不加入題卡顯示）：
+
+- [Operating Systems: Three Easy Pieces（作者提供之教材；Locks、Condition Variables、Semaphores）](https://pages.cs.wisc.edu/~remzi/OSTEP/)
+- [UIC：Process Synchronization 課程筆記](https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/5_Synchronization.html)
+- [OpenMP 5.2：critical construct](https://www.openmp.org/spec-html/5.2/openmpse90.html)
+- [Linux man-pages：futex(7)](https://man7.org/linux/man-pages/man7/futex.7.html)
+- [Oracle Solaris 11.4：Adaptive Lock Probes](https://docs.oracle.com/en/operating-systems/solaris/oracle-solaris/11.4/dtrace-guide/lockstat-adaptive-lock-probes.html)
+- [Microsoft：Synchronization Objects](https://learn.microsoft.com/en-us/windows/win32/sync/synchronization-objects)及 [Semaphore Objects](https://learn.microsoft.com/en-us/windows/win32/sync/semaphore-objects)
+- [Java SE 17 Language Specification：Threads and Locks](https://docs.oracle.com/javase/specs/jls/se17/html/jls-17.html)
+- [POSIX：Synchronization 與記憶體同步要求](https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/V1_chap04.html)

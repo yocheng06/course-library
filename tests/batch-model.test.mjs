@@ -127,6 +127,33 @@ test("missing, duplicate or changed choices and missing images require review in
   );
   assert.equal(parseQuestions("1. 題目 [題圖未轉錄]")[0].issues.length, 1);
 });
+test("a changed distractor that becomes correct cannot inherit an incomplete multi-select answer", () => {
+  const bank = make({
+    stem: "下列哪些是 CPU 排程演算法？",
+    options: ["A. FCFS", "B. SJF", "C. Memory management", "D. File management"],
+    answer: "A、B",
+    type: "多選題",
+  });
+  const row = lookup(
+    "1. 下列哪些是 CPU 排程演算法？\nA. FCFS\nB. SJF\nC. Round Robin\nD. File management",
+    [bank],
+  )[0];
+  assert.equal(row.status, "review");
+  assert.equal(row.answer, "");
+  assert.equal(row.references[0].id, bank.id);
+  assert.match(row.reason, /選項不同/);
+});
+test("verified source answers listed on separate lines map only to complete unique option contents", () => {
+  const bank = make({
+    options: ["POSIX Pthreads", "Win32 threads", "Java threads", "Linux threads"],
+    answer: "POSIX Pthreads\nWin32 threads\nJava threads",
+  });
+  const text = "1. CPU 排程器是哪一種類型的排程器？\nA. Java threads\nB. Win32 threads\nC. Linux threads\nD. POSIX Pthreads";
+  assert.equal(lookup(text, [bank])[0].answer, "A. Java threads；B. Win32 threads；D. POSIX Pthreads");
+  const oldIndexEntry = { ...bank, choiceKey: null };
+  assert.equal(lookup(text, [oldIndexEntry])[0].status, "matched");
+  assert.equal(lookup(text, [{ ...oldIndexEntry, answer: "POSIX Pthreads\nunknown threads" }])[0].status, "review");
+});
 test("conflicting canonical answers are flagged; outdated source versions do not override a canonical exact match", () => {
   const text =
     "1. CPU 排程器是哪一種類型的排程器？\nA. 長程排程器\nB. 中程排程器\nC. 短程排程器\nD. 巨集排程器";
@@ -894,8 +921,8 @@ test("user's scheduling export matches all 30 questions across verified option t
       "first-come first-served",
     ],
   );
-  assert(rows[25].reason.includes("填空線未貼出"));
-  assert(rows[28].reason.includes("填空線未貼出"));
+  assert.match(rows[25].reason, /填空.*未貼出/);
+  assert.match(rows[28].reason, /填空.*未貼出/);
   for (const n of [1, 5, 8, 21, 28]) {
     const q = questions[n - 1];
     const reversed = {
@@ -950,10 +977,13 @@ test("missing blank recovery requires a recognized fill instruction, exact remai
     lookup(input, [{ ...fill, answer: "SCHED_RR" }])[0].status,
     "review",
   );
-  assert.notEqual(
-    lookup(input.replace("是 。", "是 sched_rr。"), [fill])[0].status,
-    "matched",
-  );
+  // Filled-answer transcriptions are supported when the inserted value is the
+  // exact verified bank answer; changing it must not silently inherit it.
+  const filled = lookup(input.replace("是 。", "是 sched_rr。"), [fill])[0];
+  assert.equal(filled.status, "matched");
+  assert.equal(filled.answer, "sched_rr");
+  assert.match(filled.reason, /答案已直接寫在題幹/);
+  assert.notEqual(lookup(input.replace("是 。", "是 sched_fifo。"), [fill])[0].status, "matched");
 });
 
 test("Markdown exports remove repeated hard-break markup and trailing requests while preserving paths, code, meaningful underscores and question content", () => {
@@ -970,6 +1000,10 @@ test("Markdown exports remove repeated hard-break markup and trailing requests w
   );
   const paths = parseQuestions("1. 路徑 C:\\\n2. 路徑 D:\\");
   assert(paths.every((q) => q.stem.endsWith("\\")));
+  const networkPaths = parseQuestions("1. 路徑 \\\\server\\share\\\n2. 路徑 \\\\server\\other\\");
+  assert(networkPaths.every((q) => q.stem.endsWith("\\")));
+  const boldPath = parseQuestions("**題目 1.** 路徑 C:\\\n2. 下一題");
+  assert(boldPath[0].stem.endsWith("\\"));
   assert.equal(normalizeText("my\\_key"), "my\\_key");
   assert.equal(
     parseQuestions("1. 「給我答案」這句話的意思為何？")[0].stem,
@@ -1133,11 +1167,14 @@ test("threading Markdown batch keeps all 25 questions and diagnoses the wrong co
   const wrongCourse = matchQuestions(questions, index, {course:"algorithms", unit:"all"});
   assert(wrongCourse.every((r) => r.status === "unmatched" && !r.answer));
   const rows = matchQuestions(questions, index, {course:"os", unit:"all"});
-  assert.equal(rows.filter((r) => r.status === "matched").length, 18);
-  assert.deepEqual(rows.filter((r) => r.status === "review").map((r) => r.question.number), ["4", "7", "9", "20"]);
+  assert.equal(rows.filter((r) => r.status === "matched").length, 19);
+  assert.deepEqual(rows.filter((r) => r.status === "review").map((r) => r.question.number), ["4", "7", "9"]);
   assert.deepEqual(rows.filter((r) => r.status === "unmatched").map((r) => r.question.number), ["11", "19", "25"]);
   assert.equal(rows[0].answer, "A. Two-level");
   assert.equal(rows[13].answer, "A. KTHREAD；D. ETHREAD");
+  assert.equal(rows[17].answer, "A. Java threads；B. Win32 threads；D. POSIX Pthreads");
+  // Current source records explicitly include this punctuation variant.
+  assert.equal(rows[19].answer, "java threads");
   assert(rows.filter((r) => r.status !== "matched").every((r) => !r.answer));
 });
 

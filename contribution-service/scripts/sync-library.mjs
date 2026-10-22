@@ -8,11 +8,14 @@ const paths = [
   "submit.html",
   // review.html is service-owned: the GitHub Pages copy redirects back here.
   "assets/contributions.css",
+  "assets/ui-consistency.css",
   "assets/contributions-config.js",
   "assets/contribution-model.js",
   "assets/choice-answers.js",
   "assets/contributions-ui.js",
   "assets/contributions-submit.js",
+  "assets/submission-inbox-ui.mjs",
+  "assets/submission-inbox.mjs",
   "assets/contributions-review.js",
   "assets/icons/course-mascot.png",
 ];
@@ -28,10 +31,11 @@ await cp(
   resolve(library, "assets/choice-answers.js"),
   resolve(root, "worker/choice-answers.js"),
 );
-const os = JSON.parse(
-    (await readFile(resolve(library, "os.html"), "utf8")).match(
-      /const UNITS\s*=\s*(\[.*?\]);/s,
-    )[1],
+const { parseOSCourseHTML } = await import(
+  pathToFileURL(resolve(library, "scripts/course-data.mjs")).href
+);
+const os = parseOSCourseHTML(
+    await readFile(resolve(library, "os.html"), "utf8"),
   ),
   algo = JSON.parse(
     (await readFile(resolve(library, "algorithms.html"), "utf8")).match(
@@ -43,6 +47,9 @@ const os = JSON.parse(
 const { questionKey } = await import("../worker/model.js");
 const { choiceAliases, choiceCombinations, questionStemVersions } =
   await import(pathToFileURL(resolve(library, "assets/batch-model.mjs")).href);
+const searchAliases = JSON.parse(
+  await readFile(resolve(library, "assets/batch-search-aliases.json"), "utf8"),
+);
 const entries = new Map();
 const reviewedMerges = JSON.parse(
   await readFile(resolve(root, "content/approved-merges.json"), "utf8"),
@@ -63,7 +70,23 @@ for (const [course, units] of [
       displayedQuestions++;
       const inherited =
         choiceAliases(q.options ?? q.opts ?? [], q.optionTranslations) || [];
-      const variants = [q, ...(q.sourceVariants || [])];
+      // These aliases are explicitly reviewed data, also used by the batch
+      // library builder. Include them here rather than accepting general
+      // paraphrases or changed distractors as submission duplicates.
+      const reviewedAliases = (searchAliases[q.id ?? q.bookmarkId] || [])
+        .flatMap((alias) => {
+          const stem = typeof alias === "string" ? alias : alias?.stem;
+          if (typeof stem !== "string" || !stem.trim()) return [];
+          return [{
+            ...q,
+            stem: stem.trim(),
+            translation: "",
+            ...(typeof alias === "object" && alias?.answer
+              ? { answer: alias.answer, options: [], opts: [] }
+              : {}),
+          }];
+        });
+      const variants = [q, ...(q.sourceVariants || []), ...reviewedAliases];
       for (const variant of variants) {
         const targetAliases = [
           ...(q.aliases || []),

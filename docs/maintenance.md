@@ -20,6 +20,8 @@
 
 投稿同步失敗時，明示目前只比對內建題庫；不要以不完整資料宣稱全站未收錄。重新編輯或同步後必須再次比對，避免複製舊結果。
 
+不能只因原有正確選項仍存在，就把改動過其他選項的新版本當成已確認答案；新的選項也可能變成正確答案。只接受完整選項集合一致、換序或已核對翻譯。內建索引先啟用，公開投稿在背景同步；同步有新資料時，既有結果必須標為過期。
+
 ## 修改與同步
 
 以下命令均從專案根目錄執行。
@@ -38,7 +40,7 @@ node contribution-service/scripts/sync-library.mjs .
 根目錄前端與資料檢查：
 
 ```sh
-node --test tests/batch-model.test.mjs tests/submission-index.test.mjs tests/frontend-safety.test.mjs
+npm test
 ```
 
 投稿服務需先建置，再執行權限與資料流程檢查：
@@ -52,6 +54,18 @@ npm test
 單純修改批次頁排版不需發布投稿服務。修改題庫對照或投稿前端後，需同步、檢查並發布對應服務，避免網站查題與投稿查重的版本不同。
 
 GitHub Pages 與 Sites 投稿服務分開發布；更新 GitHub 不代表 Sites 已更新。Sites 的來源、版本及發布流程見投稿服務說明。
+
+`npm run test:all` 會依序執行前端檢查、投稿服務建置與服務測試。同步器會讀取目前題庫、已核對的來源版本與 `assets/batch-search-aliases.json`；`tests/submission-index.test.mjs` 驗證投稿索引涵蓋全部已核對選項語言組合，不能省略。
+
+## 練習、續讀與待複習備份
+
+兩科腳本依序載入 `question-tools.js`、作答判斷與課程 loader、`learning-tools.js`、`practice-progress.js`、`reading-flow.js`。進度模組使用課程 loader 的固定 ID 與位置還原 API，明確題目連結優先於本機續讀；側欄預設展開、題目順序預設依題庫順序。
+
+待複習與閱讀字級保存在 `course-library.learning.v1.{course}`；本輪統計與續讀位置在 `course-library.practice.v1.{course}`，首頁讀取 `course-library.last-course.v1`。這些資料只在目前瀏覽器保存；作答原文不寫入網址，逐題作答欄位不跨重新整理保留。
+
+待複習備份使用有版本與科目的 JSON；匯入先完整驗證，再合併寫入。錯誤科目、無效 ID、超量或儲存失敗必須保留原有清單；未同步的投稿 ID 可保留，舊 ID 透過合併對照遷移。
+
+題庫答案呈現使用現有已核對的 `choiceKey` 或精確選項對應，顯示代號與內容；不能因改變顯示格式而改寫原始答案。資料缺漏提示和答案是否已提供分開處理，缺少來源選項時不得自行補造。
 
 ## 登入與資料保護
 

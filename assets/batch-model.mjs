@@ -36,6 +36,8 @@ const cleanLine = (text) => {
       "$1",
     );
 };
+const hasLiteralPath = (line) =>
+  /(?:[A-Za-z]:\\|\\\\[^\s\\]+\\)[^\r\n]*$/.test(line);
 const header =
   /^(?:第\s*(\d{1,4})\s*題\s*[:：.)、]?|(?:Q(?:uestion)?|題目|題)\s*(\d{1,4})\s*[:：.)、-]?|[（(](\d{1,4})[）)]|(\d{1,4})[.)、](?=\D|$))\s*(.*)$/i;
 // AI sometimes emits standalone heading labels such as "Beast 1." or "妖獸 2.".
@@ -229,7 +231,10 @@ export function parseQuestions(text) {
       // Escaped Markdown (\\* and \\**) occurs when copied from rendered
       // notes. Normalize only structural heading and option lines.
       if (!/^\s*\\?\*(?:\\?\*|\s+[A-H][.)、:])/i.test(line)) return line;
-      return line.replace(/\\\*/g, "*").replace(/\\{1,2}\s*$/, "");
+      const structural = line.replace(/\\\*/g, "*");
+      return hasLiteralPath(structural)
+        ? structural
+        : structural.replace(/\\{1,2}\s*$/, "");
     });
   // Markdown exports may add a hard-break slash at the end of a line. Preserve
   // ordinary backslashes, but remove them before a clearly numbered next question.
@@ -248,10 +253,13 @@ export function parseQuestions(text) {
   }
   const cleanedLines = rawLines.map((line, i) => {
     const next = nextNonblank[i];
+    // A drive path such as C:\ or C:\notes\ ends in meaningful data, even
+    // when the following line starts the next numbered question.
+    const literalPath = hasLiteralPath(line);
     const boundaryBreak =
-      hardBreak.test(line) && next && questionHeader(cleanLine(next));
+      !literalPath && hardBreak.test(line) && next && questionHeader(cleanLine(next));
     return cleanLine(
-      exportedBreaks || boundaryBreak ? line.replace(hardBreak, "") : line,
+      (!literalPath && exportedBreaks) || boundaryBreak ? line.replace(hardBreak, "") : line,
     )
       .replace(/^#{1,6}\s*/, "")
       .normalize("NFKC");
@@ -402,6 +410,12 @@ export function parseQuestions(text) {
   return questions;
 }
 
+function choiceAnswerKey(answer, options) {
+  const expected = (globalThis.courseChoiceAnswers || globalThis.window?.courseChoiceAnswers).expectedChoiceKey;
+  return expected(answer, options) ||
+    (/\r?\n/.test(answer) ? expected(answer.replace(/\r?\n+/g, "、"), options) : null);
+}
+
 export function toLibraryQuestion(
   course,
   unit,
@@ -439,7 +453,7 @@ export function toLibraryQuestion(
     choiceKey: options.length
       ? suppliedValid
         ? supplied
-        : globalThis.courseChoiceAnswers.expectedChoiceKey(answer, options)
+        : choiceAnswerKey(answer, options)
       : null,
     needsImage: Boolean(raw.images?.length || raw.missingContext),
     preferred,
@@ -545,7 +559,9 @@ export function buildIndex(entries) {
   return { stems, blanklessStems, entries };
 }
 function blanklessStem(value, allowMissing = false) {
-  if (!answerFormat(value).hint) return null;
+  // The input needs a recognized fill instruction before recovering a missing
+  // slot. A source entry's explicit blank is sufficient without an extra hint.
+  if (allowMissing && !answerFormat(value).hint) return null;
   const normalized = normalizeStem(value);
   const slots = [
     ...normalized.matchAll(/___|(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/gu),
@@ -636,9 +652,10 @@ function remapAnswer(question, entry) {
       return null;
     return { answer: entry.answer, signature: normalizeText(entry.answer) };
   }
+  const key = entry.options.length &&
+    (entry.choiceKey || choiceAnswerKey(entry.answer, entry.options));
   const correct = entry.options.length
-    ? entry.choiceKey &&
-      [...entry.choiceKey].map((letter) => LETTERS.indexOf(letter))
+    ? key && [...key].map((letter) => LETTERS.indexOf(letter))
     : [normalizeText(entry.answer)];
   if (!correct) return null;
   const mapped = correct.map((value) =>
@@ -698,7 +715,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   if (
     !sameStem.length &&
     !question.options.length &&
-    normalized.length >= 15 &&
+    normalized.length > 0 &&
     answerFormat(question.stem).hint
   ) {
     const blankless = blanklessStem(question.stem, true);
@@ -728,7 +745,6 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     }
   }
   let textAnswerBridge = false;
-  let answerOnlyMatch = false;
   // A text-answer question can be transcribed as MCQ. Accept only an exact
   // stem, an unambiguous literal answer, and no competing choice/image version.
   if (
@@ -740,30 +756,8 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     exact = sameStem;
     textAnswerBridge = true;
   }
-  // Preserve the confirmed answer when a course uses a different distractor
-  // set. The correct option must still appear exactly once, every preferred
-  // source version must agree, and image-dependent questions remain review-only.
-  if (
-    !exact.length &&
-    !textAnswerBridge &&
-    question.options.length &&
-    sameStem.length
-  ) {
-    const candidates = sameStem.some((e) => e.preferred)
-      ? sameStem.filter((e) => e.preferred)
-      : sameStem;
-    const mapped = candidates.every((e) => !e.needsImage)
-      ? candidates.map((e) => remapAnswer(question, e))
-      : [];
-    if (
-      mapped.length &&
-      mapped.every(Boolean) &&
-      new Set(mapped.map((a) => a.signature)).size === 1
-    ) {
-      exact = candidates;
-      answerOnlyMatch = true;
-    }
-  }
+  // A changed distractor can become another correct answer. Only a complete
+  // option-set match (including verified aliases) may inherit a choice answer.
   if (exact.some((e) => e.preferred)) exact = exact.filter((e) => e.preferred);
   if (exact.length) {
     if (exact.some((e) => e.needsImage))
@@ -794,8 +788,6 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
           : filledAnswerMatch
             ? "題庫答案已直接寫在題幹中，題幹與答案均符合已收錄題目。" +
               (correctedFilledTypo ? "已辨識題幹中的拼字差異。" : "")
-          : answerOnlyMatch
-            ? "題幹相同，題庫正確答案可唯一對應本次選項；其他選項與題庫版本不同。"
           : "題幹與選項符合題庫（含已核對的中英文對照），答案已依貼上的選項代號對應。" +
             (question.options.some(
               (o) => optionText(o.text) === "Disk formating",
