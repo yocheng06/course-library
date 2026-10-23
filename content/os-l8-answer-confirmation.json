@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-23",
+  "course": "os",
+  "unit": "deadlocks",
+  "basis": "User confirmed the course grading answers; confirmation applies to quiz grading.",
+  "entries": [
+    {
+      "id": "os8-016",
+      "answer": "C",
+      "previousReviewIssue": "來源答案為 C；此題關於打破 Hold and Wait 的策略，答案與常見定義可能不符，請核對原課程答案。",
+      "previousAnswerProvided": false,
+      "answerProvided": true,
+      "explanation": "核心觀念：Hold and wait（佔用與等待）是程序持有部分資源，同時等待其他資源。預防時要避免『拿著一部分還繼續等待』。\n\n選項判讀：本題依已確認的課程答案選 C。讀題時將重點放在釋放資源、避免持有資源等待的要求。一般實作也可要求開始前一次取得全部所需資源，或先釋放已持有的資源再提出新請求。判斷是否真正預防成功，要看這項限制是否涵蓋程序之後的資源請求。"
+    },
+    {
+      "id": "os8-024",
+      "answer": "A,C",
+      "previousReviewIssue": "來源答案為 A、C；Wait-for graph 通常用於死結偵測，此答案組合可能有疑義，請核對原課程答案。",
+      "previousAnswerProvided": false,
+      "answerProvided": true,
+      "explanation": "核心觀念：銀行家演算法根據最大需求與目前分配檢查安全性；含宣告邊的資源分配圖演算法，則是單一實例資源的常見避免方法。\n\n選項判讀：本題採用已確認的課程答案 A、C。整理觀念時仍要分清每個圖的用途：資源分配圖可描述請求與分配，也可配合宣告邊做避免；等待圖省略資源節點，常用於偵測程序之間的等待環。不要只看到『圖』就認為它們執行的是同一種檢查。"
+    },
+    {
+      "id": "os8-056",
+      "answer": "livelock",
+      "previousReviewIssue": "來源答案為 livelock；題幹描述的狀態與此術語可能不符，請核對原課程答案。",
+      "previousAnswerProvided": false,
+      "answerProvided": true,
+      "explanation": "核心觀念：本題課程答案已確認為 livelock（活鎖），填小寫 livelock。\n\n解題步驟：理解術語時，活鎖是程序持續改變狀態、退讓或重試，卻沒有有效進展，例如兩人同時左右閃避仍互相擋路。Deadlock（死結）則是互相等待而無法前進；unsafe（不安全）是無法保證存在安全序列。這三種概念要分開記，本題填答依已確認的課程答案。"
+    },
+    {
+      "id": "os8-068",
+      "answer": "B,C",
+      "previousReviewIssue": "來源答案為 B、C；此題將可預防的死結條件分類，選項 C 含互斥條件，答案可能有歧義，請核對原課程答案。",
+      "previousAnswerProvided": false,
+      "answerProvided": true,
+      "explanation": "核心觀念：死結預防透過限制資源取得方式，讓四個必要條件至少一個無法成立。典型方法包括一次取得全部資源、允許安全搶佔，以及統一資源取得順序。\n\n選項判讀：本題採用已確認的課程答案 B、C。B 包含佔用與等待、無搶佔、循環等待；C 包含互斥、無搶佔、循環等待。理解時要記住：能否取消互斥或允許搶佔，取決於資源是否可共享、狀態是否可保存；不是每一種資源都能用同一種預防策略。"
+    }
+  ]
+}
