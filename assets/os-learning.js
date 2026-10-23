@@ -107,7 +107,7 @@ function languageOf(value) {
 }
 function optionMarkup(q, option, index) {
   const text = String(option ?? ''), match = text.match(/^([A-H][.、．:：])(\s*)([\s\S]*)$/);
-  const content = match ? `<span class="option-label">${highlighted(match[1])}</span>${esc(match[2])}${highlighted(match[3])}` : highlighted(text);
+  const content = match ? `<span class="option-label">${highlighted(match[1])}</span>${esc(match[2])}${highlighted(match[3])}` : `<span class="option-label">${String.fromCharCode(65 + index)}.</span> ${highlighted(text)}`;
   const translation = q.optionTranslations?.[index];
   return `<span class="option-content">${content}${translation ? `<span class="option-translation" lang="${languageOf(translation)}">${highlighted(translation)}</span>` : ''}</span>`;
 }
