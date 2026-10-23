@@ -1,0 +1,50 @@
+{
+  "source": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/questions?course=os",
+  "capturedAt": "2026-10-23",
+  "purpose": "Embed all currently public OS questions so the complete counts and questions are available on first render, without waiting for background sync. Existing IDs are preserved and the merge skips these IDs.",
+  "questionIds": [
+    "community-65307e6c-1612-4c30-b48f-0489756453b5-28",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-1",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-10",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-11",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-12",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-13",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-14",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-15",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-16",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-17",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-18",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-19",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-2",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-20",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-21",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-22",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-23",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-24",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-25",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-26",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-27",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-28",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-29",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-3",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-30",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-31",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-4",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-5",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-6",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-7",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-8",
+    "community-17f37eed-b93c-485f-9bdd-c7591a014917-9"
+  ],
+  "units": {
+    "scheduling": {
+      "added": 1,
+      "total": 102
+    },
+    "deadlocks": {
+      "added": 31,
+      "total": 112
+    }
+  },
+  "total": 692
+}

@@ -54,15 +54,12 @@
     return result;
   }
   async function sync() {
-    if (syncing) return;
-    if (location.protocol === 'file:') { config.setCountSyncState?.('local'); return; }
+    if (syncing || location.protocol === 'file:') return;
     if (!navigator.onLine) {
-      config.setCountSyncState?.('local');
       if (linkedSubmission) showNotice('這是投稿題目，需要連線才能載入；原有題庫可繼續閱讀。',true);
       return;
     }
     syncing = true;
-    config.setCountSyncState?.('loading');
     notice?.querySelector('button')?.setAttribute('disabled','');
     try {
       const response = await fetch(window.courseContributions.apiOrigin + '/api/questions?course=' + config.course, {signal:AbortSignal.timeout(8000)});
@@ -70,11 +67,9 @@
       const data = await response.json();
       if (!Array.isArray(data.questions)) throw new Error('invalid');
       merge(data.questions, data.aliases);
-      config.setCountSyncState?.('ready');
       if (linkedSubmission && !config.validId(linkedId)) showNotice('這個投稿題目連結暫時沒有可用內容，已顯示原有題庫。',true);
       else { notice?.remove(); notice = null; }
     } catch {
-      config.setCountSyncState?.('local');
       showNotice('投稿題庫暫時無法同步，原有題庫可繼續閱讀與作答。',true);
     } finally { syncing = false; }
   }

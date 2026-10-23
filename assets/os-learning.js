@@ -42,31 +42,8 @@ function ensureUnitLoaded(unitIndex) {
 }
 function ensureAllUnitsLoaded() { UNITS.forEach((_, index) => ensureUnitLoaded(index)); }
 function totalQuestionCount() { return UNITS.reduce((count, unit) => count + unit.questionCount, 0); }
-let countSyncState = window.courseContributions && location.protocol !== 'file:' ? 'loading' : 'local';
-function questionCountLabel(count) {
-  if (countSyncState === 'loading') return '題數載入中';
-  return countSyncState === 'local' && window.courseContributions && location.protocol !== 'file:'
-    ? `已載入 ${count} 題` : `${count} 題`;
-}
-function refreshCourseCount() {
-  document.querySelector('[data-course-total]').textContent = `${UNITS.length} 個單元 · ${questionCountLabel(totalQuestionCount())}`;
-}
-function setCountSyncState(next) {
-  if (!['loading', 'ready', 'local'].includes(next) || next === countSyncState) return;
-  countSyncState = next;
-  refreshCourseCount();
-  refreshUnitCount();
-  document.querySelectorAll('#units .unit-count').forEach((node, index) => { node.textContent = questionCountLabel(UNITS[index].questionCount); });
-  Array.from($('unitPicker').options).forEach((option, index) => { option.textContent = `UNIT ${unitNumber(index)} · ${UNITS[index].label} · ${questionCountLabel(UNITS[index].questionCount)}`; });
-  render(true);
-}
-function refreshUnitCount() {
-  $('unitCount').textContent=countSyncState === 'loading' ? '載入中' : UNITS[active].questionCount;
-  $('unitCount').style.fontSize=countSyncState === 'loading' ? '18px' : '';
-  $('unitCount').setAttribute('aria-busy', String(countSyncState === 'loading'));
-}
 ensureUnitLoaded(0);
-refreshCourseCount();
+document.querySelector('[data-course-total]').textContent = `${UNITS.length} 個單元 · ${totalQuestionCount()} 道題目`;
 const allUnits = () => $('searchScopeSelect').value === 'all';
 const scopedEntries = () => {
   if (allUnits()) {
@@ -109,11 +86,11 @@ function matches() {
 function refreshUnitNavigation() {
   const i = active, u = UNITS[i];
   document.querySelectorAll(".community-course-link").forEach(link => { link.href = `submit.html?course=os&unit=${encodeURIComponent(u.id)}`; });
-  $('unitPicker').innerHTML = UNITS.map((v,j) => `<option value="${j}">UNIT ${unitNumber(j)} · ${esc(v.label)} · ${questionCountLabel(v.questionCount)}</option>`).join('');
+  $('unitPicker').innerHTML = UNITS.map((v,j) => `<option value="${j}">UNIT ${unitNumber(j)} · ${esc(v.label)} · ${v.questionCount} 題</option>`).join('');
   $('unitPicker').value = i;
-  $('title').textContent=u.label; $('unitEn').textContent=u.en; $('description').textContent=u.desc; refreshUnitCount();
+  $('title').textContent=u.label; $('unitEn').textContent=u.en; $('description').textContent=u.desc; $('unitCount').textContent=u.questionCount;
   $('guideText').textContent = guides[u.id] || '先理解本單元的概念，再用題目練習，對照原答案與解析。';
-  $('units').innerHTML = UNITS.map((v,j) => `<button class="course-nav ${j===i?'active':''}" data-unit="${j}" aria-pressed="${j===i}"><span class="course-copy"><span class="unit-number">UNIT ${unitNumber(j)}</span><span class="unit-row"><strong>${esc(v.label)}</strong><span class="unit-count">${questionCountLabel(v.questionCount)}</span></span><small class="unit-en">${esc(v.en)}</small></span></button>`).join('');
+  $('units').innerHTML = UNITS.map((v,j) => `<button class="course-nav ${j===i?'active':''}" data-unit="${j}" aria-pressed="${j===i}"><span class="course-copy"><span class="unit-number">UNIT ${unitNumber(j)}</span><span class="unit-row"><strong>${esc(v.label)}</strong><span class="unit-count">${v.questionCount} 題</span></span><small class="unit-en">${esc(v.en)}</small></span></button>`).join('');
 }
 function switchUnit(i) {
   if (!Number.isInteger(i) || !UNITS[i]) return;
@@ -161,8 +138,8 @@ function render(preserveCards = false) {
   const filtered=practiceSequence.apply(matches(),mode==='practice'&&$('practiceOrder').value==='random',entry=>entry.q.id), entries=scopedEntries(), pages=Math.max(1,Math.ceil(filtered.length/pageSize)); page=Math.min(page,pages); totalPages=pages;
   const start=(page-1)*pageSize;
   $('qualitySelect').options[1].textContent=`待確認（${entries.filter(({q})=>window.courseQuestionTools.qualityReasons(q,'os').length).length} 題）`;
-  $('resultCount').innerHTML=`<strong>${allUnits()?'全部單元':'目前單元'} · ${$('chapter').value==='all'?'全部章節':esc($('chapter').value)}</strong> · ${countSyncState === 'loading' ? '題數載入中' : `${filtered.length} / ${entries.length} 題${countSyncState === 'local' && window.courseContributions && location.protocol !== 'file:' ? '（目前已載入）' : ''}`}`;
-  $('pageRange').textContent=filtered.length?`${start+1}–${Math.min(start+pageSize,filtered.length)} · ${countSyncState === 'loading' ? '補充題同步中' : `第 ${page} / ${pages} 頁`}`:'0 題';
+  $('resultCount').innerHTML=`<strong>${allUnits()?'全部單元':'目前單元'} · ${$('chapter').value==='all'?'全部章節':esc($('chapter').value)}</strong> · ${filtered.length} / ${entries.length} 題`;
+  $('pageRange').textContent=filtered.length?`${start+1}–${Math.min(start+pageSize,filtered.length)} · 第 ${page} / ${pages} 頁`:'0 題';
   const visible=filtered.slice(start,start+pageSize), cards=[...$('cards').children];
   if (!preserveCards || visible.length!==cards.length || visible.some(({q},index)=>q.id!==cards[index].dataset.id))
     $('cards').innerHTML=visible.map(cardMarkup).join('');
@@ -172,7 +149,7 @@ function render(preserveCards = false) {
   $('studyMode').setAttribute('aria-pressed',mode==='study'); $('practiceMode').setAttribute('aria-pressed',mode==='practice');
   $('answerToggle').hidden=mode==='practice'; $('modeHint').hidden=mode!=='practice';
   $('practiceOrderControl').hidden=mode!=='practice';
-  $('footer').textContent=`共 ${UNITS.length} 個單元 · ${questionCountLabel(totalQuestionCount())}`;
+  $('footer').textContent=`共 ${UNITS.length} 個單元 · ${totalQuestionCount()} 題`;
   window.learningUI?.refresh();
 }
 function resetFilters() { window.learningUI?.clearReview(); window.coursePracticeProgress?.clearFilter(); $('search').value=''; $('chapter').value='all'; $('typeSelect').value='all'; $('qualitySelect').value='all'; page=1; render(); }
@@ -288,7 +265,7 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
   }
   window.learningUI?.refresh();
   if (!added && !communityAliases.size) return {added:0, openedLinkedQuestion:false};
-  refreshCourseCount();
+  document.querySelector('[data-course-total]').textContent=`${UNITS.length} 個單元 · ${totalQuestionCount()} 道題目`;
   const linkedUnit = communityQuestionUnit.get(linkedQuestion) ?? questionUnitIndex.get(canonicalId(linkedQuestion));
   if (waitingForLinkedQuestion && openLinkedQuestion && linkedUnit !== undefined) ensureUnitLoaded(linkedUnit);
   const linked=waitingForLinkedQuestion && openLinkedQuestion && findEntry(linkedQuestion);
@@ -300,7 +277,7 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
   return {added, openedLinkedQuestion:Boolean(linked)};
 }
 window.courseLearning={
-  mergeCommunityQuestions, setCountSyncState, course:'os',toolbar:document.querySelector('.toolbar'),sidebar:document.querySelector('.sidebar'),list:$('cards'),
+  mergeCommunityQuestions, course:'os',toolbar:document.querySelector('.toolbar'),sidebar:document.querySelector('.sidebar'),list:$('cards'),
   unitIds:()=>ensureUnitLoaded(active).questions.map(q=>q.id),
   scopeIds:()=>scopedEntries().map(({q})=>q.id), allUnits,
   scopeLabel:()=>allUnits()?`作業系統 · 全部 ${UNITS.length} 個單元`:`目前單元 · ${UNITS[active].label}`,

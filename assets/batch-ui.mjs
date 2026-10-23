@@ -153,7 +153,7 @@ async function loadLibrary() {
   $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
   try {
     const built = fetch(
-      "assets/batch-library.json?v=os8-deadlocks-20261023",
+      "assets/batch-library.json?v=embedded-public-counts-20261023",
       {
         signal: AbortSignal.timeout(12000),
       },
