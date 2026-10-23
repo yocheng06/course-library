@@ -3,7 +3,7 @@ import {
   TYPES,
   normalizeType,
   normalizeBatch,
-} from "./contribution-model.js?v=password-setup-code-20261017";
+} from "./contribution-model.js?v=os8-deadlocks-20261023";
 import {
   esc,
   api,

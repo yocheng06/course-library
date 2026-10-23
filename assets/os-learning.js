@@ -8,6 +8,7 @@ const guides = {
   process:'程式像食譜，程序像正在依食譜做菜的工作。先分清楚程序狀態、排程與 context switch，再比較 shared memory 和 message passing 如何交換資訊。',
   threads:'執行緒像同一個工作裡分頭處理的小組：共享程序資源，但各自保有執行狀態。先分清楚 user thread 與 kernel thread，再看執行緒模型、函式庫和多核心效能。',
   synchronization:'程序同步用來協調並行存取共享資料的順序。先掌握臨界區解法的互斥、進度與有限等待，再比較 Mutex、Semaphore、Monitor；生產者／消費者、讀者／寫者與哲學家進餐題要逐步追蹤資源計數及 wait／signal 的順序。',
+  deadlocks:'死結表示程序彼此等待無法取得的資源或事件。先熟悉互斥、佔用與等待、不可搶佔及循環等待四個必要條件，再區分死結預防、避免、偵測與恢復；銀行家演算法用安全序列判斷是否能安全分配資源。',
   scheduling:'CPU 排程決定就緒佇列中誰先使用 CPU。先分清楚搶佔式與非搶佔式，再比較 FCFS、SJF、RR 與優先權排程；計算時注意到達時間、CPU burst、時間片，以及等待、周轉與回應時間的差別。'
 };
 let active = 0, page = 1, totalPages = 1, mode = 'study';

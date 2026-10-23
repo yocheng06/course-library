@@ -3,7 +3,7 @@ import {
   normalizeType,
   normalizeBatch,
   uniqueQuestions,
-} from "./contribution-model.js?v=global-dedup-20261016";
+} from "./contribution-model.js?v=os8-deadlocks-20261023";
 import {
   esc,
   api,
