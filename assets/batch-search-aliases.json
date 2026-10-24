@@ -17,7 +17,15 @@
   "os7-391": [
     {
       "stem": "signal(full) is an operation executed after ______ to notify the consumer that an item can be taken from the buffer.",
-      "answerAliases": ["adding a new iten"]
+      "answerAliases": [
+        "adding a new iten"
+      ]
+    }
+  ],
+  "os8-053": [
+    {
+      "stem": "_______________ 是死結偵測的兩種主要方法之一，它將資源分配圖簡化為一個等待圖來檢測循環。(請用小寫英文回答 單字間留一個空白)",
+      "answer": "wait for graph"
     }
   ]
 }

@@ -1178,3 +1178,16 @@ test("threading Markdown batch keeps all 25 questions and diagnoses the wrong co
   assert(rows.filter((r) => r.status !== "matched").every((r) => !r.answer));
 });
 
+
+test("L8 wait-for-graph fill accepts the verified word-spacing instruction", async () => {
+  const text = "妖獸 22. 【填空題】_______________ 是死結偵測的兩種主要方法之一，它將資源分配圖簡化為一個等待圖來檢測循環。(請用小寫英文回答 單字間留一個空白)";
+  const questions = parseQuestions(text);
+  assert.equal(questions.length, 1);
+  assert.equal(questions[0].number, "22");
+  assert.equal(questions[0].issues.length, 0);
+  const data = JSON.parse(await readFile(new URL("../assets/batch-library.json", import.meta.url), "utf8"));
+  const [result] = matchQuestions(questions, buildIndex(data.entries), {course: "os", unit: "all"});
+  assert.equal(result.status, "matched");
+  assert.equal(result.answer, "wait for graph");
+  assert(result.references.some((reference) => reference.id === "os8-053"));
+});
