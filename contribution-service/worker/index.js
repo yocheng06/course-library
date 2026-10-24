@@ -466,7 +466,10 @@ async function fingerprints(payload) {
   );
 }
 async function duplicates(env, keys, payload, excludeId = null) {
-  const found = new Set(keys.filter((k) => BASE_FINGERPRINTS.includes(k)));
+  const baseKeys = excludeId
+    ? BASE_FINGERPRINTS.filter((_, i) => BASE_QUESTIONS[i].canonicalId !== excludeId)
+    : BASE_FINGERPRINTS;
+  const found = new Set(keys.filter((k) => baseKeys.includes(k)));
   const result = await env.DB.prepare(
     "SELECT id,course,unit,data,fingerprint FROM public_questions WHERE course=? AND unit=?",
   )
@@ -1080,7 +1083,9 @@ function publicationRow(row) {
   };
 }
 async function suspectedDuplicates(env, payload, excludeId = null) {
-  const known = BASE_QUESTIONS.map((q) => ({ ...q, id: "內建題庫" }));
+  const known = BASE_QUESTIONS
+    .filter((q) => q.canonicalId !== excludeId)
+    .map((q) => ({ ...q, id: "內建題庫" }));
   const result = await env.DB.prepare(
     "SELECT id,course,unit,data FROM public_questions WHERE course=?",
   )
