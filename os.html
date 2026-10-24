@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>作業系統學習室｜課程題庫</title>
-<meta name="description" content="作業系統754道題目，依單元與章節閱讀、搜尋與練習。可離線使用。">
+<meta name="description" content="作業系統770道題目，依單元與章節閱讀、搜尋與練習。可離線使用。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23477ba8'/%3E%3Ctext x='4' y='22' fill='white' font-size='17'%3EOS%3C/text%3E%3C/svg%3E">
 
 
@@ -22,7 +22,7 @@
 </head>
 <body data-course="os">
 <a class="skip" href="#main">跳至學習內容</a>
-<header class="topbar"><button class="course-drawer-toggle" type="button" aria-label="收起課程側欄" aria-expanded="true" aria-controls="courseSidebar"><span></span><span></span><span></span></button><div class="brand"><span class="logo" aria-hidden="true"><img src="assets/icons/monitor.svg" alt=""></span>作業系統學習室</div><div class="tagline">一課一課，把觀念學會。 <span data-course-total style="margin-left:18px">7 個單元 · 754 道題目</span></div></header>
+<header class="topbar"><button class="course-drawer-toggle" type="button" aria-label="收起課程側欄" aria-expanded="true" aria-controls="courseSidebar"><span></span><span></span><span></span></button><div class="brand"><span class="logo" aria-hidden="true"><img src="assets/icons/monitor.svg" alt=""></span>作業系統學習室</div><div class="tagline">一課一課，把觀念學會。 <span data-course-total style="margin-left:18px">7 個單元 · 770 道題目</span></div></header>
 <div class="app"><aside id="courseSidebar" class="sidebar" aria-label="課程單元導覽"><nav class="site-nav" aria-label="科目與首頁"><a href="index.html?v=resume-removed-20261022">← 課程首頁</a><a href="os.html?v=os8-initialization-fix-20261023" aria-current="page">作業系統</a><a href="algorithms.html?v=resume-removed-20261022">演算法</a></nav><div class="unit-picker"><label for="unitPicker">課程單元</label><select id="unitPicker"></select></div><p class="navtitle">課程單元</p><nav id="units" class="course-menu" aria-label="選擇課程"></nav></aside>
 <main class="main" id="main" tabindex="-1"><section class="heading"><div><div class="eyebrow" id="unitEn"></div><h1 id="title"></h1><p class="subtitle" id="description"></p></div><div class="count"><strong id="unitCount"></strong><span>本單元題目</span></div></section>
 
@@ -30,7 +30,7 @@
 <section aria-labelledby="bankHeading"><h2 id="bankHeading" class="visually-hidden">章節題庫</h2>
 <div class="toolbar"><div class="search-options"><label for="searchScopeSelect">搜尋範圍</label><select id="searchScopeSelect" aria-describedby="searchScope"><option value="current">目前單元</option><option value="all">全部單元（本課程）</option></select></div><div class="searchrow"><label class="searchbox"><img class="search-icon" src="assets/icons/search.svg" alt="" aria-hidden="true"><input id="search" type="search" aria-label="搜尋本課題目、答案與解析" placeholder="搜尋本課題目、答案、術語或翻譯…" autocomplete="off"></label><button id="clear" class="plain">重設</button></div><div class="filters"><details class="filter-details" open><summary>篩選設定</summary><div class="filter-fields"><label>章節<select id="chapter" aria-label="選擇章節"></select></label><label>題型<select id="typeSelect" aria-label="選擇題型"></select></label><label>題目狀態<select id="qualitySelect" aria-describedby="qualityHint"><option value="all">全部題目</option><option value="pending">待確認</option></select></label><label class="answer-toggle" id="answerToggle"><input id="showAnswers" type="checkbox" checked>顯示答案與解析</label></div><p class="quality-hint" id="qualityHint">已提供題庫答案的題目視為正常；待確認只顯示未提供答案的題目。</p></details><div class="study-controls"><div class="segmented" aria-label="學習方式"><button id="studyMode" class="active" aria-pressed="true">閱讀學習</button><button id="practiceMode" aria-pressed="false">遮答練習</button></div><label class="practice-order" id="practiceOrderControl" hidden>題目順序<select id="practiceOrder" aria-label="遮答練習題目順序"><option value="ordered">依題庫順序</option><option value="random">隨機排序</option></select></label></div></div></div>
 <div class="summary" id="searchResults" tabindex="-1" role="status" aria-live="polite" aria-atomic="true"><span id="resultCount"></span><span id="pageRange"></span></div><details id="modeHint" class="practice-guide" hidden><summary>練習說明</summary><p>題目順序可選「依題庫順序」或「隨機排序」；隨機順序會在目前篩選下固定，篩選變更後重新抽序。先選擇或輸入答案，再按「檢查答案」。答錯後可調整答案再檢查，也可按「清除作答」重來；「顯示答案與解析」可隨時查看各題答案。練習作答只保留在目前開啟期間；離開或重新整理後不會保存。</p></details><section id="cards" class="list" aria-label="題目列表"></section><div id="empty" class="empty" hidden><h3>這個條件下沒有題目</h3><p>試試較短的關鍵字，或重設章節與題型。</p><button id="emptyReset" class="plain">重設篩選</button></div><nav id="pager" class="pager" aria-label="題庫頁碼"></nav></section>
-<details class="sources"><summary>題庫來源與使用提醒</summary><p>目前內建題庫收錄 754 題，包含已公開的 L6 與 L8 補充題。中英文題幹、同一組選項僅順序不同，以及相同題目的填空／選擇版本合併顯示；原題、答案、解析與舊題目編號仍保留在題目詳情。保留中英文題幹與選項；本站已補充部分解析與適用條件。修正後的答案會另保留修正前答案供對照。</p><p>「補充學習提示」為本站整理。已提供題庫答案的題目視為正常；練習模式會核對選項與有標準答案的文字題，答錯可重試，答對後顯示解析。</p><p>L2 作業系統基礎依更新版「作業系統_L2_題庫.html」的 128 筆資料整理，目前 61 題，其中 48 題附選項、13 題採文字練習；中英文同題與選項順序不同的版本合併，選項內容不同的版本保留。</p><p>L6 CPU 排程依更新版「作業系統L6_完整題庫本.html」的 10 批、300 筆資料整理，加上已公開補充題及本次朋友 U6 題庫的新填空問法，目前共 103 題，其中 67 題附選項、36 題採文字練習。本次比對朋友網站的 288 題內建題與 30 題公開補充題，共 318 筆；中英文同題、選項換序與缺少部分選項的舊版本不重複新增，較完整的不同問法保留為來源版本。依內容主題分組，同主題內按單選、多選、填空排列。</p><p>L7 程序同步依「OS_L7_Updated (2).html」的 13 回、390 筆題目整理為 137 題；合併 253 個重複版本，保留題目來源、答案解析及舊題目編號。</p><p>待複習標記與閱讀字級只保存在這台裝置，不會自動同步；練習作答不會保存。</p><p>L8 死結依「OS_死結題庫_彙整.json」四輪彙整的 97 題整理；合併 16 題重複的中英文或選項換序版本，整理為 81 題，再加入 31 題已公開補充題，再加入「os_deadlock_new_questions(2).json」的 61 題，目前共收錄 173 題。依內容主題分組，同一主題按單選、多選、填空排列；題目識別碼與舊連結保留。題庫答案已依課程判分結果確認，練習時正常判分。</p><p id="footer"></p></details><p class="bottom-note">讀懂答案的原因，比記住答案的位置更有用。</p>
+<details class="sources"><summary>題庫來源與使用提醒</summary><p>目前內建題庫收錄 754 題，包含已公開的 L6 與 L8 補充題。同一組題目或僅語言、選項順序不同的版本合併顯示；具有不同空格與作答方式的問法獨立保留。 原題、答案、解析與舊題目編號仍保留在題目詳情。保留中英文題幹與選項；本站已補充部分解析與適用條件。修正後的答案會另保留修正前答案供對照。</p><p>「補充學習提示」為本站整理。已提供題庫答案的題目視為正常；練習模式會核對選項與有標準答案的文字題，答錯可重試，答對後顯示解析。</p><p>L2 作業系統基礎依更新版「作業系統_L2_題庫.html」的 128 筆資料整理，目前 61 題，其中 48 題附選項、13 題採文字練習；中英文同題與選項順序不同的版本合併，選項內容不同的版本保留。</p><p>L6 CPU 排程依更新版「作業系統L6_完整題庫本.html」的 10 批、300 筆資料整理，加上已公開補充題及本次朋友 U6 題庫的新填空問法，目前共 119 題，其中 67 題附選項、52 題採文字練習。本次重新核對朋友網站的 288 題內建題與 30 題公開補充題，共 318 筆。排除 67 題內建來源與 18 題公開補充中未保存完整選項的選擇題；12 題公開填空已併入題目來源問法，另新增 16 題不同的完整填空問法。相同題目僅語言或選項順序不同的版本合併，並保留不同的填空問法。依內容主題分組，同主題內按單選、多選、填空排列。</p><p>L7 程序同步依「OS_L7_Updated (2).html」的 13 回、390 筆題目整理為 137 題；合併 253 個重複版本，保留題目來源、答案解析及舊題目編號。</p><p>待複習標記與閱讀字級只保存在這台裝置，不會自動同步；練習作答不會保存。</p><p>L8 死結依「OS_死結題庫_彙整.json」四輪彙整的 97 題整理；合併 16 題重複的中英文或選項換序版本，整理為 81 題，再加入 31 題已公開補充題，再加入「os_deadlock_new_questions(2).json」的 61 題，目前共收錄 173 題。依內容主題分組，同一主題按單選、多選、填空排列；題目識別碼與舊連結保留。題庫答案已依課程判分結果確認，練習時正常判分。</p><p id="footer"></p></details><p class="bottom-note">讀懂答案的原因，比記住答案的位置更有用。</p>
 </main></div>
 <noscript>請開啟瀏覽器 JavaScript，才能切換課程與題目。</noscript>
 <script id="course-manifest" type="application/json">
@@ -480,7 +480,7 @@
     "label": "CPU 排程",
     "en": "CPU SCHEDULING",
     "desc": "排程指標、FCFS／SJF／RR、優先權與即時排程",
-    "questionCount": 103,
+    "questionCount": 119,
     "questionIds": [
       "os6-014",
       "os6-016",
@@ -508,6 +508,8 @@
       "os6-008",
       "os6-009",
       "os6-013",
+      "os6-119",
+      "os6-120",
       "os6-025",
       "os6-031",
       "os6-032",
@@ -519,11 +521,17 @@
       "os6-035",
       "os6-110",
       "community-65307e6c-1612-4c30-b48f-0489756453b5-28",
+      "os6-121",
+      "os6-122",
+      "os6-123",
       "os6-036",
       "os6-038",
       "os6-040",
       "os6-041",
       "os6-042",
+      "os6-124",
+      "os6-125",
+      "os6-134",
       "os6-044",
       "os6-046",
       "os6-050",
@@ -534,6 +542,9 @@
       "os6-051",
       "os6-049",
       "os6-052",
+      "os6-126",
+      "os6-127",
+      "os6-133",
       "os6-054",
       "os6-056",
       "os6-061",
@@ -555,6 +566,9 @@
       "os6-063",
       "os6-071",
       "os6-072",
+      "os6-128",
+      "os6-129",
+      "os6-130",
       "os6-076",
       "os6-084",
       "os6-086",
@@ -574,6 +588,8 @@
       "os6-079",
       "os6-081",
       "os6-090",
+      "os6-131",
+      "os6-132",
       "os6-096",
       "os6-095",
       "os6-098",
@@ -2463,7 +2479,8 @@
     "answerProvided": true,
     "sourceKey": "dispatchlatfill",
     "sourceRecords": [
-      268
+      268,
+      1000000102
     ],
     "sourceVariants": [
       {
@@ -2514,6 +2531,22 @@
         "answer": "dispatch latency",
         "type": "填空",
         "sourceQuestionNumber": 106
+      },
+      {
+        "id": "chiyyaa-u6-public-20261024-1000000102",
+        "category": "排程基本觀念",
+        "type": "填空題",
+        "stem": "[__1__]是在即時系統中，排程器將當前程序從CPU上移除並切換到另一個程序所需的時間。(請用小寫英文回答 字母間留一個空白)",
+        "options": [],
+        "answer": "dispatch latency",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-public-20261024",
+        "sourceRecords": [
+          1000000102
+        ],
+        "sourceAnswers": [
+          "dispatch latency"
+        ]
       }
     ],
     "sourceExplanations": [
@@ -2521,6 +2554,12 @@
         "sourceId": "community-65307e6c-1612-4c30-b48f-0489756453b5-10",
         "text": "dispatch latency 是停止目前程序、完成必要的執行狀態切換，並讓下一個程序開始執行所需的延遲。即時工作即使已被選中，也要等待這段切換完成。\n\n它與 interrupt latency 不同：後者衡量中斷到達至中斷服務常式開始執行的延遲。即時系統需要控制兩者的最壞情況。"
       }
+    ],
+    "sourceAnswers": [
+      "dispatch latency"
+    ],
+    "aliases": [
+      "[__1__]是在即時系統中，排程器將當前程序從CPU上移除並切換到另一個程序所需的時間。(請用小寫英文回答 字母間留一個空白)"
     ]
   },
   {
@@ -3185,7 +3224,8 @@
       108,
       122,
       174,
-      231
+      231,
+      1000000115
     ],
     "sourceVariants": [
       {
@@ -3239,6 +3279,22 @@
         "answer": "terminated",
         "type": "填空",
         "sourceQuestionNumber": 150
+      },
+      {
+        "id": "chiyyaa-u6-public-20261024-1000000115",
+        "category": "評估指標",
+        "type": "填空題",
+        "stem": "Turnaround time is the total time from process submission to [__1__].(Please answer in lowercase English)",
+        "options": [],
+        "answer": "terminated",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-public-20261024",
+        "sourceRecords": [
+          1000000115
+        ],
+        "sourceAnswers": [
+          "terminated"
+        ]
       }
     ],
     "sourceExplanations": [
@@ -3246,6 +3302,12 @@
         "sourceId": "community-65307e6c-1612-4c30-b48f-0489756453b5-15",
         "text": "turnaround time 的終點是程序完成、進入 terminated 狀態的時刻。若到達時間為 A、完成時間為 C，周轉時間為 C − A。\n\n它包含從提交到完成之間的等待、CPU 執行與 I/O 等時間，不只是在 CPU 上實際執行的長度。"
       }
+    ],
+    "sourceAnswers": [
+      "terminated"
+    ],
+    "aliases": [
+      "Turnaround time is the total time from process submission to [__1__].(Please answer in lowercase English)"
     ]
   },
   {
@@ -3492,6 +3554,182 @@
         "sourceId": "community-65307e6c-1612-4c30-b48f-0489756453b5-19",
         "text": "multiprogramming 讓多個程序同時留在系統中。某個程序等待 I/O 時，排程器可切換到其他就緒程序，使 CPU 不必隨它一起閒置。\n\n提升利用率依賴系統當時仍有可執行的工作；若所有程序都在等待，或切換成本過高，CPU 仍可能閒置或花時間處理額外管理工作。"
       }
+    ]
+  },
+  {
+    "id": "os6-119",
+    "category": "評估指標",
+    "type": "填空／簡答",
+    "stem": "________ 是排程演算法每單位時間完成的程序數量，用來衡量其效率。",
+    "options": [],
+    "answer": "throughput",
+    "translation": "________ is the number of processes that complete their execution per time unit, used to measure the efficiency of a scheduling algorithm.",
+    "note": "",
+    "explanation": "吞吐量衡量單位時間完成多少程序，例如 10 秒完成 20 個，吞吐量為每秒 2 個。它看的是完成數，而不是到達數，也不是某一程序等待多久。\n\nCPU 利用率是忙碌時間比例；等待時間是就緒佇列中的等待；回應時間是到首次回應的延遲。這些指標的單位與目的不同。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      17,
+      191,
+      1000000103
+    ],
+    "sourceAnswers": [
+      "throughput"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-17",
+        "category": "評估指標",
+        "type": "填空題",
+        "stem": "________ 是每單位時間完成執行的程序數量，用於衡量排程演算法的效率。（請用小寫英文回答）",
+        "options": [],
+        "answer": "throughput",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          17
+        ],
+        "sourceAnswers": [
+          "throughput"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-191",
+        "category": "評估指標",
+        "type": "填空題",
+        "stem": "________ is the number of processes that complete their execution per time unit, used to measure the efficiency of a scheduling algorithm.\n(Please answer in lowercase English.)",
+        "options": [],
+        "answer": "throughput",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          191
+        ],
+        "sourceAnswers": [
+          "throughput"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-public-20261024-1000000103",
+        "category": "評估指標",
+        "type": "填空題",
+        "stem": "[__1__]是每單位時間完成執行的程序數量，用於衡量排程演算法的效率。(請用小寫英文回答)",
+        "options": [],
+        "answer": "throughput",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-public-20261024",
+        "sourceRecords": [
+          1000000103
+        ],
+        "sourceAnswers": [
+          "throughput"
+        ]
+      }
+    ],
+    "aliases": [
+      "________ 是每單位時間完成執行的程序數量，用於衡量排程演算法的效率。（請用小寫英文回答）",
+      "________ is the number of processes that complete their execution per time unit, used to measure the efficiency of a scheduling algorithm.\n(Please answer in lowercase English.)",
+      "[__1__]是每單位時間完成執行的程序數量，用於衡量排程演算法的效率。(請用小寫英文回答)"
+    ]
+  },
+  {
+    "id": "os6-120",
+    "category": "評估指標",
+    "type": "填空／簡答",
+    "stem": "回應時間是從提交請求到第一次 ________ 產生的時間。",
+    "options": [],
+    "answer": "response",
+    "translation": "Response time is the time from request submission to the first ________ produced.",
+    "note": "",
+    "explanation": "回應時間只量從提出請求到第一次回應的延遲，不必等完整工作結束。例如介面 1 秒就先顯示回覆，但完整計算花 8 秒，回應時間與完成時間不同。\n\n在簡化 CPU 排程計算題中，通常以首次取得 CPU 的時間減到達時間計算；若題目另給第一次輸出時間，則按該定義計算。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      21,
+      133,
+      167,
+      1000000116
+    ],
+    "sourceAnswers": [
+      "response"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-21",
+        "category": "評估指標",
+        "type": "填空題",
+        "stem": "回應時間是從提交請求到第一次[__1__]產生的時間。(請用小寫英文回答)",
+        "options": [],
+        "answer": "response",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          21
+        ],
+        "sourceAnswers": [
+          "response"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-133",
+        "category": "評估指標",
+        "type": "填空題",
+        "stem": "響應時間是從提交請求到第一次 ________ 產生的時間。（請用小寫英文回答）",
+        "options": [],
+        "answer": "response",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          133
+        ],
+        "sourceAnswers": [
+          "response"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-167",
+        "category": "評估指標",
+        "type": "填空題",
+        "stem": "Response time is the time from request submission to the first ________ produced.(Please answer in lowercase English)",
+        "options": [],
+        "answer": "response",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          167
+        ],
+        "sourceAnswers": [
+          "response"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-public-20261024-1000000116",
+        "category": "評估指標",
+        "type": "填空題",
+        "stem": "響應時間是從提交請求到第一次[__1__]產生的時間。(請用小寫英文回答)",
+        "options": [],
+        "answer": "response",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-public-20261024",
+        "sourceRecords": [
+          1000000116
+        ],
+        "sourceAnswers": [
+          "response"
+        ]
+      }
+    ],
+    "aliases": [
+      "回應時間是從提交請求到第一次[__1__]產生的時間。(請用小寫英文回答)",
+      "響應時間是從提交請求到第一次 ________ 產生的時間。（請用小寫英文回答）",
+      "Response time is the time from request submission to the first ________ produced.(Please answer in lowercase English)",
+      "響應時間是從提交請求到第一次[__1__]產生的時間。(請用小寫英文回答)"
     ]
   },
   {
@@ -4105,7 +4343,8 @@
     "sourceKey": "convoy",
     "sourceRecords": [
       118,
-      124
+      124,
+      1000000104
     ],
     "sourceVariants": [
       {
@@ -4157,6 +4396,22 @@
         "answer": "convoy",
         "type": "填空",
         "sourceQuestionNumber": 125
+      },
+      {
+        "id": "chiyyaa-u6-public-20261024-1000000104",
+        "category": "FCFS／SJF",
+        "type": "填空題",
+        "stem": "[__1__]效應是指一個短程序被一個或多個長程序阻塞。(請用小寫英文回答)",
+        "options": [],
+        "answer": "convoy",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-public-20261024",
+        "sourceRecords": [
+          1000000104
+        ],
+        "sourceAnswers": [
+          "convoy"
+        ]
       }
     ],
     "sourceExplanations": [
@@ -4164,6 +4419,12 @@
         "sourceId": "community-65307e6c-1612-4c30-b48f-0489756453b5-23",
         "text": "convoy effect 的核心是多個較短工作被前面的長工作拖住，像一隊車跟在慢車後方。它是排程次序造成的等待現象，不必涉及鎖或資源死結。\n\nFCFS 的非搶佔執行方式特別容易呈現這種情況，因此常用來說明它的缺點。"
       }
+    ],
+    "sourceAnswers": [
+      "convoy"
+    ],
+    "aliases": [
+      "[__1__]效應是指一個短程序被一個或多個長程序阻塞。(請用小寫英文回答)"
     ]
   },
   {
@@ -4348,6 +4609,207 @@
     ],
     "aliases": [
       "Shortest-remaining-time-first (SRTF) is the preemptive version of the ________ algorithm.\n(Please answer using English abbreviations and uppercase letters.)"
+    ]
+  },
+  {
+    "id": "os6-121",
+    "category": "FCFS／SJF",
+    "type": "填空／簡答",
+    "stem": "________ 排程可能導致護航效應，使其他程序都要等待一個長程序完成。（請填英文縮寫）",
+    "options": [],
+    "answer": "FCFS",
+    "translation": "[__1__] scheduling can lead to the convoy effect, where other processes wait for one long process to finish.",
+    "note": "",
+    "explanation": "FCFS 按到達順序服務，非搶佔式版本會讓目前程序執行到交出 CPU。若長 CPU 工作排在前面，後面的短工作即使只需少量 CPU，也必須一起等待，形成護航效應。\n\n它的優點是簡單，不需估計 burst；缺點是平均等待可能很大，也不能保證即時截止時間。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      30,
+      217
+    ],
+    "sourceAnswers": [
+      "FCFS"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-30",
+        "category": "FCFS／SJF",
+        "type": "填空題",
+        "stem": "________ 排程演算法可能導致護航效應，即所有其他程序都等待一個長程序完成。\n（請用英文縮寫回答且用大寫字母）",
+        "options": [],
+        "answer": "FCFS",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          30
+        ],
+        "sourceAnswers": [
+          "FCFS"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-217",
+        "category": "FCFS／SJF",
+        "type": "填空題",
+        "stem": "[__1__] scheduling can lead to the convoy effect, where all other processes wait for one long process to finish.(Please answer using English abbreviations and uppercase letters.)",
+        "options": [],
+        "answer": "FCFS",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          217
+        ],
+        "sourceAnswers": [
+          "FCFS"
+        ]
+      }
+    ],
+    "aliases": [
+      "________ 排程演算法可能導致護航效應，即所有其他程序都等待一個長程序完成。\n（請用英文縮寫回答且用大寫字母）",
+      "[__1__] scheduling can lead to the convoy effect, where all other processes wait for one long process to finish.(Please answer using English abbreviations and uppercase letters.)"
+    ]
+  },
+  {
+    "id": "os6-122",
+    "category": "FCFS／SJF",
+    "type": "填空／簡答",
+    "stem": "The ________ scheduling algorithm is widely used for its simplicity but can lead to the \"convoy effect.\"",
+    "options": [],
+    "answer": "first-come first-served",
+    "translation": "________ 排程演算法因其簡潔而廣泛使用，但可能導致護航效應。",
+    "note": "",
+    "explanation": "FCFS 按到達順序服務，非搶佔式版本會讓目前程序執行到交出 CPU。若長 CPU 工作排在前面，後面的短工作即使只需少量 CPU，也必須一起等待，形成護航效應。\n\n它的優點是簡單，不需估計 burst；缺點是平均等待可能很大，也不能保證即時截止時間。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      32,
+      150
+    ],
+    "sourceAnswers": [
+      "first-come first-served"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-32",
+        "category": "FCFS／SJF",
+        "type": "填空題",
+        "stem": "The ________ scheduling algorithm is widely used for its simplicity but can lead to the \"convoy effect.\" (Please answer in lowercase English with full name, connecting letters with hyphens)",
+        "options": [],
+        "answer": "first-come first-served",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          32
+        ],
+        "sourceAnswers": [
+          "first-come first-served"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-150",
+        "category": "FCFS／SJF",
+        "type": "填空題",
+        "stem": "________ 排程演算法因為其簡潔性而被廣泛使用，但可能導致「護航效應」。\n（請用小寫英文回答全名，字母間用 - 連接）",
+        "options": [],
+        "answer": "first-come first-served",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          150
+        ],
+        "sourceAnswers": [
+          "first-come first-served"
+        ]
+      }
+    ],
+    "aliases": [
+      "The ________ scheduling algorithm is widely used for its simplicity but can lead to the \"convoy effect.\" (Please answer in lowercase English with full name, connecting letters with hyphens)",
+      "________ 排程演算法因為其簡潔性而被廣泛使用，但可能導致「護航效應」。\n（請用小寫英文回答全名，字母間用 - 連接）"
+    ]
+  },
+  {
+    "id": "os6-123",
+    "category": "FCFS／SJF",
+    "type": "填空／簡答",
+    "stem": "____________ 排程演算法是最佳的，因為它能為一組程序提供最小平均等待時間。",
+    "options": [],
+    "answer": "shortest-job-first",
+    "translation": "The ________ scheduling algorithm is optimal because it provides the minimum average waiting time for a given set of processes.",
+    "note": "",
+    "explanation": "核心觀念：SJF 在已就緒工作中優先選下一次 CPU burst 最短者，可降低等待時間的累積。\n\n解題步驟：假設兩個工作同時到達、長度為 3 與 6。短的先做，等待為 0、3，平均 1.5；長的先做，等待為 0、6，平均 3。把短工作移前面可減少它拖住其他工作的時間。\n\n適用條件：最小平均等待的標準非搶佔式結論採同時已就緒、burst 已知的模型。實際 burst 通常要估計；有新工作到達時，還需區分 SJF 與 SRTF。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      36,
+      175,
+      1000000108
+    ],
+    "sourceAnswers": [
+      "shortest-job-first"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-36",
+        "category": "FCFS／SJF",
+        "type": "填空題",
+        "stem": "The ________ scheduling algorithm is optimal because it provides the minimum average waiting time for a given set of processes. (Please answer in lowercase English, connecting letters with hyphens)",
+        "options": [],
+        "answer": "shortest-job-first",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          36
+        ],
+        "sourceAnswers": [
+          "shortest-job-first"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-175",
+        "category": "FCFS／SJF",
+        "type": "填空題",
+        "stem": "____________ 排程演算法是最佳的，因為它能給定程序集提供最小的平均等待時間。（請用小寫英文回答 字母間用-連接）",
+        "options": [],
+        "answer": "shortest-job-first",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          175
+        ],
+        "sourceAnswers": [
+          "shortest-job-first"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-public-20261024-1000000108",
+        "category": "FCFS／SJF",
+        "type": "填空題",
+        "stem": "The [__1__] scheduling algorithm is optimal because it provides the minimum average waiting time for a given set of processes.(Please answer in lowercase English, connecting letters with hyphens)",
+        "options": [],
+        "answer": "shortest-job-first",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-public-20261024",
+        "sourceRecords": [
+          1000000108
+        ],
+        "sourceAnswers": [
+          "shortest-job-first"
+        ]
+      }
+    ],
+    "aliases": [
+      "The ________ scheduling algorithm is optimal because it provides the minimum average waiting time for a given set of processes. (Please answer in lowercase English, connecting letters with hyphens)",
+      "____________ 排程演算法是最佳的，因為它能給定程序集提供最小的平均等待時間。（請用小寫英文回答 字母間用-連接）",
+      "The [__1__] scheduling algorithm is optimal because it provides the minimum average waiting time for a given set of processes.(Please answer in lowercase English, connecting letters with hyphens)"
     ]
   },
   {
@@ -4962,6 +5424,224 @@
         "sourceId": "community-65307e6c-1612-4c30-b48f-0489756453b5-34",
         "text": "解題步驟：依題庫答案採三個程序都在時間 0 就緒、初始順序 P1、P2、P3，且忽略切換成本。每次執行最多 4，未完成者排回隊尾。\n\nA：P1，0–4，剩 16；B：P2，4–7，完成；C：P3，7–11，剩 3；D：P1，11–15，剩 12；E：P3，15–18，完成；F：P1，18–22，剩 8；G：P1，22–26，剩 4；H：P1，26–30，完成。\n\n因此 A～H 為 P1→P2→P3→P1→P3→P1→P1→P1。最後只剩 P1，仍可按時間片劃成三格，不代表每格之間都必須切換到另一個程序。"
       }
+    ]
+  },
+  {
+    "id": "os6-124",
+    "category": "RR 時間片",
+    "type": "填空／簡答",
+    "stem": "在 Round Robin（RR）排程中，分配給每個程序的一小段 CPU 時間稱為 ____________。",
+    "options": [],
+    "answer": "time quantum",
+    "translation": "In the Round Robin (RR) algorithm, the unit of a small amount of CPU time given to each process is called a ____________.",
+    "note": "",
+    "explanation": "時間片 q 是 RR 每次允許程序連續使用 CPU 的最大時間。程序若提早完成或等待 I/O，會提前交出 CPU；若用完 q 仍未完成，就被移回就緒佇列尾端。\n\n因此時間片是一次服務的上限，不是程序全部所需的 CPU 時間，也不保證每次都用滿。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      42,
+      149,
+      286,
+      1000000101
+    ],
+    "sourceAnswers": [
+      "time quantum"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-42",
+        "category": "RR 時間片",
+        "type": "填空題",
+        "stem": "In the Round Robin (RR) algorithm, the unit of a small amount of CPU time given to each process is called a ____________ .(Please answer in lowercase English, leaving a space between each word)",
+        "options": [],
+        "answer": "time quantum",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          42
+        ],
+        "sourceAnswers": [
+          "time quantum"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-149",
+        "category": "RR 時間片",
+        "type": "填空題",
+        "stem": "迴圈排程（RR）演算法中，每個程序獲得一小段CPU時間的單位稱為 ________ 。（請用小寫英文回答，單字間留一個空白）",
+        "options": [],
+        "answer": "time quantum",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          149
+        ],
+        "sourceAnswers": [
+          "time quantum"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-286",
+        "category": "RR 時間片",
+        "type": "填空題",
+        "stem": "迴圈排程（RR）演算法中，每個程序獲得一小段CPU時間的單位稱為[__1__]。(請用小寫英文回答 字母間留一個空白)",
+        "options": [],
+        "answer": "time quantum",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          286
+        ],
+        "sourceAnswers": [
+          "time quantum"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-public-20261024-1000000101",
+        "category": "RR 時間片",
+        "type": "填空題",
+        "stem": "迴圈排程（RR）演算法中，每個程序獲得一小段CPU時間的單位稱為[__1__]。(請用小寫英文回答 字母間留一個空白)",
+        "options": [],
+        "answer": "time quantum",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-public-20261024",
+        "sourceRecords": [
+          1000000101
+        ],
+        "sourceAnswers": [
+          "time quantum"
+        ]
+      }
+    ],
+    "aliases": [
+      "In the Round Robin (RR) algorithm, the unit of a small amount of CPU time given to each process is called a ____________ .(Please answer in lowercase English, leaving a space between each word)",
+      "迴圈排程（RR）演算法中，每個程序獲得一小段CPU時間的單位稱為 ________ 。（請用小寫英文回答，單字間留一個空白）",
+      "迴圈排程（RR）演算法中，每個程序獲得一小段CPU時間的單位稱為[__1__]。(請用小寫英文回答 字母間留一個空白)"
+    ]
+  },
+  {
+    "id": "os6-125",
+    "category": "RR 時間片",
+    "type": "填空／簡答",
+    "stem": "當 Round Robin（RR）的時間片相較於上下文切換時間非常大時，其行為會趨近於 ____________。",
+    "options": [],
+    "answer": "first-come first-served",
+    "translation": "When the Round Robin (RR) time quantum is very large relative to context-switch time, its behavior approaches [__1__].",
+    "note": "",
+    "explanation": "若 RR 的時間片大到每個 CPU burst 都能在一輪內完成，就不會因時間片到期而換人，工作依佇列順序服務，行為近似 FCFS。\n\n只知道 q 比 context switch 時間大，還不足以推出 FCFS；這只表示切換開銷比例較小，還要比較 q 與工作 burst 的長度。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      44,
+      121
+    ],
+    "sourceAnswers": [
+      "first-come first-served"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-44",
+        "category": "RR 時間片",
+        "type": "填空題",
+        "stem": "When the time quantum (q) is very large relative to the context switch time, the Round Robin (RR) algorithm's behavior approaches [__1__].(Please answer using lowercase English letters; connect related letters with a hyphen and separate unrelated letters with a space.)",
+        "options": [],
+        "answer": "first-come first-served",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          44
+        ],
+        "sourceAnswers": [
+          "first-come first-served"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-121",
+        "category": "RR 時間片",
+        "type": "填空題",
+        "stem": "當時間片（q）相對於上下文切換時間非常大時，迴圈排程（RR）演算法的行為會趨近於 ____________。（請用小寫英文回答 關聯字母間用-連接 非關聯字母間用 空白）",
+        "options": [],
+        "answer": "first-come first-served",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          121
+        ],
+        "sourceAnswers": [
+          "first-come first-served"
+        ]
+      }
+    ],
+    "aliases": [
+      "When the time quantum (q) is very large relative to the context switch time, the Round Robin (RR) algorithm's behavior approaches [__1__].(Please answer using lowercase English letters; connect related letters with a hyphen and separate unrelated letters with a space.)",
+      "當時間片（q）相對於上下文切換時間非常大時，迴圈排程（RR）演算法的行為會趨近於 ____________。（請用小寫英文回答 關聯字母間用-連接 非關聯字母間用 空白）"
+    ]
+  },
+  {
+    "id": "os6-134",
+    "category": "RR 時間片",
+    "type": "填空／簡答",
+    "stem": "在 Round Robin 排程中，____________ 決定每個程序可以獲得的 CPU 時間長度。",
+    "options": [],
+    "answer": "time quantum",
+    "translation": "In the Round Robin scheduling algorithm, the ____________ determines the length of CPU time each process gets.",
+    "note": "",
+    "explanation": "時間片 q 是 RR 每次允許程序連續使用 CPU 的最大時間。程序若提早完成或等待 I/O，會提前交出 CPU；若用完 q 仍未完成，就被移回就緒佇列尾端。\n\n因此時間片是一次服務的上限，不是程序全部所需的 CPU 時間，也不保證每次都用滿。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      181,
+      244
+    ],
+    "sourceAnswers": [
+      "time quantum"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-181",
+        "category": "RR 時間片",
+        "type": "填空題",
+        "stem": "In the Round Robin scheduling algorithm, the ____________ determines the length of CPU time each process gets.(Please answer in lowercase English, leaving a space between each word)",
+        "options": [],
+        "answer": "time quantum",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          181
+        ],
+        "sourceAnswers": [
+          "time quantum"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-244",
+        "category": "RR 時間片",
+        "type": "填空題",
+        "stem": "在輪循（Round Robin）排程演算法中，[__1__]決定了每個程序可以獲得的CPU時間長度。(請用小寫英文回答 字母間留一個空白)",
+        "options": [],
+        "answer": "time quantum",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          244
+        ],
+        "sourceAnswers": [
+          "time quantum"
+        ]
+      }
+    ],
+    "aliases": [
+      "In the Round Robin scheduling algorithm, the ____________ determines the length of CPU time each process gets.(Please answer in lowercase English, leaving a space between each word)",
+      "在輪循（Round Robin）排程演算法中，[__1__]決定了每個程序可以獲得的CPU時間長度。(請用小寫英文回答 字母間留一個空白)"
     ]
   },
   {
@@ -5931,6 +6611,189 @@
     ]
   },
   {
+    "id": "os6-126",
+    "category": "優先權／飢餓",
+    "type": "填空／簡答",
+    "stem": "優先權排程可能導致 ____________，使低優先權程序一直無法執行。",
+    "options": [],
+    "answer": "starvation",
+    "translation": "Priority scheduling can lead to ____________, where low-priority processes may never run.",
+    "note": "",
+    "explanation": "飢餓是某工作長期無法取得資源，例如低優先權程序持續被高優先權程序插隊。系統可能仍在處理其他工作，只是這個程序一直等不到。\n\n死結則涉及程序互相等待而無法前進，兩者機制不同。提高久候工作優先權的老化可改善優先權飢餓。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      50,
+      206
+    ],
+    "sourceAnswers": [
+      "starvation"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-50",
+        "category": "優先權／飢餓",
+        "type": "填空題",
+        "stem": "優先權排程可能會導致 ________ ，即低優先權程序永遠無法執行。（請用小寫英文回答）",
+        "options": [],
+        "answer": "starvation",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          50
+        ],
+        "sourceAnswers": [
+          "starvation"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-206",
+        "category": "優先權／飢餓",
+        "type": "填空題",
+        "stem": "Priority scheduling can lead to ____________ , where low-priority processes may never run.(Please answer in lowercase English)",
+        "options": [],
+        "answer": "starvation",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          206
+        ],
+        "sourceAnswers": [
+          "starvation"
+        ]
+      }
+    ],
+    "aliases": [
+      "優先權排程可能會導致 ________ ，即低優先權程序永遠無法執行。（請用小寫英文回答）",
+      "Priority scheduling can lead to ____________ , where low-priority processes may never run.(Please answer in lowercase English)"
+    ]
+  },
+  {
+    "id": "os6-127",
+    "category": "優先權／飢餓",
+    "type": "填空／簡答",
+    "stem": "在 ____________ 排程中，程序可在不同佇列間移動，這有助於實現老化（aging）。",
+    "options": [],
+    "answer": "multilevel feedback queue",
+    "translation": "In a ____________ scheduling, a process can move between the various queues, which helps to implement aging.",
+    "note": "",
+    "explanation": "多層級回饋佇列會依程序實際使用 CPU 的行為調整其所在層級。例如用滿時間片的工作可降級，常快速交出 CPU 的互動工作可留在高層。\n\n這是在不知道未來 CPU burst 的情況下，利用歷史行為調整服務順序；與程序永久固定分組的 MLQ 不同。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      58,
+      130
+    ],
+    "sourceAnswers": [
+      "multilevel feedback queue"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-58",
+        "category": "優先權／飢餓",
+        "type": "填空題",
+        "stem": "In a ____________ scheduling, a process can move between the various queues, which helps to implement aging.(Please answer in lowercase English, leaving a space between each word)",
+        "options": [],
+        "answer": "multilevel feedback queue",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          58
+        ],
+        "sourceAnswers": [
+          "multilevel feedback queue"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-130",
+        "category": "優先權／飢餓",
+        "type": "填空題",
+        "stem": "在 ________ 排程中，程序可以在不同的佇列之間移動，這有助於實現老化。（請用小寫英文回答 字母間留一個空白）",
+        "options": [],
+        "answer": "multilevel feedback queue",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          130
+        ],
+        "sourceAnswers": [
+          "multilevel feedback queue"
+        ]
+      }
+    ],
+    "aliases": [
+      "In a ____________ scheduling, a process can move between the various queues, which helps to implement aging.(Please answer in lowercase English, leaving a space between each word)",
+      "在 ________ 排程中，程序可以在不同的佇列之間移動，這有助於實現老化。（請用小寫英文回答 字母間留一個空白）"
+    ]
+  },
+  {
+    "id": "os6-133",
+    "category": "優先權／飢餓",
+    "type": "填空／簡答",
+    "stem": "In priority scheduling, the solution to the \"starvation\" problem is ________.",
+    "options": [],
+    "answer": "aging",
+    "translation": "在優先權排程中，解決「飢餓」問題的方法是什麼？",
+    "note": "",
+    "explanation": "老化會隨等待時間增加，逐步提高程序的優先權，使原本低優先權工作最終也有機會取得 CPU。它不是讓工作年齡變大就更低優先，也不是永久把所有工作設成同一優先權。實作時還要定義提升速度與上限，才能維持公平性與回應目標。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      136,
+      207
+    ],
+    "sourceAnswers": [
+      "aging"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-136",
+        "category": "優先權／飢餓",
+        "type": "填空題",
+        "stem": "In priority scheduling, the solution to the \"starvation\" problem where a low-priority process might never execute is ________ .(Please answer in lowercase English)",
+        "options": [],
+        "answer": "aging",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          136
+        ],
+        "sourceAnswers": [
+          "aging"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-207",
+        "category": "優先權／飢餓",
+        "type": "填空題",
+        "stem": "在優先權排程中，解決低優先權程序可能永遠無法執行的「飢餓」問題的方法是 ____________。（請用小寫英文回答）",
+        "options": [],
+        "answer": "aging",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          207
+        ],
+        "sourceAnswers": [
+          "aging"
+        ]
+      }
+    ],
+    "aliases": [
+      "In priority scheduling, the solution to the \"starvation\" problem where a low-priority process might never execute is ________ .(Please answer in lowercase English)",
+      "在優先權排程中，解決低優先權程序可能永遠無法執行的「飢餓」問題的方法是 ____________。（請用小寫英文回答）"
+    ]
+  },
+  {
     "id": "os6-054",
     "category": "多處理器",
     "type": "單選題",
@@ -6401,7 +7264,8 @@
     "answerProvided": true,
     "sourceKey": "push",
     "sourceRecords": [
-      134
+      134,
+      1000000105
     ],
     "sourceVariants": [
       {
@@ -6468,6 +7332,22 @@
         "sourceAnswers": [
           "push migration"
         ]
+      },
+      {
+        "id": "chiyyaa-u6-public-20261024-1000000105",
+        "category": "多處理器",
+        "type": "填空題",
+        "stem": "In a symmetric multiprocessing (SMP) system, [__1__] is a periodic task that checks the load on each processor and pushes tasks from overloaded CPUs to other CPUs.(Please answer in lowercase English, leaving a space between each word)",
+        "options": [],
+        "answer": "push migration",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-public-20261024",
+        "sourceRecords": [
+          1000000105
+        ],
+        "sourceAnswers": [
+          "push migration"
+        ]
       }
     ],
     "sourceExplanations": [
@@ -6477,7 +7357,11 @@
       }
     ],
     "aliases": [
-      "In a symmetric multiprocessing (SMP) system, ________ is a periodic task that checks the load on each processor and pushes tasks from overloaded CPUs to other CPUs.\n(Please answer in lowercase English, leaving a space between each word.)"
+      "In a symmetric multiprocessing (SMP) system, ________ is a periodic task that checks the load on each processor and pushes tasks from overloaded CPUs to other CPUs.\n(Please answer in lowercase English, leaving a space between each word.)",
+      "In a symmetric multiprocessing (SMP) system, [__1__] is a periodic task that checks the load on each processor and pushes tasks from overloaded CPUs to other CPUs.(Please answer in lowercase English, leaving a space between each word)"
+    ],
+    "sourceAnswers": [
+      "push migration"
     ]
   },
   {
@@ -7249,7 +8133,8 @@
       52,
       107,
       198,
-      225
+      225,
+      1000000122
     ],
     "sourceVariants": [
       {
@@ -7304,6 +8189,22 @@
         "answer": "rate monotonic scheduling",
         "type": "填空",
         "sourceQuestionNumber": 57
+      },
+      {
+        "id": "chiyyaa-u6-public-20261024-1000000122",
+        "category": "即時排程",
+        "type": "填空題",
+        "stem": "[__1__]排程是根據週期的倒數來分配優先權的演算法。(請用小寫英文回答 字母間留一個空白)",
+        "options": [],
+        "answer": "rate monotonic scheduling",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-public-20261024",
+        "sourceRecords": [
+          1000000122
+        ],
+        "sourceAnswers": [
+          "rate monotonic scheduling"
+        ]
       }
     ],
     "sourceExplanations": [
@@ -7311,6 +8212,12 @@
         "sourceId": "community-65307e6c-1612-4c30-b48f-0489756453b5-48",
         "text": "Rate Monotonic Scheduling 依工作週期配置固定優先權：週期越短、每單位時間需要被服務的頻率越高，優先權就越高。\n\n典型分析假設週期性、可搶佔、工作彼此獨立，且相對截止時間等於週期。它不是每次都按照最近一次絕對截止時間重新排名；後者是 EDF 的概念。"
       }
+    ],
+    "sourceAnswers": [
+      "rate monotonic scheduling"
+    ],
+    "aliases": [
+      "[__1__]排程是根據週期的倒數來分配優先權的演算法。(請用小寫英文回答 字母間留一個空白)"
     ]
   },
   {
@@ -7408,7 +8315,8 @@
     "kindSource": "完整題庫提供填空題",
     "aliases": [
       "os6-104",
-      "os6-112"
+      "os6-112",
+      "[__1__]是根據截止時間分配優先權的演算法：截止時間越早，優先權越高。(請用小寫英文回答 字母間留一個空白)"
     ],
     "answerProvided": true,
     "sourceKey": "edf",
@@ -7416,7 +8324,8 @@
       10,
       42,
       261,
-      248
+      248,
+      1000000121
     ],
     "sourceVariants": [
       {
@@ -7527,6 +8436,22 @@
         "answer": "earliest deadline first",
         "type": "填空",
         "sourceQuestionNumber": 110
+      },
+      {
+        "id": "chiyyaa-u6-public-20261024-1000000121",
+        "category": "即時排程",
+        "type": "填空題",
+        "stem": "[__1__]是根據截止時間分配優先權的演算法：截止時間越早，優先權越高。(請用小寫英文回答 字母間留一個空白)",
+        "options": [],
+        "answer": "earliest deadline first scheduling",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-public-20261024",
+        "sourceRecords": [
+          1000000121
+        ],
+        "sourceAnswers": [
+          "earliest deadline first scheduling"
+        ]
       }
     ],
     "sourceExplanations": [
@@ -7538,6 +8463,192 @@
         "sourceId": "community-65307e6c-1612-4c30-b48f-0489756453b5-55",
         "text": "EDF 會優先選擇最早到期的工作。本題把資料的 expiration time 當作相關工作的截止時間，因此對應 earliest deadline first。\n\n重點是期限越近，動態優先權越高。若是在討論資料庫新鮮度，資料過期與工作完成期限仍可能是不同限制，必須先定義兩者的關係。"
       }
+    ],
+    "sourceAnswers": [
+      "earliest deadline first scheduling"
+    ]
+  },
+  {
+    "id": "os6-128",
+    "category": "即時排程",
+    "type": "填空／簡答",
+    "stem": "硬即時系統要求每個任務都必須在其 ____________ 前完成。",
+    "options": [],
+    "answer": "deadline",
+    "translation": "Hard real-time systems require a task to be serviced by its ________.",
+    "note": "",
+    "explanation": "硬即時系統的正確性同時取決於計算結果與完成時刻；工作錯過 deadline 即使之後算對，也不能算滿足原任務要求。\n\n設計時須估計最壞執行時間、阻塞與交接延遲，並驗證任務是否可排程。速度快或可被中斷，單獨都不等於能保證截止時間。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      71,
+      147,
+      271
+    ],
+    "sourceAnswers": [
+      "deadline"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-71",
+        "category": "即時排程",
+        "type": "填空題",
+        "stem": "Hard real-time systems require a task to be serviced by its ________.",
+        "options": [],
+        "answer": "deadline",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          71
+        ],
+        "sourceAnswers": [
+          "deadline"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-147",
+        "category": "即時排程",
+        "type": "填空題",
+        "stem": "硬即時系統（Hard real-time systems）要求任務必須在 ________ 內完成。（請用小寫英文回答）",
+        "options": [],
+        "answer": "deadline",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          147
+        ],
+        "sourceAnswers": [
+          "deadline"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-271",
+        "category": "即時排程",
+        "type": "填空題",
+        "stem": "Hard real-time systems require a task to be serviced by its [__1__].(Please answer in lowercase English)",
+        "options": [],
+        "answer": "deadline",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          271
+        ],
+        "sourceAnswers": [
+          "deadline"
+        ]
+      }
+    ],
+    "aliases": [
+      "Hard real-time systems require a task to be serviced by its ________.",
+      "硬即時系統（Hard real-time systems）要求任務必須在 ________ 內完成。（請用小寫英文回答）",
+      "Hard real-time systems require a task to be serviced by its [__1__].(Please answer in lowercase English)"
+    ]
+  },
+  {
+    "id": "os6-129",
+    "category": "即時排程",
+    "type": "填空／簡答",
+    "stem": "硬即時系統的排程必須保證任務在 ____________ 前完成。",
+    "options": [],
+    "answer": "deadline",
+    "translation": "Hard real-time scheduling must guarantee that each task is completed before its ____________.",
+    "note": "",
+    "explanation": "硬即時系統的正確性同時取決於計算結果與完成時刻；工作錯過 deadline 即使之後算對，也不能算滿足原任務要求。\n\n設計時須估計最壞執行時間、阻塞與交接延遲，並驗證任務是否可排程。速度快或可被中斷，單獨都不等於能保證截止時間。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      148
+    ],
+    "sourceAnswers": [
+      "deadline"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-148",
+        "category": "即時排程",
+        "type": "填空題",
+        "stem": "硬即時系統(hard realtime syste,)的排程必須保證在 ____________ 時間內完成任務。（請用小寫英文回答）",
+        "options": [],
+        "answer": "deadline",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          148
+        ],
+        "sourceAnswers": [
+          "deadline"
+        ]
+      }
+    ],
+    "aliases": [
+      "硬即時系統(hard realtime syste,)的排程必須保證在 ____________ 時間內完成任務。（請用小寫英文回答）"
+    ]
+  },
+  {
+    "id": "os6-130",
+    "category": "即時排程",
+    "type": "填空／簡答",
+    "stem": "The [__1__] scheduling algorithm assigns priorities according to task deadlines in real-time scheduling.",
+    "options": [],
+    "answer": "earliest deadline first",
+    "translation": "即時排程中的[__1__]排程演算法，會依任務截止時間分配優先權。",
+    "note": "",
+    "explanation": "EDF 根據目前工作的絕對截止時間排序，截止時間越早，優先權越高；新工作加入後，最高優先權的工作可能改變，因此屬動態優先權政策。\n\n例如工作甲在時間 12 到期、乙在 9 到期，應先服務乙。它看截止時間，不是比較到達先後或 CPU burst 長度，也不是按固定週期決定優先權。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      82,
+      219
+    ],
+    "sourceAnswers": [
+      "earliest deadline first"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-82",
+        "category": "即時排程",
+        "type": "填空題",
+        "stem": "The [__1__] scheduling algorithm in real-time scheduling assigns priorities based on the expiration time of the data.(Please answer in lowercase English, leaving a space between each word)",
+        "options": [],
+        "answer": "earliest deadline first",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          82
+        ],
+        "sourceAnswers": [
+          "earliest deadline first"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-219",
+        "category": "即時排程",
+        "type": "填空題",
+        "stem": "即時排程中的[__1__]排程演算法 其的優先順序是根據資料的到期時間。(請用小寫英文回答 字母間留一個空白)",
+        "options": [],
+        "answer": "earliest deadline first",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          219
+        ],
+        "sourceAnswers": [
+          "earliest deadline first"
+        ]
+      }
+    ],
+    "aliases": [
+      "The [__1__] scheduling algorithm in real-time scheduling assigns priorities based on the expiration time of the data.(Please answer in lowercase English, leaving a space between each word)",
+      "即時排程中的[__1__]排程演算法 其的優先順序是根據資料的到期時間。(請用小寫英文回答 字母間留一個空白)"
     ]
   },
   {
@@ -8780,7 +9891,8 @@
       35,
       91,
       128,
-      233
+      233,
+      1000000114
     ],
     "sourceVariants": [
       {
@@ -8835,6 +9947,22 @@
         "answer": "fair",
         "type": "填空",
         "sourceQuestionNumber": 85
+      },
+      {
+        "id": "chiyyaa-u6-public-20261024-1000000114",
+        "category": "Linux／Windows／Solaris",
+        "type": "填空題",
+        "stem": "The goal of Linux's CFS (Completely Fair Scheduler) is to provide a completely [__1__] CPU allocation.(Please answer in lowercase English)",
+        "options": [],
+        "answer": "fair",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-public-20261024",
+        "sourceRecords": [
+          1000000114
+        ],
+        "sourceAnswers": [
+          "fair"
+        ]
       }
     ],
     "sourceExplanations": [
@@ -8842,6 +9970,12 @@
         "sourceId": "community-65307e6c-1612-4c30-b48f-0489756453b5-56",
         "text": "CFS 的公平是按照各工作的權重分配 CPU 份額：相同權重的持續就緒工作，長期應獲得接近的 CPU 服務；不同 nice 值則可對應不同份額。\n\n因此 fair 不等於所有工作不分條件都拿到相同的固定時間片。本題描述的是傳統 CFS 的設計，與後來 Linux 公平排程的 EEVDF 選擇規則要分開理解。"
       }
+    ],
+    "sourceAnswers": [
+      "fair"
+    ],
+    "aliases": [
+      "The goal of Linux's CFS (Completely Fair Scheduler) is to provide a completely [__1__] CPU allocation.(Please answer in lowercase English)"
     ]
   },
   {
@@ -8940,7 +10074,8 @@
     "sourceRecords": [
       36,
       77,
-      228
+      228,
+      1000000110
     ],
     "sourceVariants": [
       {
@@ -8993,6 +10128,22 @@
         "sourceAnswers": [
           "32"
         ]
+      },
+      {
+        "id": "chiyyaa-u6-public-20261024-1000000110",
+        "category": "Linux／Windows／Solaris",
+        "type": "填空題",
+        "stem": "Windows排程器使用了[__1__]個優先級層級。(fill a number)",
+        "options": [],
+        "answer": "32",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-public-20261024",
+        "sourceRecords": [
+          1000000110
+        ],
+        "sourceAnswers": [
+          "32"
+        ]
       }
     ],
     "sourceExplanations": [
@@ -9002,7 +10153,11 @@
       }
     ],
     "aliases": [
-      "The Windows scheduler uses ____________ priority levels. (fill a number)"
+      "The Windows scheduler uses ____________ priority levels. (fill a number)",
+      "Windows排程器使用了[__1__]個優先級層級。(fill a number)"
+    ],
+    "sourceAnswers": [
+      "32"
     ]
   },
   {
@@ -9169,6 +10324,128 @@
         "sourceId": "community-65307e6c-1612-4c30-b48f-0489756453b5-66",
         "text": "dispatch table 把不同優先權對應到時間配額，以及時間片用完、從睡眠返回等事件發生後的新優先權。這使多層級回饋規則能以表格參數表達。\n\n管理員可依系統提供的介面查看或調整相關分派參數；它是排程政策資料，不是儲存目前所有就緒程序的佇列。"
       }
+    ]
+  },
+  {
+    "id": "os6-131",
+    "category": "Linux／Windows／Solaris",
+    "type": "填空／簡答",
+    "stem": "在 Windows 系統中，________ 優先權類別的執行緒無法獲得優先權提升。",
+    "options": [],
+    "answer": "realtime_priority_class",
+    "translation": "In Windows, threads in the ________ priority class cannot have their priority boosted.",
+    "note": "",
+    "explanation": "REALTIME_PRIORITY_CLASS 對應 Windows 的即時優先權範圍，不使用一般可變優先權工作的動態 boost。一般工作可因互動或 I/O 完成被暫時提升，再回落到基礎值；不能把這套機制直接套到即時類別。名稱中的 realtime 指優先權類別，也不單獨保證應用程式必定滿足硬即時截止時間。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      94,
+      260
+    ],
+    "sourceAnswers": [
+      "realtime_priority_class"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-94",
+        "category": "Linux／Windows／Solaris",
+        "type": "填空題",
+        "stem": "In the Windows system, threads in the ________ priority class cannot have their priority boosted.(Please answer in lowercase English, connecting letters with underscores)",
+        "options": [],
+        "answer": "realtime_priority_class",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          94
+        ],
+        "sourceAnswers": [
+          "realtime_priority_class"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-260",
+        "category": "Linux／Windows／Solaris",
+        "type": "填空題",
+        "stem": "在Windows系統中，[__1__]優先權類別的執行緒無法被提升優先權。(請用小寫英文回答 字母間用_連接)",
+        "options": [],
+        "answer": "realtime_priority_class",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          260
+        ],
+        "sourceAnswers": [
+          "realtime_priority_class"
+        ]
+      }
+    ],
+    "aliases": [
+      "In the Windows system, threads in the ________ priority class cannot have their priority boosted.(Please answer in lowercase English, connecting letters with underscores)",
+      "在Windows系統中，[__1__]優先權類別的執行緒無法被提升優先權。(請用小寫英文回答 字母間用_連接)"
+    ]
+  },
+  {
+    "id": "os6-132",
+    "category": "Linux／Windows／Solaris",
+    "type": "填空／簡答",
+    "stem": "________ 是 Windows 7 引入的功能，讓應用程式能獨立於核心建立與管理執行緒。",
+    "options": [],
+    "answer": "user mode scheduling",
+    "translation": "________ is a Windows 7 feature that lets applications create and manage threads independently of the kernel.",
+    "note": "",
+    "explanation": "Windows 7 的 UMS 讓應用程式在使用者模式選擇其執行緒的執行順序，以減少某些排程交接的成本。核心仍管理實體 CPU 與必要的系統操作，並不是完全不經核心。\n\n它與處理器親和性、負載平衡的目的不同：UMS 讓應用程式控制自己的排程邏輯，而不是只指定在哪顆 CPU 執行。",
+    "terms": [],
+    "answerProvided": true,
+    "sourceType": "填空題",
+    "kindSource": "朋友 U6 題庫提供完整填空題",
+    "sourceKey": "os6-chiyyaa-u6-20261024",
+    "sourceRecords": [
+      96,
+      210
+    ],
+    "sourceAnswers": [
+      "user mode scheduling"
+    ],
+    "sourceVariants": [
+      {
+        "id": "chiyyaa-u6-20261024-96",
+        "category": "Linux／Windows／Solaris",
+        "type": "填空題",
+        "stem": "________ 是 Windows 7 中引入的一項功能，允許應用程式獨立於核心來創建和管理執行緒。（請用小寫英文回答 字母間留一個空白）",
+        "options": [],
+        "answer": "user mode scheduling",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          96
+        ],
+        "sourceAnswers": [
+          "user mode scheduling"
+        ]
+      },
+      {
+        "id": "chiyyaa-u6-20261024-210",
+        "category": "Linux／Windows／Solaris",
+        "type": "填空題",
+        "stem": "________ is a feature introduced in Windows 7 that allows applications to create and manage threads independently of the kernel.(Please answer in lowercase English, leaving a space between each word)",
+        "options": [],
+        "answer": "user mode scheduling",
+        "answerProvided": true,
+        "sourceKey": "chiyyaa-os-u6-20261024",
+        "sourceRecords": [
+          210
+        ],
+        "sourceAnswers": [
+          "user mode scheduling"
+        ]
+      }
+    ],
+    "aliases": [
+      "________ 是 Windows 7 中引入的一項功能，允許應用程式獨立於核心來創建和管理執行緒。（請用小寫英文回答 字母間留一個空白）",
+      "________ is a feature introduced in Windows 7 that allows applications to create and manage threads independently of the kernel.(Please answer in lowercase English, leaving a space between each word)"
     ]
   },
   {

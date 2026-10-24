@@ -7,15 +7,15 @@
   "builtIn": 288,
   "published": 30,
   "compared": 318,
-  "uniqueAdded": 1,
+  "uniqueAdded": 17,
   "sourceVersionsForNewQuestion": [
     141,
     172,
     261
   ],
   "previousCount": 102,
-  "currentCount": 103,
-  "courseTotal": 754,
+  "currentCount": 119,
+  "courseTotal": 770,
   "policy": "Keep existing answers and IDs. Merge equivalent translations, reordered options and incomplete older choice sets. Keep distinct complete wording as source variants for lookup. Add the new I/O blank target once.",
   "topics": [
     "排程基本觀念",
@@ -35,343 +35,7 @@
     "填空／簡答"
   ],
   "addedQuestionId": "os6-118",
-  "sourceVariantsAdded": [
-    {
-      "sourceId": 54,
-      "target": "os6-049",
-      "alias": "chiyyaa-u6-20261024-54"
-    },
-    {
-      "sourceId": 65,
-      "target": "os6-059",
-      "alias": "chiyyaa-u6-20261024-65"
-    },
-    {
-      "sourceId": 111,
-      "target": "os6-113",
-      "alias": "chiyyaa-u6-20261024-111"
-    },
-    {
-      "sourceId": 114,
-      "target": "os6-076",
-      "alias": "chiyyaa-u6-20261024-114"
-    },
-    {
-      "sourceId": 117,
-      "target": "os6-050",
-      "alias": "chiyyaa-u6-20261024-117"
-    },
-    {
-      "sourceId": 119,
-      "target": "os6-066",
-      "alias": "chiyyaa-u6-20261024-119"
-    },
-    {
-      "sourceId": 120,
-      "target": "os6-043",
-      "alias": "chiyyaa-u6-20261024-120"
-    },
-    {
-      "sourceId": 121,
-      "target": "os6-038",
-      "alias": "chiyyaa-u6-20261024-121"
-    },
-    {
-      "sourceId": 122,
-      "target": "os6-086",
-      "alias": "chiyyaa-u6-20261024-122"
-    },
-    {
-      "sourceId": 126,
-      "target": "os6-021",
-      "alias": "chiyyaa-u6-20261024-126"
-    },
-    {
-      "sourceId": 135,
-      "target": "os6-054",
-      "alias": "chiyyaa-u6-20261024-135"
-    },
-    {
-      "sourceId": 137,
-      "target": "os6-061",
-      "alias": "chiyyaa-u6-20261024-137"
-    },
-    {
-      "sourceId": 138,
-      "target": "os6-108",
-      "alias": "chiyyaa-u6-20261024-138"
-    },
-    {
-      "sourceId": 140,
-      "target": "os6-091",
-      "alias": "chiyyaa-u6-20261024-140"
-    },
-    {
-      "sourceId": 142,
-      "target": "os6-098",
-      "alias": "chiyyaa-u6-20261024-142"
-    },
-    {
-      "sourceId": 144,
-      "target": "os6-097",
-      "alias": "chiyyaa-u6-20261024-144"
-    },
-    {
-      "sourceId": 145,
-      "target": "os6-016",
-      "alias": "chiyyaa-u6-20261024-145"
-    },
-    {
-      "sourceId": 146,
-      "target": "os6-051",
-      "alias": "chiyyaa-u6-20261024-146"
-    },
-    {
-      "sourceId": 147,
-      "target": "os6-065",
-      "alias": "chiyyaa-u6-20261024-147"
-    },
-    {
-      "sourceId": 148,
-      "target": "os6-065",
-      "alias": "chiyyaa-u6-20261024-148"
-    },
-    {
-      "sourceId": 149,
-      "target": "os6-036",
-      "alias": "chiyyaa-u6-20261024-149"
-    },
-    {
-      "sourceId": 150,
-      "target": "os6-025",
-      "alias": "chiyyaa-u6-20261024-150"
-    },
-    {
-      "sourceId": 152,
-      "target": "os6-099",
-      "alias": "chiyyaa-u6-20261024-152"
-    },
-    {
-      "sourceId": 153,
-      "target": "os6-010",
-      "alias": "chiyyaa-u6-20261024-153"
-    },
-    {
-      "sourceId": 154,
-      "target": "os6-050",
-      "alias": "chiyyaa-u6-20261024-154"
-    },
-    {
-      "sourceId": 159,
-      "target": "os6-056",
-      "alias": "chiyyaa-u6-20261024-159"
-    },
-    {
-      "sourceId": 160,
-      "target": "os6-106",
-      "alias": "chiyyaa-u6-20261024-160"
-    },
-    {
-      "sourceId": 167,
-      "target": "os6-008",
-      "alias": "chiyyaa-u6-20261024-167"
-    },
-    {
-      "sourceId": 168,
-      "target": "os6-110",
-      "alias": "chiyyaa-u6-20261024-168"
-    },
-    {
-      "sourceId": 169,
-      "target": "os6-019",
-      "alias": "chiyyaa-u6-20261024-169"
-    },
-    {
-      "sourceId": 170,
-      "target": "os6-032",
-      "alias": "chiyyaa-u6-20261024-170"
-    },
-    {
-      "sourceId": 171,
-      "target": "os6-114",
-      "alias": "chiyyaa-u6-20261024-171"
-    },
-    {
-      "sourceId": 172,
-      "target": "os6-118",
-      "alias": "chiyyaa-u6-20261024-172"
-    },
-    {
-      "sourceId": 174,
-      "target": "os6-075",
-      "alias": "chiyyaa-u6-20261024-174"
-    },
-    {
-      "sourceId": 176,
-      "target": "os6-067",
-      "alias": "chiyyaa-u6-20261024-176"
-    },
-    {
-      "sourceId": 177,
-      "target": "os6-107",
-      "alias": "chiyyaa-u6-20261024-177"
-    },
-    {
-      "sourceId": 178,
-      "target": "os6-002",
-      "alias": "chiyyaa-u6-20261024-178"
-    },
-    {
-      "sourceId": 179,
-      "target": "os6-015",
-      "alias": "chiyyaa-u6-20261024-179"
-    },
-    {
-      "sourceId": 180,
-      "target": "os6-103",
-      "alias": "chiyyaa-u6-20261024-180"
-    },
-    {
-      "sourceId": 182,
-      "target": "os6-062",
-      "alias": "chiyyaa-u6-20261024-182"
-    },
-    {
-      "sourceId": 186,
-      "target": "os6-079",
-      "alias": "chiyyaa-u6-20261024-186"
-    },
-    {
-      "sourceId": 189,
-      "target": "community-65307e6c-1612-4c30-b48f-0489756453b5-28",
-      "alias": "chiyyaa-u6-20261024-189"
-    },
-    {
-      "sourceId": 190,
-      "target": "os6-084",
-      "alias": "chiyyaa-u6-20261024-190"
-    },
-    {
-      "sourceId": 191,
-      "target": "os6-004",
-      "alias": "chiyyaa-u6-20261024-191"
-    },
-    {
-      "sourceId": 194,
-      "target": "os6-080",
-      "alias": "chiyyaa-u6-20261024-194"
-    },
-    {
-      "sourceId": 197,
-      "target": "os6-100",
-      "alias": "chiyyaa-u6-20261024-197"
-    },
-    {
-      "sourceId": 198,
-      "target": "os6-067",
-      "alias": "chiyyaa-u6-20261024-198"
-    },
-    {
-      "sourceId": 199,
-      "target": "os6-024",
-      "alias": "chiyyaa-u6-20261024-199"
-    },
-    {
-      "sourceId": 201,
-      "target": "os6-009",
-      "alias": "chiyyaa-u6-20261024-201"
-    },
-    {
-      "sourceId": 202,
-      "target": "os6-004",
-      "alias": "chiyyaa-u6-20261024-202"
-    },
-    {
-      "sourceId": 204,
-      "target": "os6-041",
-      "alias": "chiyyaa-u6-20261024-204"
-    },
-    {
-      "sourceId": 205,
-      "target": "os6-047",
-      "alias": "chiyyaa-u6-20261024-205"
-    },
-    {
-      "sourceId": 208,
-      "target": "os6-048",
-      "alias": "chiyyaa-u6-20261024-208"
-    },
-    {
-      "sourceId": 211,
-      "target": "os6-101",
-      "alias": "chiyyaa-u6-20261024-211"
-    },
-    {
-      "sourceId": 212,
-      "target": "os6-110",
-      "alias": "chiyyaa-u6-20261024-212"
-    },
-    {
-      "sourceId": 213,
-      "target": "os6-044",
-      "alias": "chiyyaa-u6-20261024-213"
-    },
-    {
-      "sourceId": 237,
-      "target": "os6-060",
-      "alias": "chiyyaa-u6-20261024-237"
-    },
-    {
-      "sourceId": 242,
-      "target": "os6-041",
-      "alias": "chiyyaa-u6-20261024-242"
-    },
-    {
-      "sourceId": 243,
-      "target": "os6-044",
-      "alias": "chiyyaa-u6-20261024-243"
-    },
-    {
-      "sourceId": 253,
-      "target": "os6-113",
-      "alias": "chiyyaa-u6-20261024-253"
-    },
-    {
-      "sourceId": 261,
-      "target": "os6-118",
-      "alias": "chiyyaa-u6-20261024-261"
-    },
-    {
-      "sourceId": 263,
-      "target": "os6-040",
-      "alias": "chiyyaa-u6-20261024-263"
-    },
-    {
-      "sourceId": 265,
-      "target": "os6-038",
-      "alias": "chiyyaa-u6-20261024-265"
-    },
-    {
-      "sourceId": 266,
-      "target": "os6-026",
-      "alias": "chiyyaa-u6-20261024-266"
-    },
-    {
-      "sourceId": 269,
-      "target": "os6-089",
-      "alias": "chiyyaa-u6-20261024-269"
-    },
-    {
-      "sourceId": 276,
-      "target": "os6-017",
-      "alias": "chiyyaa-u6-20261024-276"
-    },
-    {
-      "sourceId": 278,
-      "target": "os6-082",
-      "alias": "chiyyaa-u6-20261024-278"
-    }
-  ],
+  "sourceVariantsAdded": 46,
   "existingVersionsSkipped": [
     {
       "sourceId": 163,
@@ -3870,5 +3534,138 @@
       "sourceOptionsStatus": "",
       "sourceType": "fill_blank"
     }
-  ]
+  ],
+  "addedQuestionIds": [
+    "os6-118",
+    "os6-119",
+    "os6-120",
+    "os6-121",
+    "os6-122",
+    "os6-123",
+    "os6-124",
+    "os6-125",
+    "os6-126",
+    "os6-127",
+    "os6-128",
+    "os6-129",
+    "os6-130",
+    "os6-131",
+    "os6-132",
+    "os6-133",
+    "os6-134"
+  ],
+  "recheck": {
+    "date": "2026-10-24",
+    "sourceRepository": "chiyyaa/algorithm-question-bank",
+    "sourceFile": "data/os-u6.json",
+    "sourceDataBlob": "e4d1e059a60f59f8443ead3b3db02f5b0eb7e380",
+    "builtInRows": 288,
+    "publicRows": 30,
+    "comparedRows": 318,
+    "completeInternalFillAndChoiceRows": 221,
+    "incompleteInternalChoiceRowsExcluded": 67,
+    "incompletePublicChoiceRowsExcluded": 18,
+    "completePublicFillRowsMerged": 12,
+    "uniqueFillCardsAdded": 16,
+    "sourceRowsGroupedIntoNewCards": 34,
+    "publicFillRowsAddedAsSourceVariants": 12,
+    "addedQuestionIds": [
+      "os6-119",
+      "os6-120",
+      "os6-121",
+      "os6-122",
+      "os6-123",
+      "os6-124",
+      "os6-125",
+      "os6-126",
+      "os6-127",
+      "os6-128",
+      "os6-129",
+      "os6-130",
+      "os6-131",
+      "os6-132",
+      "os6-133",
+      "os6-134"
+    ],
+    "sourceQuestionIds": [
+      [
+        17,
+        191,
+        1000000103
+      ],
+      [
+        21,
+        133,
+        167,
+        1000000116
+      ],
+      [
+        30,
+        217
+      ],
+      [
+        32,
+        150
+      ],
+      [
+        36,
+        175,
+        1000000108
+      ],
+      [
+        42,
+        149,
+        286,
+        1000000101
+      ],
+      [
+        44,
+        121
+      ],
+      [
+        50,
+        206
+      ],
+      [
+        58,
+        130
+      ],
+      [
+        71,
+        147,
+        271
+      ],
+      [
+        148
+      ],
+      [
+        82,
+        219
+      ],
+      [
+        94,
+        260
+      ],
+      [
+        96,
+        210
+      ],
+      [
+        136,
+        207
+      ],
+      [
+        181,
+        244
+      ]
+    ],
+    "sourceRepositoryCommit": "75736b85c76d18724e824b956fa21a5b795f4d93",
+    "totalIncompleteChoiceRowsExcluded": 85,
+    "semanticallyIncompletePromptsAlsoExcluded": [
+      100,
+      140
+    ],
+    "completeInternalChoiceRowsAlreadyMatched": 111,
+    "completeInternalFillRows": 110
+  }
 }
