@@ -1191,3 +1191,18 @@ test("L8 wait-for-graph fill accepts the verified word-spacing instruction", asy
   assert.equal(result.answer, "wait for graph");
   assert(result.references.some((reference) => reference.id === "os8-053"));
 });
+
+
+
+test("L8 Banker avoidance OCR option variant maps to maximum-request answer", async () => {
+  const text = "妖獸 16. 死結避免演算法需要哪些關於資源請求的資訊？\nA. 所有程序當前持有的資源數量\nB. 所有程序的過去請求數量\nC. 所有程序的最小請求數量\nD. 所有程序的最大請求數量";
+  const questions = parseQuestions(text);
+  assert.equal(questions.length, 1);
+  assert.equal(questions[0].number, "16");
+  assert.equal(questions[0].issues.length, 0);
+  const data = JSON.parse(await readFile(new URL("../assets/batch-library.json", import.meta.url), "utf8"));
+  const [result] = matchQuestions(questions, buildIndex(data.entries), {course: "os", unit: "all"});
+  assert.equal(result.status, "matched");
+  assert.equal(result.answer, "D. 所有程序的最大請求數量");
+  assert(result.references.some((reference) => reference.id === "community-17f37eed-b93c-485f-9bdd-c7591a014917-20"));
+});
