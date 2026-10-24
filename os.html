@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>作業系統學習室｜課程題庫</title>
-<meta name="description" content="作業系統692道題目，依單元與章節閱讀、搜尋與練習。可離線使用。">
+<meta name="description" content="作業系統753道題目，依單元與章節閱讀、搜尋與練習。可離線使用。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23477ba8'/%3E%3Ctext x='4' y='22' fill='white' font-size='17'%3EOS%3C/text%3E%3C/svg%3E">
 
 
@@ -22,7 +22,7 @@
 </head>
 <body data-course="os">
 <a class="skip" href="#main">跳至學習內容</a>
-<header class="topbar"><button class="course-drawer-toggle" type="button" aria-label="收起課程側欄" aria-expanded="true" aria-controls="courseSidebar"><span></span><span></span><span></span></button><div class="brand"><span class="logo" aria-hidden="true"><img src="assets/icons/monitor.svg" alt=""></span>作業系統學習室</div><div class="tagline">一課一課，把觀念學會。 <span data-course-total style="margin-left:18px">7 個單元 · 692 道題目</span></div></header>
+<header class="topbar"><button class="course-drawer-toggle" type="button" aria-label="收起課程側欄" aria-expanded="true" aria-controls="courseSidebar"><span></span><span></span><span></span></button><div class="brand"><span class="logo" aria-hidden="true"><img src="assets/icons/monitor.svg" alt=""></span>作業系統學習室</div><div class="tagline">一課一課，把觀念學會。 <span data-course-total style="margin-left:18px">7 個單元 · 753 道題目</span></div></header>
 <div class="app"><aside id="courseSidebar" class="sidebar" aria-label="課程單元導覽"><nav class="site-nav" aria-label="科目與首頁"><a href="index.html?v=resume-removed-20261022">← 課程首頁</a><a href="os.html?v=os8-initialization-fix-20261023" aria-current="page">作業系統</a><a href="algorithms.html?v=resume-removed-20261022">演算法</a></nav><div class="unit-picker"><label for="unitPicker">課程單元</label><select id="unitPicker"></select></div><p class="navtitle">課程單元</p><nav id="units" class="course-menu" aria-label="選擇課程"></nav></aside>
 <main class="main" id="main" tabindex="-1"><section class="heading"><div><div class="eyebrow" id="unitEn"></div><h1 id="title"></h1><p class="subtitle" id="description"></p></div><div class="count"><strong id="unitCount"></strong><span>本單元題目</span></div></section>
 
@@ -30,7 +30,7 @@
 <section aria-labelledby="bankHeading"><h2 id="bankHeading" class="visually-hidden">章節題庫</h2>
 <div class="toolbar"><div class="search-options"><label for="searchScopeSelect">搜尋範圍</label><select id="searchScopeSelect" aria-describedby="searchScope"><option value="current">目前單元</option><option value="all">全部單元（本課程）</option></select></div><div class="searchrow"><label class="searchbox"><img class="search-icon" src="assets/icons/search.svg" alt="" aria-hidden="true"><input id="search" type="search" aria-label="搜尋本課題目、答案與解析" placeholder="搜尋本課題目、答案、術語或翻譯…" autocomplete="off"></label><button id="clear" class="plain">重設</button></div><div class="filters"><details class="filter-details" open><summary>篩選設定</summary><div class="filter-fields"><label>章節<select id="chapter" aria-label="選擇章節"></select></label><label>題型<select id="typeSelect" aria-label="選擇題型"></select></label><label>題目狀態<select id="qualitySelect" aria-describedby="qualityHint"><option value="all">全部題目</option><option value="pending">待確認</option></select></label><label class="answer-toggle" id="answerToggle"><input id="showAnswers" type="checkbox" checked>顯示答案與解析</label></div><p class="quality-hint" id="qualityHint">已提供題庫答案的題目視為正常；待確認只顯示未提供答案的題目。</p></details><div class="study-controls"><div class="segmented" aria-label="學習方式"><button id="studyMode" class="active" aria-pressed="true">閱讀學習</button><button id="practiceMode" aria-pressed="false">遮答練習</button></div><label class="practice-order" id="practiceOrderControl" hidden>題目順序<select id="practiceOrder" aria-label="遮答練習題目順序"><option value="ordered">依題庫順序</option><option value="random">隨機排序</option></select></label></div></div></div>
 <div class="summary" id="searchResults" tabindex="-1" role="status" aria-live="polite" aria-atomic="true"><span id="resultCount"></span><span id="pageRange"></span></div><details id="modeHint" class="practice-guide" hidden><summary>練習說明</summary><p>題目順序可選「依題庫順序」或「隨機排序」；隨機順序會在目前篩選下固定，篩選變更後重新抽序。先選擇或輸入答案，再按「檢查答案」。答錯後可調整答案再檢查，也可按「清除作答」重來；「顯示答案與解析」可隨時查看各題答案。練習作答只保留在目前開啟期間；離開或重新整理後不會保存。</p></details><section id="cards" class="list" aria-label="題目列表"></section><div id="empty" class="empty" hidden><h3>這個條件下沒有題目</h3><p>試試較短的關鍵字，或重設章節與題型。</p><button id="emptyReset" class="plain">重設篩選</button></div><nav id="pager" class="pager" aria-label="題庫頁碼"></nav></section>
-<details class="sources"><summary>題庫來源與使用提醒</summary><p>目前內建題庫收錄 692 題，包含已公開的 L6 與 L8 補充題。中英文題幹、同一組選項僅順序不同，以及相同題目的填空／選擇版本合併顯示；原題、答案、解析與舊題目編號仍保留在題目詳情。保留中英文題幹與選項；本站已補充部分解析與適用條件。修正後的答案會另保留修正前答案供對照。</p><p>「補充學習提示」為本站整理。已提供題庫答案的題目視為正常；練習模式會核對選項與有標準答案的文字題，答錯可重試，答對後顯示解析。</p><p>L2 作業系統基礎依更新版「作業系統_L2_題庫.html」的 128 筆資料整理，目前 61 題，其中 48 題附選項、13 題採文字練習；中英文同題與選項順序不同的版本合併，選項內容不同的版本保留。</p><p>L6 CPU 排程依更新版「作業系統L6_完整題庫本.html」的 10 批、300 筆資料整理，加上 1 題已公開補充題，目前 102 題，其中 67 題附選項、35 題採文字練習；合併中英文同題及重複版本，保留不同問法與作答方向。</p><p>L7 程序同步依「OS_L7_Updated (2).html」的 13 回、390 筆題目整理為 137 題；合併 253 個重複版本，保留題目來源、答案解析及舊題目編號。</p><p>待複習標記與閱讀字級只保存在這台裝置，不會自動同步；練習作答不會保存。</p><p>L8 死結依「OS_死結題庫_彙整.json」四輪彙整的 97 題整理；合併 16 題重複的中英文或選項換序版本，整理為 81 題，再加入 31 題已公開補充題，共收錄 112 題。依內容主題分組，同一主題按單選、多選、填空排列；題目識別碼與舊連結保留。題庫答案已依課程判分結果確認，練習時正常判分。</p><p id="footer"></p></details><p class="bottom-note">讀懂答案的原因，比記住答案的位置更有用。</p>
+<details class="sources"><summary>題庫來源與使用提醒</summary><p>目前內建題庫收錄 753 題，包含已公開的 L6 與 L8 補充題。中英文題幹、同一組選項僅順序不同，以及相同題目的填空／選擇版本合併顯示；原題、答案、解析與舊題目編號仍保留在題目詳情。保留中英文題幹與選項；本站已補充部分解析與適用條件。修正後的答案會另保留修正前答案供對照。</p><p>「補充學習提示」為本站整理。已提供題庫答案的題目視為正常；練習模式會核對選項與有標準答案的文字題，答錯可重試，答對後顯示解析。</p><p>L2 作業系統基礎依更新版「作業系統_L2_題庫.html」的 128 筆資料整理，目前 61 題，其中 48 題附選項、13 題採文字練習；中英文同題與選項順序不同的版本合併，選項內容不同的版本保留。</p><p>L6 CPU 排程依更新版「作業系統L6_完整題庫本.html」的 10 批、300 筆資料整理，加上 1 題已公開補充題，目前 102 題，其中 67 題附選項、35 題採文字練習；合併中英文同題及重複版本，保留不同問法與作答方向。</p><p>L7 程序同步依「OS_L7_Updated (2).html」的 13 回、390 筆題目整理為 137 題；合併 253 個重複版本，保留題目來源、答案解析及舊題目編號。</p><p>待複習標記與閱讀字級只保存在這台裝置，不會自動同步；練習作答不會保存。</p><p>L8 死結依「OS_死結題庫_彙整.json」四輪彙整的 97 題整理；合併 16 題重複的中英文或選項換序版本，整理為 81 題，再加入 31 題已公開補充題，再加入「os_deadlock_new_questions(2).json」的 61 題，目前共收錄 173 題。依內容主題分組，同一主題按單選、多選、填空排列；題目識別碼與舊連結保留。題庫答案已依課程判分結果確認，練習時正常判分。</p><p id="footer"></p></details><p class="bottom-note">讀懂答案的原因，比記住答案的位置更有用。</p>
 </main></div>
 <noscript>請開啟瀏覽器 JavaScript，才能切換課程與題目。</noscript>
 <script id="course-manifest" type="application/json">
@@ -944,10 +944,11 @@
     "label": "死結",
     "en": "DEADLOCKS",
     "desc": "死結必要條件、預防、避免、偵測與恢復",
-    "questionCount": 112,
+    "questionCount": 173,
     "questionIds": [
       "os8-023",
       "os8-049",
+      "os8-089",
       "os8-070",
       "os8-038",
       "os8-078",
@@ -959,42 +960,68 @@
       "os8-019",
       "os8-035",
       "os8-076",
+      "os8-082",
+      "os8-083",
       "os8-021",
       "os8-051",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-16",
+      "os8-084",
+      "os8-085",
+      "os8-086",
       "os8-001",
       "os8-077",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-11",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-29",
+      "os8-087",
+      "os8-088",
       "os8-032",
       "os8-045",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-24",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-7",
+      "os8-098",
+      "os8-099",
       "os8-006",
       "os8-012",
+      "os8-100",
+      "os8-101",
+      "os8-102",
+      "os8-103",
       "os8-003",
       "os8-008",
       "os8-022",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-9",
+      "os8-104",
       "os8-017",
       "os8-025",
       "os8-061",
       "os8-073",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-23",
+      "os8-105",
       "os8-057",
+      "os8-106",
       "os8-016",
       "os8-040",
       "os8-044",
       "os8-063",
       "os8-075",
+      "os8-107",
+      "os8-108",
+      "os8-109",
       "os8-002",
       "os8-010",
       "os8-068",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-15",
+      "os8-110",
+      "os8-111",
+      "os8-112",
+      "os8-113",
       "os8-027",
       "os8-048",
       "os8-052",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-26",
+      "os8-114",
+      "os8-115",
+      "os8-116",
       "os8-005",
       "os8-009",
       "os8-015",
@@ -1002,51 +1029,81 @@
       "os8-047",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-20",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-21",
+      "os8-117",
+      "os8-118",
+      "os8-119",
+      "os8-120",
+      "os8-121",
       "os8-024",
       "os8-037",
       "os8-062",
       "os8-079",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-22",
+      "os8-122",
+      "os8-123",
       "os8-030",
       "os8-059",
       "os8-069",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-10",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-27",
+      "os8-090",
+      "os8-091",
       "os8-064",
+      "os8-092",
+      "os8-093",
+      "os8-094",
+      "os8-095",
       "os8-013",
       "os8-056",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-17",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-25",
+      "os8-096",
+      "os8-097",
       "os8-041",
       "os8-080",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-12",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-13",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-30",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-4",
+      "os8-124",
       "os8-055",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-19",
+      "os8-125",
       "os8-020",
       "os8-029",
       "os8-046",
       "os8-058",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-1",
+      "os8-126",
+      "os8-127",
       "os8-065",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-14",
       "os8-042",
+      "os8-133",
       "os8-043",
       "os8-018",
       "os8-028",
       "os8-066",
+      "os8-128",
+      "os8-129",
       "os8-034",
       "os8-039",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-3",
+      "os8-130",
+      "os8-131",
       "os8-014",
       "os8-053",
       "os8-074",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-2",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-31",
+      "os8-132",
       "os8-007",
       "os8-071",
+      "os8-134",
+      "os8-135",
+      "os8-136",
+      "os8-137",
+      "os8-138",
       "os8-026",
       "os8-036",
       "os8-050",
@@ -1054,10 +1111,14 @@
       "os8-081",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-6",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-8",
+      "os8-139",
+      "os8-140",
       "os8-031",
       "os8-067",
       "community-17f37eed-b93c-485f-9bdd-c7591a014917-18",
-      "community-17f37eed-b93c-485f-9bdd-c7591a014917-5"
+      "community-17f37eed-b93c-485f-9bdd-c7591a014917-5",
+      "os8-141",
+      "os8-142"
     ],
     "questionAliases": {}
   }
@@ -8145,6 +8206,38 @@
   },
   {
     "category": "死結定義與影響",
+    "type": "多選題",
+    "stem": "Which of the following are possible system behaviors after a deadlock occurs?",
+    "options": [
+      "System crash",
+      "Decreased resource utilization",
+      "All processes terminate",
+      "System stagnation"
+    ],
+    "answer": "A,B,D",
+    "explanation": "核心觀念：死結使相關程序互相等待而無法前進，並占住其他工作需要的資源。影響可能擴及服務停滯與資源利用率下降；系統崩潰是關鍵服務失效等情境下的間接後果，不是每次死結必然發生。\n\n解題步驟：中文：依題庫，可能崩潰、利用率下降或停滯；不選所有程序終止。",
+    "images": [],
+    "id": "os8-089",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      8
+    ],
+    "sourceAnswers": [
+      "A,B,D"
+    ],
+    "sourceExplanation": "中文：依題庫，可能崩潰、利用率下降或停滯；不選所有程序終止。",
+    "choiceKey": "ABD",
+    "translation": "死結發生後，系統可能出現哪些行為？",
+    "optionTranslations": [
+      "系統崩潰",
+      "資源利用率下降",
+      "所有程序終止",
+      "系統停滯"
+    ]
+  },
+  {
+    "category": "死結定義與影響",
     "type": "填空題",
     "stem": "____________ 是指當一個或多個程序在等待一個事件，而這個事件永遠不會發生時，所處的狀態。(請用小寫英文回答)",
     "options": [],
@@ -8459,6 +8552,70 @@
   },
   {
     "category": "死結必要條件",
+    "type": "單選題",
+    "stem": "Which of the following necessary conditions for a deadlock is most closely related to mutex locks?",
+    "options": [
+      "Circular wait",
+      "Mutual exclusion",
+      "Hold and wait",
+      "No preemption"
+    ],
+    "answer": "B",
+    "explanation": "核心觀念：死結需要同時具有互斥、佔用與等待、無搶佔、循環等待四個條件。互斥限制同時使用者；佔用與等待表示拿著部分資源等其他資源；無搶佔表示不能強制取回；循環等待表示彼此的等待形成環。\n\n解題步驟：中文：互斥鎖最相關的條件是互斥 Mutual exclusion。",
+    "images": [],
+    "id": "os8-082",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      1
+    ],
+    "sourceAnswers": [
+      "B"
+    ],
+    "sourceExplanation": "中文：互斥鎖最相關的條件是互斥 Mutual exclusion。",
+    "choiceKey": "B",
+    "translation": "以下哪個死結必要條件與互斥鎖最相關？",
+    "optionTranslations": [
+      "循環等待",
+      "互斥",
+      "佔用與等待",
+      "無搶佔"
+    ]
+  },
+  {
+    "category": "死結必要條件",
+    "type": "單選題",
+    "stem": "What does the No Preemption condition state?",
+    "options": [
+      "A resource can be preempted at any time",
+      "A resource cannot be preempted from the process that holds it",
+      "A process can be terminated at any time",
+      "A process cannot be preempted"
+    ],
+    "answer": "B",
+    "explanation": "核心觀念：死結需要同時具有互斥、佔用與等待、無搶佔、循環等待四個條件。互斥限制同時使用者；佔用與等待表示拿著部分資源等其他資源；無搶佔表示不能強制取回；循環等待表示彼此的等待形成環。\n\n解題步驟：中文：無搶佔指資源不能從持有它的程序中被強制取走。",
+    "images": [],
+    "id": "os8-083",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      2
+    ],
+    "sourceAnswers": [
+      "B"
+    ],
+    "sourceExplanation": "中文：無搶佔指資源不能從持有它的程序中被強制取走。",
+    "choiceKey": "B",
+    "translation": "無搶佔（No Preemption）條件表示什麼？",
+    "optionTranslations": [
+      "資源隨時都能被搶佔",
+      "資源不能從持有它的程序中被強制取走",
+      "程序隨時都能被終止",
+      "程序不能被搶佔"
+    ]
+  },
+  {
+    "category": "死結必要條件",
     "type": "多選題",
     "stem": "死結的四個必要條件中，哪些與資源的類型和使用方式有關？",
     "options": [
@@ -8524,6 +8681,95 @@
     "terms": [],
     "note": "",
     "choiceKey": "BC"
+  },
+  {
+    "category": "死結必要條件",
+    "type": "多選題",
+    "stem": "死結 (Deadlock) 發生的四個必要條件包括哪些？",
+    "options": [
+      "互斥, 佔用與等待",
+      "安全狀態, 不安全狀態",
+      "無搶佔, 循環等待",
+      "資源分配圖, 資源請求邊"
+    ],
+    "answer": "A,C",
+    "explanation": "核心觀念：死結需要同時具有互斥、佔用與等待、無搶佔、循環等待四個條件。互斥限制同時使用者；佔用與等待表示拿著部分資源等其他資源；無搶佔表示不能強制取回；循環等待表示彼此的等待形成環。\n\n解題步驟：選互斥、佔用與等待、無搶佔、循環等待所對應的兩組。",
+    "images": [],
+    "id": "os8-084",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      3
+    ],
+    "sourceAnswers": [
+      "A,C"
+    ],
+    "sourceExplanation": "選互斥、佔用與等待、無搶佔、循環等待所對應的兩組。",
+    "choiceKey": "AC"
+  },
+  {
+    "category": "死結必要條件",
+    "type": "多選題",
+    "stem": "Among the four necessary conditions for deadlock which ones are related to the type and usage of resources?",
+    "options": [
+      "Mutual exclusion, Hold and wait",
+      "No preemption, Circular wait",
+      "Resource allocation, Resource release",
+      "Process request, Process termination"
+    ],
+    "answer": "A,B",
+    "explanation": "核心觀念：死結需要同時具有互斥、佔用與等待、無搶佔、循環等待四個條件。互斥限制同時使用者；佔用與等待表示拿著部分資源等其他資源；無搶佔表示不能強制取回；循環等待表示彼此的等待形成環。\n\n解題步驟：中文：依判分結果，選包含四項必要條件的前兩組。",
+    "images": [],
+    "id": "os8-085",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      4
+    ],
+    "sourceAnswers": [
+      "A,B"
+    ],
+    "sourceExplanation": "中文：依判分結果，選包含四項必要條件的前兩組。",
+    "choiceKey": "AB",
+    "translation": "四個死結必要條件中，哪些與資源的類型和使用方式有關？",
+    "optionTranslations": [
+      "互斥、佔用與等待",
+      "無搶佔、循環等待",
+      "資源分配、資源釋放",
+      "程序請求、程序終止"
+    ]
+  },
+  {
+    "category": "死結必要條件",
+    "type": "多選題",
+    "stem": "When a system experiences a deadlock which of the following necessary conditions are simultaneously true?",
+    "options": [
+      "Hold and wait",
+      "Mutual exclusion",
+      "No preemption",
+      "Circular wait"
+    ],
+    "answer": "A,B,C,D",
+    "explanation": "核心觀念：死結需要同時具有互斥、佔用與等待、無搶佔、循環等待四個條件。互斥限制同時使用者；佔用與等待表示拿著部分資源等其他資源；無搶佔表示不能強制取回；循環等待表示彼此的等待形成環。\n\n解題步驟：中文：依提供的正確答案，四個必要條件同時成立，因此全選。",
+    "images": [],
+    "id": "os8-086",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      5
+    ],
+    "sourceAnswers": [
+      "A,B,C,D"
+    ],
+    "sourceExplanation": "中文：依提供的正確答案，四個必要條件同時成立，因此全選。",
+    "choiceKey": "ABCD",
+    "translation": "系統發生死結時，下列哪些必要條件會同時成立？",
+    "optionTranslations": [
+      "佔用與等待",
+      "互斥",
+      "無搶佔",
+      "循環等待"
+    ]
   },
   {
     "category": "死結必要條件",
@@ -8606,6 +8852,45 @@
     "translation": "",
     "terms": [],
     "note": ""
+  },
+  {
+    "category": "死結必要條件",
+    "type": "填空題",
+    "stem": "A necessary condition for a deadlock is _______________ which states that a resource cannot be forcibly taken away from its user.(Please answer in lowercase English, leaving a space between each word)",
+    "options": [],
+    "answer": "no preemption",
+    "explanation": "核心觀念：死結需要同時具有互斥、佔用與等待、無搶佔、循環等待四個條件。互斥限制同時使用者；佔用與等待表示拿著部分資源等其他資源；無搶佔表示不能強制取回；循環等待表示彼此的等待形成環。\n\n解題步驟：中文：資源不能被強制取回，指無搶佔 no preemption。",
+    "images": [],
+    "id": "os8-087",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      6
+    ],
+    "sourceAnswers": [
+      "no preemption"
+    ],
+    "sourceExplanation": "中文：資源不能被強制取回，指無搶佔 no preemption。",
+    "translation": "死結的一個必要條件是 ____________，表示不能從使用者手中強制取回資源。（請用小寫英文回答，單字間留一個空白）"
+  },
+  {
+    "category": "死結必要條件",
+    "type": "填空題",
+    "stem": "_______________ 條件是指一個程序已經佔用一個或多個資源，並正在等待其他資源。(請用小寫英文回答 單字間留一個空白)",
+    "options": [],
+    "answer": "hold and wait",
+    "explanation": "核心觀念：死結需要同時具有互斥、佔用與等待、無搶佔、循環等待四個條件。互斥限制同時使用者；佔用與等待表示拿著部分資源等其他資源；無搶佔表示不能強制取回；循環等待表示彼此的等待形成環。\n\n解題步驟：已持有資源又等待其他資源，稱為佔用與等待。",
+    "images": [],
+    "id": "os8-088",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      7
+    ],
+    "sourceAnswers": [
+      "hold and wait"
+    ],
+    "sourceExplanation": "已持有資源又等待其他資源，稱為佔用與等待。"
   },
   {
     "category": "資源分配圖",
@@ -8697,6 +8982,63 @@
   },
   {
     "category": "資源分配圖",
+    "type": "單選題",
+    "stem": "In a resource-allocation graph what does a directed edge from a resource type R to a process P signify?",
+    "options": [
+      "An instance of resource R is held by process P",
+      "Process P is using an instance of resource R",
+      "Process P is requesting an instance of resource R",
+      "Process P is releasing an instance of resource R"
+    ],
+    "answer": "A",
+    "explanation": "核心觀念：資源分配圖用程序節點、資源節點與有向邊描述關係。程序指向資源是請求邊，資源指向程序是分配邊；圓圈表示程序，方塊表示資源類型。\n\n解題步驟：依附件只選 A。R → P 精確表示某個資源實例已分配給 P；『持有』與『正在使用』在日常語意上接近，但圖的正式定義是分配關係。P → R 才是請求。",
+    "images": [],
+    "id": "os8-098",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      17
+    ],
+    "sourceAnswers": [
+      "A"
+    ],
+    "sourceExplanation": "中文：資源指向程序，代表資源的實例被該程序持有。依題庫只選 A。",
+    "choiceKey": "A",
+    "translation": "資源分配圖中，從資源類型 R 指向程序 P 的有向邊代表什麼？",
+    "optionTranslations": [
+      "資源 R 的一個實例由程序 P 持有",
+      "程序 P 正在使用資源 R 的一個實例",
+      "程序 P 正在請求資源 R 的一個實例",
+      "程序 P 正在釋放資源 R 的一個實例"
+    ]
+  },
+  {
+    "category": "資源分配圖",
+    "type": "單選題",
+    "stem": "在資源分配圖中，一個從程序P指向資源類型R的邊代表什麼？",
+    "options": [
+      "程序P請求資源R的實例",
+      "資源R已被程序P釋放",
+      "資源R正在被程序P使用",
+      "程序P持有資源R的實例"
+    ],
+    "answer": "A",
+    "explanation": "核心觀念：資源分配圖用程序節點、資源節點與有向邊描述關係。程序指向資源是請求邊，資源指向程序是分配邊；圓圈表示程序，方塊表示資源類型。\n\n解題步驟：程序指向資源是請求邊，代表程序正請求一個資源實例。",
+    "images": [],
+    "id": "os8-099",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      18
+    ],
+    "sourceAnswers": [
+      "A"
+    ],
+    "sourceExplanation": "程序指向資源是請求邊，代表程序正請求一個資源實例。",
+    "choiceKey": "A"
+  },
+  {
+    "category": "資源分配圖",
     "type": "多選題",
     "stem": "資源分配圖 (Resource-Allocation Graph) 可以處理哪些類型的資源？",
     "options": [
@@ -8742,6 +9084,120 @@
       "B,D"
     ],
     "choiceKey": "BD"
+  },
+  {
+    "category": "資源分配圖",
+    "type": "多選題",
+    "stem": "資源分配圖 (Resource-Allocation Graph) 包含了哪些元素？",
+    "options": [
+      "資源節點",
+      "請求邊",
+      "程序節點",
+      "分配邊"
+    ],
+    "answer": "A,B,C,D",
+    "explanation": "核心觀念：資源分配圖用程序節點、資源節點與有向邊描述關係。程序指向資源是請求邊，資源指向程序是分配邊；圓圈表示程序，方塊表示資源類型。\n\n解題步驟：圖中包含程序與資源兩種節點，以及請求邊和分配邊。",
+    "images": [],
+    "id": "os8-100",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      19
+    ],
+    "sourceAnswers": [
+      "A,B,C,D"
+    ],
+    "sourceExplanation": "圖中包含程序與資源兩種節點，以及請求邊和分配邊。",
+    "choiceKey": "ABCD"
+  },
+  {
+    "category": "資源分配圖",
+    "type": "多選題",
+    "stem": "What types of resources can a Resource-Allocation Graph handle?",
+    "options": [
+      "Multiple instance resources",
+      "Preemptable resources",
+      "Non-preemptable resources",
+      "Single instance resources"
+    ],
+    "answer": "A,C,D",
+    "explanation": "核心觀念：一般資源分配圖可用資源節點內的實例標記描述單一或多個實例。用這種圖描述資源，與用『資源分配圖避免演算法』做安全檢查，是不同層次的用途。\n\n解題步驟：本題依附件選 A、C、D。請保留圖本身與特定避免演算法的區別：常見的圖式避免演算法以每類只有單一實例為前提，不能因此推論一般圖只能畫單一實例。",
+    "images": [],
+    "id": "os8-101",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      20
+    ],
+    "sourceAnswers": [
+      "A,C,D"
+    ],
+    "sourceExplanation": "中文：依提供的答案，選多實例、不可搶佔、單一實例資源。",
+    "choiceKey": "ACD",
+    "translation": "資源分配圖可以描述哪些類型的資源？",
+    "optionTranslations": [
+      "多實例資源",
+      "可搶佔資源",
+      "不可搶佔資源",
+      "單一實例資源"
+    ]
+  },
+  {
+    "category": "資源分配圖",
+    "type": "多選題",
+    "stem": "資源分配圖 (Resource-Allocation Graph) 中，哪些邊表示程序和資源之間的關係？",
+    "options": [
+      "請求邊",
+      "分配邊",
+      "資源邊",
+      "程序邊"
+    ],
+    "answer": "A,B",
+    "explanation": "核心觀念：資源分配圖用程序節點、資源節點與有向邊描述關係。程序指向資源是請求邊，資源指向程序是分配邊；圓圈表示程序，方塊表示資源類型。\n\n解題步驟：依提供的答案，選請求邊與分配邊。",
+    "images": [],
+    "id": "os8-102",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      21
+    ],
+    "sourceAnswers": [
+      "A,B"
+    ],
+    "sourceExplanation": "依提供的答案，選請求邊與分配邊。",
+    "choiceKey": "AB"
+  },
+  {
+    "category": "資源分配圖",
+    "type": "多選題",
+    "stem": "In a Resource-Allocation Graph which edges represent the relationship between processes and resources?",
+    "options": [
+      "Request edges",
+      "Assignment edges",
+      "Resource edges",
+      "Process edges"
+    ],
+    "answer": "A,B",
+    "explanation": "核心觀念：資源分配圖用程序節點、資源節點與有向邊描述關係。程序指向資源是請求邊，資源指向程序是分配邊；圓圈表示程序，方塊表示資源類型。\n\n解題步驟：中文：選請求邊 Request edges 與分配邊 Assignment edges。",
+    "images": [],
+    "id": "os8-103",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      22
+    ],
+    "sourceAnswers": [
+      "A,B"
+    ],
+    "sourceExplanation": "中文：選請求邊 Request edges 與分配邊 Assignment edges。",
+    "choiceKey": "AB",
+    "translation": "資源分配圖中，哪些邊表示程序與資源之間的關係？",
+    "optionTranslations": [
+      "請求邊",
+      "分配邊",
+      "資源邊",
+      "程序邊"
+    ]
   },
   {
     "category": "資源分配圖",
@@ -8828,6 +9284,26 @@
     "translation": "",
     "terms": [],
     "note": ""
+  },
+  {
+    "category": "資源分配圖",
+    "type": "填空題",
+    "stem": "In a resource-allocation graph a circle represents a _______________ , while a square represents a _______________ .(Please answer in lowercase English)",
+    "options": [],
+    "answer": "process/resource",
+    "explanation": "核心觀念：資源分配圖用程序節點、資源節點與有向邊描述關係。程序指向資源是請求邊，資源指向程序是分配邊；圓圈表示程序，方塊表示資源類型。\n\n解題步驟：中文：圓圈代表程序 process，方塊代表資源 resource；斜線分隔兩格。",
+    "images": [],
+    "id": "os8-104",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      23
+    ],
+    "sourceAnswers": [
+      "process/resource"
+    ],
+    "sourceExplanation": "中文：圓圈代表程序 process，方塊代表資源 resource；斜線分隔兩格。",
+    "translation": "資源分配圖中，圓圈代表 ____________，方塊代表 ____________。（請用小寫英文回答）"
   },
   {
     "category": "處理方法總覽",
@@ -8947,6 +9423,38 @@
   },
   {
     "category": "處理方法總覽",
+    "type": "多選題",
+    "stem": "Which of the following are common methods for handling deadlocks?",
+    "options": [
+      "Deadlock avoidance",
+      "Deadlock prevention",
+      "Deadlock detection",
+      "Deadlock recovery"
+    ],
+    "answer": "A,B,C,D",
+    "explanation": "核心觀念：預防限制資源使用方式，避免先檢查分配是否安全，偵測檢查目前是否已死結，恢復則在發現死結後解除它。要分清楚是在發生前阻止，還是在發生後處理。\n\n解題步驟：中文：避免、預防、偵測與恢復都是常用方法。",
+    "images": [],
+    "id": "os8-105",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      24
+    ],
+    "sourceAnswers": [
+      "A,B,C,D"
+    ],
+    "sourceExplanation": "中文：避免、預防、偵測與恢復都是常用方法。",
+    "choiceKey": "ABCD",
+    "translation": "下列哪些是處理死結的常用方法？",
+    "optionTranslations": [
+      "死結避免",
+      "死結預防",
+      "死結偵測",
+      "死結恢復"
+    ]
+  },
+  {
+    "category": "處理方法總覽",
     "type": "填空題",
     "stem": "The four main methods for handling deadlocks are: prevention avoidance detection and ____________ .(Please answer in lowercase English)",
     "options": [],
@@ -8962,6 +9470,25 @@
     "sourceAnswers": [
       "recovery"
     ]
+  },
+  {
+    "category": "處理方法總覽",
+    "type": "填空題",
+    "stem": "死結處理的四種主要方法是：預防、避免、偵測和 _______________ 。(請用小寫英文回答)",
+    "options": [],
+    "answer": "recovery",
+    "explanation": "核心觀念：預防限制資源使用方式，避免先檢查分配是否安全，偵測檢查目前是否已死結，恢復則在發現死結後解除它。要分清楚是在發生前阻止，還是在發生後處理。\n\n解題步驟：第四種方法是恢復，填 recovery。",
+    "images": [],
+    "id": "os8-106",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      25
+    ],
+    "sourceAnswers": [
+      "recovery"
+    ],
+    "sourceExplanation": "第四種方法是恢復，填 recovery。"
   },
   {
     "category": "死結預防",
@@ -9085,6 +9612,88 @@
   },
   {
     "category": "死結預防",
+    "type": "單選題",
+    "stem": "To prevent deadlocks which condition must be broken?",
+    "options": [
+      "No preemption",
+      "Mutual exclusion",
+      "Hold and wait",
+      "Remove the critical section"
+    ],
+    "answer": "D",
+    "explanation": "核心觀念：預防死結的作法是讓四個必要條件中至少一項無法成立。例如一次取得全部資源可打破佔用與等待，固定資源申請順序可打破循環等待。限制越嚴格，通常越可能犧牲資源利用率。\n\n解題步驟：本題依附件指定的課程答案選 D：Remove the critical section。一般理論上，預防死結是破壞四個必要條件之一；『去除臨界區』不是四個必要條件的名稱，不能直接用來替代這個定義。",
+    "images": [],
+    "id": "os8-107",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      26
+    ],
+    "sourceAnswers": [
+      "D"
+    ],
+    "sourceExplanation": "本題依使用者提供的判分結果，指定選 D：Remove the critical section。",
+    "choiceKey": "D",
+    "translation": "為了預防死結，必須打破哪個條件？",
+    "optionTranslations": [
+      "無搶佔",
+      "互斥",
+      "佔用與等待",
+      "去除臨界區"
+    ]
+  },
+  {
+    "category": "死結預防",
+    "type": "單選題",
+    "stem": "要預防死結，打破哪個條件沒有用？",
+    "options": [
+      "無搶佔",
+      "去除臨界區",
+      "佔用與等待",
+      "互斥"
+    ],
+    "answer": "B",
+    "explanation": "核心觀念：預防死結的作法是讓四個必要條件中至少一項無法成立。例如一次取得全部資源可打破佔用與等待，固定資源申請順序可打破循環等待。限制越嚴格，通常越可能犧牲資源利用率。\n\n解題步驟：依附件答案選 B『去除臨界區』。互斥、佔用與等待、無搶佔是四個必要條件中的三項，破壞其中一項可作為預防策略；『臨界區』是共享資料的程式區段，不是第五個死結必要條件。",
+    "images": [],
+    "id": "os8-108",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      27
+    ],
+    "sourceAnswers": [
+      "B"
+    ],
+    "sourceExplanation": "依提供的答案，選去除臨界區。",
+    "choiceKey": "B"
+  },
+  {
+    "category": "死結預防",
+    "type": "單選題",
+    "stem": "死結預防的缺點是什麼？",
+    "options": [
+      "無法保證沒有死結",
+      "可能導致資源利用率低",
+      "會增加系統開銷",
+      "實作複雜"
+    ],
+    "answer": "B",
+    "explanation": "核心觀念：預防死結的作法是讓四個必要條件中至少一項無法成立。例如一次取得全部資源可打破佔用與等待，固定資源申請順序可打破循環等待。限制越嚴格，通常越可能犧牲資源利用率。\n\n解題步驟：依本題單選判分，選可能導致資源利用率低。",
+    "images": [],
+    "id": "os8-109",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      28
+    ],
+    "sourceAnswers": [
+      "B"
+    ],
+    "sourceExplanation": "依本題單選判分，選可能導致資源利用率低。",
+    "choiceKey": "B"
+  },
+  {
+    "category": "死結預防",
     "type": "多選題",
     "stem": "死結預防 (Deadlock Prevention) 的缺點是什麼？",
     "options": [
@@ -9177,6 +9786,113 @@
   },
   {
     "category": "死結預防",
+    "type": "多選題",
+    "stem": "死結預防策略，如打破佔用與等待（Hold and Wait）條件，可以透過哪些方法實現？",
+    "options": [
+      "要求程序一次請求所有資源",
+      "當程序請求新資源時，它必須釋放所有當前佔用的資源",
+      "將資源排序並按照順序請求",
+      "允許程序隨時請求新資源"
+    ],
+    "answer": "A,B",
+    "explanation": "核心觀念：預防死結的作法是讓四個必要條件中至少一項無法成立。例如一次取得全部資源可打破佔用與等待，固定資源申請順序可打破循環等待。限制越嚴格，通常越可能犧牲資源利用率。\n\n解題步驟：依提供的判分結果，選一次請求所有資源、請求新資源前釋放目前資源。",
+    "images": [],
+    "id": "os8-110",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      29
+    ],
+    "sourceAnswers": [
+      "A,B"
+    ],
+    "sourceExplanation": "依提供的判分結果，選一次請求所有資源、請求新資源前釋放目前資源。",
+    "choiceKey": "AB"
+  },
+  {
+    "category": "死結預防",
+    "type": "多選題",
+    "stem": "死結預防的策略可以打破以下哪些條件？",
+    "options": [
+      "互斥, 無搶佔, 循環等待",
+      "臨界區",
+      "佔用與等待, 無搶佔, 循環等待",
+      "互斥, 佔用與等待, 無搶佔"
+    ],
+    "answer": "A,C",
+    "explanation": "核心觀念：預防死結的作法是讓四個必要條件中至少一項無法成立。例如一次取得全部資源可打破佔用與等待，固定資源申請順序可打破循環等待。限制越嚴格，通常越可能犧牲資源利用率。\n\n解題步驟：本題採附件指定的 A、C。選項都是條件的組合，請依本題課程判分作答；一般概念仍是打破四個必要條件中的至少一項，不應推論未被選中的 D 所列條件都不能用於預防。",
+    "images": [],
+    "id": "os8-111",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      30
+    ],
+    "sourceAnswers": [
+      "A,C"
+    ],
+    "sourceExplanation": "依提供的正確答案，選 A、C 兩組，不選 D。",
+    "choiceKey": "AC"
+  },
+  {
+    "category": "死結預防",
+    "type": "多選題",
+    "stem": "The No Preemption condition can be broken by which of the following methods?",
+    "options": [
+      "Allowing processes to be interrupted and release resources at any time",
+      "Making all resources preemptable",
+      "Implementing a resource priority scheme",
+      "When a process requests a new resource, it must release all its currently held resources"
+    ],
+    "answer": "A,D",
+    "explanation": "核心觀念：預防死結的作法是讓四個必要條件中至少一項無法成立。例如一次取得全部資源可打破佔用與等待，固定資源申請順序可打破循環等待。限制越嚴格，通常越可能犧牲資源利用率。\n\n解題步驟：依附件選 A、D。請求新資源時釋放已有資源，可配合無法立即分配時的取回與重試規則；資源是否適合強制取回，要看能否保存與恢復狀態，不能只把所有資源標記成可搶佔就保證可行。",
+    "images": [],
+    "id": "os8-112",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      31
+    ],
+    "sourceAnswers": [
+      "A,D"
+    ],
+    "sourceExplanation": "中文：依提供的判分結果，選允許中斷並釋放資源、請求新資源時釋放現有資源。不選 B。",
+    "choiceKey": "AD",
+    "translation": "可以用哪些方法打破無搶佔條件？",
+    "optionTranslations": [
+      "允許程序隨時中斷並釋放資源",
+      "讓所有資源都可搶佔",
+      "實施資源優先順序制度",
+      "程序請求新資源時必須釋放目前持有的全部資源"
+    ]
+  },
+  {
+    "category": "死結預防",
+    "type": "多選題",
+    "stem": "無搶佔 (No Preemption) 條件可以透過以下哪種方式來打破？",
+    "options": [
+      "允許程序隨時中斷並釋放資源",
+      "將所有資源標記為可搶佔",
+      "當程序請求新資源時，它必須釋放其當前持有的所有資源",
+      "實施資源優先順序"
+    ],
+    "answer": "A,C",
+    "explanation": "核心觀念：預防死結的作法是讓四個必要條件中至少一項無法成立。例如一次取得全部資源可打破佔用與等待，固定資源申請順序可打破循環等待。限制越嚴格，通常越可能犧牲資源利用率。\n\n解題步驟：依附件選 A、C。關鍵是建立可釋放、必要時可恢復的規則；資源的可搶佔性取決於實際性質，不能僅靠把所有資源標記為可搶佔就達成。",
+    "images": [],
+    "id": "os8-113",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      32
+    ],
+    "sourceAnswers": [
+      "A,C"
+    ],
+    "sourceExplanation": "依提供的答案，選允許隨時中斷並釋放資源、請求新資源時釋放現有資源。",
+    "choiceKey": "AC"
+  },
+  {
+    "category": "死結預防",
     "type": "填空題",
     "stem": "為了打破 ____________，可以實施一個嚴格的資源排序，並要求程序按照該順序請求資源。(請用小寫英文回答 單字間留一個空白)",
     "options": [],
@@ -9260,6 +9976,63 @@
     "translation": "",
     "terms": [],
     "note": ""
+  },
+  {
+    "category": "死結預防",
+    "type": "填空題",
+    "stem": "_______________ 是死結預防 (Deadlock Prevention) 中打破佔用與等待 (Hold and Wait) 條件的另一種方法，它要求程序在請求新資源時釋放其當前所有資源。(請用小寫英文回答)",
+    "options": [],
+    "answer": "release",
+    "explanation": "核心觀念：預防死結的作法是讓四個必要條件中至少一項無法成立。例如一次取得全部資源可打破佔用與等待，固定資源申請順序可打破循環等待。限制越嚴格，通常越可能犧牲資源利用率。\n\n解題步驟：依判分結果只填 release，不填 preemption。",
+    "images": [],
+    "id": "os8-114",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      33
+    ],
+    "sourceAnswers": [
+      "release"
+    ],
+    "sourceExplanation": "依判分結果只填 release，不填 preemption。"
+  },
+  {
+    "category": "死結預防",
+    "type": "填空題",
+    "stem": "死結預防 (Deadlock Prevention) 通常可以透過打破死結的四個必要條件之一來實現。例如，透過強制將所有資源標記為可分享來打破 _______________ 。(請用小寫英文回答 單字間留一個空白)",
+    "options": [],
+    "answer": "mutual exclusion",
+    "explanation": "核心觀念：預防死結的作法是讓四個必要條件中至少一項無法成立。例如一次取得全部資源可打破佔用與等待，固定資源申請順序可打破循環等待。限制越嚴格，通常越可能犧牲資源利用率。\n\n解題步驟：依附件填 mutual exclusion。能同時共享的資源不再需要互斥使用；不過印表機等資源本質上需要獨占，不能單靠『標記可分享』就讓它們真的可分享。",
+    "images": [],
+    "id": "os8-115",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      34
+    ],
+    "sourceAnswers": [
+      "mutual exclusion"
+    ],
+    "sourceExplanation": "依提供的答案，將資源設為可分享對應打破互斥 mutual exclusion。"
+  },
+  {
+    "category": "死結預防",
+    "type": "填空題",
+    "stem": "為了防止死結， _______________ 條件可以被打破，方法是要求程序在啟動前請求所有其所需的資源。(請用小寫英文回答 單字間留一個空白)",
+    "options": [],
+    "answer": "hold and wait",
+    "explanation": "核心觀念：預防死結的作法是讓四個必要條件中至少一項無法成立。例如一次取得全部資源可打破佔用與等待，固定資源申請順序可打破循環等待。限制越嚴格，通常越可能犧牲資源利用率。\n\n解題步驟：依提供的答案，啟動前一次請求全部資源對應打破佔用與等待。",
+    "images": [],
+    "id": "os8-116",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      35
+    ],
+    "sourceAnswers": [
+      "hold and wait"
+    ],
+    "sourceExplanation": "依提供的答案，啟動前一次請求全部資源對應打破佔用與等待。"
   },
   {
     "category": "死結避免",
@@ -9423,6 +10196,159 @@
   },
   {
     "category": "死結避免",
+    "type": "單選題",
+    "stem": "How does a deadlock avoidance algorithm ensure the system stays in a safe state?",
+    "options": [
+      "By denying all new resource requests",
+      "By limiting each process to requesting only one resource at a time",
+      "By allowing all requests and recovering after a deadlock occurs",
+      "By satisfying only those requests that keep the system in a safe state"
+    ],
+    "answer": "D",
+    "explanation": "核心觀念：死結避免會先評估資源分配後是否仍安全，只有安全才核准。銀行家演算法需要事先知道最大需求，再結合目前分配與可用資源作判斷；資源目前有空，不代表分配後一定安全。\n\n解題步驟：中文：只核准分配後仍能讓系統維持安全的請求。",
+    "images": [],
+    "id": "os8-117",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      36
+    ],
+    "sourceAnswers": [
+      "D"
+    ],
+    "sourceExplanation": "中文：只核准分配後仍能讓系統維持安全的請求。",
+    "choiceKey": "D",
+    "translation": "死結避免演算法如何確保系統維持安全狀態？",
+    "optionTranslations": [
+      "拒絕所有新的資源請求",
+      "限制每個程序每次只能請求一項資源",
+      "允許所有請求，死結後再恢復",
+      "只核准分配後仍使系統維持安全的請求"
+    ]
+  },
+  {
+    "category": "死結避免",
+    "type": "單選題",
+    "stem": "What information about resource requests do deadlock avoidance algorithms require?",
+    "options": [
+      "The maximum number of requests from all processes",
+      "The total number of requests from all processes",
+      "The minimum number of requests from all processes",
+      "The number of resources currently held by all processes"
+    ],
+    "answer": "A",
+    "explanation": "核心觀念：死結避免會先評估資源分配後是否仍安全，只有安全才核准。銀行家演算法需要事先知道最大需求，再結合目前分配與可用資源作判斷；資源目前有空，不代表分配後一定安全。\n\n解題步驟：中文：依題庫為單選，選所有程序的最大請求數量。",
+    "images": [],
+    "id": "os8-118",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      37
+    ],
+    "sourceAnswers": [
+      "A"
+    ],
+    "sourceExplanation": "中文：依題庫為單選，選所有程序的最大請求數量。",
+    "choiceKey": "A",
+    "translation": "死結避免演算法需要哪些資源請求資訊？",
+    "optionTranslations": [
+      "所有程序的最大請求數量",
+      "所有程序的總請求數量",
+      "所有程序的最小請求數量",
+      "所有程序目前持有的資源數量"
+    ]
+  },
+  {
+    "category": "死結避免",
+    "type": "單選題",
+    "stem": "What is the main advantage of deadlock avoidance?",
+    "options": [
+      "It has higher resource utilization",
+      "It ensures all requests are satisfied",
+      "It can prevent deadlocks from occurring",
+      "It does not require any additional information"
+    ],
+    "answer": "A",
+    "explanation": "核心觀念：死結避免會先評估資源分配後是否仍安全，只有安全才核准。銀行家演算法需要事先知道最大需求，再結合目前分配與可用資源作判斷；資源目前有空，不代表分配後一定安全。\n\n解題步驟：依附件的單選答案選 A，強調相較嚴格預防策略，動態安全檢查通常有較好的資源利用彈性。這不代表所有請求都會被滿足，也不是在每種系統條件下都保證利用率最高。",
+    "images": [],
+    "id": "os8-119",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      38
+    ],
+    "sourceAnswers": [
+      "A"
+    ],
+    "sourceExplanation": "中文：依提供的單選答案，主要優點是資源利用率較高。",
+    "choiceKey": "A",
+    "translation": "死結避免的主要優點是什麼？",
+    "optionTranslations": [
+      "資源利用率較高",
+      "確保所有請求都會被滿足",
+      "能防止死結發生",
+      "不需要任何額外資訊"
+    ]
+  },
+  {
+    "category": "死結避免",
+    "type": "單選題",
+    "stem": "在死結避免中，銀行家演算法可以處理多個資源實例，而資源分配圖演算法只能處理？",
+    "options": [
+      "可分享的資源實例",
+      "單個資源實例",
+      "不可分享的資源實例",
+      "多個資源實例"
+    ],
+    "answer": "B",
+    "explanation": "核心觀念：死結避免會先評估資源分配後是否仍安全，只有安全才核准。銀行家演算法需要事先知道最大需求，再結合目前分配與可用資源作判斷；資源目前有空，不代表分配後一定安全。\n\n解題步驟：依提供的答案，資源分配圖避免演算法只處理單個資源實例。",
+    "images": [],
+    "id": "os8-120",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      39
+    ],
+    "sourceAnswers": [
+      "B"
+    ],
+    "sourceExplanation": "依提供的答案，資源分配圖避免演算法只處理單個資源實例。",
+    "choiceKey": "B"
+  },
+  {
+    "category": "死結避免",
+    "type": "單選題",
+    "stem": "In a deadlock avoidance algorithm if a process P requests a resource the request is denied unless what condition is met?",
+    "options": [
+      "The system remains in a safe state after satisfying the request",
+      "P has terminated",
+      "P is the only process",
+      "All of P's resources have been allocated"
+    ],
+    "answer": "A",
+    "explanation": "核心觀念：死結避免會先評估資源分配後是否仍安全，只有安全才核准。銀行家演算法需要事先知道最大需求，再結合目前分配與可用資源作判斷；資源目前有空，不代表分配後一定安全。\n\n解題步驟：中文：必須滿足請求後系統仍處於安全狀態。",
+    "images": [],
+    "id": "os8-121",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      40
+    ],
+    "sourceAnswers": [
+      "A"
+    ],
+    "sourceExplanation": "中文：必須滿足請求後系統仍處於安全狀態。",
+    "choiceKey": "A",
+    "translation": "死結避免演算法中，程序 P 的資源請求會被拒絕，除非滿足哪個條件？",
+    "optionTranslations": [
+      "滿足請求後系統仍處於安全狀態",
+      "P 已終止",
+      "P 是唯一的程序",
+      "P 的所有資源都已分配"
+    ]
+  },
+  {
+    "category": "死結避免",
     "type": "多選題",
     "stem": "以下哪些是死結避免演算法？",
     "options": [
@@ -9530,6 +10456,46 @@
     "translation": "",
     "terms": [],
     "note": ""
+  },
+  {
+    "category": "死結避免",
+    "type": "填空題",
+    "stem": "Deadlock Avoidance algorithms work by checking if each resource allocation would lead the system into an _______________ state.(Please answer in lowercase English)",
+    "options": [],
+    "answer": "unsafe",
+    "explanation": "核心觀念：死結避免會先評估資源分配後是否仍安全，只有安全才核准。銀行家演算法需要事先知道最大需求，再結合目前分配與可用資源作判斷；資源目前有空，不代表分配後一定安全。\n\n解題步驟：中文：檢查分配是否導致不安全狀態，依題庫填 unsafe。",
+    "images": [],
+    "id": "os8-122",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      41
+    ],
+    "sourceAnswers": [
+      "unsafe"
+    ],
+    "sourceExplanation": "中文：檢查分配是否導致不安全狀態，依題庫填 unsafe。",
+    "translation": "死結避免演算法會檢查每次資源分配是否讓系統進入 ____________ 狀態。（請用小寫英文回答）"
+  },
+  {
+    "category": "死結避免",
+    "type": "填空題",
+    "stem": "Deadlock avoidance algorithms can ensure that the system does not enter an _______________ state.(Please answer in lowercase English)",
+    "options": [],
+    "answer": "unsafe",
+    "explanation": "核心觀念：死結避免會先評估資源分配後是否仍安全，只有安全才核准。銀行家演算法需要事先知道最大需求，再結合目前分配與可用資源作判斷；資源目前有空，不代表分配後一定安全。\n\n解題步驟：中文：依提供的答案填 unsafe，表示避免進入不安全狀態。",
+    "images": [],
+    "id": "os8-123",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      42
+    ],
+    "sourceAnswers": [
+      "unsafe"
+    ],
+    "sourceExplanation": "中文：依提供的答案填 unsafe，表示避免進入不安全狀態。",
+    "translation": "死結避免演算法可確保系統不會進入 ____________ 狀態。（請用小寫英文回答）"
   },
   {
     "category": "安全狀態",
@@ -9675,6 +10641,63 @@
   },
   {
     "category": "安全狀態",
+    "type": "單選題",
+    "stem": "If a system is in an unsafe state will a deadlock necessarily occur?",
+    "options": [
+      "Yes",
+      "Depends on the number of processes",
+      "No",
+      "Depends on the order of resource requests"
+    ],
+    "answer": "C",
+    "explanation": "核心觀念：安全狀態表示存在一個安全序列，能依序讓所有程序取得尚需資源並完成。不安全表示目前無法保證存在這樣的序列，仍不等於已經死結，也不表示一定會發生死結。\n\n解題步驟：中文：不安全狀態不表示必然發生死結，選 No。",
+    "images": [],
+    "id": "os8-090",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      9
+    ],
+    "sourceAnswers": [
+      "C"
+    ],
+    "sourceExplanation": "中文：不安全狀態不表示必然發生死結，選 No。",
+    "choiceKey": "C",
+    "translation": "系統處於不安全狀態時，一定會發生死結嗎？",
+    "optionTranslations": [
+      "是",
+      "取決於程序數量",
+      "否",
+      "取決於資源請求順序"
+    ]
+  },
+  {
+    "category": "安全狀態",
+    "type": "單選題",
+    "stem": "以下哪些情況可能會導致一個系統從安全狀態進入不安全狀態？",
+    "options": [
+      "一個程序在不安全狀態下請求資源",
+      "一個程序請求了一個新資源",
+      "一個程序釋放了一個資源",
+      "一個程序終止了"
+    ],
+    "answer": "B",
+    "explanation": "核心觀念：安全狀態表示存在一個安全序列，能依序讓所有程序取得尚需資源並完成。不安全表示目前無法保證存在這樣的序列，仍不等於已經死結，也不表示一定會發生死結。\n\n解題步驟：依提供的判分結果，只選程序請求了一個新資源。",
+    "images": [],
+    "id": "os8-091",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      10
+    ],
+    "sourceAnswers": [
+      "B"
+    ],
+    "sourceExplanation": "依提供的判分結果，只選程序請求了一個新資源。",
+    "choiceKey": "B"
+  },
+  {
+    "category": "安全狀態",
     "type": "多選題",
     "stem": "What are the conditions for a system to be in a safe state?",
     "options": [
@@ -9696,6 +10719,113 @@
       "A,C"
     ],
     "choiceKey": "AC"
+  },
+  {
+    "category": "安全狀態",
+    "type": "多選題",
+    "stem": "In the resource-allocation graph algorithm which of the following can lead a system to enter an unsafe state?",
+    "options": [
+      "A process requests a resource it has not declared",
+      "A new process is added",
+      "A process releases a resource",
+      "A new cycle is formed in the graph"
+    ],
+    "answer": "A,D",
+    "explanation": "核心觀念：安全狀態表示存在一個安全序列，能依序讓所有程序取得尚需資源並完成。不安全表示目前無法保證存在這樣的序列，仍不等於已經死結，也不表示一定會發生死結。\n\n解題步驟：依附件選 A、D。資源分配圖的避免方法需要事先宣告可能請求的資源；未宣告的請求會違反這項前提。含宣告邊的檢查若發現核准後形成環，就不能保證安全，不應把任意資源分配圖中的環一律視為已死結。",
+    "images": [],
+    "id": "os8-092",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      11
+    ],
+    "sourceAnswers": [
+      "A,D"
+    ],
+    "sourceExplanation": "中文：依提供的答案，選請求未聲明資源、圖中形成新循環。",
+    "choiceKey": "AD",
+    "translation": "在資源分配圖演算法中，下列哪些情況可能使系統進入不安全狀態？",
+    "optionTranslations": [
+      "程序請求未事先宣告的資源",
+      "加入新程序",
+      "程序釋放資源",
+      "圖中形成新循環"
+    ]
+  },
+  {
+    "category": "安全狀態",
+    "type": "多選題",
+    "stem": "一個系統處於不安全狀態時，可能會發生哪些情況？",
+    "options": [
+      "存在一個無法滿足的資源請求",
+      "所有程序都無法完成",
+      "所有資源都被鎖定",
+      "系統可能會進入死結狀態"
+    ],
+    "answer": "A,D",
+    "explanation": "核心觀念：安全狀態表示存在一個安全序列，能依序讓所有程序取得尚需資源並完成。不安全表示目前無法保證存在這樣的序列，仍不等於已經死結，也不表示一定會發生死結。\n\n解題步驟：依提供的答案，可能有無法滿足的請求，以及可能進入死結。",
+    "images": [],
+    "id": "os8-093",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      12
+    ],
+    "sourceAnswers": [
+      "A,D"
+    ],
+    "sourceExplanation": "依提供的答案，可能有無法滿足的請求，以及可能進入死結。",
+    "choiceKey": "AD"
+  },
+  {
+    "category": "安全狀態",
+    "type": "多選題",
+    "stem": "一個系統處於安全狀態的條件是什麼？",
+    "options": [
+      "沒有程序處於死結狀態",
+      "所有程序都可以完成執行",
+      "存在一個安全序列",
+      "所有資源都已分配"
+    ],
+    "answer": "B,C",
+    "explanation": "核心觀念：安全狀態表示存在一個安全序列，能依序讓所有程序取得尚需資源並完成。不安全表示目前無法保證存在這樣的序列，仍不等於已經死結，也不表示一定會發生死結。\n\n解題步驟：依提供的答案，只選所有程序可以完成、存在安全序列。",
+    "images": [],
+    "id": "os8-094",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      13
+    ],
+    "sourceAnswers": [
+      "B,C"
+    ],
+    "sourceExplanation": "依提供的答案，只選所有程序可以完成、存在安全序列。",
+    "choiceKey": "BC"
+  },
+  {
+    "category": "安全狀態",
+    "type": "多選題",
+    "stem": "在資源分配圖演算法中，以下哪些情況會導致一個系統進入不安全狀態？",
+    "options": [
+      "一個程序釋放了資源",
+      "新增了一個新的程序",
+      "圖中形成了一個新的循環",
+      "一個程序請求了它未聲明的資源"
+    ],
+    "answer": "C,D",
+    "explanation": "核心觀念：安全狀態表示存在一個安全序列，能依序讓所有程序取得尚需資源並完成。不安全表示目前無法保證存在這樣的序列，仍不等於已經死結，也不表示一定會發生死結。\n\n解題步驟：依附件選 C、D。新循環要放在本題『資源分配圖避免演算法』的前提下理解；未事先宣告的資源請求則會使原先安全檢查的前提失效。",
+    "images": [],
+    "id": "os8-095",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      14
+    ],
+    "sourceAnswers": [
+      "C,D"
+    ],
+    "sourceExplanation": "依提供的判分結果，選新循環形成、程序請求未聲明的資源。",
+    "choiceKey": "CD"
   },
   {
     "category": "安全狀態",
@@ -9760,6 +10890,46 @@
     "translation": "",
     "terms": [],
     "note": ""
+  },
+  {
+    "category": "安全狀態",
+    "type": "填空題",
+    "stem": "When a system transitions from an unsafe state to a deadlocked state this process is known as _______________ .(Please answer in lowercase English)",
+    "options": [],
+    "answer": "livelock",
+    "explanation": "核心觀念：活鎖（livelock）是程序持續改變狀態或重試，卻沒有有效進展；死結是彼此等待而無法前進；不安全則是無法保證存在安全序列。三者定義不同。\n\n解題步驟：本題依附件指定答案填 livelock，保留課程判分。學習概念時，『從不安全狀態進入死結』並不是活鎖的通用定義；請將題庫填答與術語定義分開記。",
+    "images": [],
+    "id": "os8-096",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      15
+    ],
+    "sourceAnswers": [
+      "livelock"
+    ],
+    "sourceExplanation": "本題依使用者提供的正確答案，固定填 livelock。",
+    "translation": "系統從不安全狀態轉為死結狀態的過程，稱為 ____________。（請用小寫英文回答）"
+  },
+  {
+    "category": "安全狀態",
+    "type": "填空題",
+    "stem": "When a system can find a sequence in which resources can be allocated to all processes without causing a deadlock this state is called a _______________ state.(Please answer in lowercase English)",
+    "options": [],
+    "answer": "safe",
+    "explanation": "核心觀念：安全狀態表示存在一個安全序列，能依序讓所有程序取得尚需資源並完成。不安全表示目前無法保證存在這樣的序列，仍不等於已經死結，也不表示一定會發生死結。\n\n解題步驟：中文：存在安全序列時，稱為安全狀態；本題填 safe。",
+    "images": [],
+    "id": "os8-097",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      16
+    ],
+    "sourceAnswers": [
+      "safe"
+    ],
+    "sourceExplanation": "中文：存在安全序列時，稱為安全狀態；本題填 safe。",
+    "translation": "若系統能找到一個序列，依該序列將資源分配給所有程序而不造成死結，此狀態稱為 ____________ 狀態。（請用小寫英文回答）"
   },
   {
     "category": "銀行家演算法",
@@ -9891,6 +11061,31 @@
   },
   {
     "category": "銀行家演算法",
+    "type": "單選題",
+    "stem": "銀行家演算法 (Banker's Algorithm) 是一種用於什麼的死結演算法？",
+    "options": [
+      "偵測",
+      "避免",
+      "預防",
+      "恢復"
+    ],
+    "answer": "B",
+    "explanation": "核心觀念：銀行家演算法是死結避免方法，利用 Available、Max、Allocation 與 Need 檢查安全序列。Need = Max − Allocation，代表程序最多還需要多少資源才能完成。\n\n解題步驟：依提供的答案，銀行家演算法用於死結避免。",
+    "images": [],
+    "id": "os8-124",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      43
+    ],
+    "sourceAnswers": [
+      "B"
+    ],
+    "sourceExplanation": "依提供的答案，銀行家演算法用於死結避免。",
+    "choiceKey": "B"
+  },
+  {
+    "category": "銀行家演算法",
     "type": "多選題",
     "stem": "What data structures are needed for the Banker's algorithm to operate?",
     "options": [
@@ -9932,6 +11127,31 @@
     "terms": [],
     "note": "",
     "choiceKey": "BCD"
+  },
+  {
+    "category": "銀行家演算法",
+    "type": "多選題",
+    "stem": "銀行家演算法中需要哪些數據結構來運作？",
+    "options": [
+      "分配資源 (Allocation)",
+      "可用資源 (Available)",
+      "請求資源 (Request)",
+      "最大需求 (Max)"
+    ],
+    "answer": "A,B,C,D",
+    "explanation": "核心觀念：銀行家演算法是死結避免方法，利用 Available、Max、Allocation 與 Need 檢查安全序列。Need = Max − Allocation，代表程序最多還需要多少資源才能完成。\n\n解題步驟：依附件全選 A、B、C、D。Allocation、Available、Max 與 Need 是安全性檢查的重要資料；Request 則記錄這次資源請求。Request 與 Need 的用途不同，不要把本題有列出 Request 誤記成不需要 Need。",
+    "images": [],
+    "id": "os8-125",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      44
+    ],
+    "sourceAnswers": [
+      "A,B,C,D"
+    ],
+    "sourceExplanation": "依提供的判分結果，四項全部選。",
+    "choiceKey": "ABCD"
   },
   {
     "category": "銀行家演算法",
@@ -10038,6 +11258,44 @@
     "note": ""
   },
   {
+    "category": "銀行家演算法",
+    "type": "填空題",
+    "stem": "在銀行家演算法中，一個程序的「需要」(Need) 矩陣是其「最大」(Max) 矩陣與其「分配」(Allocation) 矩陣的 _______________ 。(請用小寫英文回答)",
+    "options": [],
+    "answer": "difference",
+    "explanation": "核心觀念：銀行家演算法是死結避免方法，利用 Available、Max、Allocation 與 Need 檢查安全序列。Need = Max − Allocation，代表程序最多還需要多少資源才能完成。\n\n解題步驟：Need = Max − Allocation，填 difference。",
+    "images": [],
+    "id": "os8-126",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      45
+    ],
+    "sourceAnswers": [
+      "difference"
+    ],
+    "sourceExplanation": "Need = Max − Allocation，填 difference。"
+  },
+  {
+    "category": "銀行家演算法",
+    "type": "填空題",
+    "stem": "_______________ 是死結避免的一種方法，透過仔細的資源分配來確保系統不會進入不安全狀態。(請用小寫英文回答 單字間留一個空白)",
+    "options": [],
+    "answer": "banker's algorithm",
+    "explanation": "核心觀念：銀行家演算法是死結避免方法，利用 Available、Max、Allocation 與 Need 檢查安全序列。Need = Max − Allocation，代表程序最多還需要多少資源才能完成。\n\n解題步驟：依題庫填 banker's algorithm，保留英文單引號。",
+    "images": [],
+    "id": "os8-127",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      46
+    ],
+    "sourceAnswers": [
+      "banker's algorithm"
+    ],
+    "sourceExplanation": "依題庫填 banker's algorithm，保留英文單引號。"
+  },
+  {
     "category": "死結偵測與恢復",
     "type": "單選題",
     "stem": "Which of the following deadlock handling methods allows the system to enter an unsafe state when a deadlock occurs?",
@@ -10103,6 +11361,31 @@
     "sourceAnswers": [
       "A,B,C"
     ],
+    "choiceKey": "ABC"
+  },
+  {
+    "category": "死結偵測與恢復",
+    "type": "多選題",
+    "stem": "死結偵測和死結恢復的組合方法，其優點有哪些？",
+    "options": [
+      "簡單且實用",
+      "可以處理多種資源類型",
+      "不需要預先的資源使用資訊",
+      "可以確保系統始終在安全狀態"
+    ],
+    "answer": "A,B,C",
+    "explanation": "核心觀念：偵測與恢復容許一般資源分配先進行，發現死結後才終止程序、搶佔資源或回滾。它不要求事先宣告最大需求，但也不保證系統始終處於安全狀態。\n\n解題步驟：依提供的答案，前三項是優點；不保證系統始終安全。",
+    "images": [],
+    "id": "os8-133",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      52
+    ],
+    "sourceAnswers": [
+      "A,B,C"
+    ],
+    "sourceExplanation": "依提供的答案，前三項是優點；不保證系統始終安全。",
     "choiceKey": "ABC"
   },
   {
@@ -10194,6 +11477,70 @@
       "B"
     ],
     "choiceKey": "B"
+  },
+  {
+    "category": "死結偵測",
+    "type": "單選題",
+    "stem": "Which of the following is a typical application of a deadlock detection algorithm?",
+    "options": [
+      "Checking if the system is in a safe state",
+      "Checking if any circular wait has occurred",
+      "Checking if any process has terminated",
+      "Checking if an edge exists in the resource-allocation graph"
+    ],
+    "answer": "B",
+    "explanation": "核心觀念：死結偵測檢查目前的等待與資源分配關係。每種資源只有單一實例時可用等待圖找環；多個實例時，必須進一步比較可用資源與各程序的尚需請求，不能只看有沒有環。\n\n解題步驟：中文：典型應用是檢查是否發生循環等待。",
+    "images": [],
+    "id": "os8-128",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      47
+    ],
+    "sourceAnswers": [
+      "B"
+    ],
+    "sourceExplanation": "中文：典型應用是檢查是否發生循環等待。",
+    "choiceKey": "B",
+    "translation": "下列何者是死結偵測演算法的典型應用？",
+    "optionTranslations": [
+      "檢查系統是否處於安全狀態",
+      "檢查是否發生循環等待",
+      "檢查是否有程序終止",
+      "檢查資源分配圖中是否有邊"
+    ]
+  },
+  {
+    "category": "死結偵測",
+    "type": "單選題",
+    "stem": "In deadlock detection when there is only a single instance of each resource type what graph is typically used to detect deadlocks?",
+    "options": [
+      "Wait-for graph",
+      "Resource-allocation graph",
+      "Flowchart",
+      "State transition diagram"
+    ],
+    "answer": "A",
+    "explanation": "核心觀念：死結偵測檢查目前的等待與資源分配關係。每種資源只有單一實例時可用等待圖找環；多個實例時，必須進一步比較可用資源與各程序的尚需請求，不能只看有沒有環。\n\n解題步驟：中文：每類資源只有單一實例時，依題庫選等待圖。",
+    "images": [],
+    "id": "os8-129",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      48
+    ],
+    "sourceAnswers": [
+      "A"
+    ],
+    "sourceExplanation": "中文：每類資源只有單一實例時，依題庫選等待圖。",
+    "choiceKey": "A",
+    "translation": "死結偵測中，每種資源只有單一實例時，通常使用什麼圖偵測死結？",
+    "optionTranslations": [
+      "等待圖",
+      "資源分配圖",
+      "流程圖",
+      "狀態轉移圖"
+    ]
   },
   {
     "category": "死結偵測",
@@ -10292,6 +11639,56 @@
     "terms": [],
     "note": "",
     "choiceKey": "ABCD"
+  },
+  {
+    "category": "死結偵測",
+    "type": "多選題",
+    "stem": "在死結偵測中，資源分配圖的簡化流程（簡化圖）通常涉及哪些步驟？",
+    "options": [
+      "移除所有請求邊",
+      "移除那些能夠完成的程序與資源",
+      "移除所有已分配邊",
+      "移除那些無循環的程序與資源"
+    ],
+    "answer": "A,B",
+    "explanation": "核心觀念：死結偵測檢查目前的等待與資源分配關係。每種資源只有單一實例時可用等待圖找環；多個實例時，必須進一步比較可用資源與各程序的尚需請求，不能只看有沒有環。\n\n解題步驟：依附件選 A、B。理解簡化流程時，只能消去目前能取得所需資源並完成的程序，模擬它完成後歸還資源，再重複處理；不能不看能否完成就任意刪掉整張圖的所有請求邊。",
+    "images": [],
+    "id": "os8-130",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      49
+    ],
+    "sourceAnswers": [
+      "A,B"
+    ],
+    "sourceExplanation": "依提供的判分結果，選移除所有請求邊、移除能夠完成的程序與資源。",
+    "choiceKey": "AB"
+  },
+  {
+    "category": "死結偵測",
+    "type": "多選題",
+    "stem": "死結偵測演算法在什麼時候運行？",
+    "options": [
+      "當系統處於安全狀態時",
+      "當資源請求失敗時",
+      "當系統負載達到某個閾值時",
+      "定期運行"
+    ],
+    "answer": "B,C,D",
+    "explanation": "核心觀念：死結偵測檢查目前的等待與資源分配關係。每種資源只有單一實例時可用等待圖找環；多個實例時，必須進一步比較可用資源與各程序的尚需請求，不能只看有沒有環。\n\n解題步驟：依提供的判分結果，資源請求失敗、負載達閾值、定期運行都選。",
+    "images": [],
+    "id": "os8-131",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      50
+    ],
+    "sourceAnswers": [
+      "B,C,D"
+    ],
+    "sourceExplanation": "依提供的判分結果，資源請求失敗、負載達閾值、定期運行都選。",
+    "choiceKey": "BCD"
   },
   {
     "category": "死結偵測",
@@ -10430,6 +11827,26 @@
     "note": ""
   },
   {
+    "category": "死結偵測",
+    "type": "填空題",
+    "stem": "In deadlock detection when there are multiple instances of a resource type a more complex algorithm is needed rather than simply checking the _______________ graph.(Please answer in lowercase English, connecting words with hyphens)",
+    "options": [],
+    "answer": "wait-for",
+    "explanation": "核心觀念：死結偵測檢查目前的等待與資源分配關係。每種資源只有單一實例時可用等待圖找環；多個實例時，必須進一步比較可用資源與各程序的尚需請求，不能只看有沒有環。\n\n解題步驟：中文：依判分結果填 wait-for；後面已有 graph，不再填 graph。",
+    "images": [],
+    "id": "os8-132",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      51
+    ],
+    "sourceAnswers": [
+      "wait-for"
+    ],
+    "sourceExplanation": "中文：依判分結果填 wait-for；後面已有 graph，不再填 graph。",
+    "translation": "死結偵測中，每種資源有多個實例時，需要較複雜的演算法，不能只檢查 ____________ 圖。（請用小寫英文回答，以連字號連接單字）"
+  },
+  {
     "category": "死結恢復",
     "type": "單選題",
     "stem": "Which of the following is NOT a method for deadlock recovery?",
@@ -10476,6 +11893,145 @@
       "B"
     ],
     "choiceKey": "B"
+  },
+  {
+    "category": "死結恢復",
+    "type": "單選題",
+    "stem": "When a process terminates it releases all its resources. Which deadlock recovery strategy is this a part of?",
+    "options": [
+      "Resource release",
+      "Resource preemption",
+      "Process termination",
+      "Resource reclamation"
+    ],
+    "answer": "C",
+    "explanation": "核心觀念：死結恢復可透過終止程序，或取回資源配合回滾來解除等待環。終止程序會釋放它目前持有的資源；選擇犧牲程序時要考慮代價，避免同一程序反覆被選中而飢餓。\n\n解題步驟：中文：終止程序並釋放資源，屬於程序終止策略。",
+    "images": [],
+    "id": "os8-134",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      53
+    ],
+    "sourceAnswers": [
+      "C"
+    ],
+    "sourceExplanation": "中文：終止程序並釋放資源，屬於程序終止策略。",
+    "choiceKey": "C",
+    "translation": "程序終止時會釋放其所有資源，這屬於哪種死結恢復策略？",
+    "optionTranslations": [
+      "資源釋放",
+      "資源搶佔",
+      "程序終止",
+      "資源回收"
+    ]
+  },
+  {
+    "category": "死結恢復",
+    "type": "單選題",
+    "stem": "哪一種死結恢復方法涉及中斷一個或多個死結進程以打破循環？",
+    "options": [
+      "資源搶佔",
+      "程序終止",
+      "資源釋放",
+      "資源終止"
+    ],
+    "answer": "B",
+    "explanation": "核心觀念：死結恢復可透過終止程序，或取回資源配合回滾來解除等待環。終止程序會釋放它目前持有的資源；選擇犧牲程序時要考慮代價，避免同一程序反覆被選中而飢餓。\n\n解題步驟：依題庫，選程序終止。",
+    "images": [],
+    "id": "os8-135",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      54
+    ],
+    "sourceAnswers": [
+      "B"
+    ],
+    "sourceExplanation": "依題庫，選程序終止。",
+    "choiceKey": "B"
+  },
+  {
+    "category": "死結恢復",
+    "type": "單選題",
+    "stem": "When a process terminates which resources are released?",
+    "options": [
+      "Resources it requested but did not get",
+      "Resources it has already released",
+      "Resources it may need in the future",
+      "All resources it currently holds"
+    ],
+    "answer": "D",
+    "explanation": "核心觀念：死結恢復可透過終止程序，或取回資源配合回滾來解除等待環。終止程序會釋放它目前持有的資源；選擇犧牲程序時要考慮代價，避免同一程序反覆被選中而飢餓。\n\n解題步驟：中文：程序終止時，釋放它目前持有的全部資源。",
+    "images": [],
+    "id": "os8-136",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      55
+    ],
+    "sourceAnswers": [
+      "D"
+    ],
+    "sourceExplanation": "中文：程序終止時，釋放它目前持有的全部資源。",
+    "choiceKey": "D",
+    "translation": "程序終止時，會釋放哪些資源？",
+    "optionTranslations": [
+      "它請求但尚未取得的資源",
+      "它已經釋放的資源",
+      "它未來可能需要的資源",
+      "它目前持有的全部資源"
+    ]
+  },
+  {
+    "category": "死結恢復",
+    "type": "單選題",
+    "stem": "死結恢復中的「資源搶佔」策略通常需要解決哪一個問題？",
+    "options": [
+      "如何選擇被鎖定的資源",
+      "如何選擇被搶佔的程序",
+      "如何選擇被分配的資源",
+      "如何選擇被終止的程序"
+    ],
+    "answer": "B",
+    "explanation": "核心觀念：死結恢復可透過終止程序，或取回資源配合回滾來解除等待環。終止程序會釋放它目前持有的資源；選擇犧牲程序時要考慮代價，避免同一程序反覆被選中而飢餓。\n\n解題步驟：依提供的答案，選如何選擇被搶佔的程序。",
+    "images": [],
+    "id": "os8-137",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      56
+    ],
+    "sourceAnswers": [
+      "B"
+    ],
+    "sourceExplanation": "依提供的答案，選如何選擇被搶佔的程序。",
+    "choiceKey": "B"
+  },
+  {
+    "category": "死結恢復",
+    "type": "單選題",
+    "stem": "當一個程序終止時，哪些資源會被釋放？",
+    "options": [
+      "它已釋放的資源",
+      "它在未來可能需要的資源",
+      "它請求但未獲得的資源",
+      "它目前佔用的所有資源"
+    ],
+    "answer": "D",
+    "explanation": "核心觀念：死結恢復可透過終止程序，或取回資源配合回滾來解除等待環。終止程序會釋放它目前持有的資源；選擇犧牲程序時要考慮代價，避免同一程序反覆被選中而飢餓。\n\n解題步驟：程序終止時，釋放目前持有的全部資源。",
+    "images": [],
+    "id": "os8-138",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      57
+    ],
+    "sourceAnswers": [
+      "D"
+    ],
+    "sourceExplanation": "程序終止時，釋放目前持有的全部資源。",
+    "choiceKey": "D"
   },
   {
     "category": "死結恢復",
@@ -10699,6 +12255,63 @@
   },
   {
     "category": "死結恢復",
+    "type": "多選題",
+    "stem": "在死結恢復中，以下哪些策略可能導致飢餓 (starvation) 問題？",
+    "options": [
+      "回滾",
+      "程序終止",
+      "資源釋放",
+      "資源搶佔"
+    ],
+    "answer": "A,B,D",
+    "explanation": "核心觀念：死結恢復可透過終止程序，或取回資源配合回滾來解除等待環。終止程序會釋放它目前持有的資源；選擇犧牲程序時要考慮代價，避免同一程序反覆被選中而飢餓。\n\n解題步驟：依附件選 A、B、D。若總是挑同一個程序回滾、終止或搶佔，它可能一直無法完成。程序終止後的飢餓通常要放在工作反覆重啟或重試的情境理解，選擇犧牲者時可將已被選中的次數納入成本。",
+    "images": [],
+    "id": "os8-139",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      58
+    ],
+    "sourceAnswers": [
+      "A,B,D"
+    ],
+    "sourceExplanation": "依提供的答案，回滾、程序終止與資源搶佔可能導致飢餓。",
+    "choiceKey": "ABD"
+  },
+  {
+    "category": "死結恢復",
+    "type": "多選題",
+    "stem": "In deadlock recovery which of the following are strategies for terminating processes?",
+    "options": [
+      "Terminate one process at a time until the deadlock is broken",
+      "Terminate all non-deadlocked processes",
+      "Terminate the processes that hold the most resources",
+      "Terminate all deadlocked processes"
+    ],
+    "answer": "A,C,D",
+    "explanation": "核心觀念：死結恢復可透過終止程序，或取回資源配合回滾來解除等待環。終止程序會釋放它目前持有的資源；選擇犧牲程序時要考慮代價，避免同一程序反覆被選中而飢餓。\n\n解題步驟：中文：依題庫，逐一終止、終止持有最多資源者、終止所有死結程序皆選。",
+    "images": [],
+    "id": "os8-140",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      59
+    ],
+    "sourceAnswers": [
+      "A,C,D"
+    ],
+    "sourceExplanation": "中文：依題庫，逐一終止、終止持有最多資源者、終止所有死結程序皆選。",
+    "choiceKey": "ACD",
+    "translation": "死結恢復中，下列哪些是終止程序的策略？",
+    "optionTranslations": [
+      "逐一終止程序直到死結解除",
+      "終止所有未死結的程序",
+      "終止持有最多資源的程序",
+      "終止所有死結程序"
+    ]
+  },
+  {
+    "category": "死結恢復",
     "type": "填空題",
     "stem": "____________ 是一種死結恢復的策略，它涉及將一個程序從其死結狀態回滾到一個安全狀態，並從該點重新啟動。(請用小寫英文回答)",
     "options": [],
@@ -10778,6 +12391,46 @@
     "translation": "",
     "terms": [],
     "note": ""
+  },
+  {
+    "category": "死結恢復",
+    "type": "填空題",
+    "stem": "_______________ is a deadlock recovery strategy that involves rolling a process back to a safe state from its deadlocked state and restarting it from that point.(Please answer in lowercase English)",
+    "options": [],
+    "answer": "rollback",
+    "explanation": "核心觀念：死結恢復可透過終止程序，或取回資源配合回滾來解除等待環。終止程序會釋放它目前持有的資源；選擇犧牲程序時要考慮代價，避免同一程序反覆被選中而飢餓。\n\n解題步驟：中文：回到先前安全狀態後重新啟動，依題庫填 rollback。",
+    "images": [],
+    "id": "os8-141",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      60
+    ],
+    "sourceAnswers": [
+      "rollback"
+    ],
+    "sourceExplanation": "中文：回到先前安全狀態後重新啟動，依題庫填 rollback。",
+    "translation": "____________ 是一種死結恢復策略，將程序退回先前安全狀態，再從該點重新啟動。（請用小寫英文回答）"
+  },
+  {
+    "category": "死結恢復",
+    "type": "填空題",
+    "stem": "To break a deadlock one method is to terminate one or more processes through _______________ .(Please answer in lowercase English)",
+    "options": [],
+    "answer": "preemption",
+    "explanation": "核心觀念：死結恢復可透過終止程序，或取回資源配合回滾來解除等待環。終止程序會釋放它目前持有的資源；選擇犧牲程序時要考慮代價，避免同一程序反覆被選中而飢餓。\n\n解題步驟：本題依附件指定答案填 preemption，保留課程判分。術語上 preemption 指資源搶佔，process termination 才是程序終止；題幹描述的是終止程序，不應據此把兩個術語視為同義。",
+    "images": [],
+    "id": "os8-142",
+    "answerProvided": true,
+    "sourceKey": "os8-new-20261024",
+    "sourceRecords": [
+      61
+    ],
+    "sourceAnswers": [
+      "preemption"
+    ],
+    "sourceExplanation": "此原題完全依使用者提供的正確答案填 preemption，不填 process termination。",
+    "translation": "為了打破死結，可以透過 ____________ 終止一個或多個程序。（請用小寫英文回答）"
   }
 ]
 </script>

@@ -9,19 +9,19 @@ const units=parseOSCourseHTML(html), l8=units.find(u=>u.id==='deadlocks');
 const snapshot=JSON.parse(read('content/os-public-question-snapshot.json'));
 
 test('the embedded data and navigation show the complete L8 count before any request',()=>{
-  assert.equal(l8.questions.length,112);
-  assert.equal(l8.questionCount,112);
+  assert.equal(l8.questions.length,173);
+  assert.equal(l8.questionCount,173);
   assert.deepEqual(l8.questionIds,l8.questions.map(q=>q.id));
-  assert.equal(units.reduce((sum,u)=>sum+u.questionCount,0),692);
-  assert.ok(html.includes('7 個單元 · 692 道題目'));
+  assert.equal(units.reduce((sum,u)=>sum+u.questionCount,0),753);
+  assert.ok(html.includes('7 個單元 · 753 道題目'));
   const nodes={};
   const context={UNITS:units,active:units.indexOf(l8),guides:{},esc:s=>s,unitNumber:i=>String(i+2).padStart(2,'0'),
     $:id=>nodes[id]??=( {} ),document:{querySelectorAll:()=>[]}};
   vm.runInNewContext(source.slice(source.indexOf('function refreshUnitNavigation()'),source.indexOf('function ',source.indexOf('function refreshUnitNavigation()')+10)),context);
   context.refreshUnitNavigation();
-  assert.equal(nodes.unitCount.textContent,112);
-  assert.ok(nodes.units.innerHTML.includes('112 題'));
-  assert.ok(nodes.unitPicker.innerHTML.includes('112 題'));
+  assert.equal(nodes.unitCount.textContent,173);
+  assert.ok(nodes.units.innerHTML.includes('173 題'));
+  assert.ok(nodes.unitPicker.innerHTML.includes('173 題'));
   assert.ok(!source.includes('setCountSyncState'));
 });
 
@@ -46,7 +46,7 @@ test('existing public IDs remain built in and a later sync does not add them twi
 test('search and submission indexes include every embedded public question',()=>{
   const batch=JSON.parse(read('assets/batch-library.json'));
   const submissions=JSON.parse(read('contribution-service/existing-questions.json'));
-  assert.equal(batch.courses.os.count,692);
+  assert.equal(batch.courses.os.count,753);
   for(const id of snapshot.questionIds){
     assert.ok(batch.entries.some(q=>q.id===id),id);
     assert.ok(submissions.some(q=>q.canonicalId===id),id);
