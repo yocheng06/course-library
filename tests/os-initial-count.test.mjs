@@ -12,8 +12,8 @@ test('the embedded data and navigation show the complete L8 count before any req
   assert.equal(l8.questions.length,173);
   assert.equal(l8.questionCount,173);
   assert.deepEqual(l8.questionIds,l8.questions.map(q=>q.id));
-  assert.equal(units.reduce((sum,u)=>sum+u.questionCount,0),753);
-  assert.ok(html.includes('7 個單元 · 753 道題目'));
+  assert.equal(units.reduce((sum,u)=>sum+u.questionCount,0),754);
+  assert.ok(html.includes('7 個單元 · 754 道題目'));
   const nodes={};
   const context={UNITS:units,active:units.indexOf(l8),guides:{},esc:s=>s,unitNumber:i=>String(i+2).padStart(2,'0'),
     $:id=>nodes[id]??=( {} ),document:{querySelectorAll:()=>[]}};
@@ -46,7 +46,7 @@ test('existing public IDs remain built in and a later sync does not add them twi
 test('search and submission indexes include every embedded public question',()=>{
   const batch=JSON.parse(read('assets/batch-library.json'));
   const submissions=JSON.parse(read('contribution-service/existing-questions.json'));
-  assert.equal(batch.courses.os.count,753);
+  assert.equal(batch.courses.os.count,754);
   for(const id of snapshot.questionIds){
     assert.ok(batch.entries.some(q=>q.id===id),id);
     assert.ok(submissions.some(q=>q.canonicalId===id),id);

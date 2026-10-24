@@ -1,0 +1,3874 @@
+{
+  "date": "2026-10-24",
+  "sourceFile": "作業系統｜U6 題庫.html",
+  "savedHtmlQuestions": 25,
+  "sourceUrl": "https://chiyyaa.github.io/algorithm-question-bank/",
+  "sourceRepositoryCommit": "75736b85c76d18724e824b956fa21a5b795f4d93",
+  "builtIn": 288,
+  "published": 30,
+  "compared": 318,
+  "uniqueAdded": 1,
+  "sourceVersionsForNewQuestion": [
+    141,
+    172,
+    261
+  ],
+  "previousCount": 102,
+  "currentCount": 103,
+  "courseTotal": 754,
+  "policy": "Keep existing answers and IDs. Merge equivalent translations, reordered options and incomplete older choice sets. Keep distinct complete wording as source variants for lookup. Add the new I/O blank target once.",
+  "topics": [
+    "排程基本觀念",
+    "評估指標",
+    "FCFS／SJF",
+    "RR 時間片",
+    "優先權／飢餓",
+    "多處理器",
+    "即時排程",
+    "Linux／Windows／Solaris",
+    "排程評估模型",
+    "進階排程"
+  ],
+  "typeOrder": [
+    "單選題",
+    "多選題",
+    "填空題"
+  ],
+  "addedQuestionId": "os6-117",
+  "sourceVariantsAdded": [
+    {
+      "sourceId": 54,
+      "target": "os6-049",
+      "alias": "chiyyaa-u6-20261024-54"
+    },
+    {
+      "sourceId": 65,
+      "target": "os6-059",
+      "alias": "chiyyaa-u6-20261024-65"
+    },
+    {
+      "sourceId": 111,
+      "target": "os6-113",
+      "alias": "chiyyaa-u6-20261024-111"
+    },
+    {
+      "sourceId": 114,
+      "target": "os6-076",
+      "alias": "chiyyaa-u6-20261024-114"
+    },
+    {
+      "sourceId": 117,
+      "target": "os6-050",
+      "alias": "chiyyaa-u6-20261024-117"
+    },
+    {
+      "sourceId": 119,
+      "target": "os6-066",
+      "alias": "chiyyaa-u6-20261024-119"
+    },
+    {
+      "sourceId": 120,
+      "target": "os6-043",
+      "alias": "chiyyaa-u6-20261024-120"
+    },
+    {
+      "sourceId": 121,
+      "target": "os6-038",
+      "alias": "chiyyaa-u6-20261024-121"
+    },
+    {
+      "sourceId": 122,
+      "target": "os6-086",
+      "alias": "chiyyaa-u6-20261024-122"
+    },
+    {
+      "sourceId": 126,
+      "target": "os6-021",
+      "alias": "chiyyaa-u6-20261024-126"
+    },
+    {
+      "sourceId": 135,
+      "target": "os6-054",
+      "alias": "chiyyaa-u6-20261024-135"
+    },
+    {
+      "sourceId": 137,
+      "target": "os6-061",
+      "alias": "chiyyaa-u6-20261024-137"
+    },
+    {
+      "sourceId": 138,
+      "target": "os6-108",
+      "alias": "chiyyaa-u6-20261024-138"
+    },
+    {
+      "sourceId": 140,
+      "target": "os6-091",
+      "alias": "chiyyaa-u6-20261024-140"
+    },
+    {
+      "sourceId": 142,
+      "target": "os6-098",
+      "alias": "chiyyaa-u6-20261024-142"
+    },
+    {
+      "sourceId": 144,
+      "target": "os6-097",
+      "alias": "chiyyaa-u6-20261024-144"
+    },
+    {
+      "sourceId": 145,
+      "target": "os6-016",
+      "alias": "chiyyaa-u6-20261024-145"
+    },
+    {
+      "sourceId": 146,
+      "target": "os6-051",
+      "alias": "chiyyaa-u6-20261024-146"
+    },
+    {
+      "sourceId": 147,
+      "target": "os6-065",
+      "alias": "chiyyaa-u6-20261024-147"
+    },
+    {
+      "sourceId": 148,
+      "target": "os6-065",
+      "alias": "chiyyaa-u6-20261024-148"
+    },
+    {
+      "sourceId": 149,
+      "target": "os6-036",
+      "alias": "chiyyaa-u6-20261024-149"
+    },
+    {
+      "sourceId": 150,
+      "target": "os6-025",
+      "alias": "chiyyaa-u6-20261024-150"
+    },
+    {
+      "sourceId": 152,
+      "target": "os6-099",
+      "alias": "chiyyaa-u6-20261024-152"
+    },
+    {
+      "sourceId": 153,
+      "target": "os6-010",
+      "alias": "chiyyaa-u6-20261024-153"
+    },
+    {
+      "sourceId": 154,
+      "target": "os6-050",
+      "alias": "chiyyaa-u6-20261024-154"
+    },
+    {
+      "sourceId": 159,
+      "target": "os6-056",
+      "alias": "chiyyaa-u6-20261024-159"
+    },
+    {
+      "sourceId": 160,
+      "target": "os6-106",
+      "alias": "chiyyaa-u6-20261024-160"
+    },
+    {
+      "sourceId": 167,
+      "target": "os6-008",
+      "alias": "chiyyaa-u6-20261024-167"
+    },
+    {
+      "sourceId": 168,
+      "target": "os6-110",
+      "alias": "chiyyaa-u6-20261024-168"
+    },
+    {
+      "sourceId": 169,
+      "target": "os6-019",
+      "alias": "chiyyaa-u6-20261024-169"
+    },
+    {
+      "sourceId": 170,
+      "target": "os6-032",
+      "alias": "chiyyaa-u6-20261024-170"
+    },
+    {
+      "sourceId": 171,
+      "target": "os6-114",
+      "alias": "chiyyaa-u6-20261024-171"
+    },
+    {
+      "sourceId": 172,
+      "target": "os6-117",
+      "alias": "chiyyaa-u6-20261024-172"
+    },
+    {
+      "sourceId": 174,
+      "target": "os6-075",
+      "alias": "chiyyaa-u6-20261024-174"
+    },
+    {
+      "sourceId": 176,
+      "target": "os6-067",
+      "alias": "chiyyaa-u6-20261024-176"
+    },
+    {
+      "sourceId": 177,
+      "target": "os6-107",
+      "alias": "chiyyaa-u6-20261024-177"
+    },
+    {
+      "sourceId": 178,
+      "target": "os6-002",
+      "alias": "chiyyaa-u6-20261024-178"
+    },
+    {
+      "sourceId": 179,
+      "target": "os6-015",
+      "alias": "chiyyaa-u6-20261024-179"
+    },
+    {
+      "sourceId": 180,
+      "target": "os6-103",
+      "alias": "chiyyaa-u6-20261024-180"
+    },
+    {
+      "sourceId": 182,
+      "target": "os6-062",
+      "alias": "chiyyaa-u6-20261024-182"
+    },
+    {
+      "sourceId": 186,
+      "target": "os6-079",
+      "alias": "chiyyaa-u6-20261024-186"
+    },
+    {
+      "sourceId": 189,
+      "target": "community-65307e6c-1612-4c30-b48f-0489756453b5-28",
+      "alias": "chiyyaa-u6-20261024-189"
+    },
+    {
+      "sourceId": 190,
+      "target": "os6-084",
+      "alias": "chiyyaa-u6-20261024-190"
+    },
+    {
+      "sourceId": 191,
+      "target": "os6-004",
+      "alias": "chiyyaa-u6-20261024-191"
+    },
+    {
+      "sourceId": 194,
+      "target": "os6-080",
+      "alias": "chiyyaa-u6-20261024-194"
+    },
+    {
+      "sourceId": 197,
+      "target": "os6-100",
+      "alias": "chiyyaa-u6-20261024-197"
+    },
+    {
+      "sourceId": 198,
+      "target": "os6-067",
+      "alias": "chiyyaa-u6-20261024-198"
+    },
+    {
+      "sourceId": 199,
+      "target": "os6-024",
+      "alias": "chiyyaa-u6-20261024-199"
+    },
+    {
+      "sourceId": 201,
+      "target": "os6-009",
+      "alias": "chiyyaa-u6-20261024-201"
+    },
+    {
+      "sourceId": 202,
+      "target": "os6-004",
+      "alias": "chiyyaa-u6-20261024-202"
+    },
+    {
+      "sourceId": 204,
+      "target": "os6-041",
+      "alias": "chiyyaa-u6-20261024-204"
+    },
+    {
+      "sourceId": 205,
+      "target": "os6-047",
+      "alias": "chiyyaa-u6-20261024-205"
+    },
+    {
+      "sourceId": 208,
+      "target": "os6-048",
+      "alias": "chiyyaa-u6-20261024-208"
+    },
+    {
+      "sourceId": 211,
+      "target": "os6-101",
+      "alias": "chiyyaa-u6-20261024-211"
+    },
+    {
+      "sourceId": 212,
+      "target": "os6-110",
+      "alias": "chiyyaa-u6-20261024-212"
+    },
+    {
+      "sourceId": 213,
+      "target": "os6-044",
+      "alias": "chiyyaa-u6-20261024-213"
+    },
+    {
+      "sourceId": 237,
+      "target": "os6-060",
+      "alias": "chiyyaa-u6-20261024-237"
+    },
+    {
+      "sourceId": 242,
+      "target": "os6-041",
+      "alias": "chiyyaa-u6-20261024-242"
+    },
+    {
+      "sourceId": 243,
+      "target": "os6-044",
+      "alias": "chiyyaa-u6-20261024-243"
+    },
+    {
+      "sourceId": 253,
+      "target": "os6-113",
+      "alias": "chiyyaa-u6-20261024-253"
+    },
+    {
+      "sourceId": 261,
+      "target": "os6-117",
+      "alias": "chiyyaa-u6-20261024-261"
+    },
+    {
+      "sourceId": 263,
+      "target": "os6-040",
+      "alias": "chiyyaa-u6-20261024-263"
+    },
+    {
+      "sourceId": 265,
+      "target": "os6-038",
+      "alias": "chiyyaa-u6-20261024-265"
+    },
+    {
+      "sourceId": 266,
+      "target": "os6-026",
+      "alias": "chiyyaa-u6-20261024-266"
+    },
+    {
+      "sourceId": 269,
+      "target": "os6-089",
+      "alias": "chiyyaa-u6-20261024-269"
+    },
+    {
+      "sourceId": 276,
+      "target": "os6-017",
+      "alias": "chiyyaa-u6-20261024-276"
+    },
+    {
+      "sourceId": 278,
+      "target": "os6-082",
+      "alias": "chiyyaa-u6-20261024-278"
+    }
+  ],
+  "existingVersionsSkipped": [
+    {
+      "sourceId": 163,
+      "target": "os6-042",
+      "reason": "same-RR-workload-and-chart-already-covered"
+    },
+    {
+      "sourceId": 215,
+      "target": "os6-024",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 216,
+      "target": "os6-054",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 218,
+      "target": "os6-086",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 220,
+      "target": "os6-025",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 221,
+      "target": "os6-036",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 223,
+      "target": "os6-068",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 224,
+      "target": "os6-102",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 225,
+      "target": "os6-084",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 226,
+      "target": "os6-061",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 227,
+      "target": "os6-019",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 228,
+      "target": "os6-056",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 229,
+      "target": "os6-021",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 230,
+      "target": "os6-044",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 231,
+      "target": "os6-019",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 232,
+      "target": "os6-096",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 233,
+      "target": "os6-086",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 234,
+      "target": "os6-025",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 235,
+      "target": "os6-054",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 239,
+      "target": "os6-068",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 240,
+      "target": "os6-014",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 241,
+      "target": "os6-050",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 245,
+      "target": "os6-078",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 246,
+      "target": "os6-088",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 247,
+      "target": "os6-031",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 249,
+      "target": "os6-109",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 250,
+      "target": "os6-036",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 251,
+      "target": "os6-042",
+      "reason": "same-RR-workload-and-chart-already-covered"
+    },
+    {
+      "sourceId": 254,
+      "target": "os6-046",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 255,
+      "target": "os6-001",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 256,
+      "target": "os6-069",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 257,
+      "target": "os6-107",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 259,
+      "target": "os6-021",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 267,
+      "target": "os6-091",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 270,
+      "target": "os6-096",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 272,
+      "target": "os6-050",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 273,
+      "target": "os6-108",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 275,
+      "target": "os6-069",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 277,
+      "target": "os6-056",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 279,
+      "target": "os6-004",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 280,
+      "target": "os6-102",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 282,
+      "target": "os6-038",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 284,
+      "target": "os6-095",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 285,
+      "target": "os6-012",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 287,
+      "target": "os6-014",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000093,
+      "target": "os6-060",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000094,
+      "target": "os6-048",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000095,
+      "target": "os6-066",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000096,
+      "target": "os6-107",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000097,
+      "target": "os6-050",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000098,
+      "target": "os6-056",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000099,
+      "target": "os6-075",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000100,
+      "target": "os6-011",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000106,
+      "target": "os6-014",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000107,
+      "target": "os6-041",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000109,
+      "target": "os6-082",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000111,
+      "target": "os6-016",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000112,
+      "target": "os6-115",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000113,
+      "target": "os6-036",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000117,
+      "target": "os6-025",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000118,
+      "target": "os6-062",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000119,
+      "target": "os6-078",
+      "reason": "incomplete-choice-version"
+    },
+    {
+      "sourceId": 1000000120,
+      "target": "os6-004",
+      "reason": "incomplete-choice-version"
+    }
+  ],
+  "mappings": [
+    {
+      "i": 1,
+      "sourceId": 1,
+      "target": "os6-014",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1",
+      "sourceStem": "CPU排程器是哪一種類型的排程器？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 2,
+      "sourceId": 2,
+      "target": "os6-015",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-2",
+      "sourceStem": "一個程序的執行由CPU執行和I/O等待的交替週期組成，這被稱為 cpu-i/o ____________ 。(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 3,
+      "sourceId": 3,
+      "target": "os6-016",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-3",
+      "sourceStem": "在CPU-I/O週期中，程式的執行由什麼組成？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 4,
+      "sourceId": 4,
+      "target": "os6-017",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-4",
+      "sourceStem": "下列哪些排程決策屬於非搶佔式？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 5,
+      "sourceId": 5,
+      "target": "os6-018",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-5",
+      "sourceStem": "在非搶佔式排程(no-preemption)中，一旦CPU被分配給一個程序，該程序會持續運行直到它 ____________ 或 ____________。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 6,
+      "sourceId": 6,
+      "target": "os6-019",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-6",
+      "sourceStem": "When a process switches from a 'running' to a 'waiting' state, what type of scheduling decision is it?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 7,
+      "sourceId": 7,
+      "target": "os6-020",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-7",
+      "sourceStem": "When a process switches from the running to the waiting state, the CPU scheduler is [__1__].",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 8,
+      "sourceId": 8,
+      "target": "os6-021",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-8",
+      "sourceStem": "下列哪一項是分派器（Dispatcher）的工作？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 9,
+      "sourceId": 9,
+      "target": "os6-022",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-9",
+      "sourceStem": "Which of the following tasks are involved in the Dispatcher module?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 10,
+      "sourceId": 10,
+      "target": "os6-023",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-10",
+      "sourceStem": "分派器（Dispatcher）模組的工作包含將CPU控制權交給排程器所選擇的程序，這涉及 ________、切換到使用者模式，以及跳轉到使用者程式的適當位置。（請用小寫英文回答 字母間留一個空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 11,
+      "sourceId": 11,
+      "target": "os6-024",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-11",
+      "sourceStem": "分派延遲（Dispatch latency）指的是什麼？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 12,
+      "sourceId": 12,
+      "target": "os6-111",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-12",
+      "sourceStem": "當一個程序從執行中狀態切換到就緒狀態時，排程是屬於 ____________ 類型。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 13,
+      "sourceId": 13,
+      "target": "os6-114",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-13",
+      "sourceStem": "CPU排程的決策通常發生在下列哪些情況？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 14,
+      "sourceId": 14,
+      "target": "os6-116",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-14",
+      "sourceStem": "[__1__] is the time it takes for the scheduler in a real-time system to take the current process off the CPU and switch to another.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 15,
+      "sourceId": 15,
+      "target": "os6-001",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-15",
+      "sourceStem": "什麼是 Little's Formula (n = λ x W) 中的 n？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 16,
+      "sourceId": 16,
+      "target": "os6-002",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-16",
+      "sourceStem": "________ 是 Little's Formula (n = λ x W) 中的 λ，代表進入佇列的平均到達率。（請用英文小寫回答，單字間留一空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 17,
+      "sourceId": 17,
+      "target": "os6-004",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-17",
+      "sourceStem": "________ 是每單位時間完成執行的程序數量，用於衡量排程演算法的效率。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 18,
+      "sourceId": 18,
+      "target": "os6-004",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-18",
+      "sourceStem": "What is throughput as a measure of a scheduling algorithm?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 19,
+      "sourceId": 19,
+      "target": "os6-005",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-19",
+      "sourceStem": "吞吐量是單位時間內完成的 ________ 數量。\n（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 20,
+      "sourceId": 20,
+      "target": "os6-006",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-20",
+      "sourceStem": "周轉時間是從程序提交到 ____________ 的總時間。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 21,
+      "sourceId": 21,
+      "target": "os6-008",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-21",
+      "sourceStem": "回應時間是從提交請求到第一次[__1__]產生的時間。(請用小寫英文回答)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 22,
+      "sourceId": 22,
+      "target": "os6-008",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-22",
+      "sourceStem": "________ 時間是從提交請求到產生第一個回應所需的時間，而不是完整的輸出。（請用小寫英文回答 字母間留一個空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 23,
+      "sourceId": 23,
+      "target": "os6-009",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-23",
+      "sourceStem": "Criteria for CPU scheduling include CPU utilization, throughput, ________ time, ________ time, and ________ time.",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 24,
+      "sourceId": 24,
+      "target": "os6-010",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-24",
+      "sourceStem": "下列哪些是衡量CPU排程演算法的準則？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 25,
+      "sourceId": 25,
+      "target": "os6-011",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-25",
+      "sourceStem": "Which of the following are optimization goals for scheduling algorithms?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 26,
+      "sourceId": 26,
+      "target": "os6-012",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-26",
+      "sourceStem": "CPU排程的核心目標是什麼？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 27,
+      "sourceId": 27,
+      "target": "os6-013",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-27",
+      "sourceStem": "CPU 排程的目的是在 ____________ 系統中最大化CPU利用率。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 28,
+      "sourceId": 28,
+      "target": "os6-025",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-28",
+      "sourceStem": "Which scheduling algorithm can lead to the 'convoy effect'?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 29,
+      "sourceId": 29,
+      "target": "os6-026",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-29",
+      "sourceStem": "先到先服務（FCFS）排程的特性是什麼？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 30,
+      "sourceId": 30,
+      "target": "os6-025",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-30",
+      "sourceStem": "________ 排程演算法可能導致護航效應，即所有其他程序都等待一個長程序完成。\n（請用英文縮寫回答且用大寫字母）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 31,
+      "sourceId": 31,
+      "target": "os6-029",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-31",
+      "sourceStem": "The [__1__] effect occurs when a short process is blocked by one or more long processes.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 32,
+      "sourceId": 32,
+      "target": "os6-025",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-32",
+      "sourceStem": "The ________ scheduling algorithm is widely used for its simplicity but can lead to the \"convoy effect.\" (Please answer in lowercase English with full name, connecting letters with hyphens)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 33,
+      "sourceId": 33,
+      "target": "os6-031",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-33",
+      "sourceStem": "Which scheduling algorithm is considered optimal because it provides the minimum average waiting time for a given set of processes?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 34,
+      "sourceId": 34,
+      "target": "os6-032",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-34",
+      "sourceStem": "短工作優先（SJF）排程的優點包含哪些？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 35,
+      "sourceId": 35,
+      "target": "os6-033",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-35",
+      "sourceStem": "最短工作優先（SJF）排程演算法的優點是它能最小化平均 ________ 時間。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 36,
+      "sourceId": 36,
+      "target": "os6-031",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-36",
+      "sourceStem": "The ________ scheduling algorithm is optimal because it provides the minimum average waiting time for a given set of processes. (Please answer in lowercase English, connecting letters with hyphens)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 37,
+      "sourceId": 37,
+      "target": "os6-035",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-37",
+      "sourceStem": "Which preemptive scheduling algorithm is the preemptive version of SJF?",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 38,
+      "sourceId": 38,
+      "target": "os6-108",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-38",
+      "sourceStem": "短剩餘時間優先 (SRTF) 是哪一種排程演算法的搶佔式版本？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 39,
+      "sourceId": 39,
+      "target": "community-65307e6c-1612-4c30-b48f-0489756453b5-28",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-39",
+      "sourceStem": "最短剩餘時間優先（SRTF）是 [__1__] 演算法的搶佔式版本。(請用英文縮寫回答 且用大寫字母)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 40,
+      "sourceId": 40,
+      "target": "os6-115",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-40",
+      "sourceStem": "關於估計下一個CPU爆發長度，可以採用哪些方法？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 41,
+      "sourceId": 41,
+      "target": "os6-036",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-41",
+      "sourceStem": "迴圈排程（RR）演算法中，每個程序獲得一小段 CPU 時間的單位稱為？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 42,
+      "sourceId": 42,
+      "target": "os6-036",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-42",
+      "sourceStem": "In the Round Robin (RR) algorithm, the unit of a small amount of CPU time given to each process is called a ____________ .(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 43,
+      "sourceId": 43,
+      "target": "os6-038",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-43",
+      "sourceStem": "當迴圈排程（RR）中的時間片（q）非常大時，該演算法的行為會趨近於哪種排程？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 44,
+      "sourceId": 44,
+      "target": "os6-038",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-44",
+      "sourceStem": "When the time quantum (q) is very large relative to the context switch time, the Round Robin (RR) algorithm's behavior approaches [__1__].(Please answer using lowercase English letters; connect related letters with a hyphen and separate unrelated letters with a space.)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 45,
+      "sourceId": 45,
+      "target": "os6-040",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-45",
+      "sourceStem": "迴圈排程（RR）的性能與哪些因素相關？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 46,
+      "sourceId": 46,
+      "target": "os6-041",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-46",
+      "sourceStem": "When the time quantum (TQ) is very small relative to the context switch time, what are the disadvantages of Round Robin (RR) scheduling?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 47,
+      "sourceId": 47,
+      "target": "os6-042",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-47",
+      "sourceStem": "RR 排程：P1 的 CPU burst 為 20、P2 為 3、P3 為 7，時間片 TQ = 4。請依序填出 A～H 八個執行區段的程序；H 之後的區段不需作答。",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 48,
+      "sourceId": 48,
+      "target": "os6-043",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-48",
+      "sourceStem": "優先權排程的優缺點包含哪些？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 49,
+      "sourceId": 49,
+      "target": "os6-044",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-49",
+      "sourceStem": "在優先權排程中，什麼問題可能導致低優先權程序永遠無法執行？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 50,
+      "sourceId": 50,
+      "target": "os6-044",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-50",
+      "sourceStem": "優先權排程可能會導致 ________ ，即低優先權程序永遠無法執行。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 51,
+      "sourceId": 51,
+      "target": "os6-046",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-51",
+      "sourceStem": "在優先權排程中，解決「飢餓」問題的方法是什麼？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 52,
+      "sourceId": 52,
+      "target": "os6-047",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-52",
+      "sourceStem": "Which of the following scheduling algorithms can lead to starvation?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 53,
+      "sourceId": 53,
+      "target": "os6-048",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-53",
+      "sourceStem": "多層級佇列（Multilevel Queue）排程的特性包含哪些？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 54,
+      "sourceId": 54,
+      "target": "os6-049",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-54",
+      "sourceStem": "在 ________ 佇列排程中，就緒佇列被劃分為多個獨立的佇列，且程序通常永久地固定在一個佇列中。\n（請用小寫英文回答，字母間用空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 55,
+      "sourceId": 55,
+      "target": "os6-050",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-55",
+      "sourceStem": "在多層級佇列（Multilevel Queue）排程中，下列哪一項敘述是正確的？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 56,
+      "sourceId": 56,
+      "target": "os6-051",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-56",
+      "sourceStem": "多層級回饋佇列（Multilevel Feedback Queue）排程的定義參數包含哪些？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 57,
+      "sourceId": 57,
+      "target": "os6-052",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-57",
+      "sourceStem": "________ 允許程序根據其服務的時間長短在不同佇列之間移動。（請用小寫英文回答 字母間留一個空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 58,
+      "sourceId": 58,
+      "target": "os6-052",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-58",
+      "sourceStem": "In a ____________ scheduling, a process can move between the various queues, which helps to implement aging.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 59,
+      "sourceId": 59,
+      "target": "os6-109",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-59",
+      "sourceStem": "在多層級回饋佇列 (Multilevel Feedback Queue) 排程中，老化 (aging) 是如何實現的？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 60,
+      "sourceId": 60,
+      "target": "os6-054",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-60",
+      "sourceStem": "在多處理器系統中，哪種方法僅有一個處理器負責存取系統資料結構？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 61,
+      "sourceId": 61,
+      "target": "os6-055",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-61",
+      "sourceStem": "在對稱多處理（SMP）中，每個處理器都 ____________ 地進行排程。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 62,
+      "sourceId": 62,
+      "target": "os6-056",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-62",
+      "sourceStem": "In a symmetric multiprocessing (SMP) system where each processor is self-scheduling, what is this scheduling method?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 63,
+      "sourceId": 63,
+      "target": "os6-057",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-63",
+      "sourceStem": "CPU ____________ 是指將一個程序保持在同一處理器上執行的傾向。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 64,
+      "sourceId": 64,
+      "target": "os6-058",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-64",
+      "sourceStem": "在多處理器系統中，下列哪些排程方法屬於負載平衡？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 65,
+      "sourceId": 65,
+      "target": "os6-059",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-65",
+      "sourceStem": "In a symmetric multiprocessing (SMP) system, ________ is a periodic task that checks the load on each processor and pushes tasks from overloaded CPUs to other CPUs.\n(Please answer in lowercase English, leaving a space between each word.)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 66,
+      "sourceId": 66,
+      "target": "os6-060",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-66",
+      "sourceStem": "多核心處理器的優點是什麼？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 67,
+      "sourceId": 67,
+      "target": "os6-061",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-67",
+      "sourceStem": "在多核心處理器中，利用記憶體停頓時間來推進另一個執行緒的技術是什麼？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 68,
+      "sourceId": 68,
+      "target": "os6-105",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-68",
+      "sourceStem": "在多處理器排程中， ____________ 是指只有一個處理器存取系統資料結構，從而避免了資料共享的需求。（請用小寫英文回答 字母間留一個空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 69,
+      "sourceId": 69,
+      "target": "os6-062",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-69",
+      "sourceStem": "最早截止時間優先排程（Earliest Deadline First Scheduling）的特性是什麼？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 70,
+      "sourceId": 70,
+      "target": "os6-063",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-70",
+      "sourceStem": "[__1__]排程是根據週期的倒數來分配優先權的演算法。(請用小寫英文回答 字母間留一個空白)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 71,
+      "sourceId": 71,
+      "target": "os6-065",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-71",
+      "sourceStem": "Hard real-time systems require a task to be serviced by its ________.",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 72,
+      "sourceId": 72,
+      "target": "os6-065",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-72",
+      "sourceStem": "硬即時系統（Hard real-time systems）的關鍵特性是什麼？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 73,
+      "sourceId": 73,
+      "target": "os6-066",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-73",
+      "sourceStem": "Which of the following statements about real-time scheduling are correct?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 74,
+      "sourceId": 74,
+      "target": "os6-067",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-74",
+      "sourceStem": "What challenges does real-time CPU scheduling face?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 75,
+      "sourceId": 75,
+      "target": "os6-068",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-75",
+      "sourceStem": "從中斷到達的時間到服務該中斷的函式(ISR)開始執行的時間，這段時間被稱為？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 76,
+      "sourceId": 76,
+      "target": "os6-069",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-76",
+      "sourceStem": "What is a characteristic of SCHED_FIFO in POSIX real-time scheduling?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 77,
+      "sourceId": 77,
+      "target": "os6-070",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-77",
+      "sourceStem": "POSIX即時排程標準中定義了哪些排程類別？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 78,
+      "sourceId": 78,
+      "target": "os6-071",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-78",
+      "sourceStem": "The POSIX.1b standard defines two scheduling classes for real-time threads: SCHED_FIFO and ____________ .(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 79,
+      "sourceId": 79,
+      "target": "os6-072",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-79",
+      "sourceStem": "________ is a scheduling algorithm where priorities are assigned according to deadlines: the earlier the deadline, the higher the priority.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 80,
+      "sourceId": 80,
+      "target": "os6-073",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-80",
+      "sourceStem": "What are the characteristics of Rate Monotonic Scheduling?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 81,
+      "sourceId": 81,
+      "target": "os6-107",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-81",
+      "sourceStem": "In POSIX real-time scheduling, which scheduling policy is similar to SCHED_FIFO but includes time-slicing for threads of equal priority?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 82,
+      "sourceId": 82,
+      "target": "os6-072",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-82",
+      "sourceStem": "The [__1__] scheduling algorithm in real-time scheduling assigns priorities based on the expiration time of the data.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 83,
+      "sourceId": 83,
+      "target": "os6-074",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-83",
+      "sourceStem": "Linux的CFS（Completely Fair Scheduler）的目標是提供完全 ________ 的CPU分配。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 84,
+      "sourceId": 84,
+      "target": "os6-075",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-84",
+      "sourceStem": "完全公平排程器（CFS）有哪些特性？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 85,
+      "sourceId": 85,
+      "target": "os6-076",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-85",
+      "sourceStem": "After Linux kernel version 2.6.23, what is the main scheduling algorithm?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 86,
+      "sourceId": 86,
+      "target": "os6-077",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-86",
+      "sourceStem": "在Linux核心版本2.6.23之後，排程器選擇下一個要執行的任務是基於最低的 ____________ 值。（請用小寫英文回答 字母間留一個空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 87,
+      "sourceId": 87,
+      "target": "os6-078",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-87",
+      "sourceStem": "Windows 排程有哪些特性？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 88,
+      "sourceId": 88,
+      "target": "os6-079",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-88",
+      "sourceStem": "Windows排程器使用了 ________ 個優先級層級。(fill a number)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 89,
+      "sourceId": 89,
+      "target": "os6-080",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-89",
+      "sourceStem": "在Windows系統中，什麼是「執行緒」終止運行的原因？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 90,
+      "sourceId": 90,
+      "target": "os6-081",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-90",
+      "sourceStem": "In the Windows system, a thread's priority is ________ when it returns from a waiting state.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 91,
+      "sourceId": 91,
+      "target": "os6-082",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-91",
+      "sourceStem": "Windows中，一個執行緒的優先權會被提升的情況有哪些？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 92,
+      "sourceId": 92,
+      "target": "os6-083",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-92",
+      "sourceStem": "Windows 中，下列哪些是可變（Variable）優先權類別？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 93,
+      "sourceId": 93,
+      "target": "os6-084",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-93",
+      "sourceStem": "在Windows排程中，哪個優先權類別的程序不能被提升優先權？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 94,
+      "sourceId": 94,
+      "target": "os6-084",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-94",
+      "sourceStem": "In the Windows system, threads in the ________ priority class cannot have their priority boosted.(Please answer in lowercase English, connecting letters with underscores)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 95,
+      "sourceId": 95,
+      "target": "os6-086",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-95",
+      "sourceStem": "In Windows scheduling, what feature allows applications to create and manage threads independently of the kernel?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 96,
+      "sourceId": 96,
+      "target": "os6-086",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-96",
+      "sourceStem": "________ 是 Windows 7 中引入的一項功能，允許應用程式獨立於核心來創建和管理執行緒。（請用小寫英文回答 字母間留一個空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 97,
+      "sourceId": 97,
+      "target": "os6-088",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-97",
+      "sourceStem": "在Solaris作業系統中，預設的排程類別是什麼？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 98,
+      "sourceId": 98,
+      "target": "os6-089",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-98",
+      "sourceStem": "在Solaris排程中，當多個執行緒具有相同的最高優先權時，排程器會如何處理？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 99,
+      "sourceId": 99,
+      "target": "os6-090",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-99",
+      "sourceStem": "[__1__]是一個可以被系統管理員載入和設定的表格，用於管理Solaris中的多層級回饋佇列。(請用小寫英文回答 字母間留一個空白)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 100,
+      "sourceId": 100,
+      "target": "os6-091",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-100",
+      "sourceStem": "What are the six classes of scheduling in the Solaris operating system?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 101,
+      "sourceId": 101,
+      "target": "os6-102",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-101",
+      "sourceStem": "在Windows系統中，當一個執行緒的時限（quantum）用完後，它的優先權會如何？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 102,
+      "sourceId": 102,
+      "target": "os6-103",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-102",
+      "sourceStem": "In the Linux system, how does the nice value affect scheduling?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 103,
+      "sourceId": 103,
+      "target": "os6-092",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-103",
+      "sourceStem": "____________ 模型是數學分析的工具，通常假設已知的到達和服務時間分佈。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 104,
+      "sourceId": 104,
+      "target": "os6-094",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-104",
+      "sourceStem": "在排程演算法評估中，[__1__]模型通過使用概率來描述程序的到來和CPU爆發。(請用小寫英文回答 字母間留一個空白)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 105,
+      "sourceId": 105,
+      "target": "os6-095",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-105",
+      "sourceStem": "佇列模型（Queueing models）通常用來計算哪些平均值？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 106,
+      "sourceId": 106,
+      "target": "os6-096",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-106",
+      "sourceStem": "在排程演算法評估中，什麼方法使用預先確定的工作負載來評估每個演算法的性能？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 107,
+      "sourceId": 107,
+      "target": "os6-097",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-107",
+      "sourceStem": "________ is a method for evaluating schedulers that involves creating a programmed model of a computer system and is more accurate than queueing models.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 108,
+      "sourceId": 108,
+      "target": "os6-098",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-108",
+      "sourceStem": "In simulations, what can be the sources of data used to drive the simulation?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 109,
+      "sourceId": 109,
+      "target": "os6-099",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-109",
+      "sourceStem": "實作新排程器的缺點是什麼？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 110,
+      "sourceId": 110,
+      "target": "os6-106",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-110",
+      "sourceStem": "In scheduling algorithm evaluation, what methods can be used to evaluate an algorithm?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 111,
+      "sourceId": 111,
+      "target": "os6-113",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-111",
+      "sourceStem": "Little's Formula (n = \\lambda x W) 的特性是什麼？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 112,
+      "sourceId": 112,
+      "target": "os6-100",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-112",
+      "sourceStem": "Proportional Share Scheduling (比例共享排程) 的特性包含什麼？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 113,
+      "sourceId": 113,
+      "target": "os6-101",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-113",
+      "sourceStem": "虛擬化（Virtualization）環境中的排程有什麼潛在問題？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 114,
+      "sourceId": 114,
+      "target": "os6-076",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-114",
+      "sourceStem": "在Linux核心版本2.6.23之後，主要的排程器演算法是什麼？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 115,
+      "sourceId": 115,
+      "target": "os6-022",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-115",
+      "sourceStem": "分派器（Dispatcher）模組的工作包含哪些項目？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 116,
+      "sourceId": 116,
+      "target": "os6-071",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-116",
+      "sourceStem": "POSIX.1b標準定義了兩種即時排程類別：SCHED_FIFO和 ________ 。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 117,
+      "sourceId": 117,
+      "target": "os6-050",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-117",
+      "sourceStem": "In Multilevel Queue scheduling, which of the following statements is correct?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 118,
+      "sourceId": 118,
+      "target": "os6-069",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-118",
+      "sourceStem": "在POSIX即時排程中，SCHED_FIFO的特點是什麼？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 119,
+      "sourceId": 119,
+      "target": "os6-066",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-119",
+      "sourceStem": "下列哪些關於即時排程的敘述是正確的？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 120,
+      "sourceId": 120,
+      "target": "os6-043",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-120",
+      "sourceStem": "What are the pros and cons of priority scheduling?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 121,
+      "sourceId": 121,
+      "target": "os6-038",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-121",
+      "sourceStem": "當時間片（q）相對於上下文切換時間非常大時，迴圈排程（RR）演算法的行為會趨近於 ____________。（請用小寫英文回答 關聯字母間用-連接 非關聯字母間用 空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 122,
+      "sourceId": 122,
+      "target": "os6-086",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-122",
+      "sourceStem": "在Windows排程中，哪個功能允許應用程式獨立於核心來創建和管理執行緒？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 123,
+      "sourceId": 123,
+      "target": "scheduling-friend-u6-102",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-123",
+      "sourceStem": "Linux 在核心版本 2.5 中採用的 O(1) 排程器有哪些特性？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 124,
+      "sourceId": 124,
+      "target": "os6-058",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-124",
+      "sourceStem": "In a multiprocessor system, which of the following scheduling methods are part of load balancing?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 125,
+      "sourceId": 125,
+      "target": "os6-020",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-125",
+      "sourceStem": "當一個程序從運行狀態切換到等待狀態時，CPU 排程器會被 ________。\n（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 126,
+      "sourceId": 126,
+      "target": "os6-021",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-126",
+      "sourceStem": "Which of the following is a task of the Dispatcher?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 127,
+      "sourceId": 127,
+      "target": "os6-075",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-127",
+      "sourceStem": "完全公平排程器（CFS）有哪些特性？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 128,
+      "sourceId": 128,
+      "target": "os6-083",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-128",
+      "sourceStem": "In Windows, which of the following are Variable priority classes?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 129,
+      "sourceId": 129,
+      "target": "os6-073",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-129",
+      "sourceStem": "速率單調排程（Rate Monotonic Scheduling）的特性是什麼？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 130,
+      "sourceId": 130,
+      "target": "os6-052",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-130",
+      "sourceStem": "在 ________ 排程中，程序可以在不同的佇列之間移動，這有助於實現老化。（請用小寫英文回答 字母間留一個空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 131,
+      "sourceId": 131,
+      "target": "os6-011",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-131",
+      "sourceStem": "下列哪些是排程演算法的優化目標？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 132,
+      "sourceId": 132,
+      "target": "os6-105",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-132",
+      "sourceStem": "In multiple-processor scheduling, ________ is where only one processor accesses the system data structures, alleviating the need for data sharing.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 133,
+      "sourceId": 133,
+      "target": "os6-008",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-133",
+      "sourceStem": "響應時間是從提交請求到第一次 ________ 產生的時間。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 134,
+      "sourceId": 134,
+      "target": "os6-081",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-134",
+      "sourceStem": "在Windows系統中，當一個執行緒從等待狀態返回時，它的優先權會被 ____________。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 135,
+      "sourceId": 135,
+      "target": "os6-054",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-135",
+      "sourceStem": "In a multiprocessor system, which approach involves only one processor accessing the system data structures?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 136,
+      "sourceId": 136,
+      "target": "os6-046",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-136",
+      "sourceStem": "In priority scheduling, the solution to the \"starvation\" problem where a low-priority process might never execute is ________ .(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 137,
+      "sourceId": 137,
+      "target": "os6-061",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-137",
+      "sourceStem": "In multicore processors, what technique takes advantage of memory stall to make progress on another thread?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 138,
+      "sourceId": 138,
+      "target": "os6-108",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-138",
+      "sourceStem": "Shortest-remaining-time-first (SRTF) is the preemptive version of which scheduling algorithm?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 139,
+      "sourceId": 139,
+      "target": "os6-095",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-139",
+      "sourceStem": "What averages are typically computed using queueing models?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 140,
+      "sourceId": 140,
+      "target": "os6-091",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-140",
+      "sourceStem": "Solaris作業系統的排程有哪些六個類別？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 141,
+      "sourceId": 141,
+      "target": "os6-117",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-141",
+      "sourceStem": "CPU-I/O 連發週期是程序執行中，CPU 連發接著 ________ 連發的循環。\n（請用英文大寫字母）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 142,
+      "sourceId": 142,
+      "target": "os6-098",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-142",
+      "sourceStem": "在模擬（Simulations）中，用於驅動模擬的資料來源可以是哪些？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 143,
+      "sourceId": 143,
+      "target": "scheduling-friend-u6-102",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-143",
+      "sourceStem": "What are the characteristics of the O(1) scheduler adopted by Linux in kernel version 2.5?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 144,
+      "sourceId": 144,
+      "target": "os6-097",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-144",
+      "sourceStem": "____________ 是一種評估排程器的方法，它透過建立一個電腦系統的程式化模型來進行，比佇列模型更準確。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 145,
+      "sourceId": 145,
+      "target": "os6-016",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-145",
+      "sourceStem": "In a CPU-I/O cycle, what does process execution consist of?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 146,
+      "sourceId": 146,
+      "target": "os6-051",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-146",
+      "sourceStem": "What are the defining parameters of a Multilevel Feedback Queue scheduler?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 147,
+      "sourceId": 147,
+      "target": "os6-065",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-147",
+      "sourceStem": "硬即時系統（Hard real-time systems）要求任務必須在 ________ 內完成。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 148,
+      "sourceId": 148,
+      "target": "os6-065",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-148",
+      "sourceStem": "硬即時系統(hard realtime syste,)的排程必須保證在 ____________ 時間內完成任務。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 149,
+      "sourceId": 149,
+      "target": "os6-036",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-149",
+      "sourceStem": "迴圈排程（RR）演算法中，每個程序獲得一小段CPU時間的單位稱為 ________ 。（請用小寫英文回答，單字間留一個空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 150,
+      "sourceId": 150,
+      "target": "os6-025",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-150",
+      "sourceStem": "________ 排程演算法因為其簡潔性而被廣泛使用，但可能導致「護航效應」。\n（請用小寫英文回答全名，字母間用 - 連接）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 151,
+      "sourceId": 151,
+      "target": "os6-111",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-151",
+      "sourceStem": "When a process switches from a running to a ready state, the scheduling is of the ________ type. (Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 152,
+      "sourceId": 152,
+      "target": "os6-099",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-152",
+      "sourceStem": "What are the disadvantages of implementing a new scheduler?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 153,
+      "sourceId": 153,
+      "target": "os6-010",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-153",
+      "sourceStem": "Which of the following are criteria for evaluating CPU scheduling algorithms?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 154,
+      "sourceId": 154,
+      "target": "os6-050",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-154",
+      "sourceStem": "In Multilevel Queue scheduling, which of the following statements is correct?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 155,
+      "sourceId": 155,
+      "target": "os6-094",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-155",
+      "sourceStem": "In scheduling algorithm evaluation, ____________ describe the arrival of processes and CPU bursts probabilistically.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 156,
+      "sourceId": 156,
+      "target": "os6-092",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-156",
+      "sourceStem": "________ models are a mathematical analysis tool that usually assume known arrival and service time distributions. (Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 157,
+      "sourceId": 157,
+      "target": "os6-029",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-157",
+      "sourceStem": "________ 效應是指一個短程序被一個或多個長程序阻塞。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 158,
+      "sourceId": 158,
+      "target": "os6-005",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-158",
+      "sourceStem": "Throughput is the number of ____________ completed per time unit.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 159,
+      "sourceId": 159,
+      "target": "os6-056",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-159",
+      "sourceStem": "在對稱多處理（SMP）系統中，每個處理器都自我排程，這是哪種排程方法？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 160,
+      "sourceId": 160,
+      "target": "os6-106",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-160",
+      "sourceStem": "在排程演算法評估中，有哪些方法可以被用來評估演算法？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 161,
+      "sourceId": 161,
+      "target": "os6-072",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-161",
+      "sourceStem": "____________ 是根據截止時間分配優先權的演算法：截止時間越早，優先權越高。（請用小寫英文回答 字母間留一個空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 162,
+      "sourceId": 162,
+      "target": "os6-055",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-162",
+      "sourceStem": "In Symmetric Multiprocessing (SMP), each processor ________ schedules itself.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 163,
+      "sourceId": 163,
+      "target": "os6-042",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-163",
+      "sourceStem": "Process Burst Time P1 20 P2 3 P3 7 Use Round Robin (RR) to schedule the above process. The following is the process of scheduling time from left to right (A to H represent the processed block H. There may be a schedule after the block, which is ignored because it is not in the question to be asked. Do not show)\n圖中執行區塊：A、B、C、D、E、F、G、H\n圖中時間邊界：I、J、K、L、M、N、O、P、Q\nIf TQ = 4, what is the order of A~H? Answer format: P0->P2->P4->P6->P5->P6 Format errors do not count\n________",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 164,
+      "sourceId": 164,
+      "target": "os6-070",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-164",
+      "sourceStem": "Which scheduling classes are defined in the POSIX real-time scheduling standard?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 165,
+      "sourceId": 165,
+      "target": "os6-065",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-165",
+      "sourceStem": "What is a key characteristic of hard real-time systems?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 166,
+      "sourceId": 166,
+      "target": "os6-025",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-166",
+      "sourceStem": "哪一個排程演算法會導致「護航效應」（convoy effect）？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 167,
+      "sourceId": 167,
+      "target": "os6-008",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-167",
+      "sourceStem": "Response time is the time from request submission to the first ________ produced.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 168,
+      "sourceId": 168,
+      "target": "os6-110",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-168",
+      "sourceStem": "短剩餘時間優先（SRTF）是 ________ 排程演算法的搶佔式版本。\n（請用小寫英文回答，字母間用 - 連接）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 169,
+      "sourceId": 169,
+      "target": "os6-019",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-169",
+      "sourceStem": "當一個程序從「執行中」狀態切換到「等待中」狀態時，排程決策屬於哪種類型？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 170,
+      "sourceId": 170,
+      "target": "os6-032",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-170",
+      "sourceStem": "What are the advantages of Shortest-Job-First (SJF) scheduling?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 171,
+      "sourceId": 171,
+      "target": "os6-114",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-171",
+      "sourceStem": "CPU scheduling decisions typically take place under which of the following circumstances?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 172,
+      "sourceId": 172,
+      "target": "os6-117",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-172",
+      "sourceStem": "CPU-I/O 連發週期是程序執行中，CPU連發後接著 ____________ 連發的循環。（請用英文大寫字母）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 173,
+      "sourceId": 173,
+      "target": "os6-090",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-173",
+      "sourceStem": "A ____________ is a loadable table in Solaris that can be configured by a system administrator to manage the multilevel feedback queue.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 174,
+      "sourceId": 174,
+      "target": "os6-075",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-174",
+      "sourceStem": "What are the characteristics of the Completely Fair Scheduler (CFS)?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 175,
+      "sourceId": 175,
+      "target": "os6-031",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-175",
+      "sourceStem": "____________ 排程演算法是最佳的，因為它能給定程序集提供最小的平均等待時間。（請用小寫英文回答 字母間用-連接）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 176,
+      "sourceId": 176,
+      "target": "os6-067",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-176",
+      "sourceStem": "即時CPU排程面臨哪些挑戰？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 177,
+      "sourceId": 177,
+      "target": "os6-107",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-177",
+      "sourceStem": "在POSIX即時排程中，哪種排程策略與SCHED_FIFO相似，但對相同優先權的執行緒有時間分片？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 178,
+      "sourceId": 178,
+      "target": "os6-002",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-178",
+      "sourceStem": "____________ is the \\lambda in Little's Formula (n = \\lambda \\times W), representing the average arrival rate into the queue.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 179,
+      "sourceId": 179,
+      "target": "os6-015",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-179",
+      "sourceStem": "Process execution consists of a cycle of CPU execution and I/O wait, which is known as a cpu-i/o ____________ .(請用小寫英文回答 字母間留一個空白)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 180,
+      "sourceId": 180,
+      "target": "os6-103",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-180",
+      "sourceStem": "在 Linux 系統中，nice 值如何影響排程？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 181,
+      "sourceId": 181,
+      "target": "os6-036",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-181",
+      "sourceStem": "In the Round Robin scheduling algorithm, the ____________ determines the length of CPU time each process gets.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 182,
+      "sourceId": 182,
+      "target": "os6-062",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-182",
+      "sourceStem": "What are the characteristics of Earliest Deadline First (EDF) Scheduling?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 183,
+      "sourceId": 183,
+      "target": "os6-101",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-183",
+      "sourceStem": "虛擬化（Virtualization）環境中的排程有什麼潛在問題？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 184,
+      "sourceId": 184,
+      "target": "os6-102",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-184",
+      "sourceStem": "In the Windows system, what happens to a thread's priority when its quantum expires?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 185,
+      "sourceId": 185,
+      "target": "os6-063",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-185",
+      "sourceStem": "____________ is a scheduling algorithm where a priority is assigned based on the inverse of its period.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 186,
+      "sourceId": 186,
+      "target": "os6-079",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-186",
+      "sourceStem": "The Windows scheduler uses ____________ priority levels. (fill a number)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 187,
+      "sourceId": 187,
+      "target": "os6-049",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-187",
+      "sourceStem": "In a ____________ scheduling, the ready queue is partitioned into several separate queues, and a process is typically permanently in a given queue.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 188,
+      "sourceId": 188,
+      "target": "os6-088",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-188",
+      "sourceStem": "In the Solaris operating system, what is the default scheduling class?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 189,
+      "sourceId": 189,
+      "target": "community-65307e6c-1612-4c30-b48f-0489756453b5-28",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-189",
+      "sourceStem": "Shortest-remaining-time-first (SRTF) is the preemptive version of the ________ algorithm.\n(Please answer using English abbreviations and uppercase letters.)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 190,
+      "sourceId": 190,
+      "target": "os6-084",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-190",
+      "sourceStem": "In Windows scheduling, which priority class of processes cannot have its priority boosted?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 191,
+      "sourceId": 191,
+      "target": "os6-004",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-191",
+      "sourceStem": "________ is the number of processes that complete their execution per time unit, used to measure the efficiency of a scheduling algorithm.\n(Please answer in lowercase English.)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 192,
+      "sourceId": 192,
+      "target": "os6-036",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-192",
+      "sourceStem": "In the Round Robin (RR) scheduling algorithm, what is the unit of a small amount of CPU time given to each process?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 193,
+      "sourceId": 193,
+      "target": "os6-017",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-193",
+      "sourceStem": "下列哪些排程決策屬於非搶佔式？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 194,
+      "sourceId": 194,
+      "target": "os6-080",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-194",
+      "sourceStem": "In Windows scheduling, what are the reasons for a thread to stop running?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 195,
+      "sourceId": 195,
+      "target": "os6-008",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-195",
+      "sourceStem": "________ time is the amount of time it takes from when a request was submitted until the first response is produced, not the output.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 196,
+      "sourceId": 196,
+      "target": "os6-013",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-196",
+      "sourceStem": "The goal of CPU scheduling is to maximize CPU utilization in a ________ system.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 197,
+      "sourceId": 197,
+      "target": "os6-100",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-197",
+      "sourceStem": "What are the characteristics of Proportional Share Scheduling?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 198,
+      "sourceId": 198,
+      "target": "os6-067",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-198",
+      "sourceStem": "即時CPU排程面臨哪些挑戰？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 199,
+      "sourceId": 199,
+      "target": "os6-024",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-199",
+      "sourceStem": "What is Dispatch latency?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 200,
+      "sourceId": 200,
+      "target": "os6-116",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-200",
+      "sourceStem": "____________ 是在即時系統中，排程器將當前程序從CPU上移除並切換到另一個程序所需的時間。（請用小寫英文回答 字母間留一個空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 201,
+      "sourceId": 201,
+      "target": "os6-009",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-201",
+      "sourceStem": "CPU排程的準則包括CPU利用率、吞吐量、 ________ 時間、 ________ 時間和 ________ 時間。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 202,
+      "sourceId": 202,
+      "target": "os6-004",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-202",
+      "sourceStem": "衡量排程演算法的吞吐量（Throughput）是指什麼？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 203,
+      "sourceId": 203,
+      "target": "os6-001",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-203",
+      "sourceStem": "In Little's Formula (n = λ x W), what does n represent?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 204,
+      "sourceId": 204,
+      "target": "os6-041",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-204",
+      "sourceStem": "當時間片（TQ）相對於上下文切換時間非常小時，迴圈排程（RR）的缺點是什麼？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 205,
+      "sourceId": 205,
+      "target": "os6-047",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-205",
+      "sourceStem": "下列哪些排程演算法可以導致飢餓？",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 206,
+      "sourceId": 206,
+      "target": "os6-044",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-206",
+      "sourceStem": "Priority scheduling can lead to ____________ , where low-priority processes may never run.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 207,
+      "sourceId": 207,
+      "target": "os6-046",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-207",
+      "sourceStem": "在優先權排程中，解決低優先權程序可能永遠無法執行的「飢餓」問題的方法是 ____________。（請用小寫英文回答）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 208,
+      "sourceId": 208,
+      "target": "os6-048",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-208",
+      "sourceStem": "What are the characteristics of Multilevel Queue scheduling?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 209,
+      "sourceId": 209,
+      "target": "os6-068",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-209",
+      "sourceStem": "The time from the arrival of an interrupt to the start of the routine that services the interrupt is called?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 210,
+      "sourceId": 210,
+      "target": "os6-086",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-210",
+      "sourceStem": "________ is a feature introduced in Windows 7 that allows applications to create and manage threads independently of the kernel.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 211,
+      "sourceId": 211,
+      "target": "os6-101",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-211",
+      "sourceStem": "What are the potential problems with scheduling in a virtualization environment?",
+      "sourceOptionsStatus": "provided_source_options",
+      "sourceType": "choice"
+    },
+    {
+      "i": 212,
+      "sourceId": 212,
+      "target": "os6-110",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-212",
+      "sourceStem": "Shortest-remaining-time-first (SRTF) is the preemptive version of the ____________ scheduling algorithm.(Please answer in lowercase English, connecting letters with hyphens)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 213,
+      "sourceId": 213,
+      "target": "os6-044",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-213",
+      "sourceStem": "In priority scheduling, what problem can cause low-priority processes to never execute?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 214,
+      "sourceId": 214,
+      "target": "os6-059",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-214",
+      "sourceStem": "在對稱多處理（SMP）系統中， ____________ 是一種週期性任務，檢查每個處理器的負載，並將任務從過載的CPU推送到其他CPU。（請用小寫英文回答 字母間留一個空白）",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 215,
+      "sourceId": 215,
+      "target": "os6-024",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-215",
+      "sourceStem": "分派延遲（Dispatch latency）指的是什麼？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 216,
+      "sourceId": 216,
+      "target": "os6-054",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-216",
+      "sourceStem": "In a multiprocessor system, which approach involves only one processor accessing the system data structures?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 217,
+      "sourceId": 217,
+      "target": "os6-025",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-217",
+      "sourceStem": "[__1__] scheduling can lead to the convoy effect, where all other processes wait for one long process to finish.(Please answer using English abbreviations and uppercase letters.)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 218,
+      "sourceId": 218,
+      "target": "os6-086",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-218",
+      "sourceStem": "在Windows排程中，哪個功能允許應用程式獨立於核心來創建和管理執行緒？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 219,
+      "sourceId": 219,
+      "target": "os6-072",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-219",
+      "sourceStem": "即時排程中的[__1__]排程演算法 其的優先順序是根據資料的到期時間。(請用小寫英文回答 字母間留一個空白)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 220,
+      "sourceId": 220,
+      "target": "os6-025",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-220",
+      "sourceStem": "哪一個排程演算法會導致「護航效應」（convoy effect）？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 221,
+      "sourceId": 221,
+      "target": "os6-036",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-221",
+      "sourceStem": "In the Round Robin (RR) scheduling algorithm, what is the unit of a small amount of CPU time given to each process?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 222,
+      "sourceId": 222,
+      "target": "os6-052",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-222",
+      "sourceStem": "[__1__] allows processes to move between different queues based on the length of time for which they have been serviced.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 223,
+      "sourceId": 223,
+      "target": "os6-068",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-223",
+      "sourceStem": "從中斷到達的時間到服務該中斷的函式(ISR)開始執行的時間，這段時間被稱為？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 224,
+      "sourceId": 224,
+      "target": "os6-102",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-224",
+      "sourceStem": "在Windows系統中，當一個執行緒的時限（quantum）用完後，它的優先權會如何？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 225,
+      "sourceId": 225,
+      "target": "os6-084",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-225",
+      "sourceStem": "在Windows排程中，哪個優先權類別的程序不能被提升優先權？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 226,
+      "sourceId": 226,
+      "target": "os6-061",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-226",
+      "sourceStem": "In multicore processors, what technique takes advantage of memory stall to make progress on another thread?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 227,
+      "sourceId": 227,
+      "target": "os6-019",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-227",
+      "sourceStem": "When a process switches from a 'running' to a 'waiting' state, what type of scheduling decision is it?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 228,
+      "sourceId": 228,
+      "target": "os6-056",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-228",
+      "sourceStem": "在對稱多處理（SMP）系統中，每個處理器都自我排程，這是哪種排程方法？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 229,
+      "sourceId": 229,
+      "target": "os6-021",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-229",
+      "sourceStem": "Which of the following is a task of the Dispatcher?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 230,
+      "sourceId": 230,
+      "target": "os6-044",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-230",
+      "sourceStem": "在優先權排程中，什麼問題可能導致低優先權程序永遠無法執行？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 231,
+      "sourceId": 231,
+      "target": "os6-019",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-231",
+      "sourceStem": "當一個程序從「執行中」狀態切換到「等待中」狀態時，排程決策屬於哪種類型？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 232,
+      "sourceId": 232,
+      "target": "os6-096",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-232",
+      "sourceStem": "在排程演算法評估中，什麼方法使用預先確定的工作負載來評估每個演算法的性能？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 233,
+      "sourceId": 233,
+      "target": "os6-086",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-233",
+      "sourceStem": "In Windows scheduling, what feature allows applications to create and manage threads independently of the kernel?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 234,
+      "sourceId": 234,
+      "target": "os6-025",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-234",
+      "sourceStem": "Which scheduling algorithm can lead to the 'convoy effect'?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 235,
+      "sourceId": 235,
+      "target": "os6-054",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-235",
+      "sourceStem": "在多處理器系統中，哪種方法僅有一個處理器負責存取系統資料結構？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 236,
+      "sourceId": 236,
+      "target": "os6-074",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-236",
+      "sourceStem": "The goal of Linux's CFS (Completely Fair Scheduler) is to provide a completely [__1__] CPU allocation.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 237,
+      "sourceId": 237,
+      "target": "os6-060",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-237",
+      "sourceStem": "What are the advantages of multicore processors?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 238,
+      "sourceId": 238,
+      "target": "os6-023",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-238",
+      "sourceStem": "The dispatcher module gives control of the CPU to the process selected by the scheduler, which involves [__1__], switching to user mode, and jumping to the proper location in the user program.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 239,
+      "sourceId": 239,
+      "target": "os6-068",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-239",
+      "sourceStem": "The time from the arrival of an interrupt to the start of the routine that services the interrupt is called?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 240,
+      "sourceId": 240,
+      "target": "os6-014",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-240",
+      "sourceStem": "CPU排程器是哪一種類型的排程器？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 241,
+      "sourceId": 241,
+      "target": "os6-050",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-241",
+      "sourceStem": "在多層級佇列（Multilevel Queue）排程中，下列哪一項敘述是正確的？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 242,
+      "sourceId": 242,
+      "target": "os6-041",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-242",
+      "sourceStem": "當時間片（TQ）相對於上下文切換時間非常小時，迴圈排程（RR）的缺點是什麼？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 243,
+      "sourceId": 243,
+      "target": "os6-044",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-243",
+      "sourceStem": "In priority scheduling, what problem can cause low-priority processes to never execute?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 244,
+      "sourceId": 244,
+      "target": "os6-036",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-244",
+      "sourceStem": "在輪循（Round Robin）排程演算法中，[__1__]決定了每個程序可以獲得的CPU時間長度。(請用小寫英文回答 字母間留一個空白)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 245,
+      "sourceId": 245,
+      "target": "os6-078",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-245",
+      "sourceStem": "What are the characteristics of Windows scheduling?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 246,
+      "sourceId": 246,
+      "target": "os6-088",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-246",
+      "sourceStem": "In the Solaris operating system, what is the default scheduling class?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 247,
+      "sourceId": 247,
+      "target": "os6-031",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-247",
+      "sourceStem": "Which scheduling algorithm is considered optimal because it provides the minimum average waiting time for a given set of processes?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 248,
+      "sourceId": 248,
+      "target": "os6-002",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-248",
+      "sourceStem": "[__1__] is the λ in Little's Formula (n = λ x W), representing the average arrival rate into the queue.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 249,
+      "sourceId": 249,
+      "target": "os6-109",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-249",
+      "sourceStem": "How is aging implemented in Multilevel Feedback Queue scheduling?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 250,
+      "sourceId": 250,
+      "target": "os6-036",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-250",
+      "sourceStem": "迴圈排程（RR）演算法中，每個程序獲得一小段CPU時間的單位稱為？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 251,
+      "sourceId": 251,
+      "target": "os6-042",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-251",
+      "sourceStem": "Process Burst Time P1 20 P2 3 P3 7 Use Round Robin (RR) to schedule the above process. The following is the process of scheduling time from left to right (A to H represent the processed block H. There may be a schedule after the block, which is ignored because it is not in the question to be asked. Do not show) 上傳的圖片 If TQ = 4, what is the order of A~H? Answer format: P0->P2->P4->P6->P5->P6 Format errors do not count[__1__]",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 252,
+      "sourceId": 252,
+      "target": "os6-020",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-252",
+      "sourceStem": "When a process switches from the running to the waiting state, the CPU scheduler is [__1__].(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 253,
+      "sourceId": 253,
+      "target": "os6-113",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-253",
+      "sourceStem": "What are the characteristics of Little's Formula (n = λ x W)?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 254,
+      "sourceId": 254,
+      "target": "os6-046",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-254",
+      "sourceStem": "In priority scheduling, what is the solution to the problem of 'starvation'?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 255,
+      "sourceId": 255,
+      "target": "os6-001",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-255",
+      "sourceStem": "什麼是 Little's Formula (n = λ x W) 中的 n？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 256,
+      "sourceId": 256,
+      "target": "os6-069",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-256",
+      "sourceStem": "在POSIX即時排程中，SCHED_FIFO的特點是什麼？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 257,
+      "sourceId": 257,
+      "target": "os6-107",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-257",
+      "sourceStem": "In POSIX real-time scheduling, which scheduling policy is similar to SCHED_FIFO but includes time-slicing for threads of equal priority?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 258,
+      "sourceId": 258,
+      "target": "os6-006",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-258",
+      "sourceStem": "Turnaround time is the total time from process submission to [__1__].(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 259,
+      "sourceId": 259,
+      "target": "os6-021",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-259",
+      "sourceStem": "下列哪一項是分派器（Dispatcher）的工作？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 260,
+      "sourceId": 260,
+      "target": "os6-084",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-260",
+      "sourceStem": "在Windows系統中，[__1__]優先權類別的執行緒無法被提升優先權。(請用小寫英文回答 字母間用_連接)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 261,
+      "sourceId": 261,
+      "target": "os6-117",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-261",
+      "sourceStem": "The CPU-I/O burst cycle is a cycle of process execution where a CPU burst is followed by an [__1__] burst.(Please use uppercase English letters)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 262,
+      "sourceId": 262,
+      "target": "os6-031",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-262",
+      "sourceStem": "哪一個排程演算法被認為是最佳的，因為它能提供給定程序集的最小平均等待時間？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 263,
+      "sourceId": 263,
+      "target": "os6-040",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-263",
+      "sourceStem": "The performance of Round Robin (RR) scheduling is related to which factors?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 264,
+      "sourceId": 264,
+      "target": "os6-033",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-264",
+      "sourceStem": "The advantage of the Shortest-Job-First (SJF) scheduling algorithm is that it minimizes the average [__1__] time.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 265,
+      "sourceId": 265,
+      "target": "os6-038",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-265",
+      "sourceStem": "When the time quantum (q) in Round Robin (RR) is very large, the algorithm's behavior approaches which scheduling type?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 266,
+      "sourceId": 266,
+      "target": "os6-026",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-266",
+      "sourceStem": "What are the characteristics of First-Come, First-Served (FCFS) scheduling?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 267,
+      "sourceId": 267,
+      "target": "os6-091",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-267",
+      "sourceStem": "Solaris作業系統的排程有哪六個類別？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 268,
+      "sourceId": 268,
+      "target": "os6-057",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-268",
+      "sourceStem": "CPU [__1__] is the tendency of a process to run on the same processor.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 269,
+      "sourceId": 269,
+      "target": "os6-089",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-269",
+      "sourceStem": "In Solaris scheduling, how does the scheduler handle multiple threads with the same highest priority?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 270,
+      "sourceId": 270,
+      "target": "os6-096",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-270",
+      "sourceStem": "In scheduling algorithm evaluation, what method uses a predetermined workload to define the performance of each algorithm?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 271,
+      "sourceId": 271,
+      "target": "os6-065",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-271",
+      "sourceStem": "Hard real-time systems require a task to be serviced by its [__1__].(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 272,
+      "sourceId": 272,
+      "target": "os6-050",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-272",
+      "sourceStem": "In Multilevel Queue scheduling, which of the following statements is correct?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 273,
+      "sourceId": 273,
+      "target": "os6-108",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-273",
+      "sourceStem": "Shortest-remaining-time-first (SRTF) is the preemptive version of which scheduling algorithm?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 274,
+      "sourceId": 274,
+      "target": "os6-024",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-274",
+      "sourceStem": "What is Dispatch latency?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 275,
+      "sourceId": 275,
+      "target": "os6-069",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-275",
+      "sourceStem": "What is a characteristic of SCHED_FIFO in POSIX real-time scheduling?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 276,
+      "sourceId": 276,
+      "target": "os6-017",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-276",
+      "sourceStem": "Which of the following scheduling decisions are nonpreemptive?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 277,
+      "sourceId": 277,
+      "target": "os6-056",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-277",
+      "sourceStem": "In a symmetric multiprocessing (SMP) system where each processor is self-scheduling, what is this scheduling method?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 278,
+      "sourceId": 278,
+      "target": "os6-082",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-278",
+      "sourceStem": "In Windows, under what circumstances is a thread's priority boosted?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 279,
+      "sourceId": 279,
+      "target": "os6-004",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-279",
+      "sourceStem": "What is throughput as a measure of a scheduling algorithm?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 280,
+      "sourceId": 280,
+      "target": "os6-102",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-280",
+      "sourceStem": "In the Windows system, what happens to a thread's priority when its quantum expires?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 281,
+      "sourceId": 281,
+      "target": "os6-009",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-281",
+      "sourceStem": "Criteria for CPU scheduling include CPU utilization, throughput, [__1__] time, [__2__] time, and [__3__] time.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 282,
+      "sourceId": 282,
+      "target": "os6-038",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-282",
+      "sourceStem": "當迴圈排程（RR）中的時間片（q）非常大時，該演算法的行為會趨近於哪種排程？",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 283,
+      "sourceId": 283,
+      "target": "os6-018",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-283",
+      "sourceStem": "In non-preemptive scheduling, once the CPU has been allocated to a process, the process keeps the CPU until it [__1__] or [__2__].(Please answer in lowercase English)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 284,
+      "sourceId": 284,
+      "target": "os6-095",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-284",
+      "sourceStem": "What averages are typically computed using queueing models?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 285,
+      "sourceId": 285,
+      "target": "os6-012",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-285",
+      "sourceStem": "What is the core objective of CPU scheduling?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 286,
+      "sourceId": 286,
+      "target": "os6-036",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-286",
+      "sourceStem": "迴圈排程（RR）演算法中，每個程序獲得一小段CPU時間的單位稱為[__1__]。(請用小寫英文回答 字母間留一個空白)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 287,
+      "sourceId": 287,
+      "target": "os6-014",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-287",
+      "sourceStem": "What type of scheduler is the CPU scheduler?",
+      "sourceOptionsStatus": "known_options_only",
+      "sourceType": "choice"
+    },
+    {
+      "i": 288,
+      "sourceId": 288,
+      "target": "os6-077",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-288",
+      "sourceStem": "After Linux kernel version 2.6.23, the scheduler picks the next task to run based on the lowest [__1__] value.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "not_applicable_or_not_recorded",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 289,
+      "sourceId": 1000000093,
+      "target": "os6-060",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000093",
+      "sourceStem": "What are the advantages of multicore processors?",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 290,
+      "sourceId": 1000000094,
+      "target": "os6-048",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000094",
+      "sourceStem": "多層級佇列（Multilevel Queue）排程的特性包含哪些？",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 291,
+      "sourceId": 1000000095,
+      "target": "os6-066",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000095",
+      "sourceStem": "下列哪些關於即時排程的敘述是正確的？",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 292,
+      "sourceId": 1000000096,
+      "target": "os6-107",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000096",
+      "sourceStem": "在POSIX即時排程中，哪種排程策略與SCHED_FIFO相似，但對相同優先權的執行緒有時間分片？",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 293,
+      "sourceId": 1000000097,
+      "target": "os6-050",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000097",
+      "sourceStem": "In Multilevel Queue scheduling, which of the following statements is correct?",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 294,
+      "sourceId": 1000000098,
+      "target": "os6-056",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000098",
+      "sourceStem": "在對稱多處理（SMP）系統中，每個處理器都自我排程，這是哪種排程方法？",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 295,
+      "sourceId": 1000000099,
+      "target": "os6-075",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000099",
+      "sourceStem": "完全公平排程器（CFS）有哪些特性？",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 296,
+      "sourceId": 1000000100,
+      "target": "os6-011",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000100",
+      "sourceStem": "Which of the following are optimization goals for scheduling algorithms?",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 297,
+      "sourceId": 1000000101,
+      "target": "os6-036",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1000000101",
+      "sourceStem": "迴圈排程（RR）演算法中，每個程序獲得一小段CPU時間的單位稱為[__1__]。(請用小寫英文回答 字母間留一個空白)",
+      "sourceOptionsStatus": "",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 298,
+      "sourceId": 1000000102,
+      "target": "os6-116",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1000000102",
+      "sourceStem": "[__1__]是在即時系統中，排程器將當前程序從CPU上移除並切換到另一個程序所需的時間。(請用小寫英文回答 字母間留一個空白)",
+      "sourceOptionsStatus": "",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 299,
+      "sourceId": 1000000103,
+      "target": "os6-004",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1000000103",
+      "sourceStem": "[__1__]是每單位時間完成執行的程序數量，用於衡量排程演算法的效率。(請用小寫英文回答)",
+      "sourceOptionsStatus": "",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 300,
+      "sourceId": 1000000104,
+      "target": "os6-029",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1000000104",
+      "sourceStem": "[__1__]效應是指一個短程序被一個或多個長程序阻塞。(請用小寫英文回答)",
+      "sourceOptionsStatus": "",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 301,
+      "sourceId": 1000000105,
+      "target": "os6-059",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1000000105",
+      "sourceStem": "In a symmetric multiprocessing (SMP) system, [__1__] is a periodic task that checks the load on each processor and pushes tasks from overloaded CPUs to other CPUs.(Please answer in lowercase English, leaving a space between each word)",
+      "sourceOptionsStatus": "",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 302,
+      "sourceId": 1000000106,
+      "target": "os6-014",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000106",
+      "sourceStem": "What type of scheduler is the CPU scheduler?",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 303,
+      "sourceId": 1000000107,
+      "target": "os6-041",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000107",
+      "sourceStem": "當時間片（TQ）相對於上下文切換時間非常小時，迴圈排程（RR）的缺點是什麼？",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 304,
+      "sourceId": 1000000108,
+      "target": "os6-031",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1000000108",
+      "sourceStem": "The [__1__] scheduling algorithm is optimal because it provides the minimum average waiting time for a given set of processes.(Please answer in lowercase English, connecting letters with hyphens)",
+      "sourceOptionsStatus": "",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 305,
+      "sourceId": 1000000109,
+      "target": "os6-082",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000109",
+      "sourceStem": "Windows中，一個執行緒的優先權會被提升的情況有哪些？",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 306,
+      "sourceId": 1000000110,
+      "target": "os6-079",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1000000110",
+      "sourceStem": "Windows排程器使用了[__1__]個優先級層級。(fill a number)",
+      "sourceOptionsStatus": "",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 307,
+      "sourceId": 1000000111,
+      "target": "os6-016",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000111",
+      "sourceStem": "在CPU-I/O週期中，程式的執行由什麼組成？",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 308,
+      "sourceId": 1000000112,
+      "target": "os6-115",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000112",
+      "sourceStem": "關於估計下一個CPU爆發長度，可以採用哪些方法？",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 309,
+      "sourceId": 1000000113,
+      "target": "os6-036",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000113",
+      "sourceStem": "迴圈排程（RR）演算法中，每個程序獲得一小段CPU時間的單位稱為？",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 310,
+      "sourceId": 1000000114,
+      "target": "os6-074",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1000000114",
+      "sourceStem": "The goal of Linux's CFS (Completely Fair Scheduler) is to provide a completely [__1__] CPU allocation.(Please answer in lowercase English)",
+      "sourceOptionsStatus": "",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 311,
+      "sourceId": 1000000115,
+      "target": "os6-006",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1000000115",
+      "sourceStem": "Turnaround time is the total time from process submission to [__1__].(Please answer in lowercase English)",
+      "sourceOptionsStatus": "",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 312,
+      "sourceId": 1000000116,
+      "target": "os6-008",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1000000116",
+      "sourceStem": "響應時間是從提交請求到第一次[__1__]產生的時間。(請用小寫英文回答)",
+      "sourceOptionsStatus": "",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 313,
+      "sourceId": 1000000117,
+      "target": "os6-025",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000117",
+      "sourceStem": "哪一個排程演算法會導致「護航效應」（convoy effect）？",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 314,
+      "sourceId": 1000000118,
+      "target": "os6-062",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000118",
+      "sourceStem": "最早截止時間優先排程（Earliest Deadline First Scheduling）的特性是什麼？",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 315,
+      "sourceId": 1000000119,
+      "target": "os6-078",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000119",
+      "sourceStem": "What are the characteristics of Windows scheduling?",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 316,
+      "sourceId": 1000000120,
+      "target": "os6-004",
+      "match": "reviewed",
+      "alias": "chiyyaa-u6-20261024-1000000120",
+      "sourceStem": "What is throughput as a measure of a scheduling algorithm?",
+      "sourceOptionsStatus": "",
+      "sourceType": "choice_options_missing"
+    },
+    {
+      "i": 317,
+      "sourceId": 1000000121,
+      "target": "os6-072",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1000000121",
+      "sourceStem": "[__1__]是根據截止時間分配優先權的演算法：截止時間越早，優先權越高。(請用小寫英文回答 字母間留一個空白)",
+      "sourceOptionsStatus": "",
+      "sourceType": "fill_blank"
+    },
+    {
+      "i": 318,
+      "sourceId": 1000000122,
+      "target": "os6-063",
+      "match": "exact",
+      "alias": "chiyyaa-u6-20261024-1000000122",
+      "sourceStem": "[__1__]排程是根據週期的倒數來分配優先權的演算法。(請用小寫英文回答 字母間留一個空白)",
+      "sourceOptionsStatus": "",
+      "sourceType": "fill_blank"
+    }
+  ]
+}
