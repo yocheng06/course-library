@@ -134,7 +134,7 @@
     return !hasProvidedAnswer(question) && (question.reviewIssue || question.missingContext) ? `${label}（待確認）` : label;
   }
 
-  // Display the same verified option mapping used by practice grading.
+  // Show only letters from the same verified option mapping used by practice grading.
   // Source answers remain unchanged, including text answers that cannot map.
   function answerValues(question) {
     const answer = String(question.answer ?? question.a ?? '');
@@ -143,16 +143,11 @@
     const key = question.choiceKey || window.courseChoiceAnswers?.expectedChoiceKey(answer, options);
     if (!/^[A-H]+$/.test(key || '') || new Set(key).size !== key.length ||
         [...key].some(letter => letter.charCodeAt(0) - 65 >= options.length)) return [answer];
-    return [...key].sort().map(letter => {
-      const index = letter.charCodeAt(0) - 65;
-      const content = String(options[index]).replace(/^[A-H][.、．:：]\s*/, '');
-      const translation = question.optionTranslations?.[index];
-      return `${letter}. ${content}${translation ? ` ／ ${translation}` : ''}`;
-    });
+    return [...key].sort();
   }
 
-  const answerText = question => answerValues(question).join('；');
-  const answerValueMarkup = (question, format = escape) => answerValues(question).map(format).join('<br>');
+  const answerText = question => answerValues(question).join('、');
+  const answerValueMarkup = (question, format = escape) => answerValues(question).map(format).join('、');
 
   function incompleteReasons(question) {
     const reasons = [];
