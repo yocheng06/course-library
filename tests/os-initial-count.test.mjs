@@ -52,3 +52,14 @@ test('search and submission indexes include every embedded public question',()=>
     assert.ok(submissions.some(q=>q.canonicalId===id),id);
   }
 });
+
+test('L6 imports use a fresh canonical ID and retain the old question redirect',()=>{
+  const unit=units.find(u=>u.id==='scheduling'),ids=new Set(unit.questionIds);
+  assert.equal(unit.questions.length,103);
+  assert.equal(unit.questionCount,103);
+  assert.equal(unit.questionAliases['os6-117'],'os6-046');
+  for(const alias of Object.keys(unit.questionAliases))assert.ok(!ids.has(alias),alias);
+  const q=unit.questions.find(q=>q.id==='os6-118');
+  assert.equal(q.answer,'I/O');
+  assert.deepEqual(q.sourceRecords,[141,172,261]);
+});

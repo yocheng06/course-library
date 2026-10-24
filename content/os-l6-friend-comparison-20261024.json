@@ -32,9 +32,9 @@
   "typeOrder": [
     "單選題",
     "多選題",
-    "填空題"
+    "填空／簡答"
   ],
-  "addedQuestionId": "os6-117",
+  "addedQuestionId": "os6-118",
   "sourceVariantsAdded": [
     {
       "sourceId": 54,
@@ -198,7 +198,7 @@
     },
     {
       "sourceId": 172,
-      "target": "os6-117",
+      "target": "os6-118",
       "alias": "chiyyaa-u6-20261024-172"
     },
     {
@@ -338,7 +338,7 @@
     },
     {
       "sourceId": 261,
-      "target": "os6-117",
+      "target": "os6-118",
       "alias": "chiyyaa-u6-20261024-261"
     },
     {
@@ -2093,7 +2093,7 @@
     {
       "i": 141,
       "sourceId": 141,
-      "target": "os6-117",
+      "target": "os6-118",
       "match": "reviewed",
       "alias": "chiyyaa-u6-20261024-141",
       "sourceStem": "CPU-I/O 連發週期是程序執行中，CPU 連發接著 ________ 連發的循環。\n（請用英文大寫字母）",
@@ -2403,7 +2403,7 @@
     {
       "i": 172,
       "sourceId": 172,
-      "target": "os6-117",
+      "target": "os6-118",
       "match": "reviewed",
       "alias": "chiyyaa-u6-20261024-172",
       "sourceStem": "CPU-I/O 連發週期是程序執行中，CPU連發後接著 ____________ 連發的循環。（請用英文大寫字母）",
@@ -3293,7 +3293,7 @@
     {
       "i": 261,
       "sourceId": 261,
-      "target": "os6-117",
+      "target": "os6-118",
       "match": "reviewed",
       "alias": "chiyyaa-u6-20261024-261",
       "sourceStem": "The CPU-I/O burst cycle is a cycle of process execution where a CPU burst is followed by an [__1__] burst.(Please use uppercase English letters)",
