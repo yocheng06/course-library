@@ -2,6 +2,7 @@
   "name": "course-library-frontend-checks",
   "private": true,
   "scripts": {
+    "sync:questions": "node scripts/build-batch-library.mjs && node contribution-service/scripts/sync-library.mjs",
     "test": "node --experimental-vm-modules --test tests/*.test.mjs",
     "test:all": "npm test && npm --prefix contribution-service run build && npm --prefix contribution-service test",
     "test:batch-import": "node tests/batch-import.test.mjs && node --experimental-vm-modules tests/batch-import-ui.test.mjs && node tests/batch-import-recognition.test.mjs && node --experimental-vm-modules tests/batch-loading.test.mjs",

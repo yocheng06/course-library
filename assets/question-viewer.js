@@ -46,7 +46,10 @@
     if (!button) return;
     const source = button.querySelector('img');
     opener = button;
-    dialog.querySelector('h2').textContent = '題圖檢視 ' + (button.closest('.card').querySelector('.qid')?.textContent || '');
+    const card = button.closest('.card, .exam-card');
+    const number = card?.querySelector('.qid')?.textContent ||
+      (card?.dataset.examCard !== undefined ? `第 ${Number(card.dataset.examCard) + 1} 題` : '');
+    dialog.querySelector('h2').textContent = '題圖檢視 ' + number;
     original.href = source.src; picture.alt = source.alt;
     status.textContent = '載入中…';
     document.body.classList.add('image-viewer-open');

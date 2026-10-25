@@ -18,9 +18,12 @@
     if (question.type === '多選題' || question.type === '複選題') return '多選題';
     if (question.type === '單選題') return '單選題';
     if (question.type && question.type !== '圖片題') return '填空題';
-    const expected = question.type === '圖片題' ? window.coursePractice?.expectedChoiceKey(question.answer ?? question.a, options) : null;
+    // Parse option keys instead of counting capital letters inside answer text
+    // (for example, the C in "Xerox PARC" is not another selected option).
+    const expected = question.choiceKey || window.courseChoiceAnswers?.expectedChoiceKey(question.answer ?? question.a, options);
     if (expected) return expected.length > 1 ? '多選題' : '單選題';
-    const letters = new Set(String(question.answer ?? question.a ?? '').match(/[A-H](?=[.、，,\s]|$)/g) || []);
+    const raw = String(question.answer ?? question.a ?? '').trim();
+    const letters = new Set(/^[A-H](?:\s*[,、，/＋+&及與和]\s*[A-H])*(?:[.、．])?$/i.test(raw) ? raw.toUpperCase().match(/[A-H]/g) : []);
     return letters.size > 1 ? '多選題' : '單選題';
   }
 

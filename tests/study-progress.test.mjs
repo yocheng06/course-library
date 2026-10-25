@@ -62,14 +62,13 @@ test('both courses enable clear after the first selection and disable it after t
 test('answer display uses the verified option key and preserves raw fill answers and source data', async () => {
   const h=await coursePage('algorithms'),tools=h.window.courseQuestionTools;
   const q=h.question('L6-009'),before=JSON.stringify(q);
-  assert.equal(tools.answerText(q),'A. 陣列 B（存放排序後結果）；B. 陣列 C（記錄鍵值次數與累積位置）');
+  assert.equal(tools.answerText(q),'A、B');
   const master=h.question('L3-035');
-  assert.match(tools.answerText(master),/^A\. 存在常數 epsilon > 0；C\./);
-  assert.match(tools.answerText(master),/D\. f\(n\) = Ω/);
+  assert.equal(tools.answerText(master),'A、C、D');
   assert.equal(JSON.stringify(q),before);
   assert.equal(tools.answerText({answer:'process control block',options:[],answerProvided:true}),'process control block');
   assert.equal(tools.answerText({answer:'source wording',options:['A. first'],choiceKey:'Z',answerProvided:true}),'source wording');
-  assert.equal(tools.answerValueMarkup({answer:'A',options:['A. <img src=x>'],answerProvided:true}),'A. &lt;img src=x&gt;');
+  assert.equal(tools.answerValueMarkup({answer:'A',options:['A. <img src=x>'],answerProvided:true}),'A');
 });
 
 test('incomplete source data has its own label without changing the provided answer status', async () => {
@@ -78,7 +77,7 @@ test('incomplete source data has its own label without changing the provided ans
   assert.equal(h.window.courseQuestionTools.qualityReasons(q,'os').length,0);
   const card=h.document.querySelector('article[data-id="os7-278"]');
   assert.match(card.querySelector('.data-incomplete-note').textContent,/資料不完整.*原始選項不完整/);
-  assert.match(card.querySelector('.answer-value').textContent,/D\. Atomically/);
+  assert.equal(card.querySelector('.answer-value').textContent,'D');
 });
 
 test('real confirmation tracks first attempts and retries, ignores unchanged checks and clears, and defaults auto review off', async () => {

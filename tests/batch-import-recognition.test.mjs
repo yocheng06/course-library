@@ -71,12 +71,16 @@ test("inline 妖獸／Beast headings keep all 10 scheduling questions separate",
   const results = matchQuestions(questions, buildIndex(built.entries), {
     course: "os",
   });
-  // Question 26 has an unverified changed distractor (中斷式). Parsing it is
-  // valid, but that different option set must not inherit the old answer.
-  assert.equal(results.filter((r) => r.status === "matched").length, 9);
-  assert.deepEqual(results.filter((r) => r.status === "review").map((r) => r.question.number), ["26"]);
-  assert.equal(results[5].answer, "");
-  assert.match(results[5].reason, /選項不同/);
+  // The reviewed Chinese source variant now includes 中斷式. Its reordered
+  // options must match; an actually unseen distractor must still be rejected.
+  assert.equal(results.filter((r) => r.status === "matched").length, 10);
+  assert.equal(results[5].answer, "A. 非搶佔式");
+  const changed = structuredClone(questions[5]);
+  changed.options[1].text = "未核對的新干擾選項";
+  const [unverified] = matchQuestions([changed], buildIndex(built.entries), {course:"os"});
+  assert.equal(unverified.status, "review");
+  assert.equal(unverified.answer, "");
+  assert.match(unverified.reason, /選項不同/);
   assert.equal(results[0].answer, "A. 飢餓(Starvation)");
   assert.equal(results[4].answer, "A. Time Sharing");
   assert.equal(results[6].answer, "time quantum");

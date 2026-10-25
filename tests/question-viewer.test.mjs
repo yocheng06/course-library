@@ -1,0 +1,26 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+import {parseHTML} from 'linkedom';
+const source=readFileSync(new URL('../assets/question-viewer.js',import.meta.url),'utf8');
+for(const mode of ['reading','exam','standalone'])test('image viewer opens and returns focus from '+mode,()=>{
+ const question='<button data-image-viewer><img src="assets/questions/test.png" alt="Diagram"></button>';
+ const markup=mode==='reading'?`<article class="card"><span class="qid">#007</span>${question}</article>`:mode==='exam'?`<dialog class="course-exam" open><article class="exam-card" data-exam-card="4">${question}</article></dialog>`:question;
+ const {window,document}=parseHTML('<html><body>'+markup+'</body></html>');
+ let focused;
+ window.HTMLElement.prototype.focus=function(){focused=this;};
+ window.HTMLElement.prototype.showModal=function(){this.open=true;};
+ window.HTMLElement.prototype.close=function(){this.open=false;this.dispatchEvent(new window.Event('close'));};
+ vm.runInNewContext(source,{document,ResizeObserver:class{observe(){}}});
+ const opener=document.querySelector('[data-image-viewer]');
+ opener.dispatchEvent(new window.Event('click',{bubbles:true}));
+ const viewer=document.getElementById('question-image-viewer');
+ assert.equal(viewer.open,true);
+ assert.equal(viewer.querySelector('img').getAttribute('src'),'assets/questions/test.png');
+ assert.equal(viewer.querySelector('img').alt,'Diagram');
+ assert.equal(viewer.querySelector('h2').textContent,mode==='exam'?'題圖檢視 第 5 題':mode==='reading'?'題圖檢視 #007':'題圖檢視 ');
+ viewer.querySelector('[data-image-close]').dispatchEvent(new window.Event('click',{bubbles:true}));
+ assert.equal(viewer.open,false);assert.equal(focused,opener);
+ if(mode==='exam')assert.ok(document.querySelector('.course-exam').hasAttribute('open'));
+});
