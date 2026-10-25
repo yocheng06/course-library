@@ -7,9 +7,10 @@ import { fileURLToPath } from "node:url";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 
-function loadPractice() {
+function loadPractice(course) {
   const context = {
     window: {
+      courseLearning: {course},
       courseQuestionTools: {
         hasProvidedAnswer: (question) =>
           question.answerProvided === true &&
@@ -47,6 +48,7 @@ function mockElement() {
       if (selector.endsWith("feedback-icon")) return this.icon;
       return null;
     },
+    querySelectorAll(selector) { return selector.startsWith("textarea") && this.textarea ? [this.textarea] : []; },
     insertAdjacentHTML(position, html) {
       if (position === "beforeend") {
         const parent = this;
@@ -226,4 +228,22 @@ test("empty and unverified responses are not incorrectly graded", () => {
   assert.equal(empty.revealAnswer, false);
   assert.equal(unverified.correct, null);
   assert.equal(unverified.revealAnswer, true);
+});
+
+test('reviewed aliases are limited to an unchanged answer and matching course and ID', () => {
+ const practice=loadPractice('os');
+ const q={id:'os8-053',answer:'wait for graph',answerProvided:true};
+ assert.equal(practice.evaluate(q.answer,[],[],q,'wait-for graph').correct,true);
+ assert.equal(practice.evaluate('different',[],[],{...q,answer:'different'},'wait-for graph').correct,false);
+ assert.equal(practice.evaluate(q.answer,[],[],{...q,id:'other'},'wait-for graph').correct,false);
+ assert.equal(loadPractice('algorithms').evaluate(q.answer,[],[],q,'wait-for graph').correct,false);
+});
+test('multi-blank lists tolerate separator spacing but retain mathematical case and blank order',()=>{
+ const practice=loadPractice('algorithms');
+ const q={q:'[__1__] and [__2__]',a:'O(n) / 1,2,3',answerProvided:true};
+ assert.equal(practice.evaluate(q.a,[],[],q,'O(n) / 1, 2, 3').correct,true);
+ assert.equal(practice.evaluate(q.a,[],[],{...q,exact:true},'o(n) / 1,2,3').correct,false);
+ assert.equal(practice.evaluate(q.a,[],[],q,'1,2,3 / O(n)').correct,false);
+ assert.equal(practice.answerParts({q:'[__1__]'},'a / b'),null);
+ assert.match(practice.entryMarkup(q,'id','', {className:'',icon:''}),/data-fill-index="1"/);
 });

@@ -51,7 +51,7 @@
   function questionMarkup(entry, index) {
     const q = entry.q, opts = options(q), multiple = opts.length && (key(q)?.length > 1 || tools.answerType(q) === '多選題');
     const type = opts.length ? (multiple ? '多選題' : '單選題') : '填空題';
-    const content = opts.length ? `<div class="options">${opts.map((option, i) => `<label class="option"><input type="${multiple ? 'checkbox' : 'radio'}" name="exam-${index}" data-exam-index="${index}" value="${i}"><span>${/^[A-H][.、．:：]/i.test(String(option).trim()) ? esc(option) : String.fromCharCode(65+i)+'. '+esc(option)}${q.optionTranslations?.[i] ? `<small class="option-translation">${esc(q.optionTranslations[i])}</small>` : ''}</span></label>`).join('')}</div>` : `<label class="exam-text-label">你的答案<textarea class="entry" data-exam-index="${index}" aria-label="第 ${index+1} 題你的答案" placeholder="請輸入答案"></textarea></label>`;
+    const content = opts.length ? `<div class="options">${opts.map((option, i) => `<label class="option"><input type="${multiple ? 'checkbox' : 'radio'}" name="exam-${index}" data-exam-index="${index}" value="${i}"><span>${/^[A-H][.、．:：]/i.test(String(option).trim()) ? esc(option) : String.fromCharCode(65+i)+'. '+esc(option)}${q.optionTranslations?.[i] ? `<small class="option-translation">${esc(q.optionTranslations[i])}</small>` : ''}</span></label>`).join('')}</div>` : window.coursePractice.entryMarkup(q, entry.id, "", {className:"",icon:""}).replaceAll("<textarea", `<textarea data-exam-index="${index}"`);
     return `<article class="exam-card" data-exam-card="${index}"><div class="exam-badges"><span>${index+1} / ${entries.length}</span><span>${esc(entry.unit)} · ${esc(q.category)}</span><span>${type}</span></div><h3 id="exam-question-${index}">${esc(q.stem ?? q.q)}</h3>${q.translation ? `<p class="exam-translation">${esc(q.translation)}</p>` : ''}${tools.questionImagesMarkup(q)}<div role="group" aria-labelledby="exam-question-${index}">${content}</div><div data-exam-review hidden></div></article>`;
   }
   function start() {
@@ -70,7 +70,7 @@
     const input = event.target;
     if (submitted || input.dataset.examIndex === undefined) return;
     const index = Number(input.dataset.examIndex), card = input.closest('[data-exam-card]');
-    responses.set(index, {chosen:[...card.querySelectorAll('input:checked')].map(el => Number(el.value)), text:card.querySelector('textarea')?.value || ''});
+    responses.set(index, {chosen:[...card.querySelectorAll('input:checked')].map(el => Number(el.value)), text:(card.querySelector('[data-draft]') || card.querySelector('textarea'))?.value || ''});
     confirmation = ''; notice.textContent = ''; progress();
   }
   function summary() {

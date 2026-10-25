@@ -1,0 +1,12 @@
+.fill-answer-label {display:block;margin:12px 0;font-weight:600}
+.fill-answer-label .entry {display:block;margin-top:6px;font-weight:400}
+.correction-dialog {width:min(620px,calc(100vw - 32px));max-height:90dvh;overflow:auto;border:1px solid #8394a5;border-radius:14px;padding:24px;color:#243447;background:#fff}
+.correction-dialog::backdrop {background:#15253880}
+.correction-dialog label {display:block;margin:12px 0}
+.correction-dialog textarea,.correction-dialog input {box-sizing:border-box;display:block;width:100%;padding:10px;border:1px solid #8292a3;border-radius:8px;font:inherit}
+.correction-dialog button {min-height:44px;margin:6px 8px 6px 0;font:inherit}
+.question-report {background:transparent;border:0;text-decoration:underline;color:inherit;font:inherit;min-height:44px;cursor:pointer}
+.review-backup-controls p {font-size:14px;line-height:1.7;max-width:60ch}
+.group-preview {margin:18px 0;padding:18px;border:1px solid #9eafbd;border-radius:12px;background:#fff}
+.group-preview summary {cursor:pointer;min-height:44px}
+.group-preview pre {white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}

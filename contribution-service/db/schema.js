@@ -83,3 +83,18 @@ export const contentUpdates = sqliteTable("content_updates", {
   id: text("id").primaryKey(),
   appliedAt: integer("applied_at").notNull(),
 });
+
+export const questionCorrections = sqliteTable('question_corrections', {
+  id: text('id').primaryKey(),
+  course: text('course').notNull(),
+  questionId: text('question_id').notNull(),
+  snapshot: text('snapshot').notNull(),
+  detail: text('detail').notNull(),
+  suggestion: text('suggestion').notNull().default(''),
+  status: text('status').notNull().default('pending'),
+  note: text('note').notNull().default(''),
+  revision: integer('revision').notNull().default(1),
+  createdAt: integer('created_at').notNull(),
+  reviewedAt: integer('reviewed_at'),
+  reviewerId: text('reviewer_id'),
+}, t => [index('corrections_status_created').on(t.status,t.createdAt)]);

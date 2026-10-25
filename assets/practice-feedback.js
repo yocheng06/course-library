@@ -25,6 +25,35 @@
     return exact ? normalized : normalized.toLocaleLowerCase("en-US");
   }
 
+  // Reviewed alternatives are bound to both the stable ID and unchanged answer.
+  // Do not apply formula rewriting or fuzzy matching to unrelated questions.
+  const reviewedAnswers = {
+    'os:os8-053': { answer: 'wait for graph', aliases: ['wait-for graph', 'wait-for-graph'] },
+    'algorithms:L6-055': { answer: 'n!', aliases: ['n !'] },
+  };
+  function answerParts(question, answer) {
+    const stem = String(question.stem ?? question.q ?? '');
+    const blanks = [...new Set([...stem.matchAll(/\[_{2,}(\d+)_{2,}\]/g)].map(m => m[1]))];
+    const parts = String(answer).split(/\s+\/\s+/);
+    return blanks.length > 1 && blanks.length <= 20 && blanks.every((n,i)=>Number(n)===i+1) && parts.length === blanks.length ? parts : null;
+  }
+  function entryMarkup(question, id, draft, mark) {
+    const answer = question.answer ?? question.a ?? '';
+    const parts = answerParts(question, answer);
+    const invalid = mark.className === 'practice-incorrect' ? 'aria-invalid="true"' : '';
+    if (!parts) return `<div class="practice-entry ${mark.className}"><textarea class="entry" data-draft="${escape(id)}" aria-label="${escape(id)} 你的答案" placeholder="先寫下你的答案或解題想法…" ${invalid}>${escape(draft || '')}</textarea>${mark.icon}</div>`;
+    const values = String(draft || '').split(/\s+\/\s+/);
+    return `<div class="practice-entry ${mark.className}"><p>依空格順序填寫；每格內的多個數值可用逗號分隔。</p>${parts.map((_, i) => `<label class="fill-answer-label">第 ${i + 1} 格<textarea class="entry" data-fill-index="${i}" aria-label="${escape(id)} 第 ${i + 1} 格答案" rows="2" ${invalid}>${escape(values[i] || '')}</textarea></label>`).join('')}<textarea data-draft="${escape(id)}" hidden>${escape(draft || '')}</textarea>${mark.icon}</div>`;
+  }
+  if (typeof document !== 'undefined') document.addEventListener('input', event => {
+    if (!event.target.matches?.('[data-fill-index]')) return;
+    const entry = event.target.closest('.practice-entry');
+    const draft = entry.querySelector('[data-draft]');
+    const values = [...entry.querySelectorAll('[data-fill-index]')].map(field => field.value.trim());
+    draft.value = values.some(Boolean) ? values.join(' / ') : '';
+    draft.dispatchEvent(new window.Event('input', {bubbles:true}));
+  }, true);
+
   function evaluate(answer, options, chosen, question = {}, response = "") {
     const choices = [...new Set(chosen)].sort((a, b) => a - b);
     if (options.length) {
@@ -117,12 +146,20 @@
         text: "本題沒有可自動核對的標準答案，請對照答案與解析。",
       };
 
-    const formulaCaseSensitive =
-      /^(?:O|o|Ω|ω|Θ|θ)\s*[\(\^]/u.test(String(answer ?? "").trim());
+    const formulaCaseSensitive = String(answer ?? '').split(/\s+\/\s+/)
+      .some(part => /^(?:O|o|Ω|ω|Θ|θ)\s*[\(\^]/u.test(part.trim()));
     const caseSensitive = question.exact === true || formulaCaseSensitive;
-    const correct =
-      normalizedText(response, caseSensitive) ===
-      normalizedText(answer, caseSensitive);
+    const id = question.id ?? question.bookmarkId;
+    const course = window.courseLearning?.course || (typeof document !== 'undefined' ? document.body?.dataset.course : '');
+    const reviewed = reviewedAnswers[`${course}:${id}`];
+    const aliases = reviewed?.answer === answer ? reviewed.aliases : [];
+    const canonical = value => {
+      const parts = answerParts(question, answer);
+      // Whitespace around list separators is presentation, not a numeric change.
+      const normalize = text => normalizedText(text, caseSensitive).replace(/\s*[,，]\s*/g, ',');
+      return parts ? String(value).split(/\s+\/\s+/).map(normalize).join(' / ') : normalize(value);
+    };
+    const correct = [answer, ...aliases].some(expected => canonical(response) === canonical(expected));
     return {
       kind: "text",
       correct,
@@ -198,7 +235,7 @@
     const entry = card.querySelector(".practice-entry");
     entry?.classList.remove("practice-correct", "practice-incorrect");
     entry?.querySelector(".entry-feedback-icon")?.remove();
-    entry?.querySelector("textarea")?.removeAttribute("aria-invalid");
+    entry?.querySelectorAll("textarea").forEach(field => field.removeAttribute("aria-invalid"));
   }
 
   function applyMarks(card, result) {
@@ -217,11 +254,12 @@
     if (!entry || !mark.className) return;
     entry.classList.add(mark.className);
     if (mark.className === "practice-incorrect")
-      entry.querySelector("textarea")?.setAttribute("aria-invalid", "true");
+      entry.querySelectorAll("textarea:not([hidden])").forEach(field => field.setAttribute("aria-invalid", "true"));
     if (mark.icon) entry.insertAdjacentHTML("beforeend", mark.icon);
   }
 
   window.coursePractice = {
+    entryMarkup, answerParts,
     expectedChoiceKey,
     evaluate,
     markup,

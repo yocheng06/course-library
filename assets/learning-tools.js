@@ -197,13 +197,12 @@
         actions.append(copy, copyStatus);
       }
       if (!card.querySelector('.question-report')) {
-        const report = document.createElement('a');
+        const report = document.createElement('button');
+        report.type = 'button';
         report.className = 'question-report';
-        report.href = window.courseQuestionTools.reportURL(config.questionDetails(card.dataset.id));
-        report.target = '_blank'; report.rel = 'noopener noreferrer';
-        report.textContent = '回報更正（GitHub）↗';
-        report.setAttribute('aria-label', `${config.questionLabel(card.dataset.id)}，回報更正（開啟新分頁，需要登入 GitHub）`);
-        report.title = '開啟 GitHub 回報表單，需登入；送出前可編輯內容';
+        report.dataset.correction = card.dataset.id;
+        report.textContent = '回報題目問題';
+        report.setAttribute('aria-label', `${config.questionLabel(card.dataset.id)}，免登入回報題目問題`);
         actions.append(report);
       }
     });
@@ -222,7 +221,19 @@
     if (!silent || !persistent) message(persistent ? '已加入待複習，並保存於這台裝置。' : '本次已加入待複習，但瀏覽器無法保存；關閉後會遺失，請匯出備份。');
     return {saved:true, persistent};
   }
-  window.learningUI = { refresh, addReview, exportBookmarks:backupData, importBookmarks:importBackup, get persistent() { return storagePersistent; }, get reviewOnly() { return reviewOnly; }, get currentReviewCount() { return config.scopeIds().filter(id => saved.has(id)).length; }, isSaved:id => saved.has(id), clearReview:()=>{reviewOnly=false;message('');} };
+  function prepareLearning(data) {
+    const bookmarks = [...new Set([...saved, ...normalizeBackup(JSON.stringify(data.bookmarks))])];
+    if (bookmarks.length > maxBookmarks || !['standard','large'].includes(data.size)) throw new Error('學習備份的標記或字級不正確。');
+    return {bookmarks, size:data.size};
+  }
+  function applyLearning(data) {
+    saved.clear(); data.bookmarks.forEach(id => saved.add(id));
+    sizeSelect.value = data.size;
+    document.body.classList.toggle('large-reading', data.size === 'large');
+    storagePersistent = true;
+    refreshStorageHint();
+  }
+  window.learningUI = { refresh, addReview, exportLearning:()=>({bookmarks:backupData(),size:sizeSelect.value}), prepareLearning, applyLearning, exportBookmarks:backupData, importBookmarks:importBackup, get persistent() { return storagePersistent; }, get reviewOnly() { return reviewOnly; }, get currentReviewCount() { return config.scopeIds().filter(id => saved.has(id)).length; }, isSaved:id => saved.has(id), clearReview:()=>{reviewOnly=false;message('');} };
   config.list.addEventListener('click', event => {
     const copy = event.target.closest('[data-copy-question]');
     if (copy) { copyQuestion(copy.dataset.copyQuestion, copy); return; }

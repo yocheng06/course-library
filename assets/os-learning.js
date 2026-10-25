@@ -128,7 +128,7 @@ function cardMarkup({q, unit, unitIndex, i}) {
   const correctKeys = !practice && open ? expectedOptionKeys(q, q.options || []) : new Set();
   const options = q.options?.length ? `<div class="options">${q.options.map((o,k)=>{const mark=window.coursePractice.optionMark(result,k);return practice?`<label class="option ${chosen.includes(k)?'chosen':''} ${mark.className}"><input type="${window.courseQuestionTools.answerType(q)==='多選題'?'checkbox':'radio'}" name="choice-${q.id}" data-choice="${q.id}" data-index="${k}" ${chosen.includes(k)?'checked':''} ${mark.className==='practice-incorrect'?'aria-invalid="true"':''}>${optionMarkup(q,o,k)}${mark.icon}</label>`:`<div class="option ${correctKeys.has(String.fromCharCode(65+k))?'correct':''}">${optionMarkup(q,o,k)}</div>`}).join('')}</div>` : '';
   const textMark=window.coursePractice.textMark(result);
-  const entry=practice&&!q.options?.length?`<div class="practice-entry ${textMark.className}"><textarea class="entry" data-draft="${q.id}" aria-label="${q.id} 你的答案" placeholder="先寫下你的答案或解題想法…" ${textMark.className==='practice-incorrect'?'aria-invalid="true"':''}>${esc(drafts.get(q.id)||'')}</textarea>${textMark.icon}</div>`:'';
+  const entry=practice&&!q.options?.length?window.coursePractice.entryMarkup(q,q.id,drafts.get(q.id),textMark):'';
   const pending = window.courseQuestionTools.qualityReasons(q, 'os').length > 0;
   const hasResponse=chosen.length>0||Boolean(drafts.get(q.id)?.trim());
   const buttonText=practice?'檢查答案':open?'收起答案':'查看答案與解析';
@@ -184,13 +184,13 @@ function clearResponse(id,button) {
   const card=button.closest('.card');
   card.querySelectorAll('[data-choice]').forEach(input=>{input.checked=false;});
   card.querySelectorAll('.option').forEach(option=>option.classList.remove('chosen'));
-  const draft=card.querySelector('[data-draft]');if(draft)draft.value='';
+  const draft=card.querySelector('[data-draft]');if(draft)draft.value='';card.querySelectorAll('[data-fill-index]').forEach(field=>{field.value='';});
   selections.delete(id);drafts.delete(id);feedback.delete(id);revealed.delete(id);
   card.querySelector('[data-answer]').hidden=true;card.querySelector('.practice-feedback')?.remove();
   window.coursePractice.clearMarks(card);
   const check=card.querySelector('[data-reveal]');check.textContent='檢查答案';check.setAttribute('aria-expanded','false');
   const answerButton=card.querySelector('[data-show-answer]');answerButton.textContent='顯示答案與解析';answerButton.setAttribute('aria-expanded','false');
-  button.disabled=true;(draft||card.querySelector('[data-choice]'))?.focus();
+  button.disabled=true;(card.querySelector('[data-fill-index]')||draft||card.querySelector('[data-choice]'))?.focus();
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b)return;

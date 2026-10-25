@@ -14,7 +14,8 @@
       href="assets/contributions.css?v=nav-center-20261017"
     />
   <link rel="stylesheet" href="assets/ui-consistency.css?v=original-toolbar-20261018">
-  </head>
+  <link rel="stylesheet" href="assets/learning-enhancements.css?v=learning-improvements-20261025">
+</head>
   <body>
     <header class="contribution-nav">
       <a class="brand" href="https://yocheng06.github.io/course-library/">課程學習站</a>
@@ -43,7 +44,7 @@
           <button id="downloadPending" class="text-button" type="button">下載待補草稿</button>
         </div>
         <p>這裡保留未收錄題目的題幹與選項順序。逐題確認單元與題型，補上答案及解析後，按「補齊並加入投稿清單」。</p>
-        <p class="muted">待補題目會另外暫存，不會覆蓋原投稿草稿，也不會自動送出。同一份投稿清單限同一科目、單元；不同單元請分批送審。</p>
+        <p class="muted">待補題目會另外暫存，不會覆蓋原投稿草稿，也不會自動送出。匯入檔案可依科目與單元自動分組，預覽後逐批送審。手動新增清單仍以目前所選單元為準。</p>
         <p id="pendingStatus" role="status" aria-live="polite"></p>
         <div id="pendingList"></div>
       </section>
@@ -74,6 +75,7 @@
             placeholder="例如：課堂講義第 12 頁、自行整理的練習題"
           ></textarea>
         </label>
+        <p class="muted">跨單元 JSON 可使用單元清單：每組填寫 course、unit、questions；也可在每題指定 course 與 unit。未指定時使用上方所選範圍，匯入後請逐組核對。</p>
         <div class="import-row">
           <button class="button secondary" id="chooseImport" type="button">匯入 JSON／HTML 題庫</button><input
               type="file"
@@ -83,7 +85,7 @@
             下載匯入範例</button
           ><button id="restorePending" class="text-button" type="button">載入待補備份</button><input id="pendingFile" type="file" accept=".json,application/json" hidden
           ><span class="muted"
-            >一次最多 200 題。HTML 須含結構化題目資料，也可逐題填寫。</span
+            >匯入最多 2,000 題、20 批，每批最多 200 題。HTML 須含結構化題目資料，也可逐題填寫。</span
           >
         </div>
       </section>
@@ -246,7 +248,7 @@
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/contributions-submit.js?v=os8-deadlocks-20261023"
+      src="assets/contributions-submit.js?v=learning-improvements-20261025"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
   </body>

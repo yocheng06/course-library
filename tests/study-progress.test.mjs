@@ -18,10 +18,11 @@ async function coursePage(course, {storage = new Map(), search = '', failStorage
   window.HTMLElement.prototype.focus = function () {};
   window.HTMLElement.prototype.scrollIntoView = function () {};
   window.window = window;
+  window.confirm = () => true;
   const media = () => ({matches:false, addEventListener() {}});
   window.matchMedia = media;
   const context = vm.createContext({
-    window, document, location:{search}, URLSearchParams, URL, Blob, TextEncoder, Date,
+    window, document, Event:window.Event, location:{search}, URLSearchParams, URL, Blob, TextEncoder, Date,
     localStorage:{getItem:key => { if(failStorage) throw new Error('blocked'); return storage.get(key); }, setItem(key,value) { if(failStorage) throw new Error('quota'); storage.set(key,value); }},
     navigator:{clipboard:{writeText:async()=>{}}}, matchMedia:media,
     CSS:{escape:value=>String(value)}, ResizeObserver:class { observe() {} },
@@ -156,4 +157,45 @@ test('malformed persisted state is ignored and storage failures leave the round 
   assert.equal(blocked.progress.getStats().answered,1);
   assert.match(blocked.document.querySelector('.practice-storage-warning').textContent,/無法保存/);
   assert.equal(blocked.document.querySelector('.practice-storage-warning').hidden,false);
+});
+
+test('cancelling a new round preserves statistics and current response',async()=>{
+ const h=await coursePage('os');h.practice();const card=h.cards()[0];
+ h.choose(card,[0]);h.check(card);const before=JSON.stringify(h.progress.exportProgress());
+ h.window.confirm=()=>false;h.click('[data-practice-new-round]');
+ assert.equal(JSON.stringify(h.progress.exportProgress()),before);
+ assert.equal(card.querySelector('[data-choice]').checked,true);
+});
+test('complete backup restores statistics and bookmarks without duplicating attempts and rejects invalid input',async()=>{
+ const h=await coursePage('os');h.practice();const id=h.cards()[0].dataset.id;
+ h.progress.record(id,{correct:false},{text:'first'});h.progress.record(id,{correct:true},{text:'second'});
+ h.window.learningUI.addReview(id,{silent:true});
+ vm.runInContext(await read('assets/full-learning-backup.js'),h.context);
+ const api=h.window.courseFullLearningBackup,backup=api.exportData();
+ const before=JSON.stringify(h.progress.getStats());api.restore(JSON.stringify(backup));api.restore(JSON.stringify(backup));
+ assert.equal(JSON.stringify(h.progress.getStats()),before);assert.equal(h.window.learningUI.isSaved(id),true);
+ assert.throws(()=>api.restore(JSON.stringify({...backup,course:'algorithms'})),/科目/);
+ const malformed=plain(backup);malformed.practice.records[0].attempts=-1;
+ assert.throws(()=>api.restore(JSON.stringify(malformed)),/無效/);assert.equal(JSON.stringify(h.progress.getStats()),before);
+});
+
+test('multi-blank fields update the draft, survive a rerender and clear together',async()=>{
+ const h=await coursePage('algorithms');h.click('[data-lesson="L6"]');h.practice();
+ const search=h.document.getElementById('search');search.value=h.question('L6-021').q;h.fire(search,'input');
+ const field=h.document.querySelector('[data-fill-index="0"]');assert(field,'multi-blank fixture is visible');
+ const card=field.closest('article'),id=card.dataset.id,fields=[...card.querySelectorAll('[data-fill-index]')];
+ fields[0].value='1, 2';h.fire(fields[0],'input');fields[1].value='3, 4';h.fire(fields[1],'input');
+ assert.equal(card.querySelector('[data-draft]').value,'1, 2 / 3, 4');
+ h.config.render();const restored=h.document.querySelector(`article[data-id="${id}"]`);
+ assert.equal(restored.querySelector('[data-fill-index="0"]').value,'1, 2');
+ h.fire(restored.querySelector('[data-clear-response]'),'click');
+ assert([...h.document.querySelector(`article[data-id="${id}"]`).querySelectorAll('[data-fill-index]')].every(field=>field.value===''));
+});
+test('a failure writing the practice half of a full backup rolls back storage and leaves live state untouched',async()=>{
+ const h=await coursePage('os');h.practice();const id=h.cards()[0].dataset.id;h.progress.record(id,{correct:false},{text:'wrong'});
+ h.window.learningUI.addReview(id,{silent:true});vm.runInContext(await read('assets/full-learning-backup.js'),h.context);
+ const api=h.window.courseFullLearningBackup,raw=JSON.stringify(api.exportData()),before=[...h.storage],stats=JSON.stringify(h.progress.getStats());
+ const original=h.context.localStorage.setItem;let fail=true;
+ h.context.localStorage.setItem=(key,value)=>{if(fail&&key.includes('.practice.')){fail=false;throw new Error('quota');}original(key,value);};
+ assert.throws(()=>api.restore(raw),/無法保存/);assert.deepEqual([...h.storage],before);assert.equal(JSON.stringify(h.progress.getStats()),stats);
 });

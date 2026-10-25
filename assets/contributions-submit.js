@@ -1,3 +1,4 @@
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=learning-improvements-20261025';
 import {
   COURSE_UNITS,
   normalizeType,
@@ -367,6 +368,12 @@ function parseImport(raw, name) {
   const doc = new DOMParser().parseFromString(raw, "text/html"),
     data = doc.querySelector("script#course-data");
   if (data) return JSON.parse(data.textContent);
+  const manifest=doc.querySelector('script#course-manifest');
+  if(manifest) return JSON.parse(manifest.textContent).map(unit=>{
+    const block=doc.querySelector(`script[data-course-unit="${unit.id}"]`);
+    if(!block)throw new Error('缺少單元題目：'+unit.id);
+    return {course:'os',unit:unit.id,questions:JSON.parse(block.textContent)};
+  });
   for (const script of doc.querySelectorAll("script")) {
     const source = script.textContent,
       match =
@@ -407,81 +414,11 @@ function importedQuestions(data) {
   return data.questions;
 }
 $("chooseImport").addEventListener("click", () => $("importFile").click());
-$("importFile").addEventListener("change", async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-  try {
-    if (file.size > 8 * 1024 * 1024) throw new Error("匯入檔案最多 8 MB。");
-    const data = parseImport(await file.text(), file.name);
-    if (
-      questions.length &&
-      !Array.isArray(data) &&
-      data.course &&
-      data.unit &&
-      (data.course !== $("course").value || data.unit !== $("unit").value)
-    )
-      throw new Error("請把不同科目或單元的題目分開投稿。");
-    if (!Array.isArray(data) && COURSE_UNITS[data.course]?.units[data.unit]) {
-      $("course").value = data.course;
-      units();
-      $("unit").value = data.unit;
-    }
-    const skipped = [];
-    const imported = importedQuestions(data);
-    const candidate = normalizeBatch(
-      {
-        ...metadata(),
-        title:
-          data.title ||
-          $("batchTitle").value ||
-          file.name.replace(/\.(json|html?)$/i, ""),
-        name: data.name ?? $("submitter").value,
-        source: data.source ?? $("source").value,
-        questions: imported?.map((q) => ({
-          ...q,
-          type: normalizeType(
-            (q.options ?? q.opts)?.length
-              ? q.type || "單選題"
-              : q.type === "圖片題"
-                ? "圖片題"
-                : "填空題",
-            q.images || [],
-          ),
-          images: (q.images || []).map((image) =>
-            typeof image === "string" ? image : image.src,
-          ),
-        })),
-      },
-      { onDuplicate: (q) => skipped.push(q) },
-    );
-    const previousCount = questions.length;
-    const merged = uniqueQuestions(
-      candidate.course,
-      candidate.unit,
-      [...questions, ...candidate.questions],
-      (q) => skipped.push({ ...q, index: null, reason: "draft" }),
-    );
-    questions = normalizeBatch({ ...candidate, questions: merged }).questions;
-    const added = questions.length - previousCount;
-    showDuplicates({
-      receivedCount: imported.length,
-      acceptedCount: added,
-      skippedCount: skipped.length,
-      skipped,
-    });
-    $("batchTitle").value = candidate.title;
-    $("submitter").value = candidate.name;
-    $("source").value = candidate.source;
-    render();
-    save();
-    message(
-      `已新增 ${added} 題至投稿清單${skipped.length ? `，自動略過 ${skipped.length} 題重複題目` : ""}。請預覽內容再送出。`,
-    );
-  } catch (error) {
-    message("無法匯入：" + error.message, true);
-  } finally {
-    event.target.value = "";
-  }
+$("importFile").addEventListener("change", async event => {
+  const file=event.target.files?.[0];if(!file)return;
+  try { await groupedSubmissions.importFile(file); }
+  catch(error) { message('無法匯入：'+error.message,true); }
+  finally { event.target.value=''; }
 });
 $("downloadExample").addEventListener("click", () =>
   download(
@@ -699,3 +636,12 @@ if (location.hash === "#pendingHeading" && !$("pendingDrafts").hidden) {
   $("pendingHeading").focus({ preventScroll: true });
   $("pendingHeading").scrollIntoView({ block: "start" });
 }
+
+const groupedSubmissions=setupGroupedSubmissions({parseImport,metadata,message,onReceipt(result,payload){
+  const next={id:result.id,course:payload.course,title:payload.title,acceptedCount:result.acceptedCount,skippedCount:result.skippedCount,submittedAt:new Date().toISOString()};
+  currentReceipt=next;
+  receipts=[next,...receipts.filter(row=>row.id!==result.id)].slice(0,20);
+  try{localStorage.setItem(receiptKey,JSON.stringify(receipts));}
+  catch{message('已送出，但近期收據無法保存。請立即下載分組收據備份。',true);}
+  renderReceipts();
+}});

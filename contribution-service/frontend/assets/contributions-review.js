@@ -1,3 +1,4 @@
+import { correctionsAccess } from './corrections-review.mjs?v=learning-improvements-20261025';
 import {
   COURSE_UNITS,
   TYPES,
@@ -100,6 +101,7 @@ async function start() {
   try {
     const session = await api("/api/session");
     if (session.isReviewer) {
+      correctionsAccess(true);
       initDrafts(session.userId);
       $("managementTabs").hidden = false;
       $("loginPanel").hidden = true;
@@ -107,6 +109,7 @@ async function start() {
       await load();
       return;
     }
+    correctionsAccess(false);
     $("loginPanel").hidden = false;
     $("reviewWorkspace").hidden = true;
     $("managementWorkspace").hidden = true;

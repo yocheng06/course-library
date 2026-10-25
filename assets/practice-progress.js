@@ -118,6 +118,30 @@
   }
 
   window.coursePracticeProgress = {
+    exportProgress:()=>({version:1,autoReview,records:[...records].map(([id,row])=>({id,...row}))}),
+    prepareProgress(data) {
+      if (data?.version !== 1 || typeof data.autoReview !== 'boolean' || !Array.isArray(data.records) || data.records.length > 10000) throw new Error('練習備份格式不正確。');
+      const merged = new Map([...records].map(([id,row])=>[id,{id,...row}]));
+      const seen = new Set();
+      for (const row of data.records) {
+        const id = canonicalId(row?.id);
+        if (!id || seen.has(id) || !Number.isInteger(row.attempts) || row.attempts < 1 || row.attempts > 100000 ||
+            !['firstCorrect','lastCorrect','everWrong'].every(field=>typeof row[field] === 'boolean') ||
+            !Number.isFinite(row.startedAt) || !Number.isFinite(row.updatedAt) || row.startedAt < 0 || row.updatedAt < row.startedAt ||
+            typeof row.signature !== 'string' || row.signature.length > 100 ||
+            (!row.everWrong && (!row.firstCorrect || !row.lastCorrect))) throw new Error('練習備份包含無效題號或紀錄，原資料未變更。');
+        seen.add(id);
+        const old = merged.get(id);
+        // Re-importing the same backup must not double-count attempts.
+        if (!old || row.updatedAt > old.updatedAt) merged.set(id,{id,attempts:row.attempts,firstCorrect:row.firstCorrect,lastCorrect:row.lastCorrect,everWrong:row.everWrong,signature:row.signature,startedAt:row.startedAt,updatedAt:row.updatedAt});
+      }
+      if (merged.size > 10000) throw new Error('合併後練習紀錄超過 10,000 題。');
+      return {version:1,autoReview:data.autoReview,records:[...merged.values()]};
+    },
+    applyProgress(data) {
+      records.clear(); data.records.forEach(({id,...row})=>records.set(id,row));
+      autoReview=data.autoReview; wrongOnly=false; storageFailed=false;
+    },
     record, getStats:stats,
     get onlyWrong() { return wrongOnly; },
     includes:id => !wrongOnly || records.get(canonicalId(id))?.everWrong === true,
@@ -128,6 +152,7 @@
   });
   autoControl.addEventListener('change', () => { autoReview=autoControl.checked; persist(); refresh(); });
   panel.querySelector('[data-practice-new-round]').addEventListener('click', () => {
+    if (!window.confirm('開始新一輪會清除本課程的本輪統計與目前作答；待複習標記會保留。確定開始嗎？')) return;
     records.clear(); wrongOnly=false; wrongControl.checked=false;
     config.resetPractice(); persist(); refresh();
   });

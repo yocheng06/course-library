@@ -1672,3 +1672,34 @@ test("reviewed L7 aliases and reordered mixed-language choices deduplicate, whil
   assert.equal(newVersion.data.acceptedCount, 1);
   assert.equal(newVersion.data.skippedCount, 0);
 });
+
+test('anonymous corrections validate real questions, protect review and retain status without changing answers',async()=>{
+ const env=await setup();
+ const before=await call(env,'/api/questions?course=os');
+ const entry=JSON.parse(await readFile(new URL('../existing-questions.json',import.meta.url),'utf8')).find(q=>q.course==='os');
+ const body={course:'os',questionId:entry.canonicalId,detail:'此題的解釋可能需要補充適用條件。',suggestion:'請核對課本相關章節。'};
+ assert.equal((await call(env,'/api/corrections',{method:'POST',body:{...body,questionId:'missing'}})).response.status,404);
+ assert.equal((await call(env,'/api/corrections',{method:'POST',body,siteOrigin:'https://evil.test'})).response.status,403);
+ const sent=await call(env,'/api/corrections',{method:'POST',body});assert.equal(sent.response.status,201);
+ const id=sent.data.id;
+ assert.equal((await call(env,'/api/corrections')).response.status,401);
+ const list=await call(env,'/api/corrections',{reviewer:true});assert.equal(list.data.items.length,1);
+ const row=list.data.items[0];assert.equal(row.snapshot.canonicalId,entry.canonicalId);
+ assert.equal((await call(env,'/api/corrections/'+id,{method:'POST',body:{status:'resolved',revision:1,note:'已確認'}})).response.status,401);
+ const decision={status:'confirmed',revision:1,note:'已確認，等待修訂主站題目。'};
+ assert.equal((await call(env,'/api/corrections/'+id,{method:'POST',reviewer:true,body:decision})).response.status,200);
+ assert.equal((await call(env,'/api/corrections/'+id,{method:'POST',reviewer:true,body:decision})).response.status,409);
+ const status=await call(env,'/api/corrections/'+id);assert.equal(status.data.status,'confirmed');assert.equal(status.data.detail,undefined);
+ assert.deepEqual((await call(env,'/api/questions?course=os')).data,before.data);
+ const exported=await call(env,'/api/manage/export',{reviewer:true});assert.equal(exported.data.corrections.length,1);
+});
+
+test('grouped submission retries with the same request ID return one receipt without creating another batch',async()=>{
+ const env=await setup();const body={...payload(),clientRequestId:crypto.randomUUID()};
+ const first=await call(env,'/api/submissions',{method:'POST',body});assert.equal(first.response.status,201);
+ const second=await call(env,'/api/submissions',{method:'POST',body});assert.equal(second.response.status,200);
+ assert.equal(second.data.id,first.data.id);assert.equal(second.data.acceptedCount,first.data.acceptedCount);
+ assert.equal(env.sql.prepare('SELECT count(*) AS n FROM submissions').get().n,1);
+ const changed=structuredClone(body);changed.questions[0].answer='B';
+ assert.equal((await call(env,'/api/submissions',{method:'POST',body:changed})).response.status,409);
+});

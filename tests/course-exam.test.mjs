@@ -66,3 +66,13 @@ test('fill alternative self-assessment is explicit and reversible; reset starts 
  h.click('[data-exam-self]');assert.match(h.document.querySelector('[data-exam-results]').textContent,/0 分/);
  h.click('[data-exam-reset]');assert.equal(h.document.querySelectorAll('.exam-card').length,0);assert.ok(!h.document.querySelector('[data-exam-setup]').hidden);
 });
+
+test('multi-blank exam responses use separate fields and grade the joined answer',()=>{
+ const entry={id:'two-blanks',unit:'測試單元',q:{stem:'第 [__1__] 格及第 [__2__] 格',type:'填空題',answer:'O(n) / 1,2',options:[],answerProvided:true}};
+ const h=harness('os',[entry]);h.click('#examMode');h.click('[data-exam-start]');
+ const fields=h.document.querySelectorAll('[data-fill-index]');assert.equal(fields.length,2);
+ fields[0].value='O(n)';fields[0].dispatchEvent(new h.window.Event('input',{bubbles:true}));
+ fields[1].value='1, 2';fields[1].dispatchEvent(new h.window.Event('input',{bubbles:true}));
+ assert.match(h.document.querySelector('[data-exam-progress]').textContent,/1 \/ 1/);
+ h.click('[data-exam-submit]');assert.match(h.document.querySelector('[data-exam-results]').textContent,/100 分/);
+});

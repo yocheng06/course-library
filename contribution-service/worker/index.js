@@ -418,10 +418,10 @@ function requireOrigin(request, admin = false) {
   if (admin ? origin !== SITE_ORIGIN : !origins.has(origin))
     throw new HttpError(403, "請從課程網站送出此操作。");
 }
-async function readBody(request) {
+async function readBody(request, maxBytes = 9 * 1024 * 1024) {
   if (!request.headers.get("content-type")?.startsWith("application/json"))
     throw new HttpError(415, "請以 JSON 格式送出資料。");
-  if (Number(request.headers.get("content-length")) > 9 * 1024 * 1024)
+  if (Number(request.headers.get("content-length")) > maxBytes)
     throw new HttpError(413, "投稿檔案太大，請分批送出。");
   const reader = request.body?.getReader();
   if (!reader) throw new HttpError(400, "沒有投稿資料。");
@@ -431,7 +431,7 @@ async function readBody(request) {
     const { done, value } = await reader.read();
     if (done) break;
     size += value.byteLength;
-    if (size > 9 * 1024 * 1024) {
+    if (size > maxBytes) {
       await reader.cancel();
       throw new HttpError(413, "投稿檔案太大，請分批送出。");
     }
@@ -579,6 +579,17 @@ async function submit(request, env) {
   } catch (error) {
     throw new HttpError(400, error.message);
   }
+  let requestHash;
+  if (body.clientRequestId !== undefined) {
+    if (!uuid.test(body.clientRequestId)) throw new HttpError(400,'批次識別碼不正確。');
+    requestHash=await hash(JSON.stringify(payload));
+    const previous=await env.DB.prepare('SELECT payload FROM submissions WHERE id=?').bind(body.clientRequestId).first();
+    if(previous){
+      const saved=JSON.parse(previous.payload);
+      if(saved.requestHash!==requestHash)throw new HttpError(409,'此批次識別碼已使用，請重新匯入修改後的檔案。');
+      return json({id:body.clientRequestId,status:'pending',...saved.requestResult});
+    }
+  }
   await attachImageKeys(env, payload);
   ({ payload } = await removePublished(env, payload, skipped, body));
   const report = duplicateReport(body, payload, skipped);
@@ -609,7 +620,8 @@ async function submit(request, env) {
   if (new TextEncoder().encode(JSON.stringify(textOnly)).length > 1500000)
     throw new HttpError(413, "題目文字太多，請分批投稿。");
   await limit(request, env);
-  const id = crypto.randomUUID();
+  const id = body.clientRequestId || crypto.randomUUID();
+  if(requestHash){payload.requestHash=requestHash;payload.requestResult=report;}
   const saved = [];
   try {
     for (const image of uploads) {
@@ -634,6 +646,11 @@ async function submit(request, env) {
       )
       .run();
   } catch (error) {
+    if(requestHash){
+      const previous=await env.DB.prepare('SELECT payload FROM submissions WHERE id=?').bind(id).first();
+      const stored=previous && JSON.parse(previous.payload);
+      if(stored?.requestHash===requestHash)return json({id,status:'pending',...stored.requestResult});
+    }
     await Promise.allSettled(saved.map((key) => env.BUCKET.delete(key)));
     throw error;
   }
@@ -1294,15 +1311,17 @@ async function publicationHistory(request, env, id) {
 async function exportBackup(request, env) {
   await owner(request, env);
   await ensureReviewedContent(env);
-  const [questions, submissions, history] = await Promise.all([
+  const [questions, submissions, history, corrections] = await Promise.all([
     env.DB.prepare("SELECT * FROM public_questions ORDER BY id").all(),
     env.DB.prepare("SELECT * FROM submissions ORDER BY created_at,id").all(),
     env.DB.prepare(
       "SELECT * FROM question_history ORDER BY created_at,id",
     ).all(),
+    env.DB.prepare("SELECT * FROM question_corrections ORDER BY created_at,id").all(),
   ]);
   return json({
     schemaVersion: 1,
+    corrections: corrections.results.map(row=>({...row,snapshot:JSON.parse(row.snapshot)})),
     exportedAt: new Date().toISOString(),
     questions: questions.results.map((r) => ({
       ...publicationRow(r),
@@ -1334,6 +1353,60 @@ async function imageResponse(request, env, id, file) {
   });
   return new Response(object.body, { headers });
 }
+
+async function correction(request, env, url, id) {
+  if (request.method === 'POST' && !id) {
+    requireOrigin(request);
+    const body = await readBody(request, 48000);
+    if (!body || Array.isArray(body) || body.website || !COURSE_UNITS[body.course] || typeof body.questionId !== 'string' || body.questionId.length > 160 ||
+        (body.answerSnapshot !== undefined && (typeof body.answerSnapshot !== 'string' || body.answerSnapshot.length>4000)) ||
+        typeof body.detail !== 'string' || body.detail.trim().length < 5 || body.detail.length > 4000 ||
+        (body.suggestion !== undefined && (typeof body.suggestion !== 'string' || body.suggestion.length > 4000)))
+      throw new HttpError(400, '請選擇題目並填寫至少 5 字的問題說明；說明與建議各最多 4,000 字。');
+    let snapshot = BASE_QUESTIONS.find(q => q.course === body.course && q.canonicalId === body.questionId);
+    if (!snapshot && /^community-[0-9a-f-]{36}-[1-9]\d*$/.test(body.questionId)) {
+      const row = await env.DB.prepare('SELECT course,unit,data FROM public_questions WHERE id=? AND is_published=1').bind(body.questionId).first();
+      if (row?.course === body.course) snapshot = {course:row.course,unit:row.unit,...JSON.parse(row.data)};
+    }
+    if (!snapshot) throw new HttpError(404, '找不到這個公開題目，請回到題庫重新開啟回報。');
+    await limit(request, env);
+    const receipt = crypto.randomUUID();
+    await env.DB.prepare("INSERT INTO question_corrections (id,course,question_id,snapshot,detail,suggestion,status,note,revision,created_at) VALUES (?,?,?,?,?,?,'pending','',1,?)")
+      .bind(receipt,body.course,body.questionId,JSON.stringify({...snapshot,reportedAnswer:body.answerSnapshot||''}),body.detail.trim(),(body.suggestion || '').trim(),Date.now()).run();
+    return json({id:receipt,status:'pending'},201);
+  }
+  if (request.method === 'GET' && id) {
+    const row = await env.DB.prepare('SELECT status,note,reviewed_at FROM question_corrections WHERE id=?').bind(id).first();
+    if (!row) throw new HttpError(404,'找不到這個勘誤編號。');
+    return json({status:row.status,note:row.note,reviewedAt:row.reviewed_at});
+  }
+  await owner(request, env);
+  if (request.method === 'GET') {
+    const status = url.searchParams.get('status') || 'pending';
+    if (!['pending','confirmed','resolved','rejected'].includes(status)) throw new HttpError(400,'勘誤狀態不正確。');
+    const cursor=url.searchParams.get('cursor');
+    const match=cursor && /^(\d+):([0-9a-f-]{36})$/.exec(cursor);
+    if(cursor && (!match || !uuid.test(match[2])))throw new HttpError(400,'分頁參數不正確。');
+    const before=match?Number(match[1]):Number.MAX_SAFE_INTEGER, beforeId=match?match[2]:'~';
+    if(!Number.isSafeInteger(before) || before<0)throw new HttpError(400,'分頁參數不正確。');
+    const result=await env.DB.prepare('SELECT * FROM question_corrections WHERE status=? AND (created_at<? OR (created_at=? AND id<?)) ORDER BY created_at DESC,id DESC LIMIT 51').bind(status,before,before,beforeId).all();
+    const rows=result.results.slice(0,50);
+    return json({items:rows.map(row=>({...row,snapshot:JSON.parse(row.snapshot)})),nextCursor:result.results.length>50?`${rows.at(-1).created_at}:${rows.at(-1).id}`:null});
+  }
+  if (request.method === 'POST' && id) {
+    requireOrigin(request,true);
+    const body=await readBody(request,12000);
+    if (!body || Array.isArray(body) || !['confirmed','resolved','rejected'].includes(body.status) || !Number.isInteger(body.revision) || typeof body.note !== 'string' || !body.note.trim() || body.note.length>2000)
+      throw new HttpError(400,'請選擇審核結果並填寫處理說明（最多 2,000 字）。');
+    const actor=await owner(request,env);
+    const result=await env.DB.prepare('UPDATE question_corrections SET status=?,note=?,revision=revision+1,reviewed_at=?,reviewer_id=? WHERE id=? AND revision=?')
+      .bind(body.status,body.note.trim(),Date.now(),typeof actor==='string'?actor:'admin',id,body.revision).run();
+    if (!result.meta.changes) throw new HttpError(409,'勘誤已更新，請重新載入再審核。');
+    return json({id,status:body.status});
+  }
+  throw new HttpError(405,'不支援此操作。');
+}
+
 async function route(request, env) {
   const url = new URL(request.url),
     path = url.pathname;
@@ -1348,6 +1421,12 @@ async function route(request, env) {
         "access-control-max-age": "600",
       },
     });
+  }
+  if (path === '/api/corrections') return correction(request,env,url);
+  const correctionMatch = /^\/api\/corrections\/([0-9a-f-]{36})$/.exec(path);
+  if (correctionMatch) {
+    if (!uuid.test(correctionMatch[1])) throw new HttpError(400,'勘誤編號不正確。');
+    return correction(request,env,url,correctionMatch[1]);
   }
   if (path === "/api/submissions" && request.method === "POST")
     return submit(request, env);
