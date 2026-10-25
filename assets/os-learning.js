@@ -277,6 +277,8 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
   return {added, openedLinkedQuestion:Boolean(linked)};
 }
 window.courseLearning={
+  examEntries:all=>{if(all)ensureAllUnitsLoaded();else ensureUnitLoaded(active);return questionEntries.filter(e=>all||e.unitIndex===active).map(e=>({id:e.q.id,q:e.q,unit:e.unit.label}));},
+  examUnitLabel:()=>UNITS[active].label,
   mergeCommunityQuestions, course:'os',toolbar:document.querySelector('.toolbar'),sidebar:document.querySelector('.sidebar'),list:$('cards'),
   unitIds:()=>ensureUnitLoaded(active).questions.map(q=>q.id),
   scopeIds:()=>scopedEntries().map(({q})=>q.id), allUnits,

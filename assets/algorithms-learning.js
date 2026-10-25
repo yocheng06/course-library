@@ -117,6 +117,8 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[]}={
  return {added,openedLinkedQuestion:Boolean(linked)};
 }
 window.courseLearning={
+ examEntries:all=>questionEntries.filter(e=>all||e.unit.id===lesson).map(e=>({id:e.id,q:e.q,unit:meta[e.unit.id].short})),
+ examUnitLabel:()=>meta[lesson].short,
  mergeCommunityQuestions,
  unitIds:()=>current().questions.map((q,i)=>idFor(i)),
  scopeIds:()=>scopedEntries().map(entry=>entry.id),allUnits,
