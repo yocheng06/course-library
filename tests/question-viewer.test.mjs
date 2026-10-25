@@ -9,6 +9,7 @@ for(const mode of ['reading','exam','standalone'])test('image viewer opens and r
  const markup=mode==='reading'?`<article class="card"><span class="qid">#007</span>${question}</article>`:mode==='exam'?`<dialog class="course-exam" open><article class="exam-card" data-exam-card="4">${question}</article></dialog>`:question;
  const {window,document}=parseHTML('<html><body>'+markup+'</body></html>');
  let focused;
+ window.HTMLElement.prototype.getBoundingClientRect=function(){return {width:800,height:600,left:0,top:0};};
  window.HTMLElement.prototype.focus=function(){focused=this;};
  window.HTMLElement.prototype.showModal=function(){this.open=true;};
  window.HTMLElement.prototype.close=function(){this.open=false;this.dispatchEvent(new window.Event('close'));};
@@ -23,4 +24,26 @@ for(const mode of ['reading','exam','standalone'])test('image viewer opens and r
  viewer.querySelector('[data-image-close]').dispatchEvent(new window.Event('click',{bubbles:true}));
  assert.equal(viewer.open,false);assert.equal(focused,opener);
  if(mode==='exam')assert.ok(document.querySelector('.course-exam').hasAttribute('open'));
+});
+test('zoom survives scrollbar changes and refits only when the viewer viewport changes',()=>{
+ const {window,document}=parseHTML('<html><body><article class="exam-card" data-exam-card="0"><button data-image-viewer><img src="diagram.png" alt="Diagram"></button></article></body></html>');
+ let onResize;
+ const viewport={width:800,height:600};
+ window.HTMLElement.prototype.getBoundingClientRect=function(){return {width:viewport.width,height:viewport.height,left:0,top:0};};
+ window.HTMLElement.prototype.showModal=function(){this.open=true;};
+ vm.runInNewContext(source,{document,ResizeObserver:class{constructor(callback){onResize=callback;}observe(){}}});
+ const stage=document.querySelector('.image-viewer-stage'),picture=document.querySelector('.image-viewer-canvas img');
+ Object.defineProperty(stage,'clientWidth',{value:800,writable:true});
+ Object.defineProperty(stage,'clientHeight',{value:600,writable:true});
+ Object.defineProperty(picture,'naturalWidth',{value:1000});
+ Object.defineProperty(picture,'naturalHeight',{value:1000});
+ const click=selector=>document.querySelector(selector).dispatchEvent(new window.Event('click',{bubbles:true}));
+ click('[data-image-viewer]');picture.onload();
+ assert.equal(document.querySelector('.image-viewer-scale').textContent,'57%');
+ click('[data-image-zoom="in"]');
+ assert.equal(document.querySelector('.image-viewer-scale').textContent,'85%');
+ stage.clientWidth=785;onResize();
+ assert.equal(document.querySelector('.image-viewer-scale').textContent,'85%','a scrollbar must not reset zoom');
+ viewport.width=500;stage.clientWidth=500;onResize();
+ assert.equal(document.querySelector('.image-viewer-scale').textContent,'47%','a changed viewport must refit');
 });

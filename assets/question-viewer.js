@@ -93,10 +93,13 @@
   });
   const stopDrag = () => { drag = null; stage.classList.remove('is-dragging'); };
   stage.addEventListener('pointerup', stopDrag); stage.addEventListener('pointercancel', stopDrag);
-  let previousWidth = stage.clientWidth, previousHeight = stage.clientHeight;
+  // Scrollbars change clientWidth/clientHeight during zoom. Only a real
+  // viewport resize should refit the image, not a change in its scrollbars.
+  let previousBounds = stage.getBoundingClientRect();
   new ResizeObserver(() => {
-    if (!dialog.open) return;
-    if (previousWidth !== stage.clientWidth || previousHeight !== stage.clientHeight) resize(fitScale(), false);
-    previousWidth = stage.clientWidth; previousHeight = stage.clientHeight;
+    const bounds = stage.getBoundingClientRect();
+    const changed = previousBounds.width !== bounds.width || previousBounds.height !== bounds.height;
+    previousBounds = bounds;
+    if (dialog.open && changed) resize(fitScale(), false);
   }).observe(stage);
 })();
