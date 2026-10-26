@@ -1,0 +1,179 @@
+{
+  "date": "2026-10-26",
+  "reason": "站主指出第39至41題相同，保留第39題並合併其餘兩題；原始用詞與選項順序保留供查題。",
+  "canonicalId": "L6-014",
+  "before": {
+    "category": "計數排序",
+    "type": "單選題",
+    "q": "計數排序(Counting Sort)中，陣列 C 的作用是？",
+    "a": "B. 儲存每個鍵的出現次數或累積計數",
+    "opts": [
+      "A. 儲存指標",
+      "B. 儲存每個鍵的出現次數或累積計數",
+      "C. 儲存原始資料",
+      "D. 作為樞紐"
+    ],
+    "ex": "一開始 C[x] 計算數字 x 出現幾次；接著做累積加總後，C[x] 表示小於等於 x 的元素數量。將資料放入 B 陣列時，就可以用 C[x] 判斷寫入位置。",
+    "warn": false,
+    "sources": [
+      "sorting-algorithms"
+    ],
+    "answerProvided": true,
+    "verified": true,
+    "bookmarkId": "L6-014",
+    "sourceNumber": 14,
+    "appearances": [
+      "第一次第 14 題"
+    ]
+  },
+  "mergedSnapshots": [
+    {
+      "category": "計數排序",
+      "type": "單選題",
+      "q": "計數排序(Counting Sort)中，陣列 C 的作用是？",
+      "a": "D. 儲存每個值的出現次數或累積計數",
+      "opts": [
+        "A. 儲存原始資料",
+        "B. 作為桶",
+        "C. 儲存指標",
+        "D. 儲存每個值的出現次數或累積計數"
+      ],
+      "ex": "一開始 C[x] 計算數字 x 出現幾次；接著做累積加總後，C[x] 表示小於等於 x 的元素數量。將資料放入 B 陣列時，就可以用 C[x] 判斷寫入位置。",
+      "warn": false,
+      "sources": [
+        "sorting-algorithms"
+      ],
+      "answerProvided": true,
+      "verified": true,
+      "bookmarkId": "L6-015",
+      "sourceNumber": 9,
+      "appearances": [
+        "第三次第 9 題",
+        "補充試煉第 14 題"
+      ],
+      "sourceVariants": [
+        {
+          "id": "L6-015-V01",
+          "q": "計數排序(Counting Sort)中，陣列 C 的作用是？",
+          "opts": [
+            "A. 儲存指標",
+            "B. 儲存原始資料",
+            "C. 作為桶",
+            "D. 儲存每個值的出現次數或累積計數"
+          ],
+          "a": "D. 儲存每個值的出現次數或累積計數"
+        }
+      ],
+      "sourceExplanations": [
+        {
+          "sourceId": "L6-015-V01",
+          "text": "原始選項版本來源：補充試煉第 14 題。"
+        }
+      ]
+    },
+    {
+      "category": "計數排序",
+      "type": "單選題",
+      "q": "計數排序(Counting Sort)中，陣列 C 的作用是？",
+      "a": "C. 儲存每個鍵值的出現次數或累積計數",
+      "opts": [
+        "A. 儲存原始資料",
+        "B. 儲存指標",
+        "C. 儲存每個鍵值的出現次數或累積計數",
+        "D. 作為桶"
+      ],
+      "ex": "一開始 C[x] 計算數字 x 出現幾次；接著做累積加總後，C[x] 表示小於等於 x 的元素數量。將資料放入 B 陣列時，就可以用 C[x] 判斷寫入位置。",
+      "warn": false,
+      "sources": [
+        "sorting-algorithms"
+      ],
+      "answerProvided": true,
+      "verified": true,
+      "bookmarkId": "L6-016",
+      "sourceNumber": 15,
+      "appearances": [
+        "第五次第 15 題"
+      ]
+    }
+  ],
+  "after": {
+    "category": "計數排序",
+    "type": "單選題",
+    "q": "計數排序(Counting Sort)中，陣列 C 的作用是？",
+    "a": "B. 儲存每個鍵的出現次數或累積計數",
+    "opts": [
+      "A. 儲存指標",
+      "B. 儲存每個鍵的出現次數或累積計數",
+      "C. 儲存原始資料",
+      "D. 作為樞紐"
+    ],
+    "ex": "一開始 C[x] 計算數字 x 出現幾次；接著做累積加總後，C[x] 表示小於等於 x 的元素數量。將資料放入 B 陣列時，就可以用 C[x] 判斷寫入位置。",
+    "warn": false,
+    "sources": [
+      "sorting-algorithms"
+    ],
+    "answerProvided": true,
+    "verified": true,
+    "bookmarkId": "L6-014",
+    "sourceNumber": 14,
+    "appearances": [
+      "第一次第 14 題",
+      "第三次第 9 題",
+      "補充試煉第 14 題",
+      "第五次第 15 題"
+    ],
+    "aliases": [
+      "L6-015",
+      "L6-016"
+    ],
+    "sourceVariants": [
+      {
+        "id": "L6-015",
+        "q": "計數排序(Counting Sort)中，陣列 C 的作用是？",
+        "opts": [
+          "A. 儲存原始資料",
+          "B. 作為桶",
+          "C. 儲存指標",
+          "D. 儲存每個值的出現次數或累積計數"
+        ],
+        "a": "D. 儲存每個值的出現次數或累積計數"
+      },
+      {
+        "id": "L6-015-V01",
+        "q": "計數排序(Counting Sort)中，陣列 C 的作用是？",
+        "opts": [
+          "A. 儲存指標",
+          "B. 儲存原始資料",
+          "C. 作為桶",
+          "D. 儲存每個值的出現次數或累積計數"
+        ],
+        "a": "D. 儲存每個值的出現次數或累積計數"
+      },
+      {
+        "id": "L6-016",
+        "q": "計數排序(Counting Sort)中，陣列 C 的作用是？",
+        "opts": [
+          "A. 儲存原始資料",
+          "B. 儲存指標",
+          "C. 儲存每個鍵值的出現次數或累積計數",
+          "D. 作為桶"
+        ],
+        "a": "C. 儲存每個鍵值的出現次數或累積計數"
+      }
+    ],
+    "sourceExplanations": [
+      {
+        "sourceId": "L6-015",
+        "text": "相同陣列 C 用途題的原始選項版本；保留原用詞、選項順序及對應答案。"
+      },
+      {
+        "sourceId": "L6-015-V01",
+        "text": "原始選項版本來源：補充試煉第 14 題。"
+      },
+      {
+        "sourceId": "L6-016",
+        "text": "相同陣列 C 用途題的原始選項版本；保留原用詞、選項順序及對應答案。"
+      }
+    ]
+  }
+}

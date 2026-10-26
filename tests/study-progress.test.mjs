@@ -231,7 +231,7 @@ test('deleted L6 display question 27 is absent and its link, bookmark and practi
  assert.equal(entries.filter(e=>e.id==='L6-038').length,1);
  assert.equal(h.question('L6-038').a,'A. 比較排序');
  const library=JSON.parse(await read('assets/batch-library.json'));
- assert.equal(library.courses.algorithms.count,294);
+ assert.equal(library.courses.algorithms.count,292);
  assert.equal(library.entries.some(e=>e.id==='L6-037'),false);
  assert(library.entries.some(e=>e.id==='L6-038'));
 });
@@ -282,5 +282,29 @@ test('merged sorting questions preserve links, learning records and source-optio
    assert(q.sourceVariants.some(v=>v.opts.includes('D. 桶排序平均情況為 O(n)')&&v.a==='A、B、D'));
   }
  }
- assert.equal(library.courses.algorithms.count,294);
+ assert.equal(library.courses.algorithms.count,292);
+});
+
+test('counting-sort C-array duplicates share one practice question and retain source answers',async()=>{
+ const library=JSON.parse(await read('assets/batch-library.json'));
+ for(const oldId of ['L6-015','L6-016']){
+  const h=await coursePage('algorithms',{search:'?question='+oldId,storage:new Map([
+   ['course-library.learning.v1.algorithms',JSON.stringify({bookmarks:[oldId],size:'standard'})],
+   ['course-library.practice.v1.algorithms',JSON.stringify({version:1,autoReview:false,records:[{id:oldId,attempts:1,firstCorrect:false,lastCorrect:false,everWrong:true,signature:'test',startedAt:1,updatedAt:1}]})],
+  ])});
+  assert.equal(h.config.resolveId(oldId),'L6-014');
+  assert(h.document.querySelector('article[data-id="L6-014"]'));
+  assert(h.window.learningUI.isSaved('L6-014'));
+  assert.equal(h.progress.exportProgress().records[0].id,'L6-014');
+  const entries=h.config.examEntries(true).filter(e=>e.q.q==='計數排序(Counting Sort)中，陣列 C 的作用是？');
+  assert.equal(entries.length,1);assert.equal(entries[0].id,'L6-014');
+  assert.equal(h.question('L6-014').a,'B. 儲存每個鍵的出現次數或累積計數');
+  assert.equal(library.entries.some(e=>e.id===oldId),false);
+ }
+ const versions=library.entries.filter(e=>e.id==='L6-014');
+ assert.equal(versions.length,4);
+ for(const v of versions)assert.equal(v.options[v.choiceKey.charCodeAt(0)-65],v.answer);
+ assert(versions.some(v=>v.choiceKey==='C'&&v.answer.includes('每個鍵值')));
+ assert.equal(versions.filter(v=>v.choiceKey==='D'&&v.answer.includes('每個值')).length,2);
+ assert.equal(library.courses.algorithms.count,292);
 });
