@@ -510,6 +510,12 @@
       "canonicalId": "os6-111",
       "course": "os",
       "unit": "scheduling"
+    },
+    {
+      "course": "algorithms",
+      "unit": "L6",
+      "id": "L6-037",
+      "canonicalId": "L6-038"
     }
   ]
 }

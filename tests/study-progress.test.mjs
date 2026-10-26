@@ -214,3 +214,24 @@ for(const course of ['os','algorithms'])test(course+' approved future units appe
  h.click('#examMode');assert([...h.document.querySelector('[data-exam-to]').options].some(o=>o.value===unit));
  assert.equal(h.config.examEntries([unit]).length,1);
 });
+
+test('deleted L6 display question 27 is absent and its link, bookmark and practice record resolve to retained question 28',async()=>{
+ const storage=new Map([
+  ['course-library.learning.v1.algorithms',JSON.stringify({bookmarks:['L6-037'],size:'standard'})],
+  ['course-library.practice.v1.algorithms',JSON.stringify({version:1,autoReview:false,records:[{id:'L6-037',attempts:1,firstCorrect:false,lastCorrect:false,everWrong:true,signature:'test',startedAt:1,updatedAt:1}]})],
+ ]);
+ const h=await coursePage('algorithms',{storage,search:'?question=L6-037'});
+ assert.equal(h.config.resolveId('L6-037'),'L6-038');
+ assert.equal(h.window.learningUI.isSaved('L6-038'),true);
+ assert.equal(h.progress.exportProgress().records[0].id,'L6-038');
+ assert(h.document.querySelector('article[data-id="L6-038"]'));
+ assert.equal(h.document.querySelector('article[data-id="L6-037"]'),null);
+ const entries=h.config.examEntries(true);
+ assert.equal(entries.some(e=>e.id==='L6-037'),false);
+ assert.equal(entries.filter(e=>e.id==='L6-038').length,1);
+ assert.equal(h.question('L6-038').a,'A. 比較排序');
+ const library=JSON.parse(await read('assets/batch-library.json'));
+ assert.equal(library.courses.algorithms.count,297);
+ assert.equal(library.entries.some(e=>e.id==='L6-037'),false);
+ assert(library.entries.some(e=>e.id==='L6-038'));
+});

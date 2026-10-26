@@ -399,3 +399,9 @@ Two-level 綁定題與 Max-Heap 的 greater 填空仍需確認題幹限定；雖
 - [Microsoft：Synchronization Objects](https://learn.microsoft.com/en-us/windows/win32/sync/synchronization-objects)及 [Semaphore Objects](https://learn.microsoft.com/en-us/windows/win32/sync/semaphore-objects)
 - [Java SE 17 Language Specification：Threads and Locks](https://docs.oracle.com/javase/specs/jls/se17/html/jls-17.html)
 - [POSIX：Synchronization 與記憶體同步要求](https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/V1_chap04.html)
+
+## 2026-10-26：刪除演算法 L6 原第 27 題
+
+依使用者確認，移除原顯示第 27 題 `L6-037`（辨識問題），保留原第 28 題 `L6-038` 的題幹、選項、答案、解析與來源版本。刪除題不再作為獨立卡片或批次查題條目；舊 ID 對應保留題，以延續連結及待複習標記。第六章由 58 題改為 57 題，演算法內建題庫由 298 題改為 297 題。
+
+原稿與保留前快照見 [刪除紀錄](content/algorithms-l6-delete27-20261026.json)。已同步批次查題及投稿查重索引。

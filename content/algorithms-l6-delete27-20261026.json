@@ -1,0 +1,93 @@
+{
+  "date": "2026-10-26",
+  "course": "algorithms",
+  "unit": "L6",
+  "removedDisplayNumber": 27,
+  "removedId": "L6-037",
+  "keptId": "L6-038",
+  "reason": "使用者確認原第 27 題為辨識問題，要求刪除；保留原第 28 題。",
+  "removedSnapshot": {
+    "category": "排序基礎",
+    "type": "單選題",
+    "q": "決策樹模型（Decision Tree Model）主要用於分析哪類演算法？",
+    "a": "D. 比較排序",
+    "opts": [
+      "A. 線性排序",
+      "B. 圖論算法",
+      "C. 動態規劃",
+      "D. 比較排序"
+    ],
+    "ex": "決策樹模型把比較排序的流程表示成樹狀的比較與分支；由至少 n! 個葉節點可導出 Ω(n log n) 的比較次數下界。",
+    "warn": false,
+    "sources": [
+      "sorting-algorithms"
+    ],
+    "answerProvided": true,
+    "verified": true,
+    "bookmarkId": "L6-037",
+    "sourceNumber": 15,
+    "appearances": [
+      "第二次第 15 題"
+    ]
+  },
+  "keptSnapshot": {
+    "category": "排序基礎",
+    "type": "單選題",
+    "q": "決策樹模型（Decision Tree Model）主要用於分析哪類演算法？",
+    "a": "A. 比較排序",
+    "opts": [
+      "A. 比較排序",
+      "B. 圖論演算法",
+      "C. 動態規劃",
+      "D. 線性排序"
+    ],
+    "ex": "決策樹模型把比較排序的流程表示成樹狀的比較與分支；由至少 n! 個葉節點可導出 Ω(n log n) 的比較次數下界。",
+    "warn": false,
+    "sources": [
+      "sorting-algorithms"
+    ],
+    "answerProvided": true,
+    "verified": true,
+    "bookmarkId": "L6-038",
+    "sourceNumber": 19,
+    "appearances": [
+      "第三次第 19 題",
+      "第四次第 1 題",
+      "補充試煉第 8 題"
+    ],
+    "sourceVariants": [
+      {
+        "id": "L6-038-V01",
+        "q": "決策樹模型（Decision Tree Model）主要用於分析哪類演算法？",
+        "opts": [
+          "A. 比較排序",
+          "B. 線性排序",
+          "C. 圖論演算法",
+          "D. 動態規劃"
+        ],
+        "a": "A. 比較排序"
+      },
+      {
+        "id": "L6-038-V02",
+        "q": "決策樹模型（Decision Tree Model）主要用於分析哪類演算法？",
+        "opts": [
+          "A. 線性排序",
+          "B. 動態規劃",
+          "C. 圖論演算法",
+          "D. 比較排序"
+        ],
+        "a": "D. 比較排序"
+      }
+    ],
+    "sourceExplanations": [
+      {
+        "sourceId": "L6-038-V01",
+        "text": "原始選項版本來源：第四次第 1 題。"
+      },
+      {
+        "sourceId": "L6-038-V02",
+        "text": "原始選項版本來源：補充試煉第 8 題。"
+      }
+    ]
+  }
+}
