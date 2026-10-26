@@ -231,7 +231,7 @@ test('deleted L6 display question 27 is absent and its link, bookmark and practi
  assert.equal(entries.filter(e=>e.id==='L6-038').length,1);
  assert.equal(h.question('L6-038').a,'A. 比較排序');
  const library=JSON.parse(await read('assets/batch-library.json'));
- assert.equal(library.courses.algorithms.count,296);
+ assert.equal(library.courses.algorithms.count,294);
  assert.equal(library.entries.some(e=>e.id==='L6-037'),false);
  assert(library.entries.some(e=>e.id==='L6-038'));
 });
@@ -254,4 +254,33 @@ test('deleted bucket-sort OCR version resolves to the retained options without e
  const library=JSON.parse(await read('assets/batch-library.json'));
  assert.equal(library.entries.some(e=>e.id==='L6-019'),false);
  assert.equal(library.entries.some(e=>e.options.some(o=>o.includes('完全非亂無序'))),false);
+});
+
+test('merged sorting questions preserve links, learning records and source-option answer order',async()=>{
+ const library=JSON.parse(await read('assets/batch-library.json'));
+ for(const [oldId,id] of [['L6-024','L6-023'],['L6-030','L6-029']]){
+  const h=await coursePage('algorithms',{search:'?question='+oldId,storage:new Map([
+   ['course-library.learning.v1.algorithms',JSON.stringify({bookmarks:[oldId],size:'standard'})],
+   ['course-library.practice.v1.algorithms',JSON.stringify({version:1,autoReview:false,records:[{id:oldId,attempts:1,firstCorrect:false,lastCorrect:false,everWrong:true,signature:'test',startedAt:1,updatedAt:1}]})],
+  ])});
+  assert.equal(h.config.resolveId(oldId),id);
+  assert(h.document.querySelector(`article[data-id="${id}"]`));
+  assert(h.window.learningUI.isSaved(id));
+  assert.equal(h.progress.exportProgress().records[0].id,id);
+  assert.equal(h.config.examEntries(true).some(e=>e.id===oldId),false);
+  assert.equal(library.entries.some(e=>e.id===oldId),false);
+  const q=h.question(id),variants=[q,...q.sourceVariants];
+  for(const v of variants){
+   const selected=[...v.a.matchAll(/[A-D]/g)].map(m=>v.opts[m[0].charCodeAt(0)-65].replace(/^[A-D]\.\s*/,''));
+   if(id==='L6-023')assert.deepEqual(selected.sort(),['每個分支代表一個比較結果','每個內部節點是一個比較','樹的葉節點數量至少為 n!'].sort());
+   else {assert.equal(selected.length,3);assert(!selected.includes('所有排序都能做到 O(n)'));}
+  }
+  assert(library.entries.filter(e=>e.id===id).length>=3);
+  if(id==='L6-029'){
+   assert.equal(q.opts[3],'D. 桶排序平均情況為 Θ(n)');
+   assert(q.ex.includes('均勻分布'));assert(q.ex.includes('桶數與 n 同階'));
+   assert(q.sourceVariants.some(v=>v.opts.includes('D. 桶排序平均情況為 O(n)')&&v.a==='A、B、D'));
+  }
+ }
+ assert.equal(library.courses.algorithms.count,294);
 });
