@@ -117,7 +117,9 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[]}={
  return {added,openedLinkedQuestion:Boolean(linked)};
 }
 window.courseLearning={
- examEntries:all=>questionEntries.filter(e=>all||e.unit.id===lesson).map(e=>({id:e.id,q:e.q,unit:meta[e.unit.id].short})),
+ examUnits:()=>COURSES.map(unit=>({id:unit.id,label:`${unit.id} · ${meta[unit.id].short}`})),
+ examUnitId:()=>lesson,
+ examEntries:selection=>{const ids=Array.isArray(selection)?new Set(selection):null;return questionEntries.filter(e=>ids?ids.has(e.unit.id):selection===true||e.unit.id===lesson).map(e=>({id:e.id,q:e.q,unit:meta[e.unit.id].short,unitId:e.unit.id}));},
  examUnitLabel:()=>meta[lesson].short,
  mergeCommunityQuestions,
  unitIds:()=>current().questions.map((q,i)=>idFor(i)),

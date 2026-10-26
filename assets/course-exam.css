@@ -28,3 +28,6 @@
 [data-exam-results]{padding:18px;border:1px solid #a6b6c9;border-radius:12px;background:#809db01a}
 .course-exam :focus-visible{outline:3px solid var(--rose-strong,#527da4);outline-offset:3px}
 @media(max-width:600px){.exam-header,.exam-footer,.exam-body{padding:12px}.exam-card{padding:14px}.course-exam{height:94dvh}.exam-settings{gap:12px}.exam-settings label{min-width:130px}.exam-footer>div{width:100%;justify-content:flex-end}.study-controls .segmented{flex-wrap:wrap}}
+
+.exam-range{min-width:0;margin:18px 0;padding:14px 16px;border:1px solid #a6b6c9;border-radius:12px}
+.exam-range legend{padding:0 6px;font-weight:600}.exam-range .exam-settings{margin:8px 0 12px}.exam-range .exam-hint{margin:0}

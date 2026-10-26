@@ -25,16 +25,35 @@
   document.getElementById('practiceMode').after(trigger);
   const dialog = document.createElement('dialog');
   dialog.id = 'courseExam'; dialog.className = 'course-exam'; dialog.setAttribute('aria-labelledby', 'examTitle');
-  dialog.innerHTML = `<header class="exam-header"><h2 id="examTitle">單元測驗</h2><button type="button" class="plain" data-exam-close aria-label="關閉測驗，保留本次作答">關閉</button></header><div class="exam-body"><section data-exam-setup><p>選擇範圍後隨機抽題，交卷後統一顯示答案與解析。測驗不受題庫搜尋與篩選影響。</p><div class="exam-settings"><label>測驗範圍<select data-exam-scope aria-label="測驗範圍"><option value="unit">目前單元</option><option value="all">總課程測驗</option></select></label><label>每次題數<select data-exam-size aria-label="每次測驗題數"><option value="10">10 題</option><option value="20" selected>20 題</option><option value="30">30 題</option></select></label></div><p data-exam-pool role="status"></p><p class="exam-hint">資料不完整或無法核對答案的題目不納入抽題。不足指定題數時，使用全部可測驗題目。每題等分，多選題須全部選對。作答暫存在本頁，重新整理會清除。</p><button type="button" class="reveal" data-exam-start>開始測驗</button></section><section data-exam-session hidden><p data-exam-description></p><p class="exam-hint" data-exam-fill-hint>填空請依題目指定格式作答。系統先依題庫文字核對，交卷後可對照解析自行確認其他寫法。</p><div data-exam-results hidden tabindex="-1" aria-live="polite"></div><div data-exam-questions></div></section></div><footer class="exam-footer" hidden><span data-exam-progress role="status"></span><p data-exam-notice role="status"></p><div><button type="button" class="plain" data-exam-reset>重新設定</button><button type="button" class="reveal" data-exam-submit>交卷</button></div></footer>`;
+  dialog.innerHTML = `<header class="exam-header"><h2 id="examTitle">單元測驗</h2><button type="button" class="plain" data-exam-close aria-label="關閉測驗，保留本次作答">關閉</button></header><div class="exam-body"><section data-exam-setup><p>選擇範圍後隨機抽題，交卷後統一顯示答案與解析。測驗不受題庫搜尋與篩選影響。</p><div class="exam-settings"><label>測驗範圍<select data-exam-scope aria-label="測驗範圍"><option value="unit">目前單元</option><option value="all">全部單元</option><option value="range">自訂單元範圍</option></select></label><label>每次題數<select data-exam-size aria-label="每次測驗題數"><option value="10">10 題</option><option value="20" selected>20 題</option><option value="30">30 題</option></select></label></div><fieldset class="exam-range" data-exam-range hidden><legend>自訂單元範圍</legend><div class="exam-settings"><label>起始單元<select data-exam-from aria-label="起始單元" aria-describedby="examRangeHint"></select></label><label>結束單元<select data-exam-to aria-label="結束單元" aria-describedby="examRangeHint"></select></label></div><p id="examRangeHint" class="exam-hint" data-exam-range-hint role="status" aria-live="polite">包含起始與結束單元。</p></fieldset><p data-exam-pool role="status" aria-live="polite"></p><p class="exam-hint">資料不完整或無法核對答案的題目不納入抽題。不足指定題數時，使用全部可測驗題目。每題等分，多選題須全部選對。作答暫存在本頁，重新整理會清除。</p><button type="button" class="reveal" data-exam-start>開始測驗</button></section><section data-exam-session hidden><p data-exam-description></p><p class="exam-hint" data-exam-fill-hint>填空請依題目指定格式作答。系統先依題庫文字核對，交卷後可對照解析自行確認其他寫法。</p><div data-exam-results hidden tabindex="-1" aria-live="polite"></div><div data-exam-questions></div></section></div><footer class="exam-footer" hidden><span data-exam-progress role="status"></span><p data-exam-notice role="status"></p><div><button type="button" class="plain" data-exam-reset>重新設定</button><button type="button" class="reveal" data-exam-submit>交卷</button></div></footer>`;
   document.body.append(dialog);
   const find = selector => dialog.querySelector(selector);
   const scope = find('[data-exam-scope]'), size = find('[data-exam-size]');
   const questionList = find('[data-exam-questions]'), notice = find('[data-exam-notice]');
   let entries = [], responses = new Map(), results = [], submitted = false, confirmation = '';
   let sessionLabel = '', poolLabel = '';
-  function pool() { return config.examEntries(scope.value === 'all').filter(eligible); }
+  const units = config.examUnits?.() || [];
+  const range = find('[data-exam-range]'), from = find('[data-exam-from]'), to = find('[data-exam-to]');
+  const unitOptions = units.map(unit => `<option value="${esc(unit.id)}">${esc(unit.label)}</option>`).join('');
+  from.innerHTML = to.innerHTML = unitOptions;
+  from.value = to.value = config.examUnitId?.() || units[0]?.id || '';
+  function selectedRange() {
+    const first = units.findIndex(unit => unit.id === from.value), last = units.findIndex(unit => unit.id === to.value);
+    return first >= 0 && last >= first ? units.slice(first, last + 1) : [];
+  }
+  function pool() {
+    if (scope.value === 'range' && selectedRange().length === 0) return [];
+    const selection = scope.value === 'range' ? selectedRange().map(unit => unit.id) : scope.value === 'all';
+    return config.examEntries(selection).filter(eligible);
+  }
   function refreshPool() {
+    range.hidden = scope.value !== 'range';
+    const selected = selectedRange();
+    const invalid = scope.value === 'range' && selected.length === 0;
+    from.setAttribute('aria-invalid', String(invalid)); to.setAttribute('aria-invalid', String(invalid));
+    find('[data-exam-range-hint]').textContent = invalid ? '結束單元不能在起始單元之前，請重新選擇。' : `包含 ${selected.length} 個單元（含起始與結束單元）。`;
     poolLabel = scope.value === 'all' ? ({os:'作業系統',algorithms:'演算法'}[config.course] + ' · 全部單元') : config.examUnitLabel();
+    if (scope.value === 'range') poolLabel = selected.length ? `${{os:'作業系統',algorithms:'演算法'}[config.course]} · ${selected[0].label} ～ ${selected.at(-1).label}` : '請選擇有效的單元範圍';
     scope.options[0].textContent = '目前單元 · ' + config.examUnitLabel();
     const count = pool().length;
     find('[data-exam-pool]').textContent = `${poolLabel} · 可抽 ${count} 題，本次 ${Math.min(count, Number(size.value))} 題。`;
@@ -52,7 +71,7 @@
     const q = entry.q, opts = options(q), multiple = opts.length && (key(q)?.length > 1 || tools.answerType(q) === '多選題');
     const type = opts.length ? (multiple ? '多選題' : '單選題') : '填空題';
     const content = opts.length ? `<div class="options">${opts.map((option, i) => `<label class="option"><input type="${multiple ? 'checkbox' : 'radio'}" name="exam-${index}" data-exam-index="${index}" value="${i}"><span>${/^[A-H][.、．:：]/i.test(String(option).trim()) ? esc(option) : String.fromCharCode(65+i)+'. '+esc(option)}${q.optionTranslations?.[i] ? `<small class="option-translation">${esc(q.optionTranslations[i])}</small>` : ''}</span></label>`).join('')}</div>` : window.coursePractice.entryMarkup(q, entry.id, "", {className:"",icon:""}).replaceAll("<textarea", `<textarea data-exam-index="${index}"`);
-    return `<article class="exam-card" data-exam-card="${index}"><div class="exam-badges"><span>${index+1} / ${entries.length}</span><span>${esc(entry.unit)} · ${esc(q.category)}</span><span>${type}</span></div><h3 id="exam-question-${index}">${esc(q.stem ?? q.q)}</h3>${q.translation ? `<p class="exam-translation">${esc(q.translation)}</p>` : ''}${tools.questionImagesMarkup(q)}<div role="group" aria-labelledby="exam-question-${index}">${content}</div><div data-exam-review hidden></div></article>`;
+    return `<article class="exam-card" data-exam-card="${index}" data-exam-question-id="${esc(entry.id)}"><div class="exam-badges"><span>${index+1} / ${entries.length}</span><span>${esc(entry.unit)} · ${esc(q.category)}</span><span>${type}</span></div><h3 id="exam-question-${index}">${esc(q.stem ?? q.q)}</h3>${q.translation ? `<p class="exam-translation">${esc(q.translation)}</p>` : ''}${tools.questionImagesMarkup(q)}<div role="group" aria-labelledby="exam-question-${index}">${content}</div><div data-exam-review hidden></div></article>`;
   }
   function start() {
     refreshPool(); entries = sample(pool(), Number(size.value));
@@ -111,6 +130,7 @@
   find('[data-exam-close]').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', () => trigger.focus());
   scope.addEventListener('change', refreshPool); size.addEventListener('change', refreshPool);
+  from.addEventListener('change', refreshPool); to.addEventListener('change', refreshPool);
   find('[data-exam-start]').addEventListener('click', start);
   find('[data-exam-submit]').addEventListener('click', submit);
   find('[data-exam-reset]').addEventListener('click', reset);

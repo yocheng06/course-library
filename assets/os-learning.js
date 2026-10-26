@@ -277,7 +277,15 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
   return {added, openedLinkedQuestion:Boolean(linked)};
 }
 window.courseLearning={
-  examEntries:all=>{if(all)ensureAllUnitsLoaded();else ensureUnitLoaded(active);return questionEntries.filter(e=>all||e.unitIndex===active).map(e=>({id:e.q.id,q:e.q,unit:e.unit.label}));},
+  examUnits:()=>UNITS.map((unit,index)=>({id:unit.id,label:`L${Number(unitNumber(index))} · ${unit.label}`})),
+  examUnitId:()=>UNITS[active].id,
+  examEntries:selection=>{
+    const ids=Array.isArray(selection)?new Set(selection):null;
+    if(selection===true)ensureAllUnitsLoaded();
+    else if(ids)UNITS.forEach((unit,index)=>{if(ids.has(unit.id))ensureUnitLoaded(index);});
+    else ensureUnitLoaded(active);
+    return questionEntries.filter(e=>ids?ids.has(e.unit.id):selection===true||e.unitIndex===active).map(e=>({id:e.q.id,q:e.q,unit:e.unit.label,unitId:e.unit.id}));
+  },
   examUnitLabel:()=>UNITS[active].label,
   mergeCommunityQuestions, course:'os',toolbar:document.querySelector('.toolbar'),sidebar:document.querySelector('.sidebar'),list:$('cards'),
   unitIds:()=>ensureUnitLoaded(active).questions.map(q=>q.id),

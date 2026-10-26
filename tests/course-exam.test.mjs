@@ -76,3 +76,33 @@ test('multi-blank exam responses use separate fields and grade the joined answer
  assert.match(h.document.querySelector('[data-exam-progress]').textContent,/1 \/ 1/);
  h.click('[data-exam-submit]');assert.match(h.document.querySelector('[data-exam-results]').textContent,/100 分/);
 });
+
+for(const course of ['os','algorithms'])test(course+' custom L2–L5 range includes both boundaries and never draws outside selected units',()=>{
+ const h=harness(course),config=h.window.courseLearning;
+ h.click('#examMode');const before=config.unitIds().join(','),units=config.examUnits();
+ assert.match(units[0].label,/^L2 · /);assert.match(units[3].label,/^L5 · /);
+ h.change('[data-exam-scope]','range');h.change('[data-exam-from]',units[0].id);h.change('[data-exam-to]',units[3].id);
+ const selectedIds=units.slice(0,4).map(unit=>unit.id),pool=config.examEntries(selectedIds);
+ assert.deepEqual([...new Set(pool.map(entry=>entry.unitId))].sort(),[...selectedIds].sort());
+ assert.match(h.document.querySelector('[data-exam-range-hint]').textContent,/包含 4 個單元/);
+ const eligible=pool.filter(h.window.courseExam.eligible),ids=new Set(eligible.map(entry=>entry.id));
+ assert.match(h.document.querySelector('[data-exam-pool]').textContent,new RegExp(`可抽 ${eligible.length} 題`));
+ h.click('[data-exam-start]');const cards=[...h.document.querySelectorAll('.exam-card')];assert.equal(cards.length,20);
+ assert(cards.every(card=>ids.has(card.dataset.examQuestionId)));
+ assert.match(h.document.querySelector('[data-exam-description]').textContent,/L2.*L5/);
+ assert.equal(config.unitIds().join(','),before);
+});
+
+for(const course of ['os','algorithms'])test(course+' same-unit range works, reversed bounds block start, and range selection survives closing',()=>{
+ const h=harness(course),units=h.window.courseLearning.examUnits();h.click('#examMode');
+ h.change('[data-exam-scope]','range');h.change('[data-exam-from]',units[2].id);h.change('[data-exam-to]',units[1].id);
+ assert.equal(h.document.querySelector('[data-exam-start]').disabled,true);
+ assert.equal(h.document.querySelector('[data-exam-from]').getAttribute('aria-invalid'),'true');
+ assert.match(h.document.querySelector('[data-exam-range-hint]').textContent,/結束單元不能/);
+ h.click('[data-exam-start]');assert.equal(h.document.querySelectorAll('.exam-card').length,0);
+ h.change('[data-exam-to]',units[2].id);assert.equal(h.document.querySelector('[data-exam-start]').disabled,false);
+ assert.match(h.document.querySelector('[data-exam-range-hint]').textContent,/包含 1 個單元/);
+ h.click('[data-exam-close]');h.click('#examMode');assert.equal(h.document.querySelector('[data-exam-from]').value,units[2].id);
+ const ids=new Set(h.window.courseLearning.examEntries([units[2].id]).map(e=>e.id));h.click('[data-exam-start]');
+ assert([...h.document.querySelectorAll('.exam-card')].every(card=>ids.has(card.dataset.examQuestionId)));
+});
