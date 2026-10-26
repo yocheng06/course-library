@@ -5,7 +5,7 @@ function refreshCourseSummary(){
  const total=COURSES.reduce((sum,unit)=>sum+unit.questions.length,0);
  document.querySelector('[data-course-total]').textContent=`${COURSES.length} 個單元 · ${total} 道題目`;
  document.querySelector('meta[name="description"]').content=`整合演算法課程與${total}道題目，依章節閱讀與練習。可離線使用。`;
- document.querySelector('[data-course-source-summary]').textContent=`收錄 ${COURSES.length} 份題庫：${COURSES.map(course=>course.id+' '+course.questions.length+' 題').join('、')}，共 ${total} 題。L6 中僅選項順序不同的版本已合併；題幹或選項內容不同的版本分開保留。已提供題庫答案的題目視為正常；選擇題與有標準答案的填空題可自動核對，答錯可重試，答對後顯示解析。`;
+ document.querySelector('[data-course-source-summary]').textContent=`收錄 ${COURSES.length} 份題庫：${COURSES.map(course=>course.id+' '+course.questions.length+' 題').join('、')}，共 ${total} 題。L6 相同題意與答案內容已核對合併；選項換序與原始文字保留供查題，不同輸入資料、執行階段與題型分開保留。已提供題庫答案的題目視為正常；選擇題與有標準答案的填空題可自動核對，答錯可重試，答對後顯示解析。`;
 }
 refreshCourseSummary();
 const $=id=>document.getElementById(id);
@@ -14,7 +14,7 @@ const meta={
  L3:{title:'遞迴關係式與分治分析',short:'遞迴關係式',en:'RECURRENCE RELATIONS',sub:'代入法 · 遞迴樹 · 大師定理與適用條件',guide:'想像把一疊作業分給幾個人，再把結果合起來。T(n)=aT(n/b)+f(n) 中，a 是分出幾份、n/b 是每份大小、f(n) 是分配與整合的成本。遞迴樹逐層加總；大師定理則要先確認形式與條件。'},
  L4:{title:'堆積、堆積排序與優先佇列',short:'Heap 與 Heapsort',en:'HEAP & PRIORITY QUEUE',sub:'Heap 性質 · Max-Heapify · Heapsort · Priority Queue',guide:'把 Max-Heap 想成「優先處理最高分任務」的排列：父節點不小於子節點，最大值在根部，但整個陣列未必已排序。索引從 1 開始時，左子是 2i、右子是 2i+1、父節點是 floor(i/2)。'},
  L5:{title:'快速排序',short:'快速排序',en:'QUICK SORT',sub:'Pivot · Partition · 遞迴與複雜度',guide:'把陣列想成一列卡片：先選一張作為 pivot，再用 Partition 把較小與較大的值分到兩側，讓 pivot 到達正確位置，接著遞迴處理兩邊。分割大致平均時，時間通常是 Θ(n log n)；每次都極端不平衡時，可能退化到 Θ(n²)。'},
- L6:{title:'排序演算法',short:'排序演算法',en:'SORTING ALGORITHMS',sub:'Counting Sort · Bucket Sort · Radix Sort · 比較排序下界',guide:'計數排序利用有限範圍的鍵值統計次數；桶排序把資料分配到區間；基數排序逐位整理，並需要穩定的子排序。先確認輸入條件，再比較時間與空間成本；決策樹可說明比較排序的下界。'}
+ L6:{title:'排序演算法',short:'排序演算法',en:'SORTING ALGORITHMS',sub:'Radix Sort · Bucket Sort · 比較排序下界 · Counting Sort',guide:'計數排序利用有限範圍的鍵值統計次數；桶排序把資料分配到區間；基數排序逐位整理，並需要穩定的子排序。先確認輸入條件，再比較時間與空間成本；決策樹可說明比較排序的下界。'}
 };
 let lesson='L2',chapter='全部',type='全部',page=1,totalPages=1,mode='study';
 const PAGE_SIZE=10, drafts=new Map(), revealed=new Set(), selections=new Map(), feedback=new Map();
