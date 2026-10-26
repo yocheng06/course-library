@@ -433,3 +433,12 @@ Two-level 綁定題與 Max-Heap 的 greater 填空仍需確認題幹限定；雖
 - 保留不同用詞、干擾選項及選項順序供查題，舊連結與學習標記導向保留版本。
 - 第六章由 54 題減為 52 題，演算法共 292 題。
 - [合併前後紀錄](content/algorithms-l6-merge-counting-20261026.json)。
+
+## 2026-10-26：匯入後續 L6 練習題
+
+- 比對提供的 algorithms_L6_complete.json 與 Markdown 共 60 題：52 題已收錄，新增 8 題，分配新識別碼 L6-059～L6-066。來源檔案的重新編號不作為網站舊 ID 別名。
+- 新題依原分類插入，保留不同陣列、檢查點與填空題型；多格答案使用網站既有分格輸入與「 / 」儲存格式。
+- 依站主另外確認，修正 L6-047 的 8 元素、j=2 計算答案，保留 originalAnswer 供檢視。
+- 穩定排序單選題保留所提供 A 答案及 B 的條件歧義；11 元素、j=4 明列為推算答案。計數排序程式的 0 索引條件與未寫入 B 以 0 表示均列入觀念提醒。
+- 第六章 60 題，演算法 300 題，兩科共 1070 題。
+- [逐題比對與更正紀錄](content/algorithms-l6-practice-import-20261026.json)、[來源 JSON](content/sources/algorithms_L6_complete-20261026.json)。

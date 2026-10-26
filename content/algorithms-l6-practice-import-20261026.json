@@ -1,0 +1,628 @@
+{
+  "date": "2026-10-26",
+  "sourceFile": "algorithms_L6_complete.json",
+  "sourceSha256": "530454dc0d9c14aae77f125c20000dcb476bd5159fce9c034b90ed88f8981f62",
+  "sourceQuestionCount": 60,
+  "addedCount": 8,
+  "existingCount": 52,
+  "mapping": [
+    {
+      "sourceId": "L6-001",
+      "targetId": "L6-007",
+      "action": "existing",
+      "question": "基數排序（Radix Sort）通常用於排序什麼類型的資料？"
+    },
+    {
+      "sourceId": "L6-002",
+      "targetId": "L6-020",
+      "action": "existing",
+      "question": "基數排序(Radix Sort)中，變數 r 的含義通常為？"
+    },
+    {
+      "sourceId": "L6-003",
+      "targetId": "L6-025",
+      "action": "existing",
+      "question": "基數排序(Radix Sort)是從哪一位開始排序？"
+    },
+    {
+      "sourceId": "L6-004",
+      "targetId": "L6-048",
+      "action": "existing",
+      "question": "基數排序(Radix Sort)要求子排序演算法必須是？"
+    },
+    {
+      "sourceId": "L6-005",
+      "targetId": "L6-004",
+      "action": "existing",
+      "question": "基數排序(Radix Sort)處理 b-bit 數字時，r 的選擇會影響？"
+    },
+    {
+      "sourceId": "L6-006",
+      "targetId": "L6-010",
+      "action": "existing",
+      "question": "基數排序(Radix Sort)可以使用哪種穩定排序作為子程序？"
+    },
+    {
+      "sourceId": "L6-007",
+      "targetId": "L6-049",
+      "action": "existing",
+      "question": "下列哪些特徵是基數排序與計數排序(Radix Sort and Counting Sort)共有的？"
+    },
+    {
+      "sourceId": "L6-008",
+      "targetId": "L6-050",
+      "action": "existing",
+      "question": "基數排序(Radix Sort)的優點有？"
+    },
+    {
+      "sourceId": "L6-009",
+      "targetId": "L6-001",
+      "action": "existing",
+      "question": "給定課本版本的RADIX_SORT 演算法。\n\nRADIX_SORT(A, d)\n1 for i <- 1 to d\n2   do use a stable sort to sort array A on digit i\n\nA陣列的內容為 4329,4057,6507,2839,6436,7720,8355\n當 i = 3 時 A陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3"
+    },
+    {
+      "sourceId": "L6-010",
+      "targetId": "L6-002",
+      "action": "existing",
+      "question": "給定課本版本的RADIX_SORT 演算法。\n\nRADIX_SORT(A, d)\n1 for i <- 1 to d\n2   do use a stable sort to sort array A on digit i\n\nA陣列的內容為 329,457,657,839,436,720,355\n當 i = 2 時 A陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3"
+    },
+    {
+      "sourceId": "L6-011",
+      "targetId": "L6-036",
+      "action": "existing",
+      "question": "基數排序從 [__1__] 有效位開始排序 (請用小寫英文回答)"
+    },
+    {
+      "sourceId": "L6-012",
+      "targetId": "L6-059",
+      "action": "added",
+      "question": "基數排序(Radix Sort)在處理 b-bit 數字時，時間複雜度為？"
+    },
+    {
+      "sourceId": "L6-013",
+      "targetId": "L6-013",
+      "action": "existing",
+      "question": "桶排序中(Bucket Sort)，每個桶內部的排序通常使用？"
+    },
+    {
+      "sourceId": "L6-014",
+      "targetId": "L6-041",
+      "action": "existing",
+      "question": "桶排序(Bucket Sort)中，若資料均勻分佈，預期時間複雜度為？"
+    },
+    {
+      "sourceId": "L6-015",
+      "targetId": "L6-043",
+      "action": "existing",
+      "question": "桶排序（Bucket Sort）假設輸入資料分佈為？"
+    },
+    {
+      "sourceId": "L6-016",
+      "targetId": "L6-051",
+      "action": "existing",
+      "question": "桶排序(Bucket Sort)中，如果桶內的資料傾斜嚴重（Unbalanced），會導致？"
+    },
+    {
+      "sourceId": "L6-017",
+      "targetId": "L6-018",
+      "action": "existing",
+      "question": "桶排序(Bucket Sort)適合處理？"
+    },
+    {
+      "sourceId": "L6-018",
+      "targetId": "L6-045",
+      "action": "existing",
+      "question": "桶排序(Bucket Sort)處理過程包含？"
+    },
+    {
+      "sourceId": "L6-019",
+      "targetId": "L6-046",
+      "action": "existing",
+      "question": "桶排序(Bucket Sort)的效能取決於？"
+    },
+    {
+      "sourceId": "L6-020",
+      "targetId": "L6-003",
+      "action": "existing",
+      "question": "給定課本版本的BUCKET_SORT 演算法。\n\nBUCKET_SORT(A)\n1 n <- length[A]\n2 for i <- 1 to n\n3   do insert A[i] into list B[⌊nA[i]⌋]\n4 for i <- 0 to n-1\n5   do sort list B[i] with insertion sort\n6 concatenate B[0], B[1], ..., B[n-1] together in order\n\nA陣列的內容為 0.78,0.17,0.39,0.26,0.72,0.94,0.21,0.12,0.23,0.68\n第2行做到 i=5 B 陣列的內容如何？B陣列的B[1]、B[2]、B[7] 的內容為何[__1__][__2__][__3__] 格式: 0.2,0.5,0.3,0.1,0.2,0.3,0.5,0.3"
+    },
+    {
+      "sourceId": "L6-021",
+      "targetId": "L6-005",
+      "action": "existing",
+      "question": "給定課本版本的BUCKET_SORT 演算法。\n\nBUCKET_SORT(A)\n1 n <- length[A]\n2 for i <- 1 to n\n3   do insert A[i] into list B[⌊nA[i]⌋]\n4 for i <- 0 to n-1\n5   do sort list B[i] with insertion sort\n6 concatenate B[0], B[1], ..., B[n-1] together in order\n\nA陣列的內容為 0.78,0.17,0.39,0.26,0.72,0.94,0.21,0.12,0.23,0.68\n第2行做到 i=7 B 陣列的內容如何？B陣列的B[1]、B[2]、B[7] 的內容為何[__1__][__2__][__3__] 格式: 0.2,0.5,0.3,0.1,0.2,0.3,0.5,0.3"
+    },
+    {
+      "sourceId": "L6-022",
+      "targetId": "L6-027",
+      "action": "existing",
+      "question": "桶排序中，若桶內元素過多，複雜度會退化為 [__1__] (請用英文回答，請用log，不可用lg，上標用^)"
+    },
+    {
+      "sourceId": "L6-023",
+      "targetId": "L6-035",
+      "action": "existing",
+      "question": "給定課本版本的BUCKET_SORT 演算法。\n\nBUCKET_SORT(A)\n1 n <- length[A]\n2 for i <- 1 to n\n3   do insert A[i] into list B[⌊nA[i]⌋]\n4 for i <- 0 to n-1\n5   do sort list B[i] with insertion sort\n6 concatenate B[0], B[1], ..., B[n-1] together in order\n\nA陣列的內容為 0.78,0.17,0.39,0.26,0.72,0.94,0.21,0.12,0.23,0.68\n第4行做到 i=7 B 陣列的內容如何？B陣列的B[1]、B[2]、B[7] 的內容為何[__1__][__2__][__3__] 格式: 0.2,0.5,0.3,0.1,0.2,0.3,0.5,0.3"
+    },
+    {
+      "sourceId": "L6-024",
+      "targetId": "L6-058",
+      "action": "existing",
+      "question": "給定課本版本的BUCKET_SORT 演算法。\n\nBUCKET_SORT(A)\n1 n <- length[A]\n2 for i <- 1 to n\n3   do insert A[i] into list B[⌊nA[i]⌋]\n4 for i <- 0 to n-1\n5   do sort list B[i] with insertion sort\n6 concatenate B[0], B[1], ..., B[n-1] together in order\n\nA陣列的內容為 0.78,0.17,0.39,0.26,0.72,0.94,0.21,0.12,0.23,0.68\n第4行做到 i=5 B 陣列的內容如何？B陣列的B[1]、B[2]、B[6] 的內容為何[__1__][__2__][__3__] 格式: 0.2,0.5,0.3,0.1,0.2,0.3,0.5,0.3"
+    },
+    {
+      "sourceId": "L6-025",
+      "targetId": "L6-012",
+      "action": "existing",
+      "question": "決策樹的高度下界為？"
+    },
+    {
+      "sourceId": "L6-026",
+      "targetId": "L6-033",
+      "action": "existing",
+      "question": "決策樹模型證明了？"
+    },
+    {
+      "sourceId": "L6-027",
+      "targetId": "L6-038",
+      "action": "existing",
+      "question": "決策樹模型（Decision Tree Model）主要用於分析哪類演算法？"
+    },
+    {
+      "sourceId": "L6-028",
+      "targetId": "L6-039",
+      "action": "existing",
+      "question": "任何基於比較的排序(comparison-based sortin)演算法，其最差時間複雜度下界為？"
+    },
+    {
+      "sourceId": "L6-029",
+      "targetId": "L6-044",
+      "action": "existing",
+      "question": "下列何者不是線性時間排序演算法？"
+    },
+    {
+      "sourceId": "L6-030",
+      "targetId": "L6-053",
+      "action": "existing",
+      "question": "決策樹中的每一個葉節點代表？"
+    },
+    {
+      "sourceId": "L6-031",
+      "targetId": "L6-057",
+      "action": "existing",
+      "question": "在比較排序中，決策樹的葉節點個數等於？"
+    },
+    {
+      "sourceId": "L6-032",
+      "targetId": "L6-006",
+      "action": "existing",
+      "question": "線性時間排序演算法的共通限制包括？"
+    },
+    {
+      "sourceId": "L6-033",
+      "targetId": "L6-011",
+      "action": "existing",
+      "question": "線性時間排序演算法包含？"
+    },
+    {
+      "sourceId": "L6-034",
+      "targetId": "L6-023",
+      "action": "existing",
+      "question": "關於決策樹，下列敘述何者正確？"
+    },
+    {
+      "sourceId": "L6-035",
+      "targetId": "L6-029",
+      "action": "existing",
+      "question": "下列關於排序演算法複雜度的敘述，正確的有？"
+    },
+    {
+      "sourceId": "L6-036",
+      "targetId": "L6-032",
+      "action": "existing",
+      "question": "關於線性時間排序，下列何者正確？"
+    },
+    {
+      "sourceId": "L6-037",
+      "targetId": "L6-056",
+      "action": "existing",
+      "question": "決策樹模型可以用來證明下列哪些演算法的最優性？"
+    },
+    {
+      "sourceId": "L6-038",
+      "targetId": "L6-034",
+      "action": "existing",
+      "question": "決策樹模型證明了任何比較排序在最壞情況下至少需要 [__1__] 比較次數 (請用小寫英文回答)"
+    },
+    {
+      "sourceId": "L6-039",
+      "targetId": "L6-055",
+      "action": "existing",
+      "question": "決策樹的葉節點數量至少為 [__1__] (請用小寫英文回答)"
+    },
+    {
+      "sourceId": "L6-040",
+      "targetId": "L6-060",
+      "action": "added",
+      "question": "比較排序的時間複雜度下界為 [__1__] (請用英文回答，請用log，不可用lg，上標用^)"
+    },
+    {
+      "sourceId": "L6-041",
+      "targetId": "L6-061",
+      "action": "added",
+      "question": "下列哪種排序演算法是「穩定」的（Stable）？"
+    },
+    {
+      "sourceId": "L6-042",
+      "targetId": "L6-014",
+      "action": "existing",
+      "question": "計數排序(Counting Sort)中，陣列 C 的作用是？"
+    },
+    {
+      "sourceId": "L6-043",
+      "targetId": "L6-017",
+      "action": "existing",
+      "question": "計數排序(Counting Sort)的空間複雜度主要取決於？"
+    },
+    {
+      "sourceId": "L6-044",
+      "targetId": "L6-026",
+      "action": "existing",
+      "question": "如果所有輸入元素皆為 1 到 k，計數排序(Counting Sort)的時間複雜度為？"
+    },
+    {
+      "sourceId": "L6-045",
+      "targetId": "L6-040",
+      "action": "existing",
+      "question": "計數排序（Counting Sort）要求輸入元素必須是？"
+    },
+    {
+      "sourceId": "L6-046",
+      "targetId": "L6-054",
+      "action": "existing",
+      "question": "當 k = O(n) 時，計數排序(Counting Sort)的時間複雜度為？"
+    },
+    {
+      "sourceId": "L6-047",
+      "targetId": "L6-009",
+      "action": "existing",
+      "question": "計數排序(Counting Sort)需要哪幾個輔助陣列？"
+    },
+    {
+      "sourceId": "L6-048",
+      "targetId": "L6-031",
+      "action": "existing",
+      "question": "哪些情況下不適合使用計數排序(Counting Sort)？"
+    },
+    {
+      "sourceId": "L6-049",
+      "targetId": "L6-008",
+      "action": "existing",
+      "question": "計數排序的時間複雜度為 [__1__] (請用英文回答，請用log，不可用lg，上標用^)"
+    },
+    {
+      "sourceId": "L6-050",
+      "targetId": "L6-021",
+      "action": "existing",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,5,1,2,1,3,2,0,4\n做到第9行前\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3"
+    },
+    {
+      "sourceId": "L6-051",
+      "targetId": "L6-022",
+      "action": "existing",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,5,1,2,1,3,2,0,4\n做到第9行 j=12\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3"
+    },
+    {
+      "sourceId": "L6-052",
+      "targetId": "L6-028",
+      "action": "existing",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,3\n做到第9行前\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3"
+    },
+    {
+      "sourceId": "L6-053",
+      "targetId": "L6-042",
+      "action": "existing",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,5,1,2,1,3,2,0,4\n執行完後\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3"
+    },
+    {
+      "sourceId": "L6-054",
+      "targetId": "L6-047",
+      "action": "existing",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,3\n做到第9行 j=2\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3"
+    },
+    {
+      "sourceId": "L6-055",
+      "targetId": "L6-052",
+      "action": "existing",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,5,1,2,1,3,2,0,4\n做到第9行 j=4\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3"
+    },
+    {
+      "sourceId": "L6-056",
+      "targetId": "L6-062",
+      "action": "added",
+      "question": "計數排序中的 C[i] 儲存的是？"
+    },
+    {
+      "sourceId": "L6-057",
+      "targetId": "L6-063",
+      "action": "added",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,3\n做到第9行 j=4\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3"
+    },
+    {
+      "sourceId": "L6-058",
+      "targetId": "L6-064",
+      "action": "added",
+      "question": "計數排序(Counting Sort)的特性包含？"
+    },
+    {
+      "sourceId": "L6-059",
+      "targetId": "L6-065",
+      "action": "added",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,1,2,1,3,2,0,4\n做到第9行 j=4\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3"
+    },
+    {
+      "sourceId": "L6-060",
+      "targetId": "L6-066",
+      "action": "added",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,1,2,1,3,2,0,4\n執行完後\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3"
+    }
+  ],
+  "addedQuestions": [
+    {
+      "category": "基數排序",
+      "type": "單選題",
+      "q": "基數排序(Radix Sort)在處理 b-bit 數字時，時間複雜度為？",
+      "a": "C. Θ((b/r)(n + 2^r))",
+      "opts": [
+        "A. O(n)",
+        "B. O(n log n)",
+        "C. Θ((b/r)(n + 2^r))",
+        "D. O(n²)"
+      ],
+      "ex": "每輪以穩定計數排序處理 r 個位元，鍵值範圍為 2^r，每輪時間 Θ(n+2^r)。共需 ⌈b/r⌉ 輪，所以一般形式為 Θ(⌈b/r⌉(n+2^r))；在課本 1≤r≤b 的設定下，與選項 C 的 Θ((b/r)(n+2^r)) 同階。",
+      "warn": false,
+      "sources": [
+        "sorting-algorithms"
+      ],
+      "answerProvided": true,
+      "verified": true,
+      "bookmarkId": "L6-059",
+      "sourceRecords": [
+        {
+          "source": "algorithms_L6_complete.json",
+          "sourceId": "L6-012",
+          "importId": "l6-practice-20261026"
+        }
+      ]
+    },
+    {
+      "category": "排序基礎",
+      "type": "填空題",
+      "q": "比較排序的時間複雜度下界為 [__1__] (請用英文回答，請用log，不可用lg，上標用^)",
+      "a": "big-omega(nlogn)",
+      "opts": [],
+      "ex": "對 n 個互異元素進行比較排序，決策樹至少要區分 n! 種排列，最壞情況比較次數至少為 log₂(n!)=Ω(n log n)。依本題要求，填入 big-omega(nlogn)。",
+      "warn": false,
+      "sources": [
+        "sorting-algorithms"
+      ],
+      "answerProvided": true,
+      "verified": true,
+      "bookmarkId": "L6-060",
+      "sourceRecords": [
+        {
+          "source": "algorithms_L6_complete.json",
+          "sourceId": "L6-040",
+          "importId": "l6-practice-20261026"
+        }
+      ],
+      "note": "此處指一般比較排序的最壞情況下界。"
+    },
+    {
+      "category": "排序基礎",
+      "type": "單選題",
+      "q": "下列哪種排序演算法是「穩定」的（Stable）？",
+      "a": "A. 計數排序",
+      "opts": [
+        "A. 計數排序",
+        "B. 桶排序（若使用穩定排序作為子程序）",
+        "C. 快速排序",
+        "D. 堆積排序"
+      ],
+      "ex": "提供的測驗答案為單選 A。標準計數排序依輸入由後往前回填，可維持同鍵值元素的相對順序。桶排序若分桶時保序、桶內採穩定排序，也可以穩定；快速排序與堆積排序的標準版本通常不穩定。",
+      "warn": false,
+      "sources": [
+        "sorting-algorithms"
+      ],
+      "answerProvided": true,
+      "verified": true,
+      "bookmarkId": "L6-061",
+      "sourceRecords": [
+        {
+          "source": "algorithms_L6_complete.json",
+          "sourceId": "L6-041",
+          "importId": "l6-practice-20261026"
+        }
+      ],
+      "note": "本題依提供的單選答案選 A。B 在分桶時也維持同鍵值元素相對順序的條件下同樣可以穩定，因此選項有歧義。"
+    },
+    {
+      "category": "計數排序",
+      "type": "單選題",
+      "q": "計數排序中的 C[i] 儲存的是？",
+      "a": "D. 小於或等於 i 的元素總數",
+      "opts": [
+        "A. 指向元素 i 的指標",
+        "B. 元素 i 的位置",
+        "C. 元素 i 的具體值",
+        "D. 小於或等於 i 的元素總數"
+      ],
+      "ex": "指累積計數完成且尚未回填的階段；統計階段僅記錄等於 i 的次數，回填時會遞減。",
+      "warn": false,
+      "sources": [
+        "sorting-algorithms"
+      ],
+      "answerProvided": true,
+      "verified": true,
+      "bookmarkId": "L6-062",
+      "sourceRecords": [
+        {
+          "source": "algorithms_L6_complete.json",
+          "sourceId": "L6-056",
+          "importId": "l6-practice-20261026"
+        }
+      ],
+      "note": "本題指累積計數完成、尚未開始回填輸出陣列的階段；統計階段 C[i] 僅記錄等於 i 的次數，回填時則會遞減。"
+    },
+    {
+      "category": "計數排序",
+      "type": "填空題",
+      "q": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,3\n做到第9行 j=4\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3",
+      "a": "0,0,0,2,0,3,3,0 / 1,2,3,5,7,8",
+      "opts": [],
+      "ex": "已處理 j=8、7、6、5；提供檔案標示已由測驗結果確認。 原碼有 0 鍵值索引問題，解題採初始化 C[0..k]、累積從 i=1 起的修正版；B 未寫入欄位依題庫以 0 表示。",
+      "warn": false,
+      "sources": [
+        "sorting-algorithms"
+      ],
+      "answerProvided": true,
+      "verified": true,
+      "bookmarkId": "L6-063",
+      "sourceRecords": [
+        {
+          "source": "algorithms_L6_complete.json",
+          "sourceId": "L6-057",
+          "importId": "l6-practice-20261026"
+        }
+      ],
+      "note": "原題程式從 C[1] 初始化、從 i=2 累積，卻含有鍵值 0。此處計算採 C[0..k] 初始化、從 i=1 累積的修正版；尚未寫入 B 的欄位依題庫格式填 0。\n\n多格填空請依空格順序作答；每格內多個值以逗號分隔，各格答案之間以 / 分隔，斜線前後各留一個空格。"
+    },
+    {
+      "category": "計數排序",
+      "type": "多選題",
+      "q": "計數排序(Counting Sort)的特性包含？",
+      "a": "A、C、D",
+      "opts": [
+        "A. 線性時間複雜度",
+        "B. 適用於負數",
+        "C. 需要 O(k) 額外空間",
+        "D. 穩定"
+      ],
+      "ex": "依提供的答案選 A、C、D。A 的線性時間以 k=O(n) 為前提；C 的 O(k) 指計數陣列，若計入輸出陣列，輔助空間為 Θ(n+k)；D 採標準穩定回填方式。基本版本不能直接使用負數作為陣列索引，但以最小值位移後可處理負數。",
+      "warn": false,
+      "sources": [
+        "sorting-algorithms"
+      ],
+      "answerProvided": true,
+      "verified": true,
+      "bookmarkId": "L6-064",
+      "sourceRecords": [
+        {
+          "source": "algorithms_L6_complete.json",
+          "sourceId": "L6-058",
+          "importId": "l6-practice-20261026"
+        }
+      ],
+      "note": "線性時間、空間及負數限制均依課本基本版本與解析中的條件判讀。"
+    },
+    {
+      "category": "計數排序",
+      "type": "填空題",
+      "q": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,1,2,1,3,2,0,4\n做到第9行 j=4\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3",
+      "a": "0,0,1,1,0,2,2,0,3,4,0 / 1,2,5,8,9,11",
+      "opts": [],
+      "ex": "11 個元素，已處理 j=11 到 5。此版本只在文字題目出現；後續結果頁同位置改成 15 個元素，故本題僅為演算法計算答案。 原碼有 0 鍵值索引問題，解題採初始化 C[0..k]、累積從 i=1 起的修正版；B 未寫入欄位依題庫以 0 表示。",
+      "warn": false,
+      "sources": [
+        "sorting-algorithms"
+      ],
+      "answerProvided": true,
+      "verified": true,
+      "bookmarkId": "L6-065",
+      "sourceRecords": [
+        {
+          "source": "algorithms_L6_complete.json",
+          "sourceId": "L6-059",
+          "importId": "l6-practice-20261026"
+        }
+      ],
+      "note": "原題程式從 C[1] 初始化、從 i=2 累積，卻含有鍵值 0。此處計算採 C[0..k] 初始化、從 i=1 累積的修正版；尚未寫入 B 的欄位依題庫格式填 0。\n\n多格填空請依空格順序作答；每格內多個值以逗號分隔，各格答案之間以 / 分隔，斜線前後各留一個空格。\n\n此 11 個元素、j=4 的版本為演算法推算，提供檔案未附同版官方結果。"
+    },
+    {
+      "category": "計數排序",
+      "type": "填空題",
+      "q": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,1,2,1,3,2,0,4\n執行完後\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3",
+      "a": "0,0,1,1,2,2,2,3,3,4,5 / 0,2,4,7,9,10",
+      "opts": [],
+      "ex": "11 個元素排序結果；提供檔案標示已由測驗結果確認。 原碼有 0 鍵值索引問題，解題採初始化 C[0..k]、累積從 i=1 起的修正版；B 未寫入欄位依題庫以 0 表示。",
+      "warn": false,
+      "sources": [
+        "sorting-algorithms"
+      ],
+      "answerProvided": true,
+      "verified": true,
+      "bookmarkId": "L6-066",
+      "sourceRecords": [
+        {
+          "source": "algorithms_L6_complete.json",
+          "sourceId": "L6-060",
+          "importId": "l6-practice-20261026"
+        }
+      ],
+      "note": "原題程式從 C[1] 初始化、從 i=2 累積，卻含有鍵值 0。此處計算採 C[0..k] 初始化、從 i=1 累積的修正版；尚未寫入 B 的欄位依題庫格式填 0。\n\n多格填空請依空格順序作答；每格內多個值以逗號分隔，各格答案之間以 / 分隔，斜線前後各留一個空格。"
+    }
+  ],
+  "correction": {
+    "authorization": "使用者同意一併更正並保留紀錄",
+    "id": "L6-047",
+    "before": {
+      "category": "計數排序",
+      "type": "填空題",
+      "q": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1  for i <- 1 to k\n2    do c[i] <- 0\n3  for j <- 1 to length[A]\n4    do c[A[j]] <- c[A[j]] + 1\n5  > c[i] now contains the number of elements equal to i\n6  for i <- 2 to k\n7    do c[i] <- c[i] + c[i-1]\n8  > c[i] now contains the number of elements less than or equal to i\n9  for j <- length[A] downto 1\n10   do B[c[A[j]]] <- A[j]\n11      c[A[j]] <- c[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,3 \n做到第9行 的 j = 2 時\nB陣列的內容為何[__1__]  格式:  2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__]  格式:  2,5,3,0,2,3,0,3",
+      "a": "0,0,2,3,3,3,3,0 / 0,2,3,4,7,7",
+      "opts": [],
+      "ex": "這一題只有 8 個元素，且做到第 9 行 j=2 的檢查點。官方輸出的 B 是 0,0,2,3,3,3,3,0；C 是 0,2,3,4,7,7。不要把尚未處理的迴圈也執行，且官方以 0 表示未寫入的 B 欄位。",
+      "warn": false,
+      "sources": [
+        "sorting-algorithms"
+      ],
+      "answerProvided": true,
+      "verified": true,
+      "bookmarkId": "L6-047",
+      "sourceNumber": 14,
+      "appearances": [
+        "第三次第 14 題",
+        "補充試煉第 3 題"
+      ],
+      "note": "本題為 8 個元素、j=2 的狀態，與 15 個元素、j=12 的題目完全不同，需分開保留。\n\n多格填空請依空格順序作答；每格內多個值以逗號分隔，各格答案之間以 / 分隔，斜線前後各留一個空格。",
+      "aliases": [
+        "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1  for i <- 1 to k\n2    do c[i] <- 0\n3  for j <- 1 to length[A]\n4    do c[A[j]] <- c[A[j]] + 1\n5  > c[i] now contains the number of elements equal to i\n6  for i <- 2 to k\n7    do c[i] <- c[i] + c[i-1]\n8  > c[i] now contains the number of elements less than or equal to i\n9  for j <- length[A] downto 1\n10   do B[c[A[j]]] <- A[j]\n11      c[A[j]] <- c[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,3 做到第9行 的 j = 2 時 B陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3 C陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3"
+      ]
+    },
+    "after": {
+      "category": "計數排序",
+      "type": "填空題",
+      "q": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1  for i <- 1 to k\n2    do c[i] <- 0\n3  for j <- 1 to length[A]\n4    do c[A[j]] <- c[A[j]] + 1\n5  > c[i] now contains the number of elements equal to i\n6  for i <- 2 to k\n7    do c[i] <- c[i] + c[i-1]\n8  > c[i] now contains the number of elements less than or equal to i\n9  for j <- length[A] downto 1\n10   do B[c[A[j]]] <- A[j]\n11      c[A[j]] <- c[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,3 \n做到第9行 的 j = 2 時\nB陣列的內容為何[__1__]  格式:  2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__]  格式:  2,5,3,0,2,3,0,3",
+      "a": "0,0,0,2,3,3,3,0 / 0,2,3,4,7,8",
+      "opts": [],
+      "ex": "使用 0-based 計數陣列修正版：先得到累積 C=2,2,4,7,7,8，再處理 j=8 到 j=3，尚未處理 A[2]=5。此時 B=0,0,0,2,3,3,3,0，C=0,2,3,4,7,8。原答案把鍵值 5 提前回填，且多放入了一個 3，因此更正。",
+      "warn": false,
+      "sources": [
+        "sorting-algorithms"
+      ],
+      "answerProvided": true,
+      "verified": true,
+      "bookmarkId": "L6-047",
+      "sourceNumber": 14,
+      "appearances": [
+        "第三次第 14 題",
+        "補充試煉第 3 題"
+      ],
+      "note": "依演算法逐步核算修正；新版官方測驗結果尚未提供。原題須採 C[0..k] 初始化、從 i=1 累積，才涵蓋輸入中的鍵值 0。\n\n多格填空請依空格順序作答；每格內多個值以逗號分隔，各格答案之間以 / 分隔，斜線前後各留一個空格。",
+      "aliases": [
+        "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1  for i <- 1 to k\n2    do c[i] <- 0\n3  for j <- 1 to length[A]\n4    do c[A[j]] <- c[A[j]] + 1\n5  > c[i] now contains the number of elements equal to i\n6  for i <- 2 to k\n7    do c[i] <- c[i] + c[i-1]\n8  > c[i] now contains the number of elements less than or equal to i\n9  for j <- length[A] downto 1\n10   do B[c[A[j]]] <- A[j]\n11      c[A[j]] <- c[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,3 做到第9行 的 j = 2 時 B陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3 C陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3"
+      ],
+      "originalAnswer": "0,0,2,3,3,3,3,0 / 0,2,3,4,7,7"
+    }
+  }
+}

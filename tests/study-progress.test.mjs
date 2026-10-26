@@ -231,7 +231,7 @@ test('deleted L6 display question 27 is absent and its link, bookmark and practi
  assert.equal(entries.filter(e=>e.id==='L6-038').length,1);
  assert.equal(h.question('L6-038').a,'A. 比較排序');
  const library=JSON.parse(await read('assets/batch-library.json'));
- assert.equal(library.courses.algorithms.count,292);
+ assert.equal(library.courses.algorithms.count,300);
  assert.equal(library.entries.some(e=>e.id==='L6-037'),false);
  assert(library.entries.some(e=>e.id==='L6-038'));
 });
@@ -282,7 +282,7 @@ test('merged sorting questions preserve links, learning records and source-optio
    assert(q.sourceVariants.some(v=>v.opts.includes('D. 桶排序平均情況為 O(n)')&&v.a==='A、B、D'));
   }
  }
- assert.equal(library.courses.algorithms.count,292);
+ assert.equal(library.courses.algorithms.count,300);
 });
 
 test('counting-sort C-array duplicates share one practice question and retain source answers',async()=>{
@@ -306,5 +306,38 @@ test('counting-sort C-array duplicates share one practice question and retain so
  for(const v of versions)assert.equal(v.options[v.choiceKey.charCodeAt(0)-65],v.answer);
  assert(versions.some(v=>v.choiceKey==='C'&&v.answer.includes('每個鍵值')));
  assert.equal(versions.filter(v=>v.choiceKey==='D'&&v.answer.includes('每個值')).length,2);
- assert.equal(library.courses.algorithms.count,292);
+ assert.equal(library.courses.algorithms.count,300);
+});
+
+test('new L6 practice imports preserve distinct counting checkpoints and support separate blank entry',async()=>{
+ const audit=JSON.parse(await read('content/algorithms-l6-practice-import-20261026.json'));
+ assert.equal(audit.mapping.length,60);assert.equal(audit.addedCount,8);
+ assert.equal(new Set(audit.mapping.map(x=>x.targetId)).size,60);
+ const h=await coursePage('algorithms',{search:'?question=L6-063'});
+ const all=h.config.examEntries(['L6']);assert.equal(all.length,60);
+ for(let n=59;n<=66;n++)assert(all.some(e=>e.id===`L6-${String(n).padStart(3,'0')}`));
+ const state=(values,stop)=>{
+  const C=Array(6).fill(0),B=Array(values.length).fill(0);
+  for(const v of values)C[v]++;
+  for(let i=1;i<C.length;i++)C[i]+=C[i-1];
+  for(let j=values.length;j>stop;j--){const v=values[j-1];B[C[v]-1]=v;C[v]--;}
+  return B.join(',')+' / '+C.join(',');
+ };
+ for(const [id,values,stop] of [
+  ['L6-063',[2,5,3,0,2,3,0,3],4],
+  ['L6-065',[2,5,3,0,1,2,1,3,2,0,4],4],
+  ['L6-066',[2,5,3,0,1,2,1,3,2,0,4],0],
+  ['L6-047',[2,5,3,0,2,3,0,3],2],
+ ])assert.equal(h.question(id).a,state(values,stop),id);
+ assert.equal(h.question('L6-047').originalAnswer,'0,0,2,3,3,3,3,0 / 0,2,3,4,7,7');
+ assert.match(h.question('L6-061').note,/歧義/);
+ assert.match(h.question('L6-065').note,/推算/);
+ h.practice();const card=h.document.querySelector('article[data-id="L6-063"]');
+ const inputs=[...card.querySelectorAll('[data-fill-index]')];assert.equal(inputs.length,2);
+ h.question('L6-063').a.split(' / ').forEach((value,i)=>{inputs[i].value=value;h.fire(inputs[i],'input');});
+ h.check(card);assert(card.querySelector('.feedback.correct'));
+ const lib=JSON.parse(await read('assets/batch-library.json'));
+ for(let n=59;n<=66;n++)assert(lib.entries.some(e=>e.id===`L6-${String(n).padStart(3,'0')}`));
+ assert.equal(lib.entries.find(e=>e.id==='L6-047').answer,h.question('L6-047').a);
+ assert.equal(lib.courses.algorithms.count,300);
 });

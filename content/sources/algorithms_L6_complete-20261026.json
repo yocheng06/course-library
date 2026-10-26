@@ -1,0 +1,948 @@
+{
+  "title": "演算法 L6｜排序演算法完整題庫",
+  "version": "2026-10-26",
+  "question_count": 60,
+  "scope": "本次對話提供的 L6 題目；原57題合併5個文字版本為52題，再加入8題，合計60題。",
+  "format_notes": [
+    "此為通用 JSON，未聲稱符合既有網站匯入 schema；可供網站維護時轉換。",
+    "options 為依序 A、B、C、D 的文字陣列；選擇題 answer 為代號陣列；填空題 answer 依空格順序存字串。",
+    "同題選項順序不同已合併，答案代號依本檔選項重新對應。",
+    "is_new_vs_57 標示相較本次對話所貼57題版本新增，非相較最後一輪測驗。",
+    "不含個人作答與測驗分數。"
+  ],
+  "questions": [
+    {
+      "id": "L6-001",
+      "section": "基數排序",
+      "type": "單選題",
+      "question": "基數排序（Radix Sort）通常用於排序什麼類型的資料？",
+      "options": [
+        "單一整數",
+        "指標",
+        "無序節點",
+        "多位數鍵值"
+      ],
+      "answer": [
+        "D"
+      ],
+      "explanation": "鍵值可以拆成多個位數或字元區段，例如多位整數與固定長度編碼。"
+    },
+    {
+      "id": "L6-002",
+      "section": "基數排序",
+      "type": "單選題",
+      "question": "基數排序(Radix Sort)中，變數 r 的含義通常為？",
+      "options": [
+        "維位數",
+        "處理的位數區段長度",
+        "比較次數",
+        "桶的數量"
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "每輪處理 r bits，對應 2^r 種區段值；b 是總位元數。"
+    },
+    {
+      "id": "L6-003",
+      "section": "基數排序",
+      "type": "單選題",
+      "question": "基數排序(Radix Sort)是從哪一位開始排序？",
+      "options": [
+        "隨機位",
+        "最高有效位 (MSD)",
+        "最低有效位 (LSD)",
+        "中間位"
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "本課的 LSD 版本從個位、十位到百位逐輪排序；其他版本可以從 MSD 開始。"
+    },
+    {
+      "id": "L6-004",
+      "section": "基數排序",
+      "type": "單選題",
+      "question": "基數排序(Radix Sort)要求子排序演算法必須是？",
+      "options": [
+        "穩定排序",
+        "原地排序",
+        "快速排序",
+        "比較排序"
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "每輪保持同鍵值元素原有順序，才能保留前幾輪已建立的低位順序。"
+    },
+    {
+      "id": "L6-005",
+      "section": "基數排序",
+      "type": "多選題",
+      "question": "基數排序(Radix Sort)處理 b-bit 數字時，r 的選擇會影響？",
+      "options": [
+        "透視深度",
+        "資料穩定性",
+        "執行時間",
+        "空間消耗"
+      ],
+      "answer": [
+        "C",
+        "D"
+      ],
+      "explanation": "輪數約為 ceil(b/r)，每輪值域為 2^r。r 同時影響輪數、每輪成本與計數空間。"
+    },
+    {
+      "id": "L6-006",
+      "section": "基數排序",
+      "type": "多選題",
+      "question": "基數排序(Radix Sort)可以使用哪種穩定排序作為子程序？",
+      "options": [
+        "Merge Sort",
+        "Counting Sort",
+        "Insertion Sort",
+        "Quick Sort"
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "前三者在標準穩定實作下都能使用；一般 Quick Sort 不穩定。選用其他子排序後，整體時間不一定線性。"
+    },
+    {
+      "id": "L6-007",
+      "section": "基數排序",
+      "type": "多選題",
+      "question": "下列哪些特徵是基數排序與計數排序(Radix Sort and Counting Sort)共有的？",
+      "options": [
+        "皆使用桶作為中間結構",
+        "皆可達成線性時間",
+        "皆非比較排序",
+        "皆需穩定排序子程序"
+      ],
+      "answer": [
+        "B",
+        "C"
+      ],
+      "explanation": "兩者在適當值域與位數條件下可線性，且不屬於純比較排序模型；Counting Sort 不需要另外呼叫穩定子排序。"
+    },
+    {
+      "id": "L6-008",
+      "section": "基數排序",
+      "type": "多選題",
+      "question": "基數排序(Radix Sort)的優點有？",
+      "options": [
+        "可擴展性強",
+        "靈活處理多維資料",
+        "穩定",
+        "時間複雜度隨輸入長度線性增加"
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依題庫答案全選。穩定性依賴穩定子排序；線性成長需位數與基數等條件受控，多維資料需有明確鍵值優先順序。"
+    },
+    {
+      "id": "L6-009",
+      "section": "基數排序",
+      "type": "填空題",
+      "question": "給定課本版本的RADIX_SORT 演算法。\n\nRADIX_SORT(A, d)\n1 for i <- 1 to d\n2   do use a stable sort to sort array A on digit i\n\nA陣列的內容為 4329,4057,6507,2839,6436,7720,8355\n當 i = 3 時 A陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3",
+      "options": [],
+      "answer": [
+        "4057,4329,8355,6436,6507,7720,2839"
+      ],
+      "explanation": "完成個位、十位、百位三輪後，依最後三位排序；此時尚未排千位。"
+    },
+    {
+      "id": "L6-010",
+      "section": "基數排序",
+      "type": "填空題",
+      "question": "給定課本版本的RADIX_SORT 演算法。\n\nRADIX_SORT(A, d)\n1 for i <- 1 to d\n2   do use a stable sort to sort array A on digit i\n\nA陣列的內容為 329,457,657,839,436,720,355\n當 i = 2 時 A陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3",
+      "options": [],
+      "answer": [
+        "720,329,436,839,355,457,657"
+      ],
+      "explanation": "先穩定排個位，再穩定排十位。相同十位的元素保留前一輪的順序。"
+    },
+    {
+      "id": "L6-011",
+      "section": "基數排序",
+      "type": "填空題",
+      "question": "基數排序從 [__1__] 有效位開始排序 (請用小寫英文回答)",
+      "options": [],
+      "answer": [
+        "least"
+      ],
+      "explanation": "空格後已有「有效位」，只填 least。"
+    },
+    {
+      "id": "L6-012",
+      "section": "基數排序",
+      "type": "單選題",
+      "question": "基數排序(Radix Sort)在處理 b-bit 數字時，時間複雜度為？",
+      "options": [
+        "O(n)",
+        "O(n log n)",
+        "Θ((b/r)(n + 2^r))",
+        "O(n²)"
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "每輪 Counting Sort 為 Θ(n+2^r)，共約 b/r 輪。一般寫 Θ(ceil(b/r)(n+2^r))；課本常假設 1≤r≤b。",
+      "is_new_vs_57": true
+    },
+    {
+      "id": "L6-013",
+      "section": "桶排序",
+      "type": "單選題",
+      "question": "桶排序中(Bucket Sort)，每個桶內部的排序通常使用？",
+      "options": [
+        "基數排序",
+        "快速排序",
+        "插入排序",
+        "計數排序"
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "課本 BUCKET_SORT 使用 Insertion Sort；平均每桶很少元素時成本低。"
+    },
+    {
+      "id": "L6-014",
+      "section": "桶排序",
+      "type": "單選題",
+      "question": "桶排序(Bucket Sort)中，若資料均勻分佈，預期時間複雜度為？",
+      "options": [
+        "Θ(n)",
+        "Θ(log n)",
+        "Θ(n log n)",
+        "Θ(n^2)"
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "在課本均勻分布與 n 個桶的假設下，所有桶內排序的期望總成本為 Θ(n)。"
+    },
+    {
+      "id": "L6-015",
+      "section": "桶排序",
+      "type": "單選題",
+      "question": "桶排序（Bucket Sort）假設輸入資料分佈為？",
+      "options": [
+        "常態分佈",
+        "均勻分佈",
+        "完全有序",
+        "指數分佈"
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "均勻分布是假設，用來支持期望線性時間分析，並非正確排序的必要條件。"
+    },
+    {
+      "id": "L6-016",
+      "section": "桶排序",
+      "type": "單選題",
+      "question": "桶排序(Bucket Sort)中，如果桶內的資料傾斜嚴重（Unbalanced），會導致？",
+      "options": [
+        "效能下降至 O(n^2)",
+        "排序結果錯誤",
+        "時間複雜度依然為 O(n)",
+        "無法進行合併"
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "大量元素集中同桶時，桶內插入排序最壞可達 Θ(n²)，因此 O(n²) 成立。"
+    },
+    {
+      "id": "L6-017",
+      "section": "桶排序",
+      "type": "多選題",
+      "question": "桶排序(Bucket Sort)適合處理？",
+      "options": [
+        "需要線性效能數據",
+        "均勻分佈數據",
+        "完全雜亂無序數據",
+        "區間範圍明確數據"
+      ],
+      "answer": [
+        "A",
+        "B",
+        "D"
+      ],
+      "explanation": "依題庫答案選 A、B、D。需要線性效能本身不能保證線性，仍需分布、桶數等條件。",
+      "merged_variants": [
+        "原 #017 的「通常範圍明確數據／完全非亂無序數據」版本；依答案內容合併。",
+        "另有干擾選項「完全倒置順序數據」版本。"
+      ]
+    },
+    {
+      "id": "L6-018",
+      "section": "桶排序",
+      "type": "多選題",
+      "question": "桶排序(Bucket Sort)處理過程包含？",
+      "options": [
+        "合併桶",
+        "分配至各桶",
+        "隨機洗牌",
+        "分別對桶排序"
+      ],
+      "answer": [
+        "A",
+        "B",
+        "D"
+      ],
+      "explanation": "依序分桶、桶內排序，再按桶號合併；隨機洗牌不是必要步驟。"
+    },
+    {
+      "id": "L6-019",
+      "section": "桶排序",
+      "type": "多選題",
+      "question": "桶排序(Bucket Sort)的效能取決於？",
+      "options": [
+        "輸入元素的絕對值",
+        "桶的數量",
+        "輸入資料分布",
+        "桶內部的排序演算法"
+      ],
+      "answer": [
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "桶數、分布與桶內排序方法決定工作量，元素絕對值大小不是直接決定因素。"
+    },
+    {
+      "id": "L6-020",
+      "section": "桶排序",
+      "type": "填空題",
+      "question": "給定課本版本的BUCKET_SORT 演算法。\n\nBUCKET_SORT(A)\n1 n <- length[A]\n2 for i <- 1 to n\n3   do insert A[i] into list B[⌊nA[i]⌋]\n4 for i <- 0 to n-1\n5   do sort list B[i] with insertion sort\n6 concatenate B[0], B[1], ..., B[n-1] together in order\n\nA陣列的內容為 0.78,0.17,0.39,0.26,0.72,0.94,0.21,0.12,0.23,0.68\n第2行做到 i=5 B 陣列的內容如何？B陣列的B[1]、B[2]、B[7] 的內容為何[__1__][__2__][__3__] 格式: 0.2,0.5,0.3,0.1,0.2,0.3,0.5,0.3",
+      "options": [],
+      "answer": [
+        "0.17",
+        "0.26",
+        "0.78,0.72"
+      ],
+      "explanation": "題庫採已分配前五筆、按輸入先後加入桶的解讀；尚未桶內排序。"
+    },
+    {
+      "id": "L6-021",
+      "section": "桶排序",
+      "type": "填空題",
+      "question": "給定課本版本的BUCKET_SORT 演算法。\n\nBUCKET_SORT(A)\n1 n <- length[A]\n2 for i <- 1 to n\n3   do insert A[i] into list B[⌊nA[i]⌋]\n4 for i <- 0 to n-1\n5   do sort list B[i] with insertion sort\n6 concatenate B[0], B[1], ..., B[n-1] together in order\n\nA陣列的內容為 0.78,0.17,0.39,0.26,0.72,0.94,0.21,0.12,0.23,0.68\n第2行做到 i=7 B 陣列的內容如何？B陣列的B[1]、B[2]、B[7] 的內容為何[__1__][__2__][__3__] 格式: 0.2,0.5,0.3,0.1,0.2,0.3,0.5,0.3",
+      "options": [],
+      "answer": [
+        "0.17",
+        "0.26,0.21",
+        "0.78,0.72"
+      ],
+      "explanation": "已分配前七筆；第七筆 0.21 加入 B[2]，仍未桶內排序。"
+    },
+    {
+      "id": "L6-022",
+      "section": "桶排序",
+      "type": "填空題",
+      "question": "桶排序中，若桶內元素過多，複雜度會退化為 [__1__] (請用英文回答，請用log，不可用lg，上標用^)",
+      "options": [],
+      "answer": [
+        "O(n^2)"
+      ],
+      "explanation": "桶內採插入排序時，最壞二次時間。依題庫精確格式填 O(n^2)。"
+    },
+    {
+      "id": "L6-023",
+      "section": "桶排序",
+      "type": "填空題",
+      "question": "給定課本版本的BUCKET_SORT 演算法。\n\nBUCKET_SORT(A)\n1 n <- length[A]\n2 for i <- 1 to n\n3   do insert A[i] into list B[⌊nA[i]⌋]\n4 for i <- 0 to n-1\n5   do sort list B[i] with insertion sort\n6 concatenate B[0], B[1], ..., B[n-1] together in order\n\nA陣列的內容為 0.78,0.17,0.39,0.26,0.72,0.94,0.21,0.12,0.23,0.68\n第4行做到 i=7 B 陣列的內容如何？B陣列的B[1]、B[2]、B[7] 的內容為何[__1__][__2__][__3__] 格式: 0.2,0.5,0.3,0.1,0.2,0.3,0.5,0.3",
+      "options": [],
+      "answer": [
+        "0.12,0.17",
+        "0.21,0.23,0.26",
+        "0.78,0.72"
+      ],
+      "explanation": "全部元素已分桶；依官方答案，停在尚未排序 B[7] 的時點，所以 B[1]、B[2] 已排序，B[7] 尚未排序。"
+    },
+    {
+      "id": "L6-024",
+      "section": "桶排序",
+      "type": "填空題",
+      "question": "給定課本版本的BUCKET_SORT 演算法。\n\nBUCKET_SORT(A)\n1 n <- length[A]\n2 for i <- 1 to n\n3   do insert A[i] into list B[⌊nA[i]⌋]\n4 for i <- 0 to n-1\n5   do sort list B[i] with insertion sort\n6 concatenate B[0], B[1], ..., B[n-1] together in order\n\nA陣列的內容為 0.78,0.17,0.39,0.26,0.72,0.94,0.21,0.12,0.23,0.68\n第4行做到 i=5 B 陣列的內容如何？B陣列的B[1]、B[2]、B[6] 的內容為何[__1__][__2__][__3__] 格式: 0.2,0.5,0.3,0.1,0.2,0.3,0.5,0.3",
+      "options": [],
+      "answer": [
+        "0.12,0.17",
+        "0.21,0.23,0.26",
+        "0.68"
+      ],
+      "explanation": "已完成所有元素分桶；B[1]、B[2] 已排序，B[6] 只有一筆。"
+    },
+    {
+      "id": "L6-025",
+      "section": "排序基礎",
+      "type": "單選題",
+      "question": "決策樹的高度下界為？",
+      "options": [
+        "Ω(n^2)",
+        "Ω(n log n)",
+        "Ω(n)",
+        "Ω(log n)"
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "n 個互異元素有 n! 種排列；2^h≥n!，故 h≥log₂(n!)=Ω(n log n)。"
+    },
+    {
+      "id": "L6-026",
+      "section": "排序基礎",
+      "type": "單選題",
+      "question": "決策樹模型證明了？",
+      "options": [
+        "桶排序的正確性",
+        "比較排序的極限",
+        "線性排序的極限",
+        "堆積排序的正確性"
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "證明比較排序的最壞比較次數下界，並不是證明某個排序的正確性。"
+    },
+    {
+      "id": "L6-027",
+      "section": "排序基礎",
+      "type": "單選題",
+      "question": "決策樹模型（Decision Tree Model）主要用於分析哪類演算法？",
+      "options": [
+        "比較排序",
+        "圖論演算法",
+        "動態規劃",
+        "線性排序"
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "此處以比較結果作分支，分析比較排序所需的比較次數。"
+    },
+    {
+      "id": "L6-028",
+      "section": "排序基礎",
+      "type": "單選題",
+      "question": "任何基於比較的排序(comparison-based sortin)演算法，其最差時間複雜度下界為？",
+      "options": [
+        "Ω(n^2)",
+        "O(log n)",
+        "Ω(n log n)",
+        "O(n)"
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "任何比較排序，都存在需要至少 Ω(n log n) 次比較的輸入；這不是最佳情況下界。"
+    },
+    {
+      "id": "L6-029",
+      "section": "排序基礎",
+      "type": "單選題",
+      "question": "下列何者不是線性時間排序演算法？",
+      "options": [
+        "桶排序",
+        "計數排序",
+        "快速排序",
+        "基數排序"
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "快速排序平均 Θ(n log n)，最壞 Θ(n²)。其餘三者在適當條件下可線性。"
+    },
+    {
+      "id": "L6-030",
+      "section": "排序基礎",
+      "type": "單選題",
+      "question": "決策樹中的每一個葉節點代表？",
+      "options": [
+        "一個桶",
+        "一種可能的排序排列",
+        "一個輸入元素",
+        "一個比較操作"
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "葉節點是比較過程結束後決定的元素次序（按輸入元素身分）；不是一個元素或一次比較。"
+    },
+    {
+      "id": "L6-031",
+      "section": "排序基礎",
+      "type": "單選題",
+      "question": "在比較排序中，決策樹的葉節點個數等於？",
+      "options": [
+        "log n",
+        "n!",
+        "n²",
+        "n"
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "題庫答案為 n!；嚴格說為至少 n!，有冗餘的決策樹可能更多。"
+    },
+    {
+      "id": "L6-032",
+      "section": "排序基礎",
+      "type": "多選題",
+      "question": "線性時間排序演算法的共通限制包括？",
+      "options": [
+        "不使用比較模型",
+        "空間消耗可能較大",
+        "無法處理負數",
+        "通常有特定的輸入假設"
+      ],
+      "answer": [
+        "A",
+        "B",
+        "D"
+      ],
+      "explanation": "利用鍵值、位數或分布等額外資訊。桶內可用比較排序，但整體不是純比較模型；負數可經適當轉換處理。"
+    },
+    {
+      "id": "L6-033",
+      "section": "排序基礎",
+      "type": "多選題",
+      "question": "線性時間排序演算法包含？",
+      "options": [
+        "Bucket Sort",
+        "Heapsort",
+        "Radix Sort",
+        "Counting Sort"
+      ],
+      "answer": [
+        "A",
+        "C",
+        "D"
+      ],
+      "explanation": "三者在各自假設下可以達到線性；Heapsort 為 Θ(n log n) 比較排序。"
+    },
+    {
+      "id": "L6-034",
+      "section": "排序基礎",
+      "type": "多選題",
+      "question": "關於決策樹，下列敘述何者正確？",
+      "options": [
+        "樹的高度與比較次數無關",
+        "每個內部節點是一個比較",
+        "每個分支代表一個比較結果",
+        "樹的葉節點數量至少為 n!"
+      ],
+      "answer": [
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "互異元素有 n! 種排列，樹需有足夠葉節點區分；高度對應最壞比較次數。",
+      "merged_variants": [
+        "原 #034 的 nl 判定為疑似 n! 抄錄錯誤，採官方結果文字修正後合併；原版答案 A、B 只適用原錯字選項。"
+      ]
+    },
+    {
+      "id": "L6-035",
+      "section": "排序基礎",
+      "type": "多選題",
+      "question": "下列關於排序演算法複雜度的敘述，正確的有？",
+      "options": [
+        "所有排序都能做到 O(n)",
+        "計數排序可以做到 Θ(n+k)",
+        "桶排序平均情況為 Θ(n)",
+        "比較排序下界 Ω(n log n)"
+      ],
+      "answer": [
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "桶排序在均勻分布等假設下期望 Θ(n)；比較排序最壞下界 Ω(n log n)。",
+      "merged_variants": [
+        "桶排序平均 O(n) 的版本也成立，合併到本題；代號依本題重新對應。"
+      ]
+    },
+    {
+      "id": "L6-036",
+      "section": "排序基礎",
+      "type": "多選題",
+      "question": "關於線性時間排序，下列何者正確？",
+      "options": [
+        "不適用於任意物件",
+        "需要額外假設",
+        "空間換取時間",
+        "比比較排序永遠快"
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "輸入鍵值必須符合可索引、可拆位或分布條件；不保證所有情況都比比較排序快。"
+    },
+    {
+      "id": "L6-037",
+      "section": "排序基礎",
+      "type": "多選題",
+      "question": "決策樹模型可以用來證明下列哪些演算法的最優性？",
+      "options": [
+        "Heap Sort",
+        "Counting Sort",
+        "Insertion Sort",
+        "Merge Sort"
+      ],
+      "answer": [
+        "A",
+        "D"
+      ],
+      "explanation": "Heap Sort 與 Merge Sort 最壞 Θ(n log n)，達到比較模型的漸近下界。"
+    },
+    {
+      "id": "L6-038",
+      "section": "排序基礎",
+      "type": "填空題",
+      "question": "決策樹模型證明了任何比較排序在最壞情況下至少需要 [__1__] 比較次數 (請用小寫英文回答)",
+      "options": [],
+      "answer": [
+        "big-omega(nlogn)"
+      ],
+      "explanation": "決策樹高度至少 log₂(n!)，因此最壞比較次數為 Ω(n log n)。"
+    },
+    {
+      "id": "L6-039",
+      "section": "排序基礎",
+      "type": "填空題",
+      "question": "決策樹的葉節點數量至少為 [__1__] (請用小寫英文回答)",
+      "options": [],
+      "answer": [
+        "n!"
+      ],
+      "explanation": "n 個互異元素共有 n! 種排列，必須分辨所有排列。"
+    },
+    {
+      "id": "L6-040",
+      "section": "排序基礎",
+      "type": "填空題",
+      "question": "比較排序的時間複雜度下界為 [__1__] (請用英文回答，請用log，不可用lg，上標用^)",
+      "options": [],
+      "answer": [
+        "big-omega(nlogn)"
+      ],
+      "explanation": "此處指一般比較排序的最壞情況下界；保留原填空題型。",
+      "is_new_vs_57": true
+    },
+    {
+      "id": "L6-041",
+      "section": "排序基礎",
+      "type": "單選題",
+      "question": "下列哪種排序演算法是「穩定」的（Stable）？",
+      "options": [
+        "計數排序",
+        "桶排序（若使用穩定排序作為子程序）",
+        "快速排序",
+        "堆積排序"
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "官方測驗為單選，僅接受 A。B 若分桶時也保留同鍵值元素順序，再採穩定子排序，也能穩定，因此此題有歧義；練習依官方選 A。",
+      "is_new_vs_57": true,
+      "status": "答案有爭議",
+      "conceptually_valid_with_conditions": [
+        "B"
+      ]
+    },
+    {
+      "id": "L6-042",
+      "section": "計數排序",
+      "type": "單選題",
+      "question": "計數排序(Counting Sort)中，陣列 C 的作用是？",
+      "options": [
+        "儲存原始資料",
+        "作為桶",
+        "儲存指標",
+        "儲存每個值的出現次數或累積計數"
+      ],
+      "answer": [
+        "D"
+      ],
+      "explanation": "統計階段 C[x] 為 x 的次數；累積後為 ≤x 的元素數；回填時作為下一個寫入位置並遞減。",
+      "merged_variants": [
+        "原 #042、#044 的鍵／值／鍵值文字版本合併；不同干擾選項在原資料有作為樞紐／作為桶。"
+      ]
+    },
+    {
+      "id": "L6-043",
+      "section": "計數排序",
+      "type": "單選題",
+      "question": "計數排序(Counting Sort)的空間複雜度主要取決於？",
+      "options": [
+        "透視深度",
+        "參數 k (數值範圍)",
+        "樹的高度",
+        "輸入長度 n"
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "題庫強調計數陣列 C 的 Θ(k) 空間；若包含輸出陣列 B，完整輔助空間為 Θ(n+k)。"
+    },
+    {
+      "id": "L6-044",
+      "section": "計數排序",
+      "type": "單選題",
+      "question": "如果所有輸入元素皆為 1 到 k，計數排序(Counting Sort)的時間複雜度為？",
+      "options": [
+        "Θ(n + k)",
+        "Θ(k log k)",
+        "Θ(n log n)",
+        "Θ(n^2)"
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "初始化與累積 Θ(k)，掃描及輸出 Θ(n)，合計 Θ(n+k)。"
+    },
+    {
+      "id": "L6-045",
+      "section": "計數排序",
+      "type": "單選題",
+      "question": "計數排序（Counting Sort）要求輸入元素必須是？",
+      "options": [
+        "字串",
+        "結構體",
+        "整數",
+        "實數"
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "基本版本要求有界整數鍵值，才能用作計數陣列索引；紀錄或結構體可依其整數鍵排序。"
+    },
+    {
+      "id": "L6-046",
+      "section": "計數排序",
+      "type": "單選題",
+      "question": "當 k = O(n) 時，計數排序(Counting Sort)的時間複雜度為？",
+      "options": [
+        "Θ(n^2)",
+        "Θ(n log n)",
+        "Θ(n)",
+        "Θ(log n)"
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "Θ(n+k) 在 k=O(n) 時化為 Θ(n)。"
+    },
+    {
+      "id": "L6-047",
+      "section": "計數排序",
+      "type": "多選題",
+      "question": "計數排序(Counting Sort)需要哪幾個輔助陣列？",
+      "options": [
+        "B (用於存放結果)",
+        "D (用於遞迴)",
+        "A (輸入陣列)",
+        "C (用於計數)"
+      ],
+      "answer": [
+        "A",
+        "D"
+      ],
+      "explanation": "選項 A 代表陣列 B，選項 D 代表陣列 C；輸入陣列 A 不算輔助陣列。"
+    },
+    {
+      "id": "L6-048",
+      "section": "計數排序",
+      "type": "多選題",
+      "question": "哪些情況下不適合使用計數排序(Counting Sort)？",
+      "options": [
+        "鍵值為浮點數",
+        "鍵值範圍 k 極大",
+        "資料僅為整數",
+        "記憶體非常有限"
+      ],
+      "answer": [
+        "A",
+        "B",
+        "D"
+      ],
+      "explanation": "浮點數不能直接按基本整數索引版本使用；k 太大增加時間和空間成本。"
+    },
+    {
+      "id": "L6-049",
+      "section": "計數排序",
+      "type": "填空題",
+      "question": "計數排序的時間複雜度為 [__1__] (請用英文回答，請用log，不可用lg，上標用^)",
+      "options": [],
+      "answer": [
+        "big-theta(n+k)"
+      ],
+      "explanation": "依題庫精確輸入 big-theta(n+k)。"
+    },
+    {
+      "id": "L6-050",
+      "section": "計數排序",
+      "type": "填空題",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,5,1,2,1,3,2,0,4\n做到第9行前\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3",
+      "options": [],
+      "answer": [
+        "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
+        "3,5,9,12,13,15"
+      ],
+      "explanation": "次數為 3,2,4,3,1,2，累積後如答案；尚未回填 B。 原碼有 0 鍵值索引問題，解題採初始化 C[0..k]、累積從 i=1 起的修正版；B 未寫入欄位依題庫以 0 表示。"
+    },
+    {
+      "id": "L6-051",
+      "section": "計數排序",
+      "type": "填空題",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,5,1,2,1,3,2,0,4\n做到第9行 j=12\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3",
+      "options": [],
+      "answer": [
+        "0,0,0,0,0,0,0,0,2,0,0,0,4,0,0",
+        "2,5,8,12,12,15"
+      ],
+      "explanation": "僅處理 j=15、14、13；尚未處理 A[12]。 原碼有 0 鍵值索引問題，解題採初始化 C[0..k]、累積從 i=1 起的修正版；B 未寫入欄位依題庫以 0 表示。"
+    },
+    {
+      "id": "L6-052",
+      "section": "計數排序",
+      "type": "填空題",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,3\n做到第9行前\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3",
+      "options": [],
+      "answer": [
+        "0,0,0,0,0,0,0,0",
+        "2,2,4,7,7,8"
+      ],
+      "explanation": "次數為 2,0,2,3,0,1；累積後如答案。 原碼有 0 鍵值索引問題，解題採初始化 C[0..k]、累積從 i=1 起的修正版；B 未寫入欄位依題庫以 0 表示。"
+    },
+    {
+      "id": "L6-053",
+      "section": "計數排序",
+      "type": "填空題",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,5,1,2,1,3,2,0,4\n執行完後\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3",
+      "options": [],
+      "answer": [
+        "0,0,0,1,1,2,2,2,2,3,3,3,4,5,5",
+        "0,3,5,9,12,13"
+      ],
+      "explanation": "B 完成排序；最終 C[x] 等於小於 x 的元素數。 原碼有 0 鍵值索引問題，解題採初始化 C[0..k]、累積從 i=1 起的修正版；B 未寫入欄位依題庫以 0 表示。"
+    },
+    {
+      "id": "L6-054",
+      "section": "計數排序",
+      "type": "填空題",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,3\n做到第9行 j=2\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3",
+      "options": [],
+      "answer": [
+        "0,0,0,2,3,3,3,0",
+        "0,2,3,4,7,8"
+      ],
+      "explanation": "已處理 j=8 到 3，尚未處理 A[2]=5。原網站答案 B=0,0,2,3,3,3,3,0，C=0,2,3,4,7,7 有誤，依演算法修正。 原碼有 0 鍵值索引問題，解題採初始化 C[0..k]、累積從 i=1 起的修正版；B 未寫入欄位依題庫以 0 表示。",
+      "status": "原答案已修正",
+      "verification": "演算法計算；未獲新版官方結果確認",
+      "original_answer": [
+        "0,0,2,3,3,3,3,0",
+        "0,2,3,4,7,7"
+      ]
+    },
+    {
+      "id": "L6-055",
+      "section": "計數排序",
+      "type": "填空題",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,5,1,2,1,3,2,0,4\n做到第9行 j=4\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3",
+      "options": [],
+      "answer": [
+        "0,0,0,1,1,0,2,2,2,0,3,3,4,0,5",
+        "1,3,6,10,12,14"
+      ],
+      "explanation": "已處理 j=15 到 5，尚未處理 A[4]=0。官方結果已確認。 原碼有 0 鍵值索引問題，解題採初始化 C[0..k]、累積從 i=1 起的修正版；B 未寫入欄位依題庫以 0 表示。"
+    },
+    {
+      "id": "L6-056",
+      "section": "計數排序",
+      "type": "單選題",
+      "question": "計數排序中的 C[i] 儲存的是？",
+      "options": [
+        "指向元素 i 的指標",
+        "元素 i 的位置",
+        "元素 i 的具體值",
+        "小於或等於 i 的元素總數"
+      ],
+      "answer": [
+        "D"
+      ],
+      "explanation": "指累積計數完成且尚未回填的階段；統計階段僅記錄等於 i 的次數，回填時會遞減。",
+      "is_new_vs_57": true
+    },
+    {
+      "id": "L6-057",
+      "section": "計數排序",
+      "type": "填空題",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,2,3,0,3\n做到第9行 j=4\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3",
+      "options": [],
+      "answer": [
+        "0,0,0,2,0,3,3,0",
+        "1,2,3,5,7,8"
+      ],
+      "explanation": "已處理 j=8、7、6、5；官方測驗結果已確認。 原碼有 0 鍵值索引問題，解題採初始化 C[0..k]、累積從 i=1 起的修正版；B 未寫入欄位依題庫以 0 表示。",
+      "is_new_vs_57": true
+    },
+    {
+      "id": "L6-058",
+      "section": "計數排序",
+      "type": "多選題",
+      "question": "計數排序(Counting Sort)的特性包含？",
+      "options": [
+        "線性時間複雜度",
+        "適用於負數",
+        "需要 O(k) 額外空間",
+        "穩定"
+      ],
+      "answer": [
+        "A",
+        "C",
+        "D"
+      ],
+      "explanation": "官方答案 A、C、D。線性需 k=O(n)；O(k) 指計數陣列，含輸出總空間 Θ(n+k)。基本版本不直接支援負索引，位移後可處理負數。",
+      "is_new_vs_57": true
+    },
+    {
+      "id": "L6-059",
+      "section": "計數排序",
+      "type": "填空題",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,1,2,1,3,2,0,4\n做到第9行 j=4\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3",
+      "options": [],
+      "answer": [
+        "0,0,1,1,0,2,2,0,3,4,0",
+        "1,2,5,8,9,11"
+      ],
+      "explanation": "11 個元素，已處理 j=11 到 5。此版本只在文字題目出現；後續結果頁同位置改成 15 個元素，故本題僅為演算法計算答案。 原碼有 0 鍵值索引問題，解題採初始化 C[0..k]、累積從 i=1 起的修正版；B 未寫入欄位依題庫以 0 表示。",
+      "is_new_vs_57": true,
+      "verification": "演算法計算；無同版本官方結果確認"
+    },
+    {
+      "id": "L6-060",
+      "section": "計數排序",
+      "type": "填空題",
+      "question": "給定課本版本的COUNTING_SORT演算法。\n\nCOUNTING_SORT(A, B, k)\n1 for i <- 1 to k\n2   do C[i] <- 0\n3 for j <- 1 to length[A]\n4   do C[A[j]] <- C[A[j]] + 1\n5 > C[i] now contains the number of elements equal to i\n6 for i <- 2 to k\n7   do C[i] <- C[i] + C[i-1]\n8 > C[i] now contains the number of elements less than or equal to i\n9 for j <- length[A] downto 1\n10  do B[C[A[j]]] <- A[j]\n11     C[A[j]] <- C[A[j]] - 1\n\nA陣列的內容為 2,5,3,0,1,2,1,3,2,0,4\n執行完後\nB陣列的內容為何[__1__] 格式: 2,5,3,0,2,3,0,3\nC陣列的內容為何[__2__] 格式: 2,5,3,0,2,3,0,3",
+      "options": [],
+      "answer": [
+        "0,0,1,1,2,2,2,3,3,4,5",
+        "0,2,4,7,9,10"
+      ],
+      "explanation": "11 個元素排序結果；官方測驗結果已確認。 原碼有 0 鍵值索引問題，解題採初始化 C[0..k]、累積從 i=1 起的修正版；B 未寫入欄位依題庫以 0 表示。",
+      "is_new_vs_57": true
+    }
+  ]
+}
