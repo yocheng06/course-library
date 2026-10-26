@@ -199,3 +199,18 @@ test('a failure writing the practice half of a full backup rolls back storage an
  h.context.localStorage.setItem=(key,value)=>{if(fail&&key.includes('.practice.')){fail=false;throw new Error('quota');}original(key,value);};
  assert.throws(()=>api.restore(raw),/無法保存/);assert.deepEqual([...h.storage],before);assert.equal(JSON.stringify(h.progress.getStats()),stats);
 });
+
+for(const course of ['os','algorithms'])test(course+' approved future units appear in navigation and exam ranges without accepting duplicate questions or HTML names',async()=>{
+ const h=await coursePage(course),id='community-00000000-0000-4000-8000-000000000099-1',unit=course==='os'?'L9':'L7';
+ const title='<img src=x> 新單元';
+ const q=course==='os'?{id,stem:'新單元題目',answer:'answer',options:[],type:'填空題',answerProvided:true,category:'測試',unitTitle:title}:{bookmarkId:id,q:'新單元題目',a:'answer',opts:[],type:'填空題',answerProvided:true,category:'測試',unitTitle:title};
+ h.window.HTMLElement.prototype.showModal=function(){this.setAttribute('open','');};
+ vm.runInContext(await read('assets/course-exam.js'),h.context);
+ const result=h.config.mergeCommunityQuestions([{unit,question:q}]);assert.equal(result.added,1);assert(h.config.examUnits().some(u=>u.id===unit));
+ assert.equal(h.config.mergeCommunityQuestions([{unit,question:q}]).added,0);
+ assert.equal(h.document.querySelector('img[src="x"]'),null);
+ const button=course==='os'?h.document.querySelectorAll('[data-unit]')[7]:h.document.querySelector('[data-lesson="L7"]');h.fire(button,'click');
+ assert(h.config.list.querySelector(`article[data-id="${id}"]`));
+ h.click('#examMode');assert([...h.document.querySelector('[data-exam-to]').options].some(o=>o.value===unit));
+ assert.equal(h.config.examEntries([unit]).length,1);
+});

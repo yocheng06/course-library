@@ -28,3 +28,5 @@ Runtime 設定由 Sites 管理，不能放進 GitHub：`ADMIN_SETUP_CODE`（建�
 新增免登入勘誤：`POST /api/corrections` 接受公開題目 ID、問題說明與建議；`GET /api/corrections/:id` 只回傳狀態及站主說明。勘誤清單與 POST 審核操作需管理者登入，審核以 revision 避免覆蓋，處理說明必填。新資料表由 `0004_burly_bromley` 遷移建立，完整管理備份也包含勘誤。確認勘誤不直接修改公開答案。
 
 分組投稿可附上 UUID 格式 `clientRequestId`。相同 ID、相同正規化內容會回傳原收據，不再新增投稿；同 ID 改變內容則回傳 409。匿名勘誤沿用投稿頻率限制與來源檢查。
+
+投稿支援未建立的編號單元：`unit` 可填 `L7` 等 1–99 的編號，`unitTitle` 為選填名稱；既有 OS 單元編號會對應原固定 ID。名稱隨審核保存到核准題目的 JSON。`GET /api/units?course=os|algorithms` 回傳內建與已公開的投稿單元，不含待審核單元；不需新增資料表。

@@ -832,6 +832,7 @@ async function decide(request, env, id) {
                 warn: false,
                 exact: false,
               };
+        if (payload.unitTitle) raw.unitTitle = payload.unitTitle;
         published.push({
           id: questionId,
           fingerprint: keys[i],
@@ -1091,6 +1092,7 @@ function publicationRow(row) {
     submissionId: row.submission_id,
     course: row.course,
     unit: row.unit,
+    unitTitle: JSON.parse(row.data).unitTitle || "",
     question: canonicalQuestion(JSON.parse(row.data)),
     revision: row.revision,
     published: Boolean(row.is_published),
@@ -1252,6 +1254,7 @@ async function editPublication(request, env, id) {
             choiceKey: q.choiceKey,
             imageKeys: q.imageKeys,
           };
+    if(batch.unitTitle)raw.unitTitle=batch.unitTitle;else delete raw.unitTitle;
   }
   const published =
       body.action === "hide"
@@ -1499,6 +1502,17 @@ async function route(request, env) {
       note: row.note,
       reviewedAt: row.reviewed_at,
     });
+  }
+  if (path === '/api/units' && request.method === 'GET') {
+    const course=url.searchParams.get('course');
+    if(!Object.hasOwn(COURSE_UNITS,course))throw new HttpError(400,'請指定科目。');
+    const rows=await env.DB.prepare('SELECT unit,data FROM public_questions WHERE course=? AND is_published=1 ORDER BY created_at,id').bind(course).all();
+    const units=new Map(Object.entries(COURSE_UNITS[course].units).map(([id,label])=>[id,{id,title:label.replace(/^L\d+ · /,'')} ]));
+    for(const row of rows.results){
+      if(units.has(row.unit) || !/^L[1-9]\d?$/.test(row.unit))continue;
+      const q=JSON.parse(row.data);units.set(row.unit,{id:row.unit,title:String(q.unitTitle || '第 '+row.unit.slice(1)+' 單元').slice(0,60)});
+    }
+    return json({units:[...units.values()]});
   }
   if (path === "/api/questions" && request.method === "GET") {
     const course = url.searchParams.get("course");

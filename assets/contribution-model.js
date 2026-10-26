@@ -24,6 +24,20 @@ export const COURSE_UNITS = {
   },
 };
 export const TYPES = ["單選題", "多選題", "填空題", "圖片題"];
+export function normalizeUnit(course, value) {
+  if (!Object.hasOwn(COURSE_UNITS, course)) throw new Error('請選擇網站現有科目。');
+  if (typeof value !== 'string') throw new Error('請選擇單元，或填寫 1–99 的新單元編號。');
+  const units = COURSE_UNITS[course].units;
+  if (Object.hasOwn(units, value)) return value;
+  const match = /^L?0*([1-9]\d?)$/i.exec(value.trim());
+  if (!match) throw new Error('請選擇單元，或填寫 1–99 的新單元編號，例如 L7。');
+  const numbered = 'L' + Number(match[1]);
+  return Object.keys(units).find(id => units[id].startsWith(numbered + ' · ')) || numbered;
+}
+export function unitLabel(course, unit, title = '') {
+  const id = normalizeUnit(course, unit);
+  return COURSE_UNITS[course].units[id] || `${id} · ${String(title || '第 ' + id.slice(1) + ' 單元').slice(0,60)}`;
+}
 export function normalizeType(type, images = []) {
   if (images.length || type === "圖片題") return "圖片題";
   if (type === "單選題") return "單選題";
@@ -127,9 +141,8 @@ export function normalizeBatch(
   if (!input || typeof input !== "object" || Array.isArray(input))
     throw new Error("投稿資料格式不正確。");
   const course = text(input.course, "科目", 30, true),
-    unit = text(input.unit, "單元", 30, true);
-  if (!COURSE_UNITS[course]?.units[unit])
-    throw new Error("請選擇網站現有的科目與單元。");
+    unit = normalizeUnit(course, text(input.unit, "單元", 30, true));
+  const unitTitle = text(input.unitTitle, '單元名稱', 60) || `第 ${unit.slice(1)} 單元`;
   if (
     !Array.isArray(input.questions) ||
     !input.questions.length ||
@@ -196,6 +209,7 @@ export function normalizeBatch(
   return {
     course,
     unit,
+    ...(!Object.hasOwn(COURSE_UNITS[course].units, unit) ? {unitTitle} : {}),
     title: text(input.title, "題庫名稱", 100, true),
     name: text(input.name, "投稿者稱呼", 60),
     source: text(input.source, "來源說明", 2000),

@@ -146,3 +146,11 @@ for (const [name, malformed] of [
   assert(ui.$("resultRows").textContent.includes("A. public-answer"));
   assert.equal(ui.$("coverageNotice").hidden, true);
 });
+
+test('approved questions from future units join lookup and unit selection instead of invalidating public coverage',async()=>{
+ const pending=[];const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>base}:new Promise(resolve=>pending.push(resolve)));
+ pending[0](response([{unit:'L9',question:{id:'community-00000000-0000-4000-8000-000000000099-1',unitTitle:'新章節',stem:'第九章公開投稿題目？',options:['A. verified-answer','B. other-answer'],answer:'A',answerProvided:true}}]));pending[1](response());await tick();
+ assert([...ui.$('unit').options].some(option=>option.value==='L9'));
+ ui.$('batchText').value='1. 第九章公開投稿題目？\nA. verified-answer\nB. other-answer';ui.fire('batchForm','submit');
+ assert.match(ui.$('resultRows').textContent,/verified-answer/);assert.doesNotMatch(ui.$('libraryStatus').textContent,/不完整/);
+});

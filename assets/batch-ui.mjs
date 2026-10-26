@@ -206,20 +206,22 @@ async function loadLibrary() {
       try {
         // Validate and build each course atomically. A malformed public record
         // must not erase the ready built-in index or imply complete coverage.
-        const additions = [];
+        const additions = [], newUnits = new Map();
         for (const row of questions) {
           const raw = row?.question;
           if (
-            !library.courses[course].units.some((u) => u.id === row?.unit) ||
+            (!library.courses[course].units.some((u) => u.id === row?.unit) && !/^L[1-9]\d?$/.test(row?.unit)) ||
             !validPublicQuestion(raw) ||
             !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(raw.id || raw.bookmarkId || "")
           ) throw new Error("public-data");
+          if(!library.courses[course].units.some(u=>u.id===row.unit))newUnits.set(row.unit,{id:row.unit,name:row.unit+' · '+String(raw.unitTitle||'新單元').slice(0,60)});
           const expanded = expandLibraryQuestion(course, row.unit, raw);
           if (!expanded.length) throw new Error("public-data");
           additions.push(...expanded);
         }
         const candidate = buildIndex([...entries, ...additions]);
         entries.push(...additions);
+        library.courses[course].units.push(...newUnits.values());
         nextIndex = candidate;
         coverage[course] = true;
         publicChanged = true;
@@ -230,6 +232,7 @@ async function loadLibrary() {
     if (publicChanged) {
       index = nextIndex;
       libraryGeneration++;
+      units();
     }
     syncing = false;
     libraryStatus();

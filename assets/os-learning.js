@@ -15,7 +15,7 @@ let active = 0, page = 1, totalPages = 1, mode = 'study';
 const pageSize = 20, drafts = new Map(), selections = new Map(), revealed = new Set(), feedback = new Map();
 const practiceSequence = window.courseQuestionTools.createPracticeOrder();
 const kind = window.courseQuestionTools.questionType;
-const unitNumber = i => String(i + 2).padStart(2, '0');
+const unitNumber = i => String(UNITS[i]?.number ?? i + 2).padStart(2, '0');
 const unitData = new Map([...document.querySelectorAll('script[data-course-unit]')].map(node => [node.dataset.courseUnit, node.textContent]));
 const courseManifest = JSON.parse(document.getElementById('course-manifest').textContent);
 const UNITS = courseManifest.map(unit => ({...unit, baseQuestionCount:unit.questionCount, questions: null}));
@@ -86,11 +86,11 @@ function matches() {
 function refreshUnitNavigation() {
   const i = active, u = UNITS[i];
   document.querySelectorAll(".community-course-link").forEach(link => { link.href = `submit.html?course=os&unit=${encodeURIComponent(u.id)}`; });
-  $('unitPicker').innerHTML = UNITS.map((v,j) => `<option value="${j}">UNIT ${unitNumber(j)} · ${esc(v.label)} · ${v.questionCount} 題</option>`).join('');
+  $('unitPicker').innerHTML = UNITS.map((v,j)=>({v,j})).sort((a,b)=>Number(unitNumber(a.j))-Number(unitNumber(b.j))).map(({v,j}) => `<option value="${j}">UNIT ${unitNumber(j)} · ${esc(v.label)} · ${v.questionCount} 題</option>`).join('');
   $('unitPicker').value = i;
   $('title').textContent=u.label; $('unitEn').textContent=u.en; $('description').textContent=u.desc; $('unitCount').textContent=u.questionCount;
   $('guideText').textContent = guides[u.id] || '先理解本單元的概念，再用題目練習，對照原答案與解析。';
-  $('units').innerHTML = UNITS.map((v,j) => `<button class="course-nav ${j===i?'active':''}" data-unit="${j}" aria-pressed="${j===i}"><span class="course-copy"><span class="unit-number">UNIT ${unitNumber(j)}</span><span class="unit-row"><strong>${esc(v.label)}</strong><span class="unit-count">${v.questionCount} 題</span></span><small class="unit-en">${esc(v.en)}</small></span></button>`).join('');
+  $('units').innerHTML = UNITS.map((v,j)=>({v,j})).sort((a,b)=>Number(unitNumber(a.j))-Number(unitNumber(b.j))).map(({v,j}) => `<button class="course-nav ${j===i?'active':''}" data-unit="${j}" aria-pressed="${j===i}"><span class="course-copy"><span class="unit-number">UNIT ${unitNumber(j)}</span><span class="unit-row"><strong>${esc(v.label)}</strong><span class="unit-count">${v.questionCount} 題</span></span><small class="unit-en">${esc(v.en)}</small></span></button>`).join('');
 }
 function switchUnit(i) {
   if (!Number.isInteger(i) || !UNITS[i]) return;
@@ -250,9 +250,14 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
   for (const entry of entries) {
     if (!entry || typeof entry!=='object') continue;
     const {unit:unitId, question:q}=entry;
-    const unitIndex=UNITS.findIndex(unit=>unit.id===unitId), unit=UNITS[unitIndex];
-    if (!unit || !q || !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(q.id) ||
+    let unitIndex=UNITS.findIndex(unit=>unit.id===unitId), unit=UNITS[unitIndex];
+    if (!q || !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(q.id) ||
         typeof q.stem!=='string' || typeof q.answer!=='string' || communityQuestionIds.has(q.id) || knownQuestionIds.has(q.id)) continue;
+    if(!unit){
+      if(!/^L[1-9]\d?$/.test(unitId))continue;
+      unit={id:unitId,number:Number(unitId.slice(1)),label:String(q.unitTitle||'第 '+unitId.slice(1)+' 單元').slice(0,60),en:'APPROVED SUBMISSIONS',desc:'同學投稿，經站主審核公開',baseQuestionCount:0,questionCount:0,questions:[],questionIds:[],questionAliases:{}};
+      unitIndex=UNITS.push(unit)-1;loadedUnits.add(unitIndex);
+    }
     const i=unit.questionCount++;
     communityQuestionIds.add(q.id); questionUnitIndex.set(q.id,unitIndex); communityQuestionUnit.set(q.id,unitIndex);
     if (loadedUnits.has(unitIndex)) {
@@ -277,7 +282,7 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
   return {added, openedLinkedQuestion:Boolean(linked)};
 }
 window.courseLearning={
-  examUnits:()=>UNITS.map((unit,index)=>({id:unit.id,label:`L${Number(unitNumber(index))} · ${unit.label}`})),
+  examUnits:()=>UNITS.map((unit,index)=>({id:unit.id,label:`L${Number(unitNumber(index))} · ${unit.label}`,number:Number(unitNumber(index))})).sort((a,b)=>a.number-b.number),
   examUnitId:()=>UNITS[active].id,
   examEntries:selection=>{
     const ids=Array.isArray(selection)?new Set(selection):null;

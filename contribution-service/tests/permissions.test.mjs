@@ -1703,3 +1703,18 @@ test('grouped submission retries with the same request ID return one receipt wit
  const changed=structuredClone(body);changed.questions[0].answer='B';
  assert.equal((await call(env,'/api/submissions',{method:'POST',body:changed})).response.status,409);
 });
+
+test('future algorithm units stay private until review and become discoverable after approval',async()=>{
+ const env=await setup();const body={...payload(),course:'algorithms',unit:'L7',unitTitle:'動態規劃',title:'第七章投稿'};
+ body.questions[0].stem='未收錄的第七章投稿題目';
+ const posted=await call(env,'/api/submissions',{method:'POST',body});assert.equal(posted.response.status,201);
+ assert.equal((await call(env,'/api/units?course=algorithms')).data.units.some(u=>u.id==='L7'),false);
+ assert.equal((await call(env,'/api/questions?course=algorithms')).data.questions.length,0);
+ const review=await call(env,'/api/review',{reviewer:true});assert.equal(review.data.items[0].payload.unitTitle,'動態規劃');
+ const revised={...review.data.items[0].payload,unitTitle:'動態規劃與最佳化'};
+ const approved=await call(env,'/api/review/'+posted.data.id,{method:'POST',reviewer:true,body:{action:'approve',revision:1,note:'已核對新單元名稱及內容',payload:revised}});
+ assert.equal(approved.response.status,200);
+ const catalog=await call(env,'/api/units?course=algorithms');assert.equal(catalog.data.units.find(u=>u.id==='L7').title,'動態規劃與最佳化');
+ const published=await call(env,'/api/questions?course=algorithms');assert.equal(published.data.questions[0].unit,'L7');assert.equal(published.data.questions[0].question.unitTitle,'動態規劃與最佳化');
+ assert.equal((await call(env,'/api/units?course=invalid')).response.status,400);
+});

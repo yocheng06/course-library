@@ -1,10 +1,12 @@
 import { correctionsAccess } from './corrections-review.mjs?v=learning-improvements-20261025';
 import {
   COURSE_UNITS,
+  normalizeUnit,
+  unitLabel,
   TYPES,
   normalizeType,
   normalizeBatch,
-} from "./contribution-model.js?v=os8-deadlocks-20261023";
+} from "./contribution-model.js?v=new-units-20261026";
 import {
   esc,
   api,
@@ -24,13 +26,10 @@ if (location.origin !== origin) {
 let entries = new Map(),
   cursor = null,
   loadSequence = 0;
-function unitOptions(course, selected) {
-  return Object.entries(COURSE_UNITS[course].units)
-    .map(
-      ([id, name]) =>
-        `<option value="${id}" ${id === selected ? "selected" : ""}>${name}</option>`,
-    )
-    .join("");
+function unitOptions(course, selected, title='') {
+  const entries=Object.entries(COURSE_UNITS[course].units);
+  if(selected && !Object.hasOwn(COURSE_UNITS[course].units,selected))entries.push([normalizeUnit(course,selected),unitLabel(course,selected,title)]);
+  return entries.map(([id,name])=>`<option value="${esc(id)}" ${id===selected?'selected':''}>${esc(name)}</option>`).join('');
 }
 function fields(q, i) {
   return `<div class="review-question" data-question-index="${i}"><div class="section-heading"><h3>第 ${i + 1} 題</h3><button class="text-button remove-question" type="button" data-remove-question="${i}">移除此題</button></div><div class="field-grid"><label>分類<input data-field="category" maxlength="100" value="${esc(q.category)}"></label><label>題型<select data-field="type">${TYPES.map((t) => `<option ${t === normalizeType(q.type, q.images) ? "selected" : ""}>${t}</option>`).join("")}</select></label></div><label>題目<textarea data-field="stem" rows="4" maxlength="10000">${esc(q.stem)}</textarea></label><label>選項（一行一個）<textarea data-field="options" rows="4">${esc(q.options.join("\n"))}</textarea></label><label>答案<textarea data-field="answer" rows="2" maxlength="4000">${esc(q.answer)}</textarea></label><label>解析<textarea data-field="explanation" rows="4" maxlength="16000">${esc(q.explanation)}</textarea></label>${q.images.map((src, j) => `<div class="image-previews"><img src="${esc(src)}" alt="第 ${i + 1} 題的題圖 ${j + 1}"><label class="consent"><input type="checkbox" data-keep-image="${j}" checked>保留此題圖</label></div>`).join("")}</div>`;
@@ -38,7 +37,7 @@ function fields(q, i) {
 function entryMarkup(entry) {
   const p = entry.payload,
     pending = entry.status === "pending";
-  return `<details class="panel review-entry ${pending ? "draft-entry" : ""}" data-id="${entry.id}" data-draft-id="review:${entry.id}" data-revision="${entry.revision}"><summary>${esc(p.title)} · ${esc(COURSE_UNITS[p.course].name)} · ${esc(COURSE_UNITS[p.course].units[p.unit])} · ${p.questions.length} 題</summary><p class="batch-meta">投稿編號：${entry.id}\n投稿者：${esc(p.name || "未提供稱呼")}\n收到時間：${esc(new Date(entry.createdAt).toLocaleString("zh-TW"))}\n來源：${esc(p.source || "未提供")}\n狀態：${statusLabel[entry.status]}</p>${
+  return `<details class="panel review-entry ${pending ? "draft-entry" : ""}" data-id="${entry.id}" data-draft-id="review:${entry.id}" data-revision="${entry.revision}"><summary>${esc(p.title)} · ${esc(COURSE_UNITS[p.course].name)} · ${esc(unitLabel(p.course,p.unit,p.unitTitle))} · ${p.questions.length} 題</summary><p class="batch-meta">投稿編號：${entry.id}\n投稿者：${esc(p.name || "未提供稱呼")}\n收到時間：${esc(new Date(entry.createdAt).toLocaleString("zh-TW"))}\n來源：${esc(p.source || "未提供")}\n狀態：${statusLabel[entry.status]}</p>${
     pending
       ? `<div class="field-grid"><label>科目<select data-batch="course">${Object.entries(
           COURSE_UNITS,
@@ -49,7 +48,7 @@ function entryMarkup(entry) {
           )
           .join(
             "",
-          )}</select></label><label>單元<select data-batch="unit">${unitOptions(p.course, p.unit)}</select></label></div><label>題庫名稱<input data-batch="title" maxlength="100" value="${esc(p.title)}"></label><label>來源說明<textarea data-batch="source" rows="2" maxlength="2000">${esc(p.source)}</textarea></label><div class="questions-container">${p.questions.map(fields).join("")}</div><div class="similar-warning" hidden></div><div class="decision"><label>給投稿者的說明（退回時必填）<textarea class="review-note" rows="2" maxlength="2000" placeholder="說明需要調整的地方"></textarea></label><p class="muted">核准會發布目前保留的題目與修改內容。重複題會自動略過，只發布尚未收錄的題目。</p><div class="actions"><button class="button" type="button" data-action="approve">核准並加入題庫</button><button class="button secondary" type="button" data-action="reject">退回投稿</button><button class="text-button" type="button" data-discard-draft>還原伺服器內容</button></div></div>`
+          )}</select></label><label>單元<select data-batch="unit">${unitOptions(p.course, p.unit, p.unitTitle)}</select></label></div><label>新單元名稱（請站主核對；既有單元名稱不受此欄影響）<input data-batch="unitTitle" maxlength="60" value="${esc(p.unitTitle || '')}"></label><label>題庫名稱<input data-batch="title" maxlength="100" value="${esc(p.title)}"></label><label>來源說明<textarea data-batch="source" rows="2" maxlength="2000">${esc(p.source)}</textarea></label><div class="questions-container">${p.questions.map(fields).join("")}</div><div class="similar-warning" hidden></div><div class="decision"><label>給投稿者的說明（退回時必填）<textarea class="review-note" rows="2" maxlength="2000" placeholder="說明需要調整的地方"></textarea></label><p class="muted">核准會發布目前保留的題目與修改內容。重複題會自動略過，只發布尚未收錄的題目。</p><div class="actions"><button class="button" type="button" data-action="approve">核准並加入題庫</button><button class="button secondary" type="button" data-action="reject">退回投稿</button><button class="text-button" type="button" data-discard-draft>還原伺服器內容</button></div></div>`
       : p.questions
           .map((q, i) => questionPreview(q, i) + "</article>")
           .join("") + (entry.note ? `<p>站主說明：${esc(entry.note)}</p>` : "")
@@ -382,7 +381,7 @@ function restoreEntry(card) {
     unit = card.querySelector('[data-batch="unit"]');
   if (course && COURSE_UNITS[draft.batch.course]) {
     course.value = draft.batch.course;
-    unit.innerHTML = unitOptions(course.value, draft.batch.unit);
+    unit.innerHTML = unitOptions(course.value, draft.batch.unit,draft.batch.unitTitle);
   }
   card.querySelectorAll("[data-batch]").forEach((n) => {
     if (typeof draft.batch[n.dataset.batch] === "string")
@@ -474,7 +473,7 @@ function managedMarkup(row) {
     )
     .join(
       "",
-    )}</select></label><label>單元<select data-batch="unit">${unitOptions(row.course, row.unit)}</select></label></div>${fields(row.question, 0)}<label>修改說明（選填）<textarea class="manage-note" maxlength="2000" rows="2"></textarea></label><div class="similar-warning" hidden></div><div class="actions"><button class="button" type="button" data-manage-action="update">儲存修改</button><button class="button secondary" type="button" data-manage-action="${row.published ? "hide" : "restore"}">${row.published ? "下架題目" : "重新上架"}</button><button class="text-button" type="button" data-manage-action="history">查看修改紀錄</button><button class="text-button" type="button" data-discard-draft>還原伺服器內容</button></div><div class="history-list" hidden></div></details>`;
+    )}</select></label><label>單元<select data-batch="unit">${unitOptions(row.course, row.unit, row.unitTitle)}</select></label></div><label>新單元名稱<input data-batch="unitTitle" maxlength="60" value="${esc(row.unitTitle || '')}"></label>${fields(row.question, 0)}<label>修改說明（選填）<textarea class="manage-note" maxlength="2000" rows="2"></textarea></label><div class="similar-warning" hidden></div><div class="actions"><button class="button" type="button" data-manage-action="update">儲存修改</button><button class="button secondary" type="button" data-manage-action="${row.published ? "hide" : "restore"}">${row.published ? "下架題目" : "重新上架"}</button><button class="text-button" type="button" data-manage-action="history">查看修改紀錄</button><button class="text-button" type="button" data-discard-draft>還原伺服器內容</button></div><div class="history-list" hidden></div></details>`;
 }
 async function loadPublications(append = false) {
   flushDrafts();
@@ -588,6 +587,7 @@ $("publishedList").addEventListener("click", async (event) => {
     payload = {
       course: card.querySelector('[data-batch="course"]').value,
       unit: card.querySelector('[data-batch="unit"]').value,
+      unitTitle: card.querySelector('[data-batch="unitTitle"]')?.value || '',
       title: "已發布題目",
       questions: [q],
     };

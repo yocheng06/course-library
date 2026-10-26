@@ -1,10 +1,12 @@
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=learning-improvements-20261025';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=new-units-20261026';
 import {
   COURSE_UNITS,
+  normalizeUnit,
+  unitLabel,
   normalizeType,
   normalizeBatch,
   uniqueQuestions,
-} from "./contribution-model.js?v=os8-deadlocks-20261023";
+} from "./contribution-model.js?v=new-units-20261026";
 import {
   esc,
   api,
@@ -16,7 +18,7 @@ import {
   downloadJSON,
   copyText,
 } from "./contributions-ui.js?v=site-audit-20261017";
-import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=draft-transfer-20261020";
+import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=new-units-20261026";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
@@ -29,22 +31,43 @@ let questions = [],
 $("course").innerHTML = Object.entries(COURSE_UNITS)
   .map(([id, course]) => `<option value="${id}">${course.name}</option>`)
   .join("");
+const publicUnits={os:{...COURSE_UNITS.os.units},algorithms:{...COURSE_UNITS.algorithms.units}};
+const publicTitles={os:{},algorithms:{}};
+let unitsSequence=0;
+function unitFields() {
+  const custom=$("unit").value==='__new__';
+  $("newUnitFields").hidden=!custom;$("newUnitNumber").required=custom;
+}
 function units() {
-  const previous = $("unit").value;
-  $("unit").innerHTML = Object.entries(COURSE_UNITS[$("course").value].units)
-    .map(([id, name]) => `<option value="${id}">${name}</option>`)
-    .join("");
-  if (COURSE_UNITS[$("course").value].units[previous])
-    $("unit").value = previous;
+  const previous=$("unit").value;
+  $("unit").innerHTML=Object.entries(publicUnits[$("course").value]).map(([id,name])=>`<option value="${esc(id)}">${esc(name)}</option>`).join('')+'<option value="__new__">＋ 投稿尚未建立的單元</option>';
+  if(Object.hasOwn(publicUnits[$("course").value],previous))$("unit").value=previous;
+  unitFields();
+}
+function setSubmissionUnit(id,title='') {
+  let normalized;try{normalized=normalizeUnit($("course").value,id);}catch{normalized=null;}
+  if(normalized && Object.hasOwn(publicUnits[$("course").value],normalized))$("unit").value=normalized;
+  else {$("unit").value='__new__';$("newUnitNumber").value=normalized?.slice(1)||'';$("newUnitTitle").value=title;}
+  unitFields();
+}
+async function loadPublicUnits() {
+  const seq=++unitsSequence,course=$("course").value;
+  try {
+    const result=await api('/api/units?course='+course);
+    if(seq!==unitsSequence || course!==$("course").value || !Array.isArray(result.units))return;
+    const selected=$("unit").value;
+    for(const unit of result.units){
+      const id=normalizeUnit(course,unit.id);
+      publicUnits[course][id]=unitLabel(course,id,unit.title);publicTitles[course][id]=unit.title||'';
+    }
+    units();if(selected==='__new__'){$("unit").value=selected;unitFields();}
+  }catch { /* The built-in list and manual new-unit fields remain usable offline. */ }
 }
 function metadata() {
-  return {
-    course: $("course").value,
-    unit: $("unit").value,
-    title: $("batchTitle").value,
-    name: $("submitter").value,
-    source: $("source").value,
-  };
+  const course=$("course").value,custom=$("unit").value==='__new__';
+  return {course,unit:custom?'L'+$("newUnitNumber").value:$("unit").value,
+    unitTitle:custom?$("newUnitTitle").value:publicTitles[course][$("unit").value]||'',
+    title:$("batchTitle").value,name:$("submitter").value,source:$("source").value};
 }
 function save() {
   try {
@@ -127,16 +150,15 @@ const initialCourse = new URL(location.href).searchParams.get("course");
 if (COURSE_UNITS[initialCourse]) $("course").value = initialCourse;
 units();
 const initialUnit = new URL(location.href).searchParams.get("unit");
-if (COURSE_UNITS[initialCourse]?.units[initialUnit])
-  $("unit").value = initialUnit;
+const validInitialUnit=(()=>{try{return normalizeUnit(initialCourse,initialUnit);}catch{return null;}})();
+if (initialUnit && COURSE_UNITS[initialCourse]) setSubmissionUnit(initialUnit);
 try {
   const draft = JSON.parse(localStorage.getItem(key) || "null");
   if (draft) {
     if (COURSE_UNITS[draft.course]) {
       $("course").value = draft.course;
       units();
-      if (COURSE_UNITS[draft.course].units[draft.unit])
-        $("unit").value = draft.unit;
+      setSubmissionUnit(draft.unit,draft.unitTitle||'');
     }
     $("batchTitle").value = draft.title || "";
     $("submitter").value = draft.name || "";
@@ -144,6 +166,7 @@ try {
     questions = draft.questions?.length
       ? normalizeBatch({
           ...metadata(),
+          unit: (()=>{try{return normalizeUnit($("course").value,draft.unit);}catch{return Object.keys(COURSE_UNITS[$("course").value].units)[0];}})(),
           title: draft.title || "草稿",
           questions: draft.questions,
         }).questions
@@ -155,14 +178,14 @@ try {
     }
     images = draft.images || [];
     if (
-      COURSE_UNITS[initialCourse]?.units[initialUnit] &&
+      validInitialUnit &&
       (draft.course !== initialCourse || draft.unit !== initialUnit)
     ) {
       const banner = document.createElement("div");
       banner.className = "panel";
       banner.setAttribute("role", "status");
       const text = document.createElement("p");
-      text.textContent = `已保留 ${COURSE_UNITS[draft.course]?.name || "原課程"}／${COURSE_UNITS[draft.course]?.units[draft.unit] || "原單元"} 的草稿。你剛從 ${COURSE_UNITS[initialCourse].name}／${COURSE_UNITS[initialCourse].units[initialUnit]} 進入投稿。`;
+      text.textContent = `已保留 ${COURSE_UNITS[draft.course]?.name || "原課程"}／${COURSE_UNITS[draft.course]?.units[draft.unit] || "原單元"} 的草稿。你剛從 ${COURSE_UNITS[initialCourse].name}／${unitLabel(initialCourse,validInitialUnit)} 進入投稿。`;
       const button = document.createElement("button");
       button.type = "button";
       button.className = "button secondary";
@@ -181,7 +204,7 @@ try {
         );
         $("course").value = initialCourse;
         units();
-        $("unit").value = initialUnit;
+        setSubmissionUnit(validInitialUnit);
         questions = [];
         $("batchTitle").value = "";
         $("source").value = "";
@@ -216,10 +239,12 @@ renderImages();
 $("course").addEventListener("change", () => {
   units();
   save();
+  loadPublicUnits();
 });
-["unit", "batchTitle", "submitter", "source"].forEach((id) =>
+["unit", "newUnitNumber", "newUnitTitle", "batchTitle", "submitter", "source"].forEach((id) =>
   $(id).addEventListener("input", save),
 );
+$("unit").addEventListener("change",unitFields);
 form.addEventListener("input", save);
 form.elements.type.addEventListener("change", typeChanged);
 $("consent").addEventListener("change", ready);
@@ -610,7 +635,7 @@ setupSubmissionInbox({
     if (submitPending || imageReadPending) throw new Error("請等待目前操作完成。");
     const hasEditor = editIndex !== -1 || images.length ||
       ["category", "stem", "options", "answer", "explanation"].some(name => form.elements[name].value.trim());
-    const differentScope = q.course !== $("course").value || q.unit !== $("unit").value;
+    const differentScope = q.course !== $("course").value || q.unit !== metadata().unit;
     if (differentScope && (questions.length || hasEditor))
       throw new Error("原投稿草稿屬於不同科目或單元，請先完成原清單的送審，再加入這題。待補內容仍保留。");
     const nextMetadata = { ...metadata(), course: q.course, unit: q.unit, title: $("batchTitle").value || "批次查題補充題" };
@@ -624,7 +649,7 @@ setupSubmissionInbox({
     if (differentScope) {
       $("course").value = q.course;
       units();
-      $("unit").value = q.unit;
+      setSubmissionUnit(q.unit,q.unitTitle||'');
     }
     $("batchTitle").value = normalized.title;
     questions = normalized.questions;
@@ -645,3 +670,5 @@ const groupedSubmissions=setupGroupedSubmissions({parseImport,metadata,message,o
   catch{message('已送出，但近期收據無法保存。請立即下載分組收據備份。',true);}
   renderReceipts();
 }});
+
+loadPublicUnits();

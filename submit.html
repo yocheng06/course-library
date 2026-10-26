@@ -67,6 +67,11 @@
               placeholder="你的名字或暱稱"
           /></label>
         </div>
+        <div id="newUnitFields" class="panel" hidden>
+          <p>新單元投稿會先交由站主審核，核准後才出現在公開題庫。</p>
+          <div class="field-grid"><label>新單元編號<input id="newUnitNumber" type="number" min="1" max="99" step="1" placeholder="例如：7"></label><label>單元名稱（選填）<input id="newUnitTitle" maxlength="60" placeholder="例如：動態規劃"></label></div>
+          <p class="muted">例如演算法第七章填 7；不知道名稱可先留空，由站主審核確認。</p>
+        </div>
         <label
           >來源說明（選填）<textarea
             id="source"
@@ -248,7 +253,7 @@
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/contributions-submit.js?v=learning-improvements-20261025"
+      src="assets/contributions-submit.js?v=new-units-20261026"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
   </body>

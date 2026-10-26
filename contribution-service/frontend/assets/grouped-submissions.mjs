@@ -1,4 +1,4 @@
-import {COURSE_UNITS,normalizeBatch,normalizeType} from './contribution-model.js?v=os8-deadlocks-20261023';
+import {COURSE_UNITS,normalizeBatch,normalizeType,normalizeUnit,unitLabel} from './contribution-model.js?v=new-units-20261026';
 import {api,esc,questionPreview,downloadJSON,showSimilar} from './contributions-ui.js?v=site-audit-20261017';
 
 export function groupImport(data, fallback, filename='匯入題庫') {
@@ -9,9 +9,9 @@ export function groupImport(data, fallback, filename='匯入題庫') {
     const course=value.course ?? context.course;
     if(!COURSE_UNITS[course])throw new Error('科目不正確，請使用 os 或 algorithms。');
     const nested=Array.isArray(value.questions) || Array.isArray(value.groups) || Array.isArray(value.units);
-    const unit=value.unit ?? (nested && value.id ? value.id : context.unit);
-    if(!nested && !COURSE_UNITS[course].units[unit])throw new Error(`找不到單元「${unit}」，請在匯入檔指定有效的 unit。`);
-    const next={course,unit,title:value.title || context.title,name:value.name ?? context.name,source:value.source ?? context.source};
+    let unit=value.unit ?? (nested && value.id ? value.id : context.unit);
+    if(!nested) {try{unit=normalizeUnit(course,unit);}catch{throw new Error(`找不到單元「${unit}」，請指定有效的單元編號，例如 L7。`);}}
+    const next={course,unit,unitTitle:value.unitTitle ?? context.unitTitle,title:value.title || context.title,name:value.name ?? context.name,source:value.source ?? context.source};
     if(nested){visit(value.questions ?? value.groups ?? value.units,next);return;}
     if(++count>2000)throw new Error('一次匯入最多 2,000 題，請拆分檔案。');
     const key=course+':'+unit;if(!groups.has(key))groups.set(key,{...next,questions:[]});
@@ -45,7 +45,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
   function save(){localStorage.setItem(key,JSON.stringify({version:1,groups:queue}));}
   function render(){
     panel.hidden=!queue.length;
-    list.innerHTML=queue.map((group,index)=>`<details data-group-index="${index}"><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(COURSE_UNITS[group.payload.course].units[group.payload.unit])} · ${group.payload.questions.length} 題 · ${group.result?'已完成':'待送出'}${group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary>${group.payload.questions.map((q,i)=>questionPreview(q,i)+'</article>').join('')}${group.result?`<p>結果：${esc(group.result.status)}；收據：${esc(group.result.id || '全部已收錄，未新增投稿')}</p>`:''}<div data-similar></div><p data-error role="status"></p></details>`).join('');
+    list.innerHTML=queue.map((group,index)=>`<details data-group-index="${index}"><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${group.payload.questions.length} 題 · ${group.result?'已完成':'待送出'}${group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary>${group.payload.questions.map((q,i)=>questionPreview(q,i)+'</article>').join('')}${group.result?`<p>結果：${esc(group.result.status)}；收據：${esc(group.result.id || '全部已收錄，未新增投稿')}</p>`:''}<div data-similar></div><p data-error role="status"></p></details>`).join('');
     panel.querySelector('[data-send]').disabled=busy||!consent.checked||queue.every(g=>g.result);
   }
   try{

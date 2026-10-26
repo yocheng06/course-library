@@ -32,11 +32,19 @@
   const questionList = find('[data-exam-questions]'), notice = find('[data-exam-notice]');
   let entries = [], responses = new Map(), results = [], submitted = false, confirmation = '';
   let sessionLabel = '', poolLabel = '';
-  const units = config.examUnits?.() || [];
+  let units = [];
   const range = find('[data-exam-range]'), from = find('[data-exam-from]'), to = find('[data-exam-to]');
-  const unitOptions = units.map(unit => `<option value="${esc(unit.id)}">${esc(unit.label)}</option>`).join('');
-  from.innerHTML = to.innerHTML = unitOptions;
-  from.value = to.value = config.examUnitId?.() || units[0]?.id || '';
+  function refreshUnitOptions() {
+    const next=config.examUnits?.() || [];
+    if(JSON.stringify(next)===JSON.stringify(units))return;
+    const first=from.value,last=to.value;units=next;
+    const options=units.map(unit=>`<option value="${esc(unit.id)}">${esc(unit.label)}</option>`).join('');
+    from.innerHTML=to.innerHTML=options;
+    const fallback=config.examUnitId?.() || units[0]?.id || '';
+    from.value=units.some(u=>u.id===first)?first:fallback;
+    to.value=units.some(u=>u.id===last)?last:fallback;
+  }
+  refreshUnitOptions();
   function selectedRange() {
     const first = units.findIndex(unit => unit.id === from.value), last = units.findIndex(unit => unit.id === to.value);
     return first >= 0 && last >= first ? units.slice(first, last + 1) : [];
@@ -47,6 +55,7 @@
     return config.examEntries(selection).filter(eligible);
   }
   function refreshPool() {
+    refreshUnitOptions();
     range.hidden = scope.value !== 'range';
     const selected = selectedRange();
     const invalid = scope.value === 'range' && selected.length === 0;

@@ -19,14 +19,14 @@ export function setupSubmissionInbox({ document, storage, courses, addQuestion, 
       $("pendingList").innerHTML = items.map((q, i) => `<details class="draft-card" ${i === 0 ? "open" : ""}>
         <summary>${esc(courses[q.course].name)}・原第 ${esc(q.number)} 題：${esc(q.stem.slice(0, 90))}</summary>
         <form data-pending-id="${esc(q.id)}">
-          <div class="field-grid"><label>單元<select name="unit" required><option value="">請選擇單元</option>${Object.entries(courses[q.course].units).map(([id, name]) => `<option value="${esc(id)}" ${q.unit === id ? "selected" : ""}>${esc(name)}</option>`).join("")}</select></label>
+          <div class="field-grid"><label>單元<select name="unit" required><option value="">請選擇單元</option>${q.unit && !Object.hasOwn(courses[q.course].units,q.unit)?`<option value="${esc(q.unit)}" selected>${esc(q.unit)} · 新單元</option>`:''}${Object.entries(courses[q.course].units).map(([id, name]) => `<option value="${esc(id)}" ${q.unit === id ? "selected" : ""}>${esc(name)}</option>`).join("")}</select></label>
           <label>分類<input name="category" value="${esc(q.category)}" maxlength="100" required placeholder="例如：CPU 排程"></label>
           <label>題型<select name="type">${["單選題", "多選題", "填空題", "圖片題"].map(t => `<option value="${t}" ${q.type === t ? "selected" : ""}>${t}</option>`).join("")}</select></label></div>
           <label>題目<textarea name="stem" rows="3" required maxlength="10000">${esc(q.stem)}</textarea></label>
           <label>選項（依序為 A、B、C…；一行一個，不用加代號）<textarea name="optionsText" rows="4" maxlength="16000">${esc(q.optionsText)}</textarea></label>
           <label>答案<textarea name="answer" rows="2" maxlength="4000" required placeholder="選擇題填 A 或 A、B；填空題填完整答案">${esc(q.answer)}</textarea></label>
           <label>解析<textarea name="explanation" rows="3" maxlength="16000" required placeholder="說明答案的理由及成立條件">${esc(q.explanation)}</textarea></label>
-          <p class="muted">請確認單選／多選題型。圖片題請改用下方新增一題，附上題圖後再移除此草稿。</p>
+          <p class="muted">請確認單選／多選題型。圖片題或未列出的新單元，可改用下方「新增一題」填寫後再移除此草稿。</p>
           <div class="actions"><button class="button secondary" type="submit">補齊並加入投稿清單</button><button class="text-button" type="button" data-discard="${esc(q.id)}">移除此待補草稿</button></div>
         </form></details>`).join("");
       for (const form of $("pendingList").querySelectorAll("form[data-pending-id]")) {

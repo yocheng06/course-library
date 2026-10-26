@@ -27,7 +27,7 @@ test('invalid storage, storage quota and oversized queues preserve previous data
 });
 async function page(s){
  const {document,window}=parseHTML(await readFile(new URL('../submit.html',import.meta.url),'utf8'));
- Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){return this.querySelector('option[selected]')?.value??this.querySelector('option')?.value??'';},set(v){for(const o of this.querySelectorAll('option'))o.toggleAttribute('selected',o.value===v);}});
+ Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){const o=this.querySelector('option[selected]')||this.querySelector('option');return o?.getAttribute('value')??o?.textContent??'';},set(v){for(const o of this.querySelectorAll('option'))o.toggleAttribute('selected',(o.getAttribute('value')??o.textContent)===v);}});
  const $=id=>document.getElementById(id);
  function prepareForms(){for(const form of document.querySelectorAll('form')){
   Object.defineProperty(form,'elements',{configurable:true,get:()=>Object.fromEntries([...form.querySelectorAll('[name]')].map(n=>[n.name,n]))});
@@ -86,4 +86,17 @@ test('a failed submission-draft save leaves the completed question in the pendin
 test('question HTML is inert text in the pending editor',async()=>{
  const s=storage(),source=rows(1);source[0].question.stem='</textarea><script id="injected">bad()</script><img id="bad-image" src="x">';stageUnmatched(source,{course:'os',unit:'all'},s);
  const ui=await page(s);assert.equal(ui.document.getElementById('injected'),null);assert.equal(ui.document.getElementById('bad-image'),null);assert.equal(ui.pending().elements.stem.value,source[0].question.stem);
+});
+
+test('manual future-unit submission retains chapter metadata through draft reload and sends it to review',async()=>{
+ const s=storage();let ui=await page(s);
+ ui.$('course').value='algorithms';ui.fire(ui.$('course'),'change');
+ ui.$('unit').value='__new__';ui.fire(ui.$('unit'),'change');
+ assert.equal(ui.$('newUnitFields').hidden,false);
+ ui.$('newUnitNumber').value='7';ui.$('newUnitTitle').value='動態規劃';ui.$('batchTitle').value='第七章投稿';ui.fire(ui.$('newUnitTitle'),'input');
+ const form=ui.$('questionForm');form.elements.category.value='最佳化';form.elements.type.value='填空題';form.elements.stem.value='未建立的第七章問題';form.elements.answer.value='answer';form.elements.options.value='';
+ ui.fire(form,'submit');assert.equal(ui.$('draftCount').textContent,'1 題',ui.$('message').textContent);
+ ui=await page(s);assert.equal(ui.$('newUnitNumber').value,'7');assert.equal(ui.$('newUnitTitle').value,'動態規劃');assert.equal(ui.$('draftCount').textContent,'1 題');
+ ui.$('consent').checked=true;ui.fire(ui.$('consent'),'change');ui.fire(ui.$('submitBatch'),'click');await new Promise(resolve=>setImmediate(resolve));
+ const post=ui.requests.find(row=>row.opts?.method==='POST');assert(post);const sent=JSON.parse(post.opts.body);assert.equal(sent.unit,'L7');assert.equal(sent.unitTitle,'動態規劃');
 });
