@@ -231,7 +231,27 @@ test('deleted L6 display question 27 is absent and its link, bookmark and practi
  assert.equal(entries.filter(e=>e.id==='L6-038').length,1);
  assert.equal(h.question('L6-038').a,'A. 比較排序');
  const library=JSON.parse(await read('assets/batch-library.json'));
- assert.equal(library.courses.algorithms.count,297);
+ assert.equal(library.courses.algorithms.count,296);
  assert.equal(library.entries.some(e=>e.id==='L6-037'),false);
  assert(library.entries.some(e=>e.id==='L6-038'));
+});
+
+test('deleted bucket-sort OCR version resolves to the retained options without entering search results',async()=>{
+ const h=await coursePage('algorithms',{search:'?question=L6-019',storage:new Map([
+  ['course-library.learning.v1.algorithms',JSON.stringify({bookmarks:['L6-019'],size:'standard'})],
+  ['course-library.practice.v1.algorithms',JSON.stringify({version:1,autoReview:false,records:[{id:'L6-019',attempts:1,firstCorrect:false,lastCorrect:false,everWrong:true,signature:'test',startedAt:1,updatedAt:1}]})],
+ ])});
+ assert.equal(h.config.resolveId('L6-019'),'L6-018');
+ assert.equal(h.window.learningUI.isSaved('L6-018'),true);
+ assert.equal(h.progress.exportProgress().records[0].id,'L6-018');
+ assert(h.document.querySelector('article[data-id="L6-018"]'));
+ const q=h.question('L6-018');assert.equal(q.a,'A、B、D');
+ assert.equal(q.opts[0],'A. 需要線性效能數據');
+ assert.equal(q.opts[1],'B. 均勻分佈數據');
+ assert.equal(q.opts[2],'C. 完全雜亂無序數據');
+ assert.equal(q.opts[3],'D. 區間範圍明確數據');
+ assert.equal(h.config.examEntries(true).some(e=>e.id==='L6-019'),false);
+ const library=JSON.parse(await read('assets/batch-library.json'));
+ assert.equal(library.entries.some(e=>e.id==='L6-019'),false);
+ assert.equal(library.entries.some(e=>e.options.some(o=>o.includes('完全非亂無序'))),false);
 });

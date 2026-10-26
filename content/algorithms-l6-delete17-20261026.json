@@ -1,0 +1,91 @@
+{
+  "date": "2026-10-26",
+  "reason": "站主確認原第17題為辨識錯誤，刪除並保留原第16題；舊識別碼轉至正確版本。",
+  "removedDisplayNumber": 17,
+  "removedSnapshot": {
+    "category": "桶排序",
+    "type": "多選題",
+    "q": "桶排序(Bucket Sort)適合處理？",
+    "a": "A、C、D",
+    "opts": [
+      "A. 通常範圍明確數據",
+      "B. 完全非亂無序數據",
+      "C. 均勻分佈數據",
+      "D. 需要線性效能數據"
+    ],
+    "ex": "此版本答案為 A、C、D：A 的範圍明確、C 的均勻分布，有助於將資料平均分配到各桶；在這些條件下，桶排序能取得理想的期望線性效能，因此也適合 D 所述有線性效率需求的情境。B 的無序描述本身不足以保證資料均勻分布。注意「需要線性效能」本身不是保證 O(n) 的充分條件，仍需分布假設。",
+    "warn": false,
+    "sources": [
+      "sorting-algorithms"
+    ],
+    "answerProvided": true,
+    "verified": true,
+    "bookmarkId": "L6-019",
+    "sourceNumber": 12,
+    "appearances": [
+      "第二次第 12 題"
+    ],
+    "note": "此版本的選項文字與另一版本不同，因此分開保留；相同選項內容僅順序不同的版本則合併在同一題。"
+  },
+  "keptSnapshot": {
+    "category": "桶排序",
+    "type": "多選題",
+    "q": "桶排序(Bucket Sort)適合處理？",
+    "a": "A、B、D",
+    "opts": [
+      "A. 需要線性效能數據",
+      "B. 均勻分佈數據",
+      "C. 完全雜亂無序數據",
+      "D. 區間範圍明確數據"
+    ],
+    "ex": "此題官方答案是 A、B、D：在資料大致均勻分布、值域區間容易劃分時，桶排序能取得理想的期望線性效能，因而適合有線性效率需求的情境。注意「需要線性效能」本身不是保證 O(n) 的充分條件，仍需分布假設。",
+    "warn": false,
+    "sources": [
+      "sorting-algorithms"
+    ],
+    "answerProvided": true,
+    "verified": true,
+    "bookmarkId": "L6-018",
+    "sourceNumber": 16,
+    "appearances": [
+      "第一次第 16 題",
+      "第四次第 11 題",
+      "補充試煉第 17 題"
+    ],
+    "sourceVariants": [
+      {
+        "id": "L6-018-V01",
+        "q": "桶排序(Bucket Sort)適合處理？",
+        "opts": [
+          "A. 區間範圍明確數據",
+          "B. 均勻分佈數據",
+          "C. 需要線性效能數據",
+          "D. 完全雜亂無序數據"
+        ],
+        "a": "A、B、C"
+      },
+      {
+        "id": "L6-018-V02",
+        "q": "桶排序(Bucket Sort)適合處理？",
+        "opts": [
+          "A. 區間範圍明確數據",
+          "B. 完全雜亂無序數據",
+          "C. 均勻分佈數據",
+          "D. 需要線性效能數據"
+        ],
+        "a": "A、C、D"
+      }
+    ],
+    "sourceExplanations": [
+      {
+        "sourceId": "L6-018-V01",
+        "text": "原始選項版本來源：第四次第 11 題。"
+      },
+      {
+        "sourceId": "L6-018-V02",
+        "text": "原始選項版本來源：補充試煉第 17 題。"
+      }
+    ]
+  },
+  "canonicalId": "L6-018"
+}

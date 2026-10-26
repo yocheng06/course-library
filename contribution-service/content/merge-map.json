@@ -516,6 +516,12 @@
       "unit": "L6",
       "id": "L6-037",
       "canonicalId": "L6-038"
+    },
+    {
+      "course": "algorithms",
+      "unit": "L6",
+      "id": "L6-019",
+      "canonicalId": "L6-018"
     }
   ]
 }
