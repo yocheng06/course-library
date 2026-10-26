@@ -153,7 +153,7 @@ async function loadLibrary() {
   $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
   try {
     const built = fetch(
-      "assets/batch-library.json?v=l6-delete27-20261026",
+      "assets/batch-library.json?v=l6-corrections-20261026",
       {
         signal: AbortSignal.timeout(12000),
       },
