@@ -8,7 +8,7 @@
   cursor:pointer;font:inherit;vertical-align:middle;
 }
 .theme-toggle:hover { box-shadow:0 0 0 3px var(--tint,#e2ebf6); }
-.theme-toggle:focus-visible { outline:3px solid #6f9ac8!important;outline-offset:3px; }
+.theme-toggle:focus-visible { outline:3px solid #A6A6A6!important;outline-offset:3px; }
 .theme-toggle svg { display:block;flex:none; }
 .pixel-brand .theme-toggle { margin-left:auto; }
 .learning-tools .theme-toggle { margin-left:0; }
@@ -16,17 +16,17 @@
 @media screen {
   html[data-theme="dark"],html[data-theme="dark"] body {
     color-scheme:dark;
-    --bg:#141b25!important;--page:#141b25!important;--paper:#1d2734!important;
-    --surface:#1d2734!important;--ink:#e0e6ef!important;--muted:#abb9cb!important;
-    --line:#3b4b60!important;--green:#9abce6!important;--tint:#2b3e55!important;
-    --rose:#b6a2c9!important;--rose-strong:#c9aac8!important;--rose-soft:#3c3043!important;
-    --rail:#182230!important;--rail-card:#223145!important;--rail-line:#405069!important;
-    --rail-ink:#dbe5f2!important;--rail-focus:#a4c8ef!important;
-    --ui-accent:#a8c6eb!important;--ui-soft:#2b3e55!important;--ui-line:#4b5f79!important;
-    --control-line:#617793!important;--os-selected:#314d70!important;--os-tag-ink:#c0d6f1!important;
-    --gold:#efce89!important;--goldbg:#3e3523!important;--red:#f1a5b1!important;
-    --accent:#c9aac8!important;--soft:#302c3c!important;
-    background:#141b25!important;color:#e0e6ef!important;
+    --bg:#161616!important;--page:#161616!important;--paper:#222222!important;
+    --surface:#222222!important;--ink:#E4E4E4!important;--muted:#ACACAC!important;
+    --line:#424242!important;--green:#BEBEBE!important;--tint:#303030!important;
+    --rose:#C2C2C2!important;--rose-strong:#D0D0D0!important;--rose-soft:#353535!important;
+    --rail:#111111!important;--rail-card:#242424!important;--rail-line:#383838!important;
+    --rail-ink:#E0E0E0!important;--rail-focus:#D3D3D3!important;
+    --ui-accent:#BEBEBE!important;--ui-soft:#303030!important;--ui-line:#4A4A4A!important;
+    --control-line:#555555!important;--os-selected:#353535!important;--os-tag-ink:#DDDDDD!important;
+    --gold:#D1D1D1!important;--goldbg:#343434!important;--red:#C7C7C7!important;
+    --accent:#D0D0D0!important;--soft:#313131!important;
+    background:#161616!important;color:#E4E4E4!important;
   }
   html[data-theme="dark"] :is(.main,.pixel-page,.pixel-main) { background:transparent!important;color:var(--ink)!important; }
   html[data-theme="dark"] :is(.topbar,.sidebar,.mobile-navigation-panel,.contribution-nav) {
@@ -39,39 +39,39 @@
   html[data-theme="dark"] :is(.subtitle,.translation,.option-translation,.explain,.qid,.filters,.reading-size,.learning-tools small,.bottom-note,.sources,.guide p,.guide small,.navtitle,.count span,.unit-number,.unit-count,.course-nav small,.unit-picker label,.pixel-hero-copy p,.pixel-course-desc,.pixel-course-name .en,.pixel-footer,.muted,.notice,.api-notice) { color:var(--muted)!important; }
   html[data-theme="dark"] :is(a,.eyebrow,.count strong,.answer strong,.practice-order,.sources summary,.filter-details summary,.guide-head::after) { color:var(--ui-accent); }
   html[data-theme="dark"] :is(.guide,.summary,.notice,.flow-steps li,.search-match,.search-match-note) {
-    background:#243347!important;color:var(--ink)!important;border-color:var(--line)!important;
+    background:#2A2A2A!important;color:var(--ink)!important;border-color:var(--line)!important;
   }
   html[data-theme="dark"] :is(.option,.searchbox,.entry,input,textarea,select,.plain,.reveal,.review-button,.learning-tools button,.pager button,.segmented button,.button.secondary,.question-report) {
-    background:#192433!important;color:var(--ink)!important;border-color:var(--control-line)!important;
+    background:#292929!important;color:var(--ink)!important;border-color:var(--control-line)!important;
   }
-  html[data-theme="dark"] input::placeholder,html[data-theme="dark"] textarea::placeholder { color:#9caec5!important;opacity:1; }
+  html[data-theme="dark"] input::placeholder,html[data-theme="dark"] textarea::placeholder { color:#A8A8A8!important;opacity:1; }
   html[data-theme="dark"] :is(.site-nav a,.course-nav,.chapter) { background:var(--rail-card)!important;color:var(--rail-ink)!important;border-color:var(--rail-line)!important; }
   html[data-theme="dark"] :is(.site-nav a[aria-current="page"],.course-nav.active,.chapter.active,.lesson-tab.active,.option.chosen,.review-button[aria-pressed="true"],.learning-tools button[aria-pressed="true"],.pager button.active,.segmented button.active,.reveal,.button:not(.secondary)) {
-    background:#314d70!important;color:#e6effb!important;border-color:#8aaed9!important;
+    background:#353535!important;color:#F0F0F0!important;border-color:#A6A6A6!important;
   }
-  html[data-theme="dark"] :is(.option.correct,.answer,.practice-feedback.correct,.feedback.correct) { background:#243e42!important;color:#d4ebe5!important;border-color:#61968a!important; }
-  html[data-theme="dark"] .option.correct .option-label { color:#a4ddcc!important; }
-  html[data-theme="dark"] :is(.badge,.badge.neutral,.exam-badges span,.pixel-course-tag) { background:#2b3e55!important;color:#c3d8ef!important; }
-  html[data-theme="dark"] :is(.badge.gold,.warning,.practice-feedback.review,.feedback.review) { background:#3e3523!important;color:#efce89!important;border-color:#8b7547!important; }
-  html[data-theme="dark"] :is(.exam-right,.success-label) { color:#a4ddcc!important; }
-  html[data-theme="dark"] :is(.exam-wrong,.message.error,.remove-question) { color:#f1a5b1!important; }
-  html[data-theme="dark"] :is(.message.error,.practice-feedback.incorrect) { background:#432d39!important;border-color:#986075!important; }
-  html[data-theme="dark"] :is(.option:hover,.plain:hover,.course-nav:hover,.chapter:hover,.site-nav a:hover) { background:#30445e!important; }
-  html[data-theme="dark"] :is(pre,code) { background:#172230;color:#d3e3f6; }
-  html[data-theme="dark"] mark { background:#655222;color:#fff0bc; }
+  html[data-theme="dark"] :is(.option.correct,.answer,.practice-feedback.correct,.feedback.correct) { background:#272727!important;color:#E4E4E4!important;border-color:#777777!important; }
+  html[data-theme="dark"] .option.correct .option-label { color:#E0E0E0!important; }
+  html[data-theme="dark"] :is(.badge,.badge.neutral,.exam-badges span,.pixel-course-tag) { background:#303030!important;color:#DBDBDB!important; }
+  html[data-theme="dark"] :is(.badge.gold,.warning,.practice-feedback.review,.feedback.review) { background:#343434!important;color:#D1D1D1!important;border-color:#777777!important; }
+  html[data-theme="dark"] :is(.exam-right,.success-label) { color:#E0E0E0!important; }
+  html[data-theme="dark"] :is(.exam-wrong,.message.error,.remove-question) { color:#C7C7C7!important; }
+  html[data-theme="dark"] :is(.message.error,.practice-feedback.incorrect) { background:#333333!important;border-color:#888888!important; }
+  html[data-theme="dark"] :is(.option:hover,.plain:hover,.course-nav:hover,.chapter:hover,.site-nav a:hover) { background:#353535!important; }
+  html[data-theme="dark"] :is(pre,code) { background:#1E1E1E;color:#D8D8D8; }
+  html[data-theme="dark"] mark { background:#454545;color:#FFFFFF; }
   html[data-theme="dark"] :is(th,td,table,.explain,.sources,.pixel-footer) { border-color:var(--line)!important; }
-  html[data-theme="dark"] th { background:#26364a!important;color:var(--ink)!important; }
+  html[data-theme="dark"] th { background:#2D2D2D!important;color:var(--ink)!important; }
   html[data-theme="dark"] td { background:var(--surface)!important;color:var(--ink)!important; }
   html[data-theme="dark"] .pixel-course {
-    --accent:#8aafe4;--shadow:#334b6a;
-    background:#1e2e42!important;color:var(--ink)!important;
+    --accent:#BEBEBE;--shadow:#484848;
+    background:#272727!important;color:var(--ink)!important;
   }
-  html[data-theme="dark"] .pixel-course.algo { --accent:#c59aaf;--shadow:#574052;background:#302938!important; }
-  html[data-theme="dark"] :is(.pixel-course-icon,.pixel-course.algo .pixel-course-icon) { background:#38455b!important; }
-  html[data-theme="dark"] .pixel-enter { background:#314d70!important;color:#e6effb!important; }
-  html[data-theme="dark"] .pixel-course.algo .pixel-enter { background:#624458!important; }
-  html[data-theme="dark"] body::before,html[data-theme="dark"] body::after { opacity:.14!important; }
-  html[data-theme="dark"] .theme-toggle { background:#26384d!important;color:#dbe8f9!important; }
-  html[data-theme="dark"] :focus-visible { outline-color:#a4c8ef!important; }
+  html[data-theme="dark"] .pixel-course.algo { --accent:#BEBEBE;--shadow:#484848;background:#272727!important; }
+  html[data-theme="dark"] :is(.pixel-course-icon,.pixel-course.algo .pixel-course-icon) { background:#393939!important; }
+  html[data-theme="dark"] .pixel-enter { background:#353535!important;color:#F0F0F0!important; }
+  html[data-theme="dark"] .pixel-course.algo .pixel-enter { background:#353535!important; }
+  html[data-theme="dark"] body::before,html[data-theme="dark"] body::after { opacity:.05!important;filter:grayscale(1)!important; }
+  html[data-theme="dark"] .theme-toggle { background:#333333!important;color:#E4E4E4!important; }
+  html[data-theme="dark"] :focus-visible { outline-color:#D3D3D3!important; }
 }
 @media print { .theme-toggle { display:none!important; } }
