@@ -123,48 +123,6 @@
     finally { if (url) setTimeout(() => URL.revokeObjectURL(url), 0); }
   });
 
-  function questionLinkText(id) {
-    const target = config.resolveId?.(id) || id;
-    const details = config.questionDetails(target);
-    const file = config.course === 'os' ? 'os.html' : 'algorithms.html';
-    const url = new URL(file, 'https://yocheng06.github.io/course-library/');
-    url.searchParams.set('question', target);
-    return `${courseNames[config.course]}｜${details.unit}｜第 ${details.number} 題\n題目 ID：${target}\n${url.href}`;
-  }
-  function fallbackCopy(text, button) {
-    const input = document.createElement('textarea');
-    input.value = text; input.readOnly = true; input.className = 'question-copy-temp';
-    document.body.append(input);
-    let copied = false;
-    try { input.focus({preventScroll:true}); input.select(); copied = document.execCommand?.('copy') === true; }
-    catch {}
-    input.remove(); button.focus({preventScroll:true});
-    return copied;
-  }
-  async function copyQuestion(id, button) {
-    const card = button.closest('article[data-id]'), actions = button.closest('.question-actions');
-    const copyStatus = actions.querySelector('.question-copy-status');
-    button.disabled = true;
-    try {
-      const text = questionLinkText(id);
-      let copied = false;
-      try {
-        if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(text); copied = true; }
-      } catch {}
-      if (!copied) copied = fallbackCopy(text, button);
-      card.querySelector('.question-copy-manual')?.remove();
-      if (copied) copyStatus.textContent = '已複製題目編號與連結。';
-      else {
-        const label = document.createElement('label'); label.className = 'question-copy-manual';
-        label.textContent = '連結文字（請手動複製）';
-        const input = document.createElement('textarea'); input.value = text; input.readOnly = true;
-        input.setAttribute('aria-label', '題目編號與連結，請手動複製'); label.append(input); actions.after(label);
-        input.focus({preventScroll:true}); input.select();
-        copyStatus.textContent = '無法自動複製，請複製下方文字。';
-      }
-    } catch { copyStatus.textContent = '無法建立這題的連結，請重新載入題目後再試。'; }
-    finally { button.disabled = false; }
-  }
   // Migrate merged question IDs and remove obsolete progress, retaining marks.
   if (Object.prototype.hasOwnProperty.call(initial, 'state') ||
       initialBookmarks.length !== saved.size || initialBookmarks.some(id => !saved.has(id))) write();
@@ -187,14 +145,6 @@
       let actions = card.querySelector('.question-actions');
       if (!actions) {
         actions = document.createElement('div'); actions.className = 'question-actions'; card.append(actions);
-      }
-      if (!card.querySelector('[data-copy-question]')) {
-        const copy = document.createElement('button'); copy.type = 'button'; copy.className = 'plain question-copy';
-        copy.dataset.copyQuestion = card.dataset.id; copy.textContent = '複製此題連結';
-        copy.setAttribute('aria-label', `${config.questionLabel(card.dataset.id)}，複製題目編號與連結`);
-        const copyStatus = document.createElement('span'); copyStatus.className = 'question-copy-status';
-        copyStatus.setAttribute('role', 'status'); copyStatus.setAttribute('aria-live', 'polite');
-        actions.append(copy, copyStatus);
       }
       if (!card.querySelector('.question-report')) {
         const report = document.createElement('button');
@@ -235,8 +185,6 @@
   }
   window.learningUI = { refresh, addReview, exportLearning:()=>({bookmarks:backupData(),size:sizeSelect.value}), prepareLearning, applyLearning, exportBookmarks:backupData, importBookmarks:importBackup, get persistent() { return storagePersistent; }, get reviewOnly() { return reviewOnly; }, get currentReviewCount() { return config.scopeIds().filter(id => saved.has(id)).length; }, isSaved:id => saved.has(id), clearReview:()=>{reviewOnly=false;message('');} };
   config.list.addEventListener('click', event => {
-    const copy = event.target.closest('[data-copy-question]');
-    if (copy) { copyQuestion(copy.dataset.copyQuestion, copy); return; }
     const add = event.target.closest('[data-add-review]');
     if (add) { addReview(add.dataset.addReview); return; }
     const button = event.target.closest('[data-review-id]');
