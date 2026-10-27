@@ -6,13 +6,135 @@
       "algorithms"
     ],
     "originalQuestions": 1070,
-    "mergedDisplayQuestions": 1045
+    "mergedDisplayQuestions": 1045,
+    "currentMainSnapshot": {
+      "commit": "5887f82893f508bd908243d84fe950def109f67e",
+      "operatingSystemQuestions": 716,
+      "algorithmsQuestions": 300,
+      "totalQuestions": 1016
+    }
   },
   "rule": "只合併同一題的中英文版本，完整選項需逐一對應，只允許選項換序；答案按選項內容重對應。已合併題以中文在上、英文在下呈現，舊 ID 轉為題目別名，原始版本保存在 sourceVariants。",
   "result": {
-    "confirmedMergePairs": 25,
+    "confirmedMergePairs": 26,
     "additionalPairsFoundInThisAudit": 1,
-    "unmergedSemanticOrPartialMatches": "保留原題"
+    "unmergedSemanticOrPartialMatches": "保留原題",
+    "additionalPairsMergedAfterApproval": 1,
+    "allReviewedPairsPresentInCurrentMain": true,
+    "additionalMainBranchMergeMappingsOutsideThisAudit": [
+      {
+        "canonicalId": "process-9",
+        "mergedId": "process-109"
+      },
+      {
+        "canonicalId": "process-22",
+        "mergedId": "process-94"
+      },
+      {
+        "canonicalId": "process-33",
+        "mergedId": "process-32"
+      },
+      {
+        "canonicalId": "process-51",
+        "mergedId": "process-50"
+      },
+      {
+        "canonicalId": "threads-010",
+        "mergedId": "threads-011"
+      },
+      {
+        "canonicalId": "threads-007",
+        "mergedId": "threads-056"
+      },
+      {
+        "canonicalId": "threads-068",
+        "mergedId": "threads-054"
+      },
+      {
+        "canonicalId": "threads-044",
+        "mergedId": "threads-058"
+      },
+      {
+        "canonicalId": "threads-073",
+        "mergedId": "threads-043"
+      },
+      {
+        "canonicalId": "threads-051",
+        "mergedId": "threads-064"
+      },
+      {
+        "canonicalId": "threads-030",
+        "mergedId": "threads-029"
+      },
+      {
+        "canonicalId": "threads-021",
+        "mergedId": "threads-083"
+      },
+      {
+        "canonicalId": "threads-066",
+        "mergedId": "threads-025"
+      },
+      {
+        "canonicalId": "os8-080",
+        "mergedId": "community-17f37eed-b93c-485f-9bdd-c7591a014917-4"
+      },
+      {
+        "canonicalId": "os8-099",
+        "mergedId": "community-17f37eed-b93c-485f-9bdd-c7591a014917-7"
+      },
+      {
+        "canonicalId": "os8-059",
+        "mergedId": "community-17f37eed-b93c-485f-9bdd-c7591a014917-10"
+      },
+      {
+        "canonicalId": "os8-118",
+        "mergedId": "community-17f37eed-b93c-485f-9bdd-c7591a014917-20"
+      },
+      {
+        "canonicalId": "os8-090",
+        "mergedId": "community-17f37eed-b93c-485f-9bdd-c7591a014917-27"
+      },
+      {
+        "canonicalId": "os8-077",
+        "mergedId": "os8-087"
+      },
+      {
+        "canonicalId": "os8-056",
+        "mergedId": "os8-096"
+      },
+      {
+        "canonicalId": "os8-013",
+        "mergedId": "os8-097"
+      },
+      {
+        "canonicalId": "os8-022",
+        "mergedId": "os8-104"
+      },
+      {
+        "canonicalId": "os8-057",
+        "mergedId": "os8-106"
+      },
+      {
+        "canonicalId": "os8-052",
+        "mergedId": "os8-116"
+      },
+      {
+        "canonicalId": "os8-080",
+        "mergedId": "os8-124"
+      },
+      {
+        "canonicalId": "os8-058",
+        "mergedId": "os8-126"
+      },
+      {
+        "canonicalId": "os8-029",
+        "mergedId": "os8-127"
+      },
+      {
+        "canonicalId": "os8-031",
+        "mergedId": "os8-141"
+      }
+    ]
   },
   "merges": [
     {
@@ -312,6 +434,18 @@
         "A": "B",
         "B": "A",
         "C": "D",
+        "D": "C"
+      }
+    },
+    {
+      "canonicalId": "threads-001",
+      "mergedId": "threads-067",
+      "canonicalAnswer": "A,B,C,D",
+      "sourceAnswer": "A,B,C,D",
+      "sourceOptionToCanonical": {
+        "A": "B",
+        "B": "D",
+        "C": "A",
         "D": "C"
       }
     }
