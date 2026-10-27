@@ -451,3 +451,10 @@ Two-level 綁定題與 Max-Heap 的 greater 填空仍需確認題幹限定；雖
 - 桶排序 4 題分格標示所問桶號，明列入桶順序及第 2／4 行檢查點。決策樹的最緊下界、至少 n! 個葉節點與比較模型限制補入解析或提醒。
 - 原始題幹保留供查題，穩定排序單選與 11 元素 j=4 的來源限制持續明列。
 - [逐題校對與順序紀錄](content/algorithms-l6-content-review-20261026.json)、[閱讀與驗算報告](content/algorithms-l6-content-review-20261026.md)。
+
+
+## 2026-10-27：核准並核對 OS／演算法重複題合併
+
+依使用者核准的審核清單，Threads 中文題 `threads-001` 與英文題 `threads-067` 已合併。中文題在上，英文題幹與選項翻譯依中文選項順序呈現；英文原選項對應中文為 A→B、B→D、C→A、D→C，兩題答案均為全選，故中文答案為 A、B、C、D。舊 ID `threads-067` 仍由單元別名導向 `threads-001`。原審核清單的 25 組既有合併也已逐一核對別名與保留題。
+
+目前 main 分支共有 OS 716 題、演算法 300 題，合計 1,016 題。原審核快照後，main 分支另外出現 28 組題目合併，詳見 `content/bilingual-question-audit-20261027.json` 的 `additionalMainBranchMergeMappingsOutsideThisAudit`；這 28 組不屬於本次 26 組審核清單，現況題數因此低於審核快照預估的 1,044 題。
