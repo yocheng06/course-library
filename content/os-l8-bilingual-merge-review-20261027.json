@@ -1,0 +1,294 @@
+{
+  "date": "2026-10-27",
+  "description": "逐題核對中英文題幹、完整選項及答案；只有所有選項都能一一對應（允許換序）才合併。合併題依網站格式中文在上、英文在下，選項與答案依中文順序呈現。原始版本保存在 sourceVariants。",
+  "merges": [
+    {
+      "canonicalId": "os8-049",
+      "mergedId": "os8-089",
+      "sourceOptionToCanonical": {
+        "A": "B",
+        "B": "C",
+        "C": "D",
+        "D": "A"
+      },
+      "canonicalAnswer": "A,B,C",
+      "sourceAnswer": "A,B,D"
+    },
+    {
+      "canonicalId": "os8-011",
+      "mergedId": "os8-082",
+      "sourceOptionToCanonical": {
+        "A": "C",
+        "B": "A",
+        "C": "B",
+        "D": "D"
+      },
+      "canonicalAnswer": "A",
+      "sourceAnswer": "B"
+    },
+    {
+      "canonicalId": "os8-021",
+      "mergedId": "os8-085",
+      "sourceOptionToCanonical": {
+        "A": "C",
+        "B": "A",
+        "C": "D",
+        "D": "B"
+      },
+      "canonicalAnswer": "A,C",
+      "sourceAnswer": "A,B"
+    },
+    {
+      "canonicalId": "os8-051",
+      "mergedId": "os8-086",
+      "sourceOptionToCanonical": {
+        "A": "A",
+        "B": "C",
+        "C": "B",
+        "D": "D"
+      },
+      "canonicalAnswer": "A,B,C,D",
+      "sourceAnswer": "A,B,C,D"
+    },
+    {
+      "canonicalId": "os8-006",
+      "mergedId": "os8-101",
+      "sourceOptionToCanonical": {
+        "A": "B",
+        "B": "D",
+        "C": "A",
+        "D": "C"
+      },
+      "canonicalAnswer": "A,B,C",
+      "sourceAnswer": "A,C,D"
+    },
+    {
+      "canonicalId": "os8-102",
+      "mergedId": "os8-103",
+      "sourceOptionToCanonical": {
+        "A": "A",
+        "B": "B",
+        "C": "C",
+        "D": "D"
+      },
+      "canonicalAnswer": "A,B",
+      "sourceAnswer": "A,B"
+    },
+    {
+      "canonicalId": "os8-076",
+      "mergedId": "os8-083",
+      "sourceOptionToCanonical": {
+        "A": "A",
+        "B": "C",
+        "C": "B",
+        "D": "D"
+      },
+      "canonicalAnswer": "C",
+      "sourceAnswer": "B"
+    },
+    {
+      "canonicalId": "os8-045",
+      "mergedId": "os8-098",
+      "sourceOptionToCanonical": {
+        "A": "A",
+        "B": "D",
+        "C": "C",
+        "D": "B"
+      },
+      "canonicalAnswer": "A",
+      "sourceAnswer": "A"
+    },
+    {
+      "canonicalId": "os8-040",
+      "mergedId": "os8-109",
+      "sourceOptionToCanonical": {
+        "A": "D",
+        "B": "A",
+        "C": "C",
+        "D": "B"
+      },
+      "canonicalAnswer": "A",
+      "sourceAnswer": "B"
+    },
+    {
+      "canonicalId": "os8-112",
+      "mergedId": "os8-113",
+      "sourceOptionToCanonical": {
+        "A": "A",
+        "B": "B",
+        "C": "D",
+        "D": "C"
+      },
+      "canonicalAnswer": "A,D",
+      "sourceAnswer": "A,C"
+    },
+    {
+      "canonicalId": "os8-005",
+      "mergedId": "os8-117",
+      "sourceOptionToCanonical": {
+        "A": "B",
+        "B": "A",
+        "C": "C",
+        "D": "D"
+      },
+      "canonicalAnswer": "D",
+      "sourceAnswer": "D"
+    },
+    {
+      "canonicalId": "os8-015",
+      "mergedId": "os8-119",
+      "sourceOptionToCanonical": {
+        "A": "B",
+        "B": "C",
+        "C": "D",
+        "D": "A"
+      },
+      "canonicalAnswer": "B",
+      "sourceAnswer": "A"
+    },
+    {
+      "canonicalId": "os8-009",
+      "mergedId": "os8-120",
+      "sourceOptionToCanonical": {
+        "A": "A",
+        "B": "D",
+        "C": "C",
+        "D": "B"
+      },
+      "canonicalAnswer": "D",
+      "sourceAnswer": "B"
+    },
+    {
+      "canonicalId": "os8-033",
+      "mergedId": "os8-121",
+      "sourceOptionToCanonical": {
+        "A": "D",
+        "B": "C",
+        "C": "B",
+        "D": "A"
+      },
+      "canonicalAnswer": "D",
+      "sourceAnswer": "A"
+    },
+    {
+      "canonicalId": "os8-030",
+      "mergedId": "os8-091",
+      "sourceOptionToCanonical": {
+        "A": "D",
+        "B": "A",
+        "C": "B",
+        "D": "C"
+      },
+      "canonicalAnswer": "A",
+      "sourceAnswer": "B"
+    },
+    {
+      "canonicalId": "os8-064",
+      "mergedId": "os8-094",
+      "sourceOptionToCanonical": {
+        "A": "D",
+        "B": "C",
+        "C": "A",
+        "D": "B"
+      },
+      "canonicalAnswer": "A,C",
+      "sourceAnswer": "B,C"
+    },
+    {
+      "canonicalId": "os8-092",
+      "mergedId": "os8-095",
+      "sourceOptionToCanonical": {
+        "A": "C",
+        "B": "B",
+        "C": "D",
+        "D": "A"
+      },
+      "canonicalAnswer": "A,D",
+      "sourceAnswer": "C,D"
+    },
+    {
+      "canonicalId": "os8-055",
+      "mergedId": "os8-125",
+      "sourceOptionToCanonical": {
+        "A": "B",
+        "B": "D",
+        "C": "C",
+        "D": "A"
+      },
+      "canonicalAnswer": "A,B,C,D",
+      "sourceAnswer": "A,B,C,D"
+    },
+    {
+      "canonicalId": "os8-018",
+      "mergedId": "os8-128",
+      "sourceOptionToCanonical": {
+        "A": "C",
+        "B": "B",
+        "C": "A",
+        "D": "D"
+      },
+      "canonicalAnswer": "B",
+      "sourceAnswer": "B"
+    },
+    {
+      "canonicalId": "os8-066",
+      "mergedId": "os8-129",
+      "sourceOptionToCanonical": {
+        "A": "B",
+        "B": "D",
+        "C": "C",
+        "D": "A"
+      },
+      "canonicalAnswer": "B",
+      "sourceAnswer": "A"
+    },
+    {
+      "canonicalId": "os8-039",
+      "mergedId": "os8-130",
+      "sourceOptionToCanonical": {
+        "A": "C",
+        "B": "A",
+        "C": "D",
+        "D": "B"
+      },
+      "canonicalAnswer": "A,C",
+      "sourceAnswer": "A,B"
+    },
+    {
+      "canonicalId": "os8-042",
+      "mergedId": "os8-133",
+      "sourceOptionToCanonical": {
+        "A": "A",
+        "B": "C",
+        "C": "B",
+        "D": "D"
+      },
+      "canonicalAnswer": "A,B,C",
+      "sourceAnswer": "A,B,C"
+    },
+    {
+      "canonicalId": "os8-136",
+      "mergedId": "os8-138",
+      "sourceOptionToCanonical": {
+        "A": "B",
+        "B": "C",
+        "C": "A",
+        "D": "D"
+      },
+      "canonicalAnswer": "D",
+      "sourceAnswer": "D"
+    },
+    {
+      "canonicalId": "os8-050",
+      "mergedId": "os8-140",
+      "sourceOptionToCanonical": {
+        "A": "B",
+        "B": "A",
+        "C": "C",
+        "D": "D"
+      },
+      "canonicalAnswer": "B,C,D",
+      "sourceAnswer": "A,C,D"
+    }
+  ]
+}

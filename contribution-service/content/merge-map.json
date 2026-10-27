@@ -546,6 +546,150 @@
       "unit": "L6",
       "id": "L6-016",
       "canonicalId": "L6-014"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-089",
+      "canonicalId": "os8-049"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-082",
+      "canonicalId": "os8-011"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-085",
+      "canonicalId": "os8-021"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-086",
+      "canonicalId": "os8-051"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-101",
+      "canonicalId": "os8-006"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-103",
+      "canonicalId": "os8-102"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-083",
+      "canonicalId": "os8-076"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-098",
+      "canonicalId": "os8-045"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-109",
+      "canonicalId": "os8-040"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-113",
+      "canonicalId": "os8-112"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-117",
+      "canonicalId": "os8-005"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-119",
+      "canonicalId": "os8-015"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-120",
+      "canonicalId": "os8-009"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-121",
+      "canonicalId": "os8-033"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-091",
+      "canonicalId": "os8-030"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-094",
+      "canonicalId": "os8-064"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-095",
+      "canonicalId": "os8-092"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-125",
+      "canonicalId": "os8-055"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-128",
+      "canonicalId": "os8-018"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-129",
+      "canonicalId": "os8-066"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-130",
+      "canonicalId": "os8-039"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-133",
+      "canonicalId": "os8-042"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-138",
+      "canonicalId": "os8-136"
+    },
+    {
+      "course": "os",
+      "unit": "deadlocks",
+      "id": "os8-140",
+      "canonicalId": "os8-050"
     }
   ]
 }
