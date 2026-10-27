@@ -30,3 +30,27 @@ test('reviewed bilingual merges preserve source answers, option order and old ID
     assert.equal(mapped, chineseIsMerged ? englishAnswer : chineseAnswer);
   }
 });
+
+test('the process-message-passing duplicate displays one Chinese-first bilingual choice question', async () => {
+  const units = parseOSCourseHTML(await readFile(new URL('../os.html', import.meta.url), 'utf8'));
+  const unit = units.find(item => item.id === 'process');
+  const q = unit.questions.find(question => question.id === 'process-69');
+  assert.equal(unit.questionAliases['process-68'], 'process-69');
+  assert.equal(unit.questions.some(question => question.id === 'process-68'), false);
+  assert.equal(q.stem, '哪些是訊息傳遞中的同步化類型？');
+  assert.equal(q.translation, 'What are the synchronization types in message passing?');
+  assert.deepEqual(q.options, [
+    'A. 非阻塞（非同步）',
+    'B. 阻塞（同步）',
+    'C. 有界容量',
+    'D. 無限容量',
+  ]);
+  assert.deepEqual(q.optionTranslations, [
+    'non-blocking (asynchronous)',
+    'blocking (synchronous)',
+    'bounded capacity',
+    'infinite capacity',
+  ]);
+  assert.equal(q.choiceKey, 'AB');
+  assert(q.sourceVariants.some(source => source.id === 'process-68'));
+});
