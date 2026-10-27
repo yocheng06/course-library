@@ -6,13 +6,15 @@
       "algorithms"
     ],
     "originalQuestions": 1070,
-    "mergedDisplayQuestions": 1045,
+    "mergedDisplayQuestions": 1016,
     "currentMainSnapshot": {
       "commit": "5887f82893f508bd908243d84fe950def109f67e",
       "operatingSystemQuestions": 716,
       "algorithmsQuestions": 300,
       "totalQuestions": 1016
-    }
+    },
+    "mergedDisplayQuestionsAtAuditSnapshot": 1045,
+    "expectedDisplayQuestionsAfterApprovedPairs": 1044
   },
   "rule": "只合併同一題的中英文版本，完整選項需逐一對應，只允許選項換序；答案按選項內容重對應。已合併題以中文在上、英文在下呈現，舊 ID 轉為題目別名，原始版本保存在 sourceVariants。",
   "result": {
