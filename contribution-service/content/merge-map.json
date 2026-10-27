@@ -690,6 +690,12 @@
       "unit": "deadlocks",
       "id": "os8-140",
       "canonicalId": "os8-050"
+    },
+    {
+      "course": "os",
+      "unit": "process",
+      "id": "process-68",
+      "canonicalId": "process-69"
     }
   ]
 }

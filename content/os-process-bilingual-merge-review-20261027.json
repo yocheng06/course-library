@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-27",
+  "course": "os",
+  "unit": "process",
+  "criteria": "題幹為同一題的中英文版本；全部選項逐項相同，只允許排列順序不同；按選項內容重新對應答案。顯示中文在上、英文在下。",
+  "canonicalId": "process-69",
+  "mergedId": "process-68",
+  "canonicalStem": "哪些是訊息傳遞中的同步化類型？",
+  "englishStem": "What are the synchronization types in message passing?",
+  "canonicalOptions": [
+    "A. 非阻塞（非同步）",
+    "B. 阻塞（同步）",
+    "C. 有界容量",
+    "D. 無限容量"
+  ],
+  "englishOptionTranslations": [
+    "non-blocking (asynchronous)",
+    "blocking (synchronous)",
+    "bounded capacity",
+    "infinite capacity"
+  ],
+  "canonicalAnswer": "A、B",
+  "originalEnglishAnswer": "blocking (synchronous)\nnon-blocking (asynchronous)",
+  "sourceOptionToCanonical": {
+    "A": "B",
+    "B": "A",
+    "C": "D",
+    "D": "C"
+  }
+}
