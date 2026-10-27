@@ -49,11 +49,13 @@
   html[data-theme="dark"] :is(.site-nav a[aria-current="page"],.course-nav.active,.chapter.active,.lesson-tab.active,.option.chosen,.review-button[aria-pressed="true"],.learning-tools button[aria-pressed="true"],.pager button.active,.segmented button.active,.reveal,.button:not(.secondary)) {
     background:#353535!important;color:#F0F0F0!important;border-color:#A6A6A6!important;
   }
-  html[data-theme="dark"] :is(.option.correct,.answer,.practice-feedback.correct,.feedback.correct) { background:#272727!important;color:#E4E4E4!important;border-color:#777777!important; }
-  html[data-theme="dark"] .option.correct .option-label { color:#E0E0E0!important; }
+  html[data-theme="dark"] :is(.option.correct,.practice-feedback.correct,.feedback.correct) { background:#26382D!important;color:#E7F1E9!important;border:2px solid #78A687!important;box-shadow:inset 4px 0 #78A687; }
+  html[data-theme="dark"] .answer { background:#26382D!important;color:#E7F1E9!important;border-color:#78A687!important;box-shadow:inset 4px 0 #78A687; }
+  html[data-theme="dark"] .answer strong { color:#B9E3C2!important;font-weight:700; }
+  html[data-theme="dark"] .option.correct .option-label { color:#B9E3C2!important;font-weight:700; }
   html[data-theme="dark"] :is(.badge,.badge.neutral,.exam-badges span,.pixel-course-tag) { background:#303030!important;color:#DBDBDB!important; }
   html[data-theme="dark"] :is(.badge.gold,.warning,.practice-feedback.review,.feedback.review) { background:#343434!important;color:#D1D1D1!important;border-color:#777777!important; }
-  html[data-theme="dark"] :is(.exam-right,.success-label) { color:#E0E0E0!important; }
+  html[data-theme="dark"] :is(.exam-right,.success-label) { color:#A6D9B2!important;font-weight:700; }
   html[data-theme="dark"] :is(.exam-wrong,.message.error,.remove-question) { color:#C7C7C7!important; }
   html[data-theme="dark"] :is(.message.error,.practice-feedback.incorrect) { background:#333333!important;border-color:#888888!important; }
   html[data-theme="dark"] :is(.option:hover,.plain:hover,.course-nav:hover,.chapter:hover,.site-nav a:hover) { background:#353535!important; }
