@@ -48,8 +48,14 @@ const cleanKey = (value) =>
   String(value ?? "")
     .normalize("NFKC")
     .replace(/\s+/g, "");
+const stripBeastQuestionHeading = (value) =>
+  String(value ?? "")
+    .replace(/^\s*(?:\*\*)?妖獸\s*\d{1,4}\s*[.．。)、:：）](?:\*\*)?\s*/u, "")
+    .trim();
 const stemKey = (value) =>
-  cleanKey(String(value ?? "").replace(/\[_{2,}\d*_{0,}\]|_{2,}/g, "___"));
+  cleanKey(
+    stripBeastQuestionHeading(value).replace(/\[_{2,}\d*_{0,}\]|_{2,}/g, "___"),
+  );
 function imageKey(question) {
   return (question.imageKeys || question.images || [])
     .map((image) => (typeof image === "string" ? image : image.src))
@@ -159,7 +165,9 @@ export function normalizeBatch(
     const item = {
       category: text(q.category, "分類", 100, true),
       type,
-      stem: text(q.stem ?? q.q, "題目", 10000, true),
+      stem: stripBeastQuestionHeading(
+        text(q.stem ?? q.q, "題目", 10000, true),
+      ),
       options: options.map((o) => text(o, "選項", 2000, true)),
       answer: text(q.answer ?? q.a, "答案", 4000, !allowMissingAnswers),
       explanation: text(q.explanation ?? q.ex, "解析", 16000),
