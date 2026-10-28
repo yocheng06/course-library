@@ -1,48 +1,223 @@
 (() => {
   'use strict';
-  const config=window.courseLearning;if(!config)return;
-  const dialog=document.createElement('dialog');dialog.className='correction-dialog';
-  dialog.setAttribute('aria-labelledby','correction-title');
-  dialog.innerHTML='<h2 id="correction-title">回報題目問題</h2><p>免登入，由站主審核後處理。回報不會直接更改公開答案，請勿填寫個人資料。</p><p data-question-label></p><form method="post"><label>問題說明（必填，至少 5 字）<textarea name="detail" required minlength="5" maxlength="4000" rows="4"></textarea></label><label>建議修正與參考來源（選填）<textarea name="suggestion" maxlength="4000" rows="3"></textarea></label><label hidden>網站<input name="website" tabindex="-1" autocomplete="off"></label><button type="submit" class="plain">送出勘誤</button></form><p role="status" aria-live="polite"></p><button type="button" data-download-receipt class="plain" hidden>下載勘誤收據</button><hr><h3>查詢勘誤進度</h3><form data-lookup method="post"><label>勘誤編號<input name="receipt" required maxlength="36"></label><button type="submit" class="plain">查詢</button></form><p data-lookup-result role="status" aria-live="polite"></p><button type="button" data-close class="plain">關閉</button>';
+  const config = window.courseLearning;
+  if (!config) return;
+  const communityId = id => /^community-[0-9a-f-]{36}-[1-9]\d*$/.test(id);
+  const dialog = document.createElement('dialog');
+  dialog.className = 'correction-dialog';
+  dialog.setAttribute('aria-labelledby', 'correction-title');
+  dialog.innerHTML = `
+    <h2 id="correction-title"></h2>
+    <p data-help></p>
+    <p data-question-label></p>
+    <form method="post">
+      <div data-edit-fields hidden>
+        <label>分類<input name="category" maxlength="100" required></label>
+        <label>題型<select name="type"><option>單選題</option><option>多選題</option><option>填空題</option><option>圖片題</option></select></label>
+        <label>題目<textarea name="stem" required maxlength="10000" rows="4"></textarea></label>
+        <label>選項（一行一個；填空題留白）<textarea name="options" maxlength="16000" rows="4"></textarea></label>
+        <label>正確答案<textarea name="answer" required maxlength="4000" rows="2"></textarea></label>
+        <label>解析（選填）<textarea name="explanation" maxlength="16000" rows="4"></textarea></label>
+        <label>修正說明（選填）<textarea name="note" maxlength="2000" rows="2" placeholder="簡短說明修正原因或參考來源"></textarea></label>
+      </div>
+      <div data-report-fields>
+        <label>問題說明（必填，至少 5 字）<textarea name="detail" required minlength="5" maxlength="4000" rows="4"></textarea></label>
+        <label>建議修正與參考來源（選填）<textarea name="suggestion" maxlength="4000" rows="3"></textarea></label>
+      </div>
+      <label hidden>網站<input name="website" tabindex="-1" autocomplete="off"></label>
+      <button type="submit" class="plain"></button>
+    </form>
+    <p data-status role="status" aria-live="polite"></p>
+    <button type="button" data-download-receipt class="plain" hidden>下載勘誤收據</button>
+    <section data-lookup-area>
+      <hr><h3>查詢勘誤進度</h3>
+      <form data-lookup method="post"><label>勘誤編號<input name="receipt" required maxlength="36"></label><button type="submit" class="plain">查詢</button></form>
+      <p data-lookup-result role="status" aria-live="polite"></p>
+    </section>
+    <button type="button" data-close class="plain">關閉</button>`;
   document.body.append(dialog);
-  const form=dialog.querySelector('form'),status=dialog.querySelector('[role="status"]'),lookup=dialog.querySelector('[data-lookup]');
-  const drafts=new Map();let active=null,opener=null,pending=false,receipt=null;
-  const labels={pending:'待站主審核',confirmed:'已確認需更正',resolved:'已處理',rejected:'不採納'};
-  async function api(path,options={}) {
-    const response=await fetch(window.courseContributions.apiOrigin+path,{...options,headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(20000)});
-    const body=await response.json();if(!response.ok)throw new Error(body.error || '勘誤服務暫時無法使用。');return body;
+  const form = dialog.querySelector('form'),
+    status = dialog.querySelector('[data-status]'),
+    lookup = dialog.querySelector('[data-lookup]'),
+    submitButton = form.querySelector('[type="submit"]');
+  const drafts = new Map();
+  let active = null, opener = null, pending = false, receipt = null,
+    mode = 'report', currentItem = null;
+  const labels = {pending:'待站主審核',confirmed:'已確認需更正',resolved:'已處理',rejected:'不採納'};
+
+  async function api(path, options = {}) {
+    const response = await fetch(window.courseContributions.apiOrigin + path, {
+      ...options,
+      headers: {'Content-Type':'application/json'},
+      signal: AbortSignal.timeout(20000),
+    });
+    const body = await response.json();
+    if (!response.ok) {
+      const error = new Error(body.error || '題庫服務暫時無法使用。');
+      error.details = body;
+      throw error;
+    }
+    return body;
   }
-  config.list.addEventListener('click',event=>{
-    const button=event.target.closest('[data-correction]');if(!button)return;
-    if(pending)return;
-    opener=button;active=button.dataset.correction;
-    const q=config.questionDetails(active),draft=drafts.get(active)||{};
-    dialog.querySelector('[data-question-label]').textContent=`${q.unit}・第 ${q.number} 題（${q.id}）`;
-    form.elements.detail.value=draft.detail||'';form.elements.suggestion.value=draft.suggestion||'';
-    status.textContent='';form.hidden=false;receipt=null;dialog.querySelector('[data-download-receipt]').hidden=true;
-    dialog.showModal();form.elements.detail.focus();
+  function setMode(nextMode) {
+    mode = nextMode;
+    const editing = mode === 'edit';
+    dialog.querySelector('#correction-title').textContent = editing ? '修正投稿題目' : '回報題目問題';
+    dialog.querySelector('[data-help]').textContent = editing
+      ? '投稿新增的題目可直接修正並立即公開。修改前版本會保留，站主可以管理及還原；此功能不能刪除題目。'
+      : '免登入回報原有題庫題目，由站主處理；回報不會直接更改公開內容。請勿填寫個人資料。';
+    dialog.querySelector('[data-edit-fields]').hidden = !editing;
+    dialog.querySelector('[data-report-fields]').hidden = editing;
+    dialog.querySelector('[data-lookup-area]').hidden = editing;
+    form.elements.stem.required = editing;
+    form.elements.category.required = editing;
+    form.elements.answer.required = editing;
+    form.elements.detail.required = !editing;
+    form.elements.detail.minLength = editing ? 0 : 5;
+    submitButton.textContent = editing ? '直接儲存並公開' : '送出勘誤';
+  }
+  function fillEdit(item) {
+    currentItem = item;
+    const q = item.question;
+    form.elements.category.value = q.category || '其他';
+    form.elements.type.value = q.type || (q.options?.length ? '單選題' : '填空題');
+    form.elements.stem.value = q.stem || '';
+    form.elements.options.value = (q.options || []).join('\n');
+    form.elements.answer.value = q.answer || '';
+    form.elements.explanation.value = q.explanation || '';
+    form.elements.note.value = '';
+    const draft = drafts.get(active)?.edit;
+    if (draft) {
+      for (const [key, value] of Object.entries(draft))
+        if (form.elements[key]) form.elements[key].value = value;
+    }
+  }
+  config.list.addEventListener('click', async event => {
+    const button = event.target.closest('[data-correction]');
+    if (!button || pending) return;
+    opener = button;
+    active = button.dataset.correction;
+    receipt = null;
+    currentItem = null;
+    dialog.querySelector('[data-question-label]').textContent =
+      `${config.questionDetails(active).unit}・第 ${config.questionDetails(active).number} 題（${active}）`;
+    dialog.querySelector('[data-download-receipt]').hidden = true;
+    status.textContent = '';
+    form.hidden = false;
+    dialog.showModal();
+    if (communityId(active)) {
+      setMode('edit');
+      pending = true;
+      submitButton.disabled = true;
+      status.textContent = '正在載入投稿題目…';
+      try {
+        const result = await api('/api/community/questions/' + encodeURIComponent(active));
+        fillEdit(result.item);
+        status.textContent = '';
+        form.elements.stem.focus();
+      } catch (error) {
+        status.textContent = error.message;
+      } finally {
+        pending = false;
+        submitButton.disabled = false;
+      }
+    } else {
+      setMode('report');
+      const draft = drafts.get(active)?.report || {};
+      form.elements.detail.value = draft.detail || '';
+      form.elements.suggestion.value = draft.suggestion || '';
+      form.elements.detail.focus();
+    }
   });
-  form.addEventListener('input',()=>{if(active)drafts.set(active,{detail:form.elements.detail.value,suggestion:form.elements.suggestion.value});});
-  form.addEventListener('submit',async event=>{
-    event.preventDefault();if(pending || !active || !form.reportValidity())return;
-    pending=true;form.querySelector('button').disabled=true;status.textContent='正在送出…';
+  form.addEventListener('input', () => {
+    if (!active) return;
+    drafts.set(active, mode === 'edit'
+      ? {edit:{category:form.elements.category.value,type:form.elements.type.value,stem:form.elements.stem.value,options:form.elements.options.value,answer:form.elements.answer.value,explanation:form.elements.explanation.value,note:form.elements.note.value}}
+      : {report:{detail:form.elements.detail.value,suggestion:form.elements.suggestion.value}});
+  });
+  async function saveCommunityEdit(confirmSimilar = false) {
+    const item = currentItem, old = item.question;
+    const payload = {
+      course: config.course,
+      unit: item.unit,
+      unitTitle: item.unitTitle,
+      title: '投稿題目修正',
+      source: '公開題目直接修正',
+      questions: [{
+        category: form.elements.category.value,
+        type: form.elements.type.value,
+        stem: form.elements.stem.value,
+        options: form.elements.options.value.split(/\r?\n/).map(value => value.trim()).filter(Boolean),
+        answer: form.elements.answer.value,
+        explanation: form.elements.explanation.value,
+        images: old.images || [],
+      }],
+    };
+    return api('/api/community/questions/' + encodeURIComponent(active), {
+      method: 'POST',
+      body: JSON.stringify({action:'update',revision:item.revision,payload,note:form.elements.note.value,confirmSimilar}),
+    });
+  }
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (pending || !active || !form.reportValidity()) return;
+    pending = true;
+    submitButton.disabled = true;
+    status.textContent = mode === 'edit' ? '正在儲存修正…' : '正在送出…';
     try {
-      receipt=await api('/api/corrections',{method:'POST',body:JSON.stringify({course:config.course,questionId:active,answerSnapshot:config.questionDetails(active).answer,detail:form.elements.detail.value,suggestion:form.elements.suggestion.value,website:form.elements.website.value})});
-      drafts.delete(active);form.reset();form.hidden=true;lookup.elements.receipt.value=receipt.id;
-      status.textContent=`已送交站主審核。勘誤編號：${receipt.id}。請下載收據以便日後查詢。`;
-      dialog.querySelector('[data-download-receipt]').hidden=false;
-    }catch(error){status.textContent=`未能確認送出結果：${error.message}。填寫內容仍保留。`;}
-    finally{pending=false;form.querySelector('button').disabled=false;}
+      if (mode === 'edit') {
+        if (!currentItem) throw new Error('題目尚未載入，請關閉後重新開啟。');
+        try {
+          await saveCommunityEdit();
+        } catch (error) {
+          const similar = error.details?.code === 'similar_questions';
+          const list = (error.details?.possibleDuplicates || []).map(item => item.reference).join('、');
+          if (!similar || !window.confirm(`修改後與其他題目可能相同${list ? `（${list}）` : ''}。仍要直接公開這次修正嗎？`)) throw error;
+          await saveCommunityEdit(true);
+        }
+        drafts.delete(active);
+        form.hidden = true;
+        status.textContent = '題目已直接更新並公開。修改前版本已保留，站主可以管理及還原。';
+        window.dispatchEvent(new Event('online'));
+      } else {
+        receipt = await api('/api/corrections', {
+          method: 'POST',
+          body: JSON.stringify({course:config.course,questionId:active,answerSnapshot:config.questionDetails(active).answer,detail:form.elements.detail.value,suggestion:form.elements.suggestion.value,website:form.elements.website.value}),
+        });
+        drafts.delete(active);
+        form.reset();
+        form.hidden = true;
+        lookup.elements.receipt.value = receipt.id;
+        status.textContent = `已送交站主處理。勘誤編號：${receipt.id}。請下載收據以便日後查詢。`;
+        dialog.querySelector('[data-download-receipt]').hidden = false;
+      }
+    } catch (error) {
+      status.textContent = `未能完成：${error.message}。你填寫的內容仍保留。`;
+    } finally {
+      pending = false;
+      submitButton.disabled = false;
+    }
   });
-  lookup.addEventListener('submit',async event=>{
-    event.preventDefault();const target=dialog.querySelector('[data-lookup-result]');const id=lookup.elements.receipt.value.trim();
-    if(!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id)){target.textContent='請輸入完整勘誤編號。';return;}
-    target.textContent='查詢中…';try{const result=await api('/api/corrections/'+id);target.textContent=(labels[result.status]||result.status)+(result.note?'；站主說明：'+result.note:'');}catch(error){target.textContent=error.message;}
+  lookup.addEventListener('submit', async event => {
+    event.preventDefault();
+    const target = dialog.querySelector('[data-lookup-result]'), id = lookup.elements.receipt.value.trim();
+    if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id)) {
+      target.textContent = '請輸入完整勘誤編號。';
+      return;
+    }
+    target.textContent = '查詢中…';
+    try {
+      const result = await api('/api/corrections/' + id);
+      target.textContent = (labels[result.status] || result.status) + (result.note ? '；站主說明：' + result.note : '');
+    } catch (error) { target.textContent = error.message; }
   });
-  dialog.querySelector('[data-download-receipt]').addEventListener('click',()=>{
-    if(!receipt)return;const url=URL.createObjectURL(new Blob([JSON.stringify({...receipt,course:config.course,questionId:active},null,2)],{type:'application/json'}));
-    const link=document.createElement('a');link.href=url;link.download='題庫勘誤收據.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  dialog.querySelector('[data-download-receipt]').addEventListener('click', () => {
+    if (!receipt) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify({...receipt,course:config.course,questionId:active},null,2)], {type:'application/json'}));
+    const link = document.createElement('a');
+    link.href = url; link.download = '題庫勘誤收據.json'; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
-  dialog.querySelector('[data-close]').addEventListener('click',()=>dialog.close());
-  dialog.addEventListener('close',()=>opener?.isConnected && opener.focus());
+  dialog.querySelector('[data-close]').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('close', () => opener?.isConnected && opener.focus());
 })();

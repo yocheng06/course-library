@@ -163,3 +163,17 @@ test('copy falls back when clipboard permission is denied and manual text remain
   assert.match(manual.document.querySelector('.question-copy-status').textContent, /請複製下方文字/);
   assert.equal(manual.document.querySelector('[data-copy-question]').disabled, false);
 });
+
+test('community questions offer direct editing while built-in questions remain report-only', () => {
+  const h = harness();
+  const card = h.document.createElement('article');
+  card.dataset.id = pendingId;
+  card.innerHTML = '<div class="cardtop"></div>';
+  h.document.getElementById('cards').append(card);
+  h.ui.refresh();
+  assert.equal(h.document.querySelector('article[data-id="known-1"] .question-report').textContent, '回報題目問題');
+  assert.equal(card.querySelector('.question-report').textContent, '修正投稿題目');
+  assert.match(card.querySelector('.question-report').getAttribute('aria-label'), /直接修正投稿題目/);
+  h.ui.refresh();
+  assert.equal(card.querySelectorAll('.question-report').length, 1);
+});

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta
       name="description"
-      content="補充課程題庫：免登入投稿，經站主審核後加入題庫。"
+      content="補充課程題庫：免登入投稿，送出後立即加入公開題庫；投稿題目可直接修正。"
     />
     <title>投稿題庫｜課程學習站</title>
     <link rel="icon" href="assets/icons/course-mascot.png" />
@@ -23,22 +23,22 @@
       <a class="brand" href="https://yocheng06.github.io/course-library/">課程學習站</a>
       <nav aria-label="網站導覽">
         <a href="https://yocheng06.github.io/course-library/">課程首頁</a>
-        <a class="button secondary" href="https://yocheng06.github.io/course-library/review.html">站主審核</a>
+        <a class="button secondary" href="https://yocheng06.github.io/course-library/review.html">管理者後台</a>
       </nav>
     </header>
     <main class="contribution-page">
       <div class="page-heading">
         <span class="eyebrow">一起補充題庫</span>
         <h1>投稿題庫</h1>
-        <p>把整理好的題目分享給同學。送出後由站主審核，通過才會加入題庫。</p>
+        <p>把整理好的題目分享給同學。送出後會立即加入公開題庫；投稿新增的題目也可由大家直接修正。</p>
       </div>
       <ol class="flow-steps" aria-label="投稿流程">
         <li>1 填寫或匯入</li>
         <li>2 預覽並送出</li>
-        <li>3 等待站主審核</li>
+        <li>3 立即加入題庫</li>
       </ol>
       <p class="notice">
-        同學投稿不需要登入。投稿內容會交給站主；審核通過的題目、答案與解析會公開。
+        投稿不需要登入。題目與答案會立即公開；投稿新增的題目可直接修正，修改紀錄保留供站主管理與還原。原有內建題目仍由站主處理回報。
       </p>
       <section id="pendingDrafts" class="panel" aria-labelledby="pendingHeading" hidden>
         <div class="section-heading">
@@ -46,7 +46,7 @@
           <button id="downloadPending" class="text-button" type="button">下載待補草稿</button>
         </div>
         <p>這裡保留未收錄題目的題幹與選項順序。逐題確認單元與題型、補上正確答案後，按「補齊並加入投稿清單」；解析可留白，之後再補。</p>
-        <p class="muted">待補題目會另外暫存，不會覆蓋原投稿草稿，也不會自動送出。匯入檔案可依科目與單元自動分組，預覽後逐批送審。手動新增清單仍以目前所選單元為準。</p>
+        <p class="muted">待補題目會另外暫存，不會覆蓋原投稿草稿，也不會自動送出。匯入檔案可依科目與單元自動分組，核對後逐批直接加入公開題庫。手動新增清單仍以目前所選單元為準。</p>
         <p id="pendingStatus" role="status" aria-live="polite"></p>
         <div id="pendingList"></div>
       </section>
@@ -70,9 +70,9 @@
           /></label>
         </div>
         <div id="newUnitFields" class="panel" hidden>
-          <p>新單元投稿會先交由站主審核，核准後才出現在公開題庫。</p>
+          <p>新單元投稿後會立即出現在公開題庫，請先核對單元編號與名稱。</p>
           <div class="field-grid"><label>新單元編號<input id="newUnitNumber" type="number" min="1" max="99" step="1" placeholder="例如：7"></label><label>單元名稱（選填）<input id="newUnitTitle" maxlength="60" placeholder="例如：動態規劃"></label></div>
-          <p class="muted">例如演算法第七章填 7；不知道名稱可先留空，由站主審核確認。</p>
+          <p class="muted">例如演算法第七章填 7；名稱可留空，之後可由管理者調整。</p>
         </div>
         <label
           >來源說明（選填）<textarea
@@ -188,13 +188,13 @@
           ><input
             id="consent"
             type="checkbox"
-          />我已確認題目附有答案，並同意站主審核、編輯與公開通過的內容。</label
+          />我已確認題目與答案正確，並了解送出後會立即公開。</label
         >
         <div class="actions">
           <button id="submitBatch" class="button" type="button" disabled>
-            送出，等待審核</button
+            送出並加入題庫</button
           ><span class="muted"
-            >送出不會立即發布；重複題會自動略過，其餘題目照常送審。</span
+            >送出後立即公開；重複題會自動略過，其餘題目直接加入題庫。</span
           >
         </div>
       </section>
@@ -220,7 +220,7 @@
       </section>
       <section id="possibleDuplicates" class="panel" hidden></section>
       <section id="success" class="panel" hidden>
-        <h2>投稿已送出</h2>
+        <h2>題目已加入題庫</h2>
         <p>投稿編號：<strong id="receipt"></strong></p>
         <div class="actions">
           <button type="button" id="copyReceipt" class="button secondary">
@@ -229,7 +229,7 @@
             下載投稿收據
           </button>
         </div>
-        <p>這份題庫正在等待站主審核。請保留編號；你可以在下方查詢審核狀態。</p>
+        <p>題目已公開。請保留投稿編號，方便日後查詢或回報問題。</p>
       </section>
       <section id="recentReceipts" class="panel" hidden>
         <h2>這台裝置的近期投稿</h2>
@@ -256,7 +256,7 @@
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/contributions-submit.js?v=html-answer-pair-fix1-20261028"
+      src="assets/contributions-submit.js?v=community-direct-publish-20261028"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
   </body>

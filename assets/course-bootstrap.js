@@ -56,7 +56,7 @@
   async function sync() {
     if (syncing || location.protocol === 'file:') return;
     if (!navigator.onLine) {
-      showNotice('目前離線，顯示隨站內建版本；連線後可同步題目修改與投稿題庫。',true);
+      if (linkedSubmission) showNotice('這是投稿題目，需要連線才能載入；原有題庫可繼續閱讀。',true);
       return;
     }
     syncing = true;
@@ -70,7 +70,7 @@
       if (linkedSubmission && !config.validId(linkedId)) showNotice('這個投稿題目連結暫時沒有可用內容，已顯示原有題庫。',true);
       else { notice?.remove(); notice = null; }
     } catch {
-      showNotice('線上題庫暫時無法同步，目前顯示隨站內建版本；可繼續閱讀與作答。',true);
+      showNotice('線上題庫更新暫時無法同步，目前顯示隨頁面提供的內建版本。請重新同步以取得最新修訂。',true);
     } finally { syncing = false; }
   }
   if (linkedSubmission) showNotice('正在載入這道投稿題目…');

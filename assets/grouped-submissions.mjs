@@ -1,5 +1,5 @@
 import {COURSE_UNITS,normalizeBatch,normalizeType,normalizeUnit,unitLabel} from './contribution-model.js?v=html-question-import-20261028';
-import {api,esc,questionPreview,downloadJSON,showSimilar} from './contributions-ui.js?v=site-audit-20261017';
+import {api,esc,questionPreview,downloadJSON,showSimilar} from './contributions-ui.js?v=community-direct-publish-20261028';
 
 export function groupImport(data, fallback, filename='匯入題庫', {allowMissingAnswers=false}={}) {
   const groups=new Map();let count=0;
@@ -39,7 +39,7 @@ export function groupImport(data, fallback, filename='匯入題庫', {allowMissi
 export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}) {
   const key='course-library-grouped-submissions-v1';let queue=[],busy=false;
   const panel=document.createElement('section');panel.className='group-preview';
-  panel.innerHTML='<h2>匯入分組預覽</h2><p>依科目與單元分組，每批最多 200 題。可同時選取 CCSA 題目 HTML 和交卷結果 HTML，自動配對正解；解析可留白。確認每組內容與答案後再送出；下方手動編輯中的原草稿會保留。已送出的批次會保留收據，重試只處理未完成批次。沒有配對到的正解需先補上。</p><div data-groups></div><label class="consent"><input type="checkbox" data-consent>我已預覽各組題目，確認可交給站主審核並公開核准內容。</label><div class="actions"><button type="button" class="button" data-send>確認分組並逐批送出</button><button type="button" class="button secondary" data-download>下載分組草稿與收據</button><button type="button" class="text-button" data-clear>清空分組預覽</button></div><p role="status" aria-live="polite"></p>';
+  panel.innerHTML='<h2>匯入分組預覽</h2><p>依科目與單元分組，每批最多 200 題。可同時選取 CCSA 題目 HTML 和交卷結果 HTML，自動配對正解；解析可留白。確認每組內容與答案後再送出；下方手動編輯中的原草稿會保留。已送出的批次會保留收據，重試只處理未完成批次。沒有配對到的正解需先補上。</p><div data-groups></div><label class="consent"><input type="checkbox" data-consent>我已預覽各組題目，確認題目與答案正確並了解送出後會立即公開。</label><div class="actions"><button type="button" class="button" data-send>確認分組並逐批加入題庫</button><button type="button" class="button secondary" data-download>下載分組草稿與收據</button><button type="button" class="text-button" data-clear>清空分組預覽</button></div><p role="status" aria-live="polite"></p>';
   document.getElementById('draftHeading').closest('section').before(panel);
   const list=panel.querySelector('[data-groups]'),status=panel.querySelector('[role="status"]'),consent=panel.querySelector('[data-consent]');
   function save(){localStorage.setItem(key,JSON.stringify({version:1,groups:queue}));}
@@ -128,7 +128,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
           group.result=await api('/api/submissions',{method:'POST',body:JSON.stringify({...payload,clientRequestId:group.requestId,website:document.getElementById('website').value,confirmSimilar:node.querySelector('.similar-consent')?.checked===true})});
           // Persist each completion before starting the next request.
           save();if(group.result.id)onReceipt(group.result,payload);
-          node.querySelector('[data-error]').textContent=group.result.id?`已送出。收據：${group.result.id}`:'全部題目已收錄，沒有新增投稿。';
+          node.querySelector('[data-error]').textContent=group.result.id?`已加入公開題庫。收據：${group.result.id}`:'全部題目已收錄，沒有新增投稿。';
         }catch(error){
           if(error.details?.code==='similar_questions')showSimilar(node.querySelector('[data-similar]'),error.details.possibleDuplicates);
           node.open=true;node.querySelector('[data-error]').textContent=error.message;

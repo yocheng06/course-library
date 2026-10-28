@@ -1,4 +1,4 @@
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=html-answer-pair-20261028';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=community-direct-publish-20261028';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -17,8 +17,8 @@ import {
   showSimilar,
   downloadJSON,
   copyText,
-} from "./contributions-ui.js?v=site-audit-20261017";
-import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=new-units-20261026";
+} from "./contributions-ui.js?v=community-direct-publish-20261028";
+import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=community-direct-publish-20261028";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
@@ -292,7 +292,7 @@ form.addEventListener("submit", (event) => {
     message(
       skipped.length
         ? "已自動略過重複題，保留投稿清單中的第一筆。"
-        : "題目已加入投稿清單，可繼續新增或送出審核。",
+        : "題目已加入投稿清單，可繼續新增或送出公開。",
     );
   } catch (error) {
     message(error.message, true);
@@ -752,7 +752,7 @@ $("submitBatch").addEventListener("click", async () => {
     render();
     save();
     message(
-      `已送出 ${result.acceptedCount ?? payload.questions.length} 題，等待站主審核${result.skippedCount ? `；自動略過 ${result.skippedCount} 題重複題目` : ""}。${receiptSaveFailed ? "這台裝置無法保存收據，請下載投稿收據備份。" : ""}`,
+      `已將 ${result.acceptedCount ?? payload.questions.length} 題加入公開題庫${result.skippedCount ? `；自動略過 ${result.skippedCount} 題重複題目` : ""}。投稿編號：${result.id}${receiptSaveFailed ? "。這台裝置無法保存收據，請下載投稿收據備份。" : ""}`,
     );
   } catch (error) {
     if (error.details?.code === "similar_questions")
@@ -855,7 +855,7 @@ setupSubmissionInbox({
       ["category", "stem", "options", "answer", "explanation"].some(name => form.elements[name].value.trim());
     const differentScope = q.course !== $("course").value || q.unit !== metadata().unit;
     if (differentScope && (questions.length || hasEditor))
-      throw new Error("原投稿草稿屬於不同科目或單元，請先完成原清單的送審，再加入這題。待補內容仍保留。");
+      throw new Error("原投稿草稿屬於不同科目或單元，請先送出原清單，再加入這題。待補內容仍保留。");
     const nextMetadata = { ...metadata(), course: q.course, unit: q.unit, title: $("batchTitle").value || "批次查題補充題" };
     const candidate = normalizeBatch({ ...nextMetadata, questions: [{
       category: q.category, type: q.type, stem: q.stem,

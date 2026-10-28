@@ -146,15 +146,18 @@
       if (!actions) {
         actions = document.createElement('div'); actions.className = 'question-actions'; card.append(actions);
       }
-      if (!card.querySelector('.question-report')) {
-        const report = document.createElement('button');
+      let report = card.querySelector('.question-report');
+      if (!report) {
+        report = document.createElement('button');
         report.type = 'button';
         report.className = 'question-report';
         report.dataset.correction = card.dataset.id;
-        report.textContent = '回報題目問題';
-        report.setAttribute('aria-label', `${config.questionLabel(card.dataset.id)}，免登入回報題目問題`);
         actions.append(report);
       }
+      const canEdit = communityId(card.dataset.id);
+      report.dataset.correction = card.dataset.id;
+      report.textContent = canEdit ? '修正投稿題目' : '回報題目問題';
+      report.setAttribute('aria-label', `${config.questionLabel(card.dataset.id)}，免登入${canEdit ? '直接修正投稿題目' : '回報題目問題'}`);
     });
     filter.querySelector('span').textContent = config.scopeIds().filter(id => saved.has(id)).length;
     filter.setAttribute('aria-pressed', String(reviewOnly));
