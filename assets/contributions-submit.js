@@ -417,6 +417,8 @@ function parseCoursePracticeHtml(doc, raw, name) {
     return false;
   };
   const cleanText = (value) => value.replace(/\s+/g, " ").trim();
+  const cleanQuestionStem = (value) =>
+    cleanText(value).replace(/^\s*(?:妖獸|Beast)\s*\d+\s*[.．、:：)]?\s*/iu, "");
   const questions = [];
   for (const block of doc.querySelectorAll(".question-block")) {
     if (block.closest("template") || hidden(block)) continue;
@@ -433,12 +435,7 @@ function parseCoursePracticeHtml(doc, raw, name) {
       .filter(Boolean)
       .sort((a, b) => b.length - a.length);
     if (!stemNodes.length) throw new Error(`第 ${questions.length + 1} 題缺少題幹，沒有匯入任何題目。`);
-    const numberLabel = [...block.querySelectorAll(".question-text")]
-      .map((node) => cleanText(node.textContent))
-      .find((value) => /^妖獸\s*\d+[.．、]?$/u.test(value));
-    const stem = numberLabel && !stemNodes[0].startsWith(numberLabel)
-      ? `${numberLabel} ${stemNodes[0]}`
-      : stemNodes[0];
+    const stem = cleanQuestionStem(stemNodes[0]);
     const types = new Set(responseInputs.map((input) => input.type));
     if (types.size !== 1 || !["radio", "checkbox", "text"].includes([...types][0]))
       throw new Error(`第 ${questions.length + 1} 題的題型無法辨識，沒有匯入任何題目。`);
