@@ -1,0 +1,542 @@
+{
+  "schemaVersion": 1,
+  "unit": {
+    "id": "L9",
+    "title": "記憶體管理",
+    "en": "MEMORY MANAGEMENT",
+    "description": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
+  },
+  "categoryOrder": [
+    "記憶體保護",
+    "位址繫結",
+    "連續配置與碎片",
+    "非連續配置方式",
+    "分頁與 TLB",
+    "頁表結構",
+    "分段",
+    "載入、交換與連結",
+    "架構案例：ARM／Intel"
+  ],
+  "typeOrder": [
+    "單選題",
+    "多選題",
+    "填空題"
+  ],
+  "order": [
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-13",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-25",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-21",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-1",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-1",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-10",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-3",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-8",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-16",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-6",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-18",
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-2",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-21",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-7",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-19",
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-5",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-23",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-22",
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-4",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-7",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-1",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-2",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-10",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-24",
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-10",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-5",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-20",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-3",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-4",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-7",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-10",
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-9",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-2",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-6",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-8",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-15",
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-1",
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-7",
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-8",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-11",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-11",
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-11",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-17",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-13",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-15",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-16",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-2",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-16",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-14",
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-12",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-9",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-20",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-13",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-22",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-4",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-12",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-14",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-8",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-9",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-14",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-19",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-13",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-23",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-4",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-3",
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-3",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-11",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-17",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-5",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-12",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-15",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-9",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-12",
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-24",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-5",
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-18",
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-6",
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-6"
+  ],
+  "questions": {
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-1": {
+      "category": "記憶體保護",
+      "explanation": "合法的邏輯位址必須同時滿足大於或等於 0、且小於 limit。base 是程序可用實體記憶體範圍的起點，通過檢查後再以 base + 邏輯位址得到實體位址，所以選 A、D。",
+      "sourceSignature": "c73b0438"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-10": {
+      "category": "記憶體保護",
+      "explanation": "頁表中的 valid/invalid 位元標記該頁是否屬於程序可合法使用的位址範圍。若標記為 invalid，存取會被拒絕並觸發例外，藉此防止越界存取；依原題格式答案為 valid-invalid。",
+      "sourceSignature": "203e74c1"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-11": {
+      "category": "分頁與 TLB",
+      "explanation": "CPU 產生邏輯（或虛擬）位址；分頁系統再透過頁表與 MMU 轉成實體位址。依題目留空格式填 logical/physical。",
+      "sourceSignature": "a67a4984"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-12": {
+      "category": "架構案例：ARM／Intel",
+      "explanation": "依題庫給的答案選 A、C、D：小頁面可使用分層頁表，題庫也將 4 KB／16 KB 頁面列為支援項目。ARM 版本與 descriptor 格式會影響頁面大小；此外 16 MB 在 ARMv7 short-descriptor 中稱 supersection，不是一般 1 MB section。",
+      "sourceSignature": "0fdd1a42",
+      "note": "依來源答案選 A、C、D；題目沒有指定 ARM 世代。ARMv7 short-descriptor 中，1 MB 是 section，16 MB 是 supersection，A 的合稱不夠精確。"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-13": {
+      "category": "分段",
+      "explanation": "分段把程式看成多個邏輯區塊，例如程式碼、資料與堆疊。邏輯位址由 segment 與 offset 組成；頁號／框架號則屬分頁用語，因此選 D。",
+      "sourceSignature": "1b043604"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-14": {
+      "category": "頁表結構",
+      "explanation": "倒置頁表以實體 frame 為索引單位，每一列記錄該框架目前對應的虛擬頁與程序 ID。原題匯入後答案格式為 inverted/frame；概念上是「倒置頁表／實體框架」，題幹缺少填空位置，依來源答案保留。",
+      "sourceSignature": "e09ceb7f",
+      "note": "原題只有一個空格，但來源答案為 inverted/frame；解析按來源保留這個答案格式，題幹可能漏了第二個填空位置。"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-15": {
+      "category": "分頁與 TLB",
+      "explanation": "邏輯位址中的 page number 用來查頁表，找到對應的 frame number；page offset 則原樣保留，用來定位頁面內的位元組。因此索引頁表的是 page number，選 A。",
+      "sourceSignature": "17e9685a"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-16": {
+      "category": "位址繫結",
+      "explanation": "若編譯時已知道程式會放在哪個記憶體位置，編譯器可直接產生固定實體位置的 absolute code。若位置要等載入時才決定，才需要 relocatable code，因此選 B。",
+      "sourceSignature": "8619298c"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-2": {
+      "category": "頁表結構",
+      "explanation": "倒置頁表把資料列按實體 frame 建立；一列代表一個實體框架，並記錄佔用它的程序與虛擬頁號。這比每個程序各自保存一整張頁表省空間，但查找時未必比一般頁表快，因此選 C、D。",
+      "sourceSignature": "43733885"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-3": {
+      "category": "載入、交換與連結",
+      "explanation": "動態連結把程式庫符號的解析延後到執行時，stub 可在第一次呼叫時協助定位常式；多個程序也能共用同一份程式庫，降低執行檔重複攜帶程式碼的情況。內部碎片不是連結方式能消除的問題，因此依題庫答案選 A、B、C。",
+      "sourceSignature": "9af3c464",
+      "note": "來源答案保留 A、B、C；A「常式僅在需要時才載入」更接近動態載入或延遲繫結，與動態連結相關但不是完全相同的概念。"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-4": {
+      "category": "載入、交換與連結",
+      "explanation": "動態載入只在程式真的呼叫某個常式時才把它載入記憶體；平常不會用到的部分便不必常駐，因此記憶體利用率較好。它不會提升磁碟 I/O 速度，也不是消除外部碎片的配置演算法。",
+      "sourceSignature": "7a493fae"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-5": {
+      "category": "載入、交換與連結",
+      "explanation": "stub 是連結時留下的小段替代程式碼。第一次呼叫時，它找到或載入共享程式庫中的目標常式，之後把呼叫改導向真正的常式；因此答案是 stub。",
+      "sourceSignature": "76533241"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-6": {
+      "category": "架構案例：ARM／Intel",
+      "explanation": "依題庫答案填 sections。這題沒有標明 ARM 架構世代；在 ARMv7 的 short-descriptor 語境中，1 MB 是 section，而 16 MB 更精確的名稱是 supersection，請把原題用語視為簡化說法。",
+      "sourceSignature": "d0575968",
+      "note": "依來源答案填 sections。若題目指 ARMv7 short-descriptor，1 MB 是 section，16 MB 更精確地稱為 supersection；原題未標示架構版本。"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-7": {
+      "category": "連續配置與碎片",
+      "explanation": "分頁把程序切成固定大小的頁，最後一頁若用不滿，浪費會留在已分配的頁框內，稱為 internal fragmentation（內部碎片）。它不是不同空閒區塊散落在記憶體中的 external fragmentation。",
+      "sourceSignature": "548cb27b"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-8": {
+      "category": "分頁與 TLB",
+      "explanation": "TLB 是存放近期位址轉換結果的小型高速快取。命中時，MMU 可直接取得虛擬頁對應的實體框架，不必每次都到主記憶體逐層查頁表。",
+      "sourceSignature": "7791441e"
+    },
+    "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-9": {
+      "category": "架構案例：ARM／Intel",
+      "explanation": "依本題庫採用的四級 x86-64 分頁模型，頁表走四層、線性位址使用 48 個轉譯位元，常見頁面為 4 KB、2 MB、1 GB，因此選 A、B、C。較新的處理器也可能支援五級分頁與 57 位元位址，細節見題目備註。",
+      "sourceSignature": "eb5d1960",
+      "note": "此答案依題庫採用的四級 x86-64 分頁模型。較新的處理器也可能支援五級分頁，因此位址寬度不是所有機器都固定 48 位元。"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-1": {
+      "category": "分頁與 TLB",
+      "explanation": "MMU（Memory Management Unit，記憶體管理單元）負責把程式使用的邏輯／虛擬位址轉成實體位址。ALU 做算術邏輯運算，FPU 處理浮點運算，因此答案是 B。",
+      "sourceSignature": "16d488c8"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-10": {
+      "category": "連續配置與碎片",
+      "explanation": "Compaction 把零散空閒洞合併；Paging 則讓程序頁放進不相鄰的框架，不再要求一整塊連續區域。兩者都能處理外部碎片，所以選 B、C。",
+      "sourceSignature": "5a896f12"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-11": {
+      "category": "分頁與 TLB",
+      "explanation": "分頁位址由 page number 與 page offset 組成。page number 用來查頁表／TLB 找出實體 frame，offset 保留作為頁面內的位置，答案是 page number/page offset。",
+      "sourceSignature": "d3305c16"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-12": {
+      "category": "頁表結構",
+      "explanation": "依來源答案填 protected：頁表由作業系統管理，通常放在受保護的主記憶體中，避免一般程序任意改寫。原題把這點和 TLB miss 連在一起容易誤解；TLB miss 本身只是要查頁表，不會讓頁表自動遭到改寫。",
+      "sourceSignature": "2c9f9bc7",
+      "note": "原題把頁表保護和 TLB miss 放在同一句，因果關係不清楚；答案依來源保留 protected。"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-13": {
+      "category": "記憶體保護",
+      "explanation": "Base 指出程序可用實體記憶體區域的起點，Limit 限制其可用範圍。硬體據此檢查位址是否在合法範圍內，因此答案是 B。",
+      "sourceSignature": "c325a7d5"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-2": {
+      "category": "位址繫結",
+      "explanation": "執行時繫結由 MMU 在執行期間完成位址轉換，因此程序能搬移；程式碼必須可重定位。固定位置的 absolute code 不符合這個需求，所以選 A、B、D。",
+      "sourceSignature": "ddee8870"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-3": {
+      "category": "載入、交換與連結",
+      "explanation": "動態載入只在程式真的需要某個常式時才載入，提升記憶體利用率，也讓程式不必一開始就把所有常式放進記憶體。它不會解決外部碎片，因此依來源答案選 A、B、D。",
+      "sourceSignature": "496c64fd"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-4": {
+      "category": "連續配置與碎片",
+      "explanation": "分頁以固定大小頁框配置；若最後一頁沒有用滿，浪費仍留在已分配區塊內，稱為 internal fragmentation（內部碎片），答案是 C。",
+      "sourceSignature": "bd5060de"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-5": {
+      "category": "位址繫結",
+      "explanation": "Address binding（位址繫結）是把程式產生的邏輯位址對應到實際實體位址的過程。繫結可在編譯、載入或執行階段完成；本題答案為 address binding。",
+      "sourceSignature": "869385ff"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-6": {
+      "category": "架構案例：ARM／Intel",
+      "explanation": "PAE（Page Address Extension）讓支援它的 32 位元 Intel 系統使用較寬的實體位址，管理超過 4 GB 的實體記憶體；它不會自動擴大單一 32 位元程序的虛擬位址空間。答案是 pae。",
+      "sourceSignature": "143d7b4a"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-7": {
+      "category": "分頁與 TLB",
+      "explanation": "TLB 快取近期的「虛擬頁號 → 實體框架號」轉換，並可用程序識別資訊區分位址空間。頁內 offset 直接沿用原位址，不是用來查找框架的欄位，所以選 A、B、D。",
+      "sourceSignature": "67388c98"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-8": {
+      "category": "分頁與 TLB",
+      "explanation": "TLB miss 表示快取裡沒有這筆轉換，系統會查主記憶體中的頁表，再把找到的轉換放入 TLB。只有查表發現頁面不在記憶體時才會引發 page fault 和磁碟 I/O，因此選 A、B。",
+      "sourceSignature": "334f2b15"
+    },
+    "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-9": {
+      "category": "非連續配置方式",
+      "explanation": "分層分頁、分頁與分段都允許程式不必由一整塊連續實體記憶體承載；Contiguous Allocation 仍要求連續區域，因此選 A、B、D。",
+      "sourceSignature": "697374b8"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-1": {
+      "category": "記憶體保護",
+      "explanation": "base 指程序可用實體記憶體範圍的起點；limit 指允許的範圍長度。硬體先檢查邏輯位址界限，再把 base 加上邏輯位址，防止程序存取範圍以外的記憶體。",
+      "sourceSignature": "a6274187"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-10": {
+      "category": "非連續配置方式",
+      "explanation": "Hierarchical Paging、Paging、Segmentation 都能讓位址空間不必由單一連續實體區塊承載。Contiguous Allocation 顧名思義仍要求連續區域，因此選 A、C、D。",
+      "sourceSignature": "635533b7"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-11": {
+      "category": "載入、交換與連結",
+      "explanation": "動態連結把共享常式的符號解析延後到程式執行時；stub 會在呼叫時完成解析或導向已載入的常式。因此答案是 execution。",
+      "sourceSignature": "4020411a"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-12": {
+      "category": "分段",
+      "explanation": "分段把程式分成有意義的邏輯單元，例如 code、data、stack；每一單元稱為 segment。分段單位可有不同大小，不像 paging 的頁面固定大小。",
+      "sourceSignature": "ad719ae9"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-13": {
+      "category": "頁表結構",
+      "explanation": "分層分頁把大型頁表再切成多層，讓頁表本身可分頁，也能較彈性地表示大型虛擬位址空間。位址會拆成多個頁表索引與頁內 offset，所以 A、B、C 正確。",
+      "sourceSignature": "f138fb71"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-14": {
+      "category": "載入、交換與連結",
+      "explanation": "Swapping 暫時把程序從主記憶體移出，通常存放到 backing store，之後再載回記憶體繼續執行。暫存器與快取容量太小，不是整個程序的交換目的地。",
+      "sourceSignature": "f6334a8e"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-15": {
+      "category": "架構案例：ARM／Intel",
+      "explanation": "依題庫答案選 B、C、D：小頁面採分層查表，且題庫列出 4 KB／16 KB。這題沒有指定 ARM 世代；在 ARMv7 short-descriptor 中，1 MB 是 section、16 MB 是 supersection，因此 D 的名稱不夠精確。",
+      "sourceSignature": "29b221be",
+      "note": "依來源答案選 B、C、D；題目未指定 ARM 世代。ARMv7 short-descriptor 將 1 MB 稱 section、16 MB 稱 supersection，所以 D 的名稱需依版本核對。"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-16": {
+      "category": "頁表結構",
+      "explanation": "雜湊頁表用虛擬位址中的頁號計算雜湊值，再到對應的桶或鏈結串列比對頁號與程序資訊。找到匹配項目後才能取得實體框架，因此填 lookup。",
+      "sourceSignature": "11577f26"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-17": {
+      "category": "頁表結構",
+      "explanation": "倒置頁表通常以全系統的實體框架為列，每個框架只需一個表項，並標記目前的程序與虛擬頁。這是選項 B 的特徵。",
+      "sourceSignature": "07fbc1d8"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-18": {
+      "category": "位址繫結",
+      "explanation": "執行時繫結由 MMU 在每次位址轉換時把程式使用的邏輯位址映到目前的實體位置，因此程序可在執行中搬移，但程式碼必須可重定位。這三項對應 A、B、C；absolute code 會固定位置，故 D 不對。",
+      "sourceSignature": "5b9b61d4"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-19": {
+      "category": "載入、交換與連結",
+      "explanation": "動態連結把程式庫符號的解析延到 execution time，通常由 stub 協助完成第一次呼叫。compile time 是編譯，load time 是載入時，兩者都比動態連結的延後點早。",
+      "sourceSignature": "23fc77e5"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-2": {
+      "category": "分頁與 TLB",
+      "explanation": "分頁把虛擬記憶體切成 pages，把實體記憶體切成同樣大小的 frames。頁表負責記錄每個 page 對應到哪個 frame，所以答案是 Frames。",
+      "sourceSignature": "78ff5d83"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-20": {
+      "category": "連續配置與碎片",
+      "explanation": "當空閒空間分散成小洞時，compaction 會搬移程序，把洞合併成較大的連續區域。它需要可搬移程序並有搬移成本；若使用分頁則通常不必靠壓縮解決外部碎片。",
+      "sourceSignature": "87e73011"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-21": {
+      "category": "位址繫結",
+      "explanation": "要讓程序執行期間可以搬到不同位置，位址轉換就必須延後到 execution time；MMU 才能依目前的實際位置完成映射。",
+      "sourceSignature": "993a6ea7"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-22": {
+      "category": "分段",
+      "explanation": "Segment Table 的一筆資料描述該段的 base、limit 與保護權限；frame number 是分頁頁表的概念。base 指出段的位置，limit 限制可用範圍，protection bits 控制讀寫或執行。",
+      "sourceSignature": "efa97a89"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-23": {
+      "category": "連續配置與碎片",
+      "explanation": "外部碎片常見於要求連續區塊的配置方式：空閒總量雖足夠，但散落各處。Paging 將程序拆成可放在不同 frame 的頁，因而避開這個連續空間要求。",
+      "sourceSignature": "06cbabb6"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-24": {
+      "category": "架構案例：ARM／Intel",
+      "explanation": "依題庫的四級分頁背景填 48。四級 x86-64 分頁轉譯 48 位元線性位址；支援五級分頁的處理器可使用 57 位元線性位址，因此題幹中的「僅」只適用於指定的四級模型。",
+      "sourceSignature": "e9337bd3",
+      "note": "48 位元答案適用題庫採用的四級分頁模型；支援五級分頁時可使用 57 位元線性位址，題幹未限定版本。"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-25": {
+      "category": "記憶體保護",
+      "explanation": "記憶體保護避免一個使用者程序任意讀寫其他程序或作業系統的記憶體，維持彼此隔離與正確執行。CPU 時脈速度不是記憶體保護目標，所以選 B、C、D。",
+      "sourceSignature": "4895bc8d"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-3": {
+      "category": "位址繫結",
+      "explanation": "載入時繫結會等載入程式知道實際放置位置後，才把可重定位位址調整成實體位置；因此編譯器必須提供 relocatable code。",
+      "sourceSignature": "22de2e5c"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-4": {
+      "category": "分段",
+      "explanation": "分段的邏輯位址由 segment number 與 offset 組成。segment number 選出段表項目，offset 表示段內位置；硬體會再檢查 offset 是否超過該段 limit。",
+      "sourceSignature": "3082816c"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-5": {
+      "category": "連續配置與碎片",
+      "explanation": "外部碎片是空閒記憶體總量看似足夠，卻分散成多個小洞，找不到一塊足夠大的連續區域。答案 external 指這種「外部空間分散」的狀況。",
+      "sourceSignature": "6879852d"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-6": {
+      "category": "位址繫結",
+      "explanation": "載入時繫結在載入階段才知道程式實際位置，故最後的實體位址在載入時確定；編譯器先產生可調整位置的 relocatable code。若還要在執行中搬移，則需執行時繫結與位址轉換硬體。",
+      "sourceSignature": "f0a52cde"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-7": {
+      "category": "連續配置與碎片",
+      "explanation": "分頁允許同一程序的頁放在不相鄰的實體框架，不必找一整塊連續空間，因此消除外部碎片。每頁最後剩下的空間仍可能形成內部碎片，所以 B、D 正確。",
+      "sourceSignature": "16087d20"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-8": {
+      "category": "載入、交換與連結",
+      "explanation": "stub 是動態連結時的替代程式碼。它第一次被呼叫時協助解析共享常式的位置，並把後續呼叫導向該常式；不是 buffer、frame 或一般記憶體區塊。",
+      "sourceSignature": "9bc1891b"
+    },
+    "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-9": {
+      "category": "載入、交換與連結",
+      "explanation": "動態載入只在某段常式確實被呼叫時才載入它，未使用的程式碼便不占用常駐記憶體。這能改善記憶體利用率，和 I/O 速度或碎片消除無關。",
+      "sourceSignature": "e7394bc7"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-1": {
+      "category": "連續配置與碎片",
+      "explanation": "內部碎片發生在已分配給程序的區塊內：區塊比實際需求大，剩餘部分無法拿給其他程序用。分頁以固定大小頁框配置，最後一頁常留下少量空間，因此 C、D 正確。",
+      "sourceSignature": "ce859081"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-10": {
+      "category": "連續配置與碎片",
+      "explanation": "Paging 允許一個程序的頁分散放在多個 frame，因此不必找到足夠大的連續區塊，能消除外部碎片。它仍可能有最後一頁未用滿造成的內部碎片，故 B、D 正確。",
+      "sourceSignature": "04c7b718"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-11": {
+      "category": "分頁與 TLB",
+      "explanation": "TLB 是 Translation Lookaside Buffer 的縮寫，中文常譯為轉譯後備緩衝區。記住它快取的是近期位址轉換，不是完整頁表。",
+      "sourceSignature": "4bafb837"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-12": {
+      "category": "架構案例：ARM／Intel",
+      "explanation": "PAE（Page Address Extension）讓支援它的 32 位元 Intel 系統使用更寬的實體位址，管理超過 4 GB 的實體記憶體。這不表示單一 32 位元程式的虛擬位址空間也自動大於 4 GB。",
+      "sourceSignature": "d06012e5"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-13": {
+      "category": "載入、交換與連結",
+      "explanation": "答案 stub 對應「第一次呼叫時解析或載入程式庫常式」的機制。不過題幹寫 dynamic loading，而 stub 自我替換成常式位址是 dynamic linking 的典型說法；兩個術語要分開記。",
+      "sourceSignature": "89fe04eb",
+      "note": "答案依來源保留為 stub；stub 的延遲解析／替換行為通常放在 dynamic linking（動態連結）章節，本題題幹使用「動態連結」較精確。"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-14": {
+      "category": "分段",
+      "explanation": "分段位址用 segment number 選段，再用 offset 定位段內位置。offset 還必須小於該段的 limit，否則會違反段界限；依題目格式填 segment number/offset。",
+      "sourceSignature": "4668da97"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-15": {
+      "category": "頁表結構",
+      "explanation": "分層分頁為大型虛擬位址空間拆出多層頁表索引，也能讓頁表本身被分頁。位址包含多層索引和頁內 offset，不是只靠一張單一頁表，因此選 A、C、D。",
+      "sourceSignature": "b9f4aac2"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-16": {
+      "category": "頁表結構",
+      "explanation": "PTE 通常包含實體 frame number、valid/invalid 狀態與存取保護資訊。Process ID 常放在 TLB 的位址空間識別欄位，而不是每個一般頁表項目都必須有，所以選 B、C、D。",
+      "sourceSignature": "d9a580d6"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-17": {
+      "category": "載入、交換與連結",
+      "explanation": "題庫答案 stub 指動態連結的替代程式碼：先佔住呼叫位置，等到執行時再定位共享程式庫常式並更新呼叫目標。題幹把它稱為 dynamic loading，名詞精確度見備註。",
+      "sourceSignature": "d08b2aa5",
+      "note": "來源答案依然是 stub；題幹稱 dynamic loading，但 stub 自我替換成常式位址是動態連結的典型描述，兩個概念需分開。"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-18": {
+      "category": "架構案例：ARM／Intel",
+      "explanation": "PAE 是 Intel 為 32 位元架構擴大可管理實體位址範圍的技術；答案填 pae。它擴充的是實體位址能力，程式本身仍受 32 位元虛擬位址限制。",
+      "sourceSignature": "680d8a4e"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-19": {
+      "category": "位址繫結",
+      "explanation": "載入器要等程式實際放置位置確定後才能完成載入時繫結，所以編譯器必須輸出 relocatable code，而不是已固定位置的 absolute code。",
+      "sourceSignature": "cb3e1650"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-2": {
+      "category": "連續配置與碎片",
+      "explanation": "處理外部碎片可用 compaction 把分散空間合併，或改採 paging，不再要求程序佔用一塊連續實體空間。Segmentation 與 first-fit 本身仍可能留下外部碎片，所以依題庫選 A、D。",
+      "sourceSignature": "a99909bb"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-20": {
+      "category": "分段",
+      "explanation": "Segmentation 把程式視為一組有意義的邏輯單元，例如程式碼、資料或堆疊；每段大小可不同。Paging 則按固定大小切分，因此答案是 Segmentation。",
+      "sourceSignature": "ff3e7f39"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-21": {
+      "category": "記憶體保護",
+      "explanation": "可用邏輯位址須滿足 0 ≤ address < limit。base 代表程序實體區域起點，通過界限檢查後再加上 address；所以選 B、D。",
+      "sourceSignature": "353177e2"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-22": {
+      "category": "連續配置與碎片",
+      "explanation": "在分頁中，分配單位是整個 page/frame；若資料用不到最後一頁的全部空間，浪費留在分配區塊內，稱為 internal fragmentation，選 A。",
+      "sourceSignature": "75d88cf8"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-23": {
+      "category": "載入、交換與連結",
+      "explanation": "一般作業系統的載入流程會先把可執行程式放入主記憶體，CPU 才能取指令並執行。磁碟或輔助記憶體保存檔案，但不是 CPU 直接執行一般程式碼的地方。",
+      "sourceSignature": "ec798d99"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-24": {
+      "category": "連續配置與碎片",
+      "explanation": "內部碎片是已分配區塊內沒用到的空間；外部碎片是多個空閒小洞散落在區塊之間。Logical 與 virtual fragmentation 不是此題採用的標準分類，所以選 B、D。",
+      "sourceSignature": "4660d6ef"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-3": {
+      "category": "連續配置與碎片",
+      "explanation": "Compaction（壓縮）會搬移已配置區塊，把零散空閒區合併成較大的連續空間，藉此減少外部碎片。它需要支援重定位，也會耗費搬移時間。",
+      "sourceSignature": "f4a6f4bf"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-4": {
+      "category": "連續配置與碎片",
+      "explanation": "總空閒空間足夠、卻分散成多個小洞而找不到連續區塊，稱為 external fragmentation（外部碎片）；依題目格式填 external。",
+      "sourceSignature": "e24b88b2"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-5": {
+      "category": "架構案例：ARM／Intel",
+      "explanation": "依題庫答案填 sections；精確術語要注意 ARMv7 short-descriptor 的 1 MB section 與 16 MB supersection 之別。題目未標架構版本，保留來源答案並用這個名詞差異提醒。",
+      "sourceSignature": "5a4131b0",
+      "note": "依來源答案填 sections；題目未限定 ARM 版本。ARMv7 short-descriptor 對 1 MB 與 16 MB 使用不同名稱：section 與 supersection。"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-6": {
+      "category": "分頁與 TLB",
+      "explanation": "TLB（Translation Lookaside Buffer，轉譯後備緩衝區）保存近期頁面轉換結果，讓 MMU 快速取得 frame。它不是整張頁表，也不負責交換或決定頁面大小。",
+      "sourceSignature": "8aad405b"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-7": {
+      "category": "位址繫結",
+      "explanation": "程序若能在執行期間搬移，實體位置就不能在編譯時固定；位址綁定必須延後到 execution time，由 MMU 依當下映射轉換。",
+      "sourceSignature": "e9ed03cd"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-8": {
+      "category": "位址繫結",
+      "explanation": "載入時繫結在程式載入時決定實體位置，所以編譯器先產生可重定位程式碼，讓載入器能套用實際起點。答案是 relocatable。",
+      "sourceSignature": "070e1215"
+    },
+    "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-9": {
+      "category": "分段",
+      "explanation": "分段的邏輯位址由 Segment 與 Offset 組成。段表把 segment 對應到實體起點並提供 limit；offset 指出段內位置，因此答案選 C。",
+      "sourceSignature": "6fee9ce3"
+    }
+  },
+  "aliases": [
+    {
+      "id": "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-1",
+      "target": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-2"
+    },
+    {
+      "id": "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-2",
+      "target": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-3"
+    },
+    {
+      "id": "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-3",
+      "target": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-7"
+    },
+    {
+      "id": "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-4",
+      "target": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-8"
+    },
+    {
+      "id": "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-5",
+      "target": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-9"
+    },
+    {
+      "id": "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-6",
+      "target": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-10"
+    },
+    {
+      "id": "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-7",
+      "target": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-15"
+    },
+    {
+      "id": "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-8",
+      "target": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-22"
+    }
+  ]
+}

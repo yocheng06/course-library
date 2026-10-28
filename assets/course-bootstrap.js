@@ -10,6 +10,45 @@
   for (const event of ['pointerdown', 'keydown', 'wheel', 'touchstart'])
     document.addEventListener(event, markInteraction, {once:true, passive:true});
 
+  function cleanHeading(value) {
+    return String(value ?? '').replace(/^(?:Beast|妖獸)\s*\d+\s*[.．、:：-]\s*/i, '');
+  }
+  function sourceSignature(q) {
+    const text = JSON.stringify([String(q.type || ''), String(q.stem || ''), Array.isArray(q.options) ? q.options : [], String(q.answer || '')]);
+    let hash = 2166136261;
+    for (let i = 0; i < text.length; i++) { hash ^= text.charCodeAt(i); hash = Math.imul(hash, 16777619); }
+    return (hash >>> 0).toString(16).padStart(8, '0');
+  }
+  function curateRows(rows, curation) {
+    if (!Array.isArray(rows)) return [];
+    const aliases = new Set((curation?.aliases || []).map(alias => alias.id));
+    const ranks = new Map((curation?.order || []).map((id, index) => [id, index]));
+    const l9 = [];
+    rows.forEach((row, inputIndex) => {
+      if (row?.unit !== 'L9' || !row.question || aliases.has(row.question.id)) return;
+      const original = row.question;
+      const question = { ...original, stem: cleanHeading(original.stem) };
+      if (curation?.unit) {
+        question.unitTitle = curation.unit.title;
+        question.unitEn = curation.unit.en;
+        question.unitDescription = curation.unit.description;
+      }
+      const meta = curation?.questions?.[question.id];
+      if (meta && sourceSignature(original) === meta.sourceSignature) {
+        if (!original.category || original.category === 'HTML 匯入') question.category = meta.category;
+        if (!String(original.explanation || '').trim()) question.explanation = meta.explanation;
+        if (meta.note) question.note = [original.note, meta.note].filter(Boolean).join(' ');
+      }
+      l9.push({ row: { ...row, question }, inputIndex, rank: ranks.get(question.id) ?? Number.MAX_SAFE_INTEGER });
+    });
+    l9.sort((a, b) => a.rank - b.rank || a.inputIndex - b.inputIndex);
+    let cursor = 0;
+    return rows.flatMap(row => {
+      if (row?.unit !== 'L9' || !row.question) return [row];
+      if (aliases.has(row.question.id)) return [];
+      return [l9[cursor++].row];
+    });
+  }
   function showNotice(text, retry = false) {
     if (!notice) {
       notice = document.createElement('p'); notice.className = 'api-notice';
@@ -62,11 +101,18 @@
     syncing = true;
     notice?.querySelector('button')?.setAttribute('disabled','');
     try {
-      const response = await fetch(window.courseContributions.apiOrigin + '/api/questions?course=' + config.course, {signal:AbortSignal.timeout(8000)});
+      const [response, curationResponse] = await Promise.all([
+        fetch(window.courseContributions.apiOrigin + '/api/questions?course=' + config.course, {signal:AbortSignal.timeout(8000)}),
+        fetch('assets/os-l9-curation.json?v=l9-curation-20261029', {signal:AbortSignal.timeout(8000)}).catch(() => null)
+      ]);
       if (!response.ok) throw new Error('unavailable');
       const data = await response.json();
       if (!Array.isArray(data.questions)) throw new Error('invalid');
-      merge(data.questions, data.aliases, data.overrides || []);
+      let curation = null;
+      try { if (curationResponse?.ok) curation = await curationResponse.json(); } catch {}
+      const aliases = [...(Array.isArray(data.aliases) ? data.aliases : []), ...(Array.isArray(curation?.aliases) ? curation.aliases : [])];
+      merge(curateRows(data.questions, curation), aliases, data.overrides || []);
+      merge([], aliases, []);
       if (linkedSubmission && !config.validId(linkedId)) showNotice('這個投稿題目連結暫時沒有可用內容，已顯示原有題庫。',true);
       else { notice?.remove(); notice = null; }
     } catch {

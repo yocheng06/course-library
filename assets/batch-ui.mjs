@@ -154,7 +154,7 @@ async function loadLibrary() {
   $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
   try {
     const built = fetch(
-      "assets/batch-library.json?v=deadlock-recognition-20261028",
+      "assets/batch-library.json?v=l9-curation-20261029",
       {
         signal: AbortSignal.timeout(12000),
       },
@@ -184,6 +184,7 @@ async function loadLibrary() {
     )
       throw new Error("library");
     library = base;
+    const curatedAliasIds = new Set((Array.isArray(base.curatedAliasIds) ? base.curatedAliasIds : []).filter((id) => typeof id === 'string'));
     let entries = base.entries.slice();
     coverage = { os: false, algorithms: false };
     invalidPublicData = { os: false, algorithms: false };
@@ -215,8 +216,9 @@ async function loadLibrary() {
             !validPublicQuestion(raw) ||
             !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(raw.id || raw.bookmarkId || "")
           ) throw new Error("public-data");
+          const questionId=raw.id||raw.bookmarkId;
+          if(curatedAliasIds.has(questionId) || base.entries.some(e=>e.course===course && e.id===questionId))continue;
           if(!library.courses[course].units.some(u=>u.id===row.unit))newUnits.set(row.unit,{id:row.unit,name:row.unit+' · '+String(raw.unitTitle||'新單元').slice(0,60)});
-          if(base.entries.some(e=>e.course===course && e.id===(raw.id||raw.bookmarkId)))continue;
           const expanded = expandLibraryQuestion(course, row.unit, raw);
           if (!expanded.length) throw new Error("public-data");
           additions.push(...expanded);

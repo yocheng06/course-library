@@ -9,6 +9,7 @@ const guides = {
   threads:'執行緒像同一個工作裡分頭處理的小組：共享程序資源，但各自保有執行狀態。先分清楚 user thread 與 kernel thread，再看執行緒模型、函式庫和多核心效能。',
   synchronization:'程序同步用來協調並行存取共享資料的順序。先掌握臨界區解法的互斥、進度與有限等待，再比較 Mutex、Semaphore、Monitor；生產者／消費者、讀者／寫者與哲學家進餐題要逐步追蹤資源計數及 wait／signal 的順序。',
   deadlocks:'死結表示程序彼此等待無法取得的資源或事件。先熟悉互斥、佔用與等待、不可搶佔及循環等待四個必要條件，再區分死結預防、避免、偵測與恢復；銀行家演算法用安全序列判斷是否能安全分配資源。',
+  L9:'先用位址繫結理解程式位址如何映射，再連結記憶體保護、連續配置與碎片、分頁與 TLB、頁表及分段。遇到架構案例時，先確認題目指定的處理器世代。',
   scheduling:'CPU 排程決定就緒佇列中誰先使用 CPU。先分清楚搶佔式與非搶佔式，再比較 FCFS、SJF、RR 與優先權排程；計算時注意到達時間、CPU burst、時間片，以及等待、周轉與回應時間的差別。'
 };
 let active = 0, page = 1, totalPages = 1, mode = 'study';
@@ -273,7 +274,7 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
         typeof q.stem!=='string' || typeof q.answer!=='string' || communityQuestionIds.has(q.id) || knownQuestionIds.has(q.id)) continue;
     if(!unit){
       if(!/^L[1-9]\d?$/.test(unitId))continue;
-      unit={id:unitId,number:Number(unitId.slice(1)),label:String(q.unitTitle||'第 '+unitId.slice(1)+' 單元').slice(0,60),en:'APPROVED SUBMISSIONS',desc:'同學投稿，經站主審核公開',baseQuestionCount:0,questionCount:0,questions:[],questionIds:[],questionAliases:{}};
+      unit={id:unitId,number:Number(unitId.slice(1)),label:String(q.unitTitle||'第 '+unitId.slice(1)+' 單元').slice(0,60),en:String(q.unitEn||'COMMUNITY QUESTIONS').slice(0,60),desc:String(q.unitDescription||'公開投稿題目').slice(0,240),baseQuestionCount:0,questionCount:0,questions:[],questionIds:[],questionAliases:{}};
       unitIndex=UNITS.push(unit)-1;loadedUnits.add(unitIndex);
     }
     const i=unit.questionCount++;
