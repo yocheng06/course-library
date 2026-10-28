@@ -1,4 +1,4 @@
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=new-units-20261026';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=html-question-import-20261028';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -6,7 +6,7 @@ import {
   normalizeType,
   normalizeBatch,
   uniqueQuestions,
-} from "./contribution-model.js?v=new-units-20261026";
+} from "./contribution-model.js?v=html-question-import-20261028";
 import {
   esc,
   api,
@@ -388,6 +388,92 @@ $("questionImages").addEventListener("change", async (event) => {
     ready();
   }
 });
+function parseCoursePracticeHtml(doc, raw, name) {
+  const form = doc.querySelector("#practice-quiz-form");
+  if (!form) return null;
+  const action = form.getAttribute("action") || "",
+    courseCode = action.match(/\/course\/([a-z0-9_-]+)\/process_practice\.php/i)?.[1];
+  if (!courseCode) throw new Error("找到測驗表單，但無法辨識課程代碼；請下載題庫 JSON 匯入。");
+  const course = /^OS/i.test(courseCode) ? "os" : null;
+  if (!course) throw new Error(`目前無法辨識課程「${courseCode}」；請先選擇網站科目並使用題庫 JSON 匯入。`);
+  const realmId = /realm_id=(\d+)/i.exec(raw)?.[1],
+    title = doc.title.replace(/\s+/g, " ").trim() || name.replace(/\.(?:html?)$/i, "");
+  let unit;
+  try {
+    unit = realmId ? normalizeUnit(course, realmId) : normalizeUnit(course, $("unit").value);
+  } catch {
+    throw new Error("已辨識作業系統練習頁，但無法判斷單元；請確認頁面網址有 realm_id，或先選擇正確單元。" );
+  }
+  const category = COURSE_UNITS[course].units[unit]?.replace(/^.*?·\s*/, "") || "HTML 匯入";
+  const hidden = (node) => {
+    for (let current = node; current && current !== doc.body; current = current.parentElement) {
+      const style = current.getAttribute("style") || "";
+      if (
+        current.hidden ||
+        current.getAttribute("aria-hidden") === "true" ||
+        /display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0|left\s*:\s*-\d+px/i.test(style)
+      ) return true;
+    }
+    return false;
+  };
+  const cleanText = (value) => value.replace(/\s+/g, " ").trim();
+  const questions = [];
+  for (const block of doc.querySelectorAll(".question-block")) {
+    if (block.closest("template") || hidden(block)) continue;
+    const responseInputs = [...block.querySelectorAll("input")].filter((input) =>
+      input.type === "radio" || input.type === "checkbox" ||
+      (input.type === "text" && input.classList.contains("text-answer")),
+    );
+    // This site's v_user_answer field is a bot-check decoy, not a course question.
+    if (responseInputs.some((input) => input.name === "v_user_answer")) continue;
+    if (!responseInputs.length) throw new Error(`第 ${questions.length + 1} 個題目區塊的作答欄位無法辨識，沒有匯入任何題目。`);
+    if (block.querySelector("img")) throw new Error(`第 ${questions.length + 1} 題含有圖片；目前無法從已下載的 HTML 還原題圖，沒有匯入任何題目。`);
+    const stemNodes = [...block.querySelectorAll(".question-text")]
+      .map((node) => cleanText(node.textContent))
+      .filter(Boolean)
+      .sort((a, b) => b.length - a.length);
+    if (!stemNodes.length) throw new Error(`第 ${questions.length + 1} 題缺少題幹，沒有匯入任何題目。`);
+    const numberLabel = [...block.querySelectorAll(".question-text")]
+      .map((node) => cleanText(node.textContent))
+      .find((value) => /^妖獸\s*\d+[.．、]?$/u.test(value));
+    const stem = numberLabel && !stemNodes[0].startsWith(numberLabel)
+      ? `${numberLabel} ${stemNodes[0]}`
+      : stemNodes[0];
+    const types = new Set(responseInputs.map((input) => input.type));
+    if (types.size !== 1 || !["radio", "checkbox", "text"].includes([...types][0]))
+      throw new Error(`第 ${questions.length + 1} 題的題型無法辨識，沒有匯入任何題目。`);
+    const inputType = [...types][0];
+    let options = [];
+    if (inputType === "radio" || inputType === "checkbox") {
+      options = [...block.querySelectorAll("label")]
+        .filter((label) => label.querySelector('input[type="radio"],input[type="checkbox"]'))
+        .map((label) => cleanText(label.textContent).replace(/^[A-H][.、．:：)）]\s*/i, ""))
+        .filter(Boolean);
+      if (options.length !== responseInputs.length || options.length < 2 || options.length > 8)
+        throw new Error(`第 ${questions.length + 1} 題的選項格式無法辨識，沒有匯入任何題目。`);
+    }
+    questions.push({
+      category,
+      type: inputType === "radio" ? "單選題" : inputType === "checkbox" ? "多選題" : "填空題",
+      stem,
+      options,
+      answer: "",
+      explanation: "",
+      images: [],
+    });
+  }
+  if (!questions.length) throw new Error("這份測驗 HTML 裡找不到可匯入的題目區塊。");
+  const hostname = (() => { try { return new URL(action).hostname; } catch { return "來源網站"; } })();
+  return {
+    __htmlQuestionImport: true,
+    course,
+    unit,
+    title,
+    source: `從 ${hostname} ${courseCode} 練習頁 HTML 匯入；來源檔沒有正解，匯入後逐題核對。`,
+    questions,
+  };
+}
+
 function parseImport(raw, name) {
   if (/\.json$/i.test(name)) return JSON.parse(raw);
   const doc = new DOMParser().parseFromString(raw, "text/html"),
@@ -399,6 +485,8 @@ function parseImport(raw, name) {
     if(!block)throw new Error('缺少單元題目：'+unit.id);
     return {course:'os',unit:unit.id,questions:JSON.parse(block.textContent)};
   });
+  const practice = parseCoursePracticeHtml(doc, raw, name);
+  if (practice) return practice;
   for (const script of doc.querySelectorAll("script")) {
     const source = script.textContent,
       match =
