@@ -5,7 +5,18 @@
   const hasProvidedAnswer = question => question.answerProvided === true && Boolean(String(question.answer ?? question.a ?? '').trim());
   const missingSource = question => !hasProvidedAnswer(question) && (Boolean(question.missingContext) || /追蹤/.test(question.type || '') || /樹中的「\?」|第6行與第10行|第 5 行/.test(question.q || ''));
 
-  const normalize = value => String(value ?? '').normalize('NFKC').toLowerCase();
+  // Keep the original question text; normalize presentation only for lookup.
+  const normalize = value => String(value ?? '').normalize('NFKC').toLowerCase()
+    .replace(/[\u200B\u2060\uFEFF]/g, '')
+    .replace(/(?:\\_){2,}/g, blank => blank.replaceAll('\\', ''))
+    .split(/\r?\n/).map(line => line
+      .replace(/^[ \t]*(?:\*\*)?(?:(?:beast|妖獸)\s*\d{1,4}\s*[.)、:。]|第\s*\d{1,4}\s*題\s*[:.)、]?|(?:question|q|題目)\s*\d{1,4}\s*[:.)、]?|\d{1,4}[.)、:](?!\d)|[a-h][.)、:](?=\s|$))(?:\*\*)?[ \t]*/iu, '')
+      .replace(/(?<![A-Za-z0-9_])_{2,}(?![A-Za-z0-9_])|(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/g, ' ')
+      .replace(/[，。？！、；：,?!;:"“”‘’()（）]/g, ' ')
+      .replace(/(?<!\d)\.|\.(?!\d)/g, ' ')
+      .replace(/([\p{Script=Han}])\s+(?=[\p{Script=Han}])/gu, '$1')
+      .replace(/\s+/g, ' ').trim()
+    ).join(' ').trim();
   const searchTokens = query => [...new Set(normalize(query).trim().split(/\s+/).filter(Boolean))];
   const searchableText = new WeakMap();
   function questionType(question) {
@@ -44,7 +55,7 @@
     if (!tokens.length) return true;
     let text = searchableText.get(question);
     if (text === undefined) {
-      text = normalize(searchFields(question).flatMap(field => field.values).filter(Boolean).join(' '));
+      text = normalize(searchFields(question).flatMap(field => field.values).filter(Boolean).join('\n'));
       searchableText.set(question, text);
     }
     return tokens.every(token => text.includes(token));
@@ -54,7 +65,7 @@
     const tokens = searchTokens(query);
     if (!tokens.length) return '';
     const labels = searchFields(question).filter(field => {
-      const text = normalize(field.values.filter(Boolean).join(' '));
+      const text = normalize(field.values.filter(Boolean).join('\n'));
       return tokens.some(token => text.includes(token));
     }).map(field => field.label);
     return labels.length ? `<p class="search-match">命中：${labels.map(escape).join('、')}</p>` : '';

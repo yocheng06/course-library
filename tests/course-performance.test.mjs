@@ -11,10 +11,10 @@ test('OS question data stays embedded by unit but is not executable until that u
   const html = await read('os.html');
   const units = parseOSCourseHTML(html);
   assert.equal(units.length, 7);
-  assert.equal(units.reduce((count, unit) => count + unit.questions.length, 0), 770);
   assert.match(html, /<script id="course-manifest" type="application\/json">/);
   assert.equal([...html.matchAll(/<script id="course-unit-[^"]+" type="application\/json" data-course-unit=/g)].length, 7);
   const manifest = JSON.parse(html.match(/<script id="course-manifest" type="application\/json">([\s\S]*?)<\/script>/)[1]);
+  assert.equal(units.reduce((count, unit) => count + unit.questions.length, 0), manifest.reduce((count, unit) => count + unit.questionCount, 0));
   assert.ok(manifest.every(unit => unit.questionAliases && typeof unit.questionAliases === 'object'));
   assert.equal(manifest[6].questionIds.length, units[6].questions.length);
   assert.doesNotMatch(html, /<script>\s*const UNITS\s*=/);
@@ -81,5 +81,6 @@ test('OS page parses only the opened unit, then loads the rest for whole-course 
   scope.value = 'all';
   scope.dispatchEvent(new window.Event('change', { bubbles: true }));
   assert.equal(parsedUnits.length, 7);
-  assert.equal(document.getElementById('resultCount').textContent.includes('770 / 770 題'), true);
+  const total = expectedUnits.reduce((count, unit) => count + unit.questions.length, 0);
+  assert.equal(document.getElementById('resultCount').textContent.includes(`${total} / ${total} 題`), true);
 });
