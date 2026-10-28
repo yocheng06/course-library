@@ -110,6 +110,49 @@ test("JSON arrays, aliases, units and API wrappers use only the bank answer", ()
   assertBankAnswer(input("```json\n" + JSON.stringify([q]) + "\n```", "ai.md"));
   assertBankAnswer(input(JSON.stringify([q]), "ai.txt"));
 });
+test("妖獸題號標頭會從 JSON 與 CSV 匯入題幹移除，並保留題號供比對", () => {
+  const deadlockStem = "當一個系統發生死結時，以下哪些必要條件是同時成立的？";
+  const options = ["循環等待", "互斥", "無搶佔", "佔用與等待"];
+  const deadlockBank = buildIndex([
+    toLibraryQuestion(
+      "os",
+      "deadlocks",
+      {
+        id: "deadlock-conditions",
+        stem: deadlockStem,
+        options: options.map((value, index) => "ABCD"[index] + ". " + value),
+        answer: "A、B、C、D",
+      },
+      true,
+    ),
+  ]);
+  const optionCell = JSON.stringify(options).replaceAll('"', '""');
+  const importedBatches = [
+    input(JSON.stringify([{ stem: "妖獸 8. " + deadlockStem, options }])),
+    input(
+      "stem,options\n\"妖獸 8. " + deadlockStem + "\",\"" + optionCell + "\"",
+      "questions.csv",
+    ),
+  ];
+  for (const imported of importedBatches) {
+    assert.equal(imported.questions[0].number, "8");
+    assert.equal(imported.questions[0].stem.startsWith("妖獸"), false);
+    const result = matchQuestions(imported.questions, deadlockBank, {
+      course: "os",
+      unit: "deadlocks",
+    })[0];
+    assert.equal(result.status, "matched");
+    assert.equal(
+      result.answer,
+      "A. 循環等待；B. 互斥；C. 無搶佔；D. 佔用與等待",
+    );
+  }
+  const ordinary = input(
+    JSON.stringify([{ stem: "妖獸在模擬系統中的角色是什麼?", options }]),
+  );
+  assert.equal(ordinary.questions[0].stem, "妖獸在模擬系統中的角色是什麼?");
+});
+
 test("CSV and TSV preserve quoted delimiters, newlines, literal quotes and option order", () => {
   assertBankAnswer(
     input(
