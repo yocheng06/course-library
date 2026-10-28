@@ -3,7 +3,7 @@ import {
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=saved-html-20261028";
+} from "./batch-import.mjs?v=beast-heading-20261028";
 
 export function setupBatchImport({ document, onApply }) {
   const $ = (id) => document.getElementById(id);
