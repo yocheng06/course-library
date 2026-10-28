@@ -262,7 +262,7 @@
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-10": {
       "category": "非連續配置方式",
       "explanation": "Hierarchical Paging、Paging、Segmentation 都能讓位址空間不必由單一連續實體區塊承載。Contiguous Allocation 顧名思義仍要求連續區域，因此選 A、C、D。",
-      "sourceSignature": "635533b7"
+      "sourceSignature": "97d925c9"
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-11": {
       "category": "載入、交換與連結",
@@ -287,7 +287,7 @@
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-15": {
       "category": "架構案例：ARM／Intel",
       "explanation": "依題庫答案選 B、C、D：小頁面採分層查表，且題庫列出 4 KB／16 KB。這題沒有指定 ARM 世代；在 ARMv7 short-descriptor 中，1 MB 是 section、16 MB 是 supersection，因此 D 的名稱不夠精確。",
-      "sourceSignature": "29b221be",
+      "sourceSignature": "7041801c",
       "note": "依來源答案選 B、C、D；題目未指定 ARM 世代。ARMv7 short-descriptor 將 1 MB 稱 section、16 MB 稱 supersection，所以 D 的名稱需依版本核對。"
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-16": {
@@ -313,7 +313,7 @@
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-2": {
       "category": "分頁與 TLB",
       "explanation": "分頁把虛擬記憶體切成 pages，把實體記憶體切成同樣大小的 frames。頁表負責記錄每個 page 對應到哪個 frame，所以答案是 Frames。",
-      "sourceSignature": "78ff5d83"
+      "sourceSignature": "04178ad5"
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-20": {
       "category": "連續配置與碎片",
@@ -328,7 +328,7 @@
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-22": {
       "category": "分段",
       "explanation": "Segment Table 的一筆資料描述該段的 base、limit 與保護權限；frame number 是分頁頁表的概念。base 指出段的位置，limit 限制可用範圍，protection bits 控制讀寫或執行。",
-      "sourceSignature": "efa97a89"
+      "sourceSignature": "d3b809cb"
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-23": {
       "category": "連續配置與碎片",
@@ -349,7 +349,7 @@
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-3": {
       "category": "位址繫結",
       "explanation": "載入時繫結會等載入程式知道實際放置位置後，才把可重定位位址調整成實體位置；因此編譯器必須提供 relocatable code。",
-      "sourceSignature": "22de2e5c"
+      "sourceSignature": "7ba91abe"
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-4": {
       "category": "分段",
@@ -369,17 +369,17 @@
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-7": {
       "category": "連續配置與碎片",
       "explanation": "分頁允許同一程序的頁放在不相鄰的實體框架，不必找一整塊連續空間，因此消除外部碎片。每頁最後剩下的空間仍可能形成內部碎片，所以 B、D 正確。",
-      "sourceSignature": "16087d20"
+      "sourceSignature": "a0837d5e"
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-8": {
       "category": "載入、交換與連結",
       "explanation": "stub 是動態連結時的替代程式碼。它第一次被呼叫時協助解析共享常式的位置，並把後續呼叫導向該常式；不是 buffer、frame 或一般記憶體區塊。",
-      "sourceSignature": "9bc1891b"
+      "sourceSignature": "c0140851"
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-9": {
       "category": "載入、交換與連結",
       "explanation": "動態載入只在某段常式確實被呼叫時才載入它，未使用的程式碼便不占用常駐記憶體。這能改善記憶體利用率，和 I/O 速度或碎片消除無關。",
-      "sourceSignature": "e7394bc7"
+      "sourceSignature": "1c5008b9"
     },
     "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-1": {
       "category": "連續配置與碎片",
@@ -537,6 +537,184 @@
     {
       "id": "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-8",
       "target": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-22"
+    }
+  ],
+  "fallbackQuestions": [
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-2",
+      "category": "HTML 匯入",
+      "stem": "Beast 2. In paging, physical memory is divided into fixed-size blocks called:",
+      "options": [
+        "Frames",
+        "Pages",
+        "Segments",
+        "Sectors"
+      ],
+      "answer": "A",
+      "choiceKey": "A",
+      "answerProvided": true,
+      "imageKeys": [],
+      "images": [],
+      "translation": "",
+      "terms": [],
+      "note": "",
+      "unitTitle": "記憶體管理",
+      "unitEn": "MEMORY MANAGEMENT",
+      "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-3",
+      "category": "HTML 匯入",
+      "stem": "Beast 3. Load Time address binding typically requires the compiler to generate which type of code?",
+      "options": [
+        "Static Code",
+        "Absolute Code",
+        "Virtual Code",
+        "Relocatable Code"
+      ],
+      "answer": "D",
+      "choiceKey": "D",
+      "answerProvided": true,
+      "imageKeys": [],
+      "images": [],
+      "translation": "",
+      "terms": [],
+      "note": "",
+      "unitTitle": "記憶體管理",
+      "unitEn": "MEMORY MANAGEMENT",
+      "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-7",
+      "category": "HTML 匯入",
+      "stem": "Beast 7. How does the Paging mechanism solve the problems associated with contiguous memory allocation?",
+      "options": [
+        "Allows a program to be non-contiguous in memory",
+        "Eliminates internal fragmentation",
+        "Simplifies memory protection",
+        "Eliminates external fragmentation"
+      ],
+      "answer": "A、D",
+      "choiceKey": "AD",
+      "answerProvided": true,
+      "imageKeys": [],
+      "images": [],
+      "translation": "",
+      "terms": [],
+      "note": "",
+      "unitTitle": "記憶體管理",
+      "unitEn": "MEMORY MANAGEMENT",
+      "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-8",
+      "category": "HTML 匯入",
+      "stem": "Beast 8. The small piece of code used to replace a dynamically linked routine is called a:",
+      "options": [
+        "Buffer",
+        "Stub",
+        "Frame",
+        "Block"
+      ],
+      "answer": "B",
+      "choiceKey": "B",
+      "answerProvided": true,
+      "imageKeys": [],
+      "images": [],
+      "translation": "",
+      "terms": [],
+      "note": "",
+      "unitTitle": "記憶體管理",
+      "unitEn": "MEMORY MANAGEMENT",
+      "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-9",
+      "category": "HTML 匯入",
+      "stem": "Beast 9. What is a main advantage of dynamic loading?",
+      "options": [
+        "Eliminate external fragmentation",
+        "Increase I/O speed",
+        "Better memory utilization",
+        "Reduce overall program size"
+      ],
+      "answer": "C",
+      "choiceKey": "C",
+      "answerProvided": true,
+      "imageKeys": [],
+      "images": [],
+      "translation": "",
+      "terms": [],
+      "note": "",
+      "unitTitle": "記憶體管理",
+      "unitEn": "MEMORY MANAGEMENT",
+      "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-10",
+      "category": "HTML 匯入",
+      "stem": "Beast 10. Which are techniques for Non-contiguous Memory Allocation?",
+      "options": [
+        "Hierarchical Paging",
+        "Contiguous Allocation",
+        "Paging",
+        "Segmentation"
+      ],
+      "answer": "A、C、D",
+      "choiceKey": "ACD",
+      "answerProvided": true,
+      "imageKeys": [],
+      "images": [],
+      "translation": "",
+      "terms": [],
+      "note": "",
+      "unitTitle": "記憶體管理",
+      "unitEn": "MEMORY MANAGEMENT",
+      "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-15",
+      "category": "HTML 匯入",
+      "stem": "Beast 15. In the ARM Architecture paging, which statements are correct?",
+      "options": [
+        "Uses only a single level of TLB",
+        "Supports 4 KB and 16 KB pages",
+        "Uses two-level paging for smaller pages",
+        "1 MB and 16 MB pages are termed sections"
+      ],
+      "answer": "B、C、D",
+      "choiceKey": "BCD",
+      "answerProvided": true,
+      "imageKeys": [],
+      "images": [],
+      "translation": "",
+      "terms": [],
+      "note": "",
+      "unitTitle": "記憶體管理",
+      "unitEn": "MEMORY MANAGEMENT",
+      "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-22",
+      "category": "HTML 匯入",
+      "stem": "Beast 22. In Segmentation memory management, which information is contained in each entry of the Segment Table?",
+      "options": [
+        "Frame Number",
+        "Base Address",
+        "Protection Bits",
+        "Limit"
+      ],
+      "answer": "B、C、D",
+      "choiceKey": "BCD",
+      "answerProvided": true,
+      "imageKeys": [],
+      "images": [],
+      "translation": "",
+      "terms": [],
+      "note": "",
+      "unitTitle": "記憶體管理",
+      "unitEn": "MEMORY MANAGEMENT",
+      "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
     }
   ]
 }

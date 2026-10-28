@@ -23,8 +23,13 @@
     if (!Array.isArray(rows)) return [];
     const aliases = new Set((curation?.aliases || []).map(alias => alias.id));
     const ranks = new Map((curation?.order || []).map((id, index) => [id, index]));
+    const presentIds = new Set(rows.filter(row => row?.unit === 'L9' && row.question).map(row => row.question.id));
+    const fallbacks = (curation?.fallbackQuestions || [])
+      .filter(question => question?.id && !presentIds.has(question.id))
+      .map(question => ({ unit: 'L9', question }));
+    const sourceRows = rows.concat(fallbacks);
     const l9 = [];
-    rows.forEach((row, inputIndex) => {
+    sourceRows.forEach((row, inputIndex) => {
       if (row?.unit !== 'L9' || !row.question || aliases.has(row.question.id)) return;
       const original = row.question;
       const question = { ...original, stem: cleanHeading(original.stem) };
@@ -43,7 +48,7 @@
     });
     l9.sort((a, b) => a.rank - b.rank || a.inputIndex - b.inputIndex);
     let cursor = 0;
-    return rows.flatMap(row => {
+    return sourceRows.flatMap(row => {
       if (row?.unit !== 'L9' || !row.question) return [row];
       if (aliases.has(row.question.id)) return [];
       return [l9[cursor++].row];
@@ -103,7 +108,7 @@
     try {
       const [response, curationResponse] = await Promise.all([
         fetch(window.courseContributions.apiOrigin + '/api/questions?course=' + config.course, {signal:AbortSignal.timeout(8000)}),
-        fetch('assets/os-l9-curation.json?v=l9-curation-20261029', {signal:AbortSignal.timeout(8000)}).catch(() => null)
+        fetch('assets/os-l9-curation.json?v=l9-curation-fallback-20261029', {signal:AbortSignal.timeout(8000)}).catch(() => null)
       ]);
       if (!response.ok) throw new Error('unavailable');
       const data = await response.json();
