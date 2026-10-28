@@ -687,7 +687,7 @@ function htmlQuestions(raw, doc, warnings = []) {
   // A detached template is inert: never attach imported nodes to the live page,
   // execute scripts, instantiate custom elements, or load image/iframe URLs.
   const template = doc.createElement("template");
-  template.innerHTML = raw;
+  template.innerHTML = raw.replace(/^\s*<!doctype[^>]*>/i, "");
   const root = template.content;
   const embedded = root.querySelector(
     "script#course-data, script#question-data, script#quiz-data",
@@ -724,8 +724,11 @@ function htmlQuestions(raw, doc, warnings = []) {
         warnings,
       );
   }
+  // Saved practice forms encode blanks as text inputs. Ignore saved answers.
+  for (const input of root.querySelectorAll('.question-block input.text-answer,.question-block input[data-question-id]'))
+    input.replaceWith(doc.createTextNode(' ____________ '));
   for (const node of root.querySelectorAll(
-    "script,style,noscript,template,iframe,object,embed,nav,footer,button,select,input:not([type=radio]):not([type=checkbox]),[hidden],.answer,.explanation,.solution,.correct-answer,[data-answer],[data-explanation]",
+    "script,style,noscript,template,iframe,object,embed,nav,footer,button,select,input:not([type=radio]):not([type=checkbox]),[hidden],[aria-hidden=true],.answer,.explanation,.solution,.correct-answer,[data-answer],[data-explanation]",
   ))
     node.remove();
   function text(node) {
@@ -752,7 +755,7 @@ function htmlQuestions(raw, doc, warnings = []) {
         'input[type="radio"],input[type="checkbox"]',
       );
       const owner =
-        input.closest(".question,.question-card,[data-question],form") || root;
+        input.closest(".question,.question-card,.question-block,[data-question],form") || root;
       const group = [
         ...owner.querySelectorAll('input[type="radio"],input[type="checkbox"]'),
       ].filter(
@@ -824,10 +827,11 @@ function htmlQuestions(raw, doc, warnings = []) {
     table.remove();
   }
   const blocks = [
-    ...root.querySelectorAll(".question,.question-card,[data-question]"),
+    ...root.querySelectorAll(".question,.question-card,.question-block,[data-question]"),
   ].filter(
     (node) =>
-      !node.parentElement?.closest(".question,.question-card,[data-question]"),
+      !node.parentElement?.closest(".question,.question-card,.question-block,[data-question]") &&
+      (!node.matches(".question-block") || /(?:^|\n)\s*(?:(?:妖獸|Beast)\s+\d+[.)、:]|第\s*\d+\s*題|(?:題目|Question|Q)\s*\d+|\d+[.)、])/i.test(text(node))),
   );
   if (blocks.length) {
     const parsed = blocks.flatMap((node) => {
