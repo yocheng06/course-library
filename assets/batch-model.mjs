@@ -437,7 +437,7 @@ export function toLibraryQuestion(
     options.some((o) => typeof o !== "string")
   )
     return null;
-  const supplied = raw.choiceKey;
+  const supplied = raw.answerProvided === false ? null : raw.choiceKey;
   const suppliedValid =
     typeof supplied === "string" &&
     /^[A-H]+$/.test(supplied) &&
@@ -449,8 +449,8 @@ export function toLibraryQuestion(
     id,
     stem,
     options,
-    answer,
-    choiceKey: options.length
+    answer: raw.answerProvided === false ? "" : answer,
+    choiceKey: raw.answerProvided !== false && options.length
       ? suppliedValid
         ? supplied
         : choiceAnswerKey(answer, options)
@@ -891,3 +891,18 @@ export function aiPrompt(questions) {
   );
 }
 
+
+export function applyBuiltinOverrides(entries,course,overrides=[]) {
+  if(!Array.isArray(overrides))throw new Error('Invalid built-in updates');
+  const replacements=new Map(), replacedIds=new Set();
+  for(const row of overrides){
+    const q=row?.question,id=q?.id || q?.bookmarkId;
+    if(!id || replacements.has(id) || !entries.some(e=>e.course===course && e.id===id && e.unit===row.unit) ||
+       typeof(q.stem??q.q)!=='string' || typeof(q.answer??q.a)!=='string' || !Array.isArray(q.options??q.opts) ||
+       (q.options??q.opts).some(v=>typeof v!=='string'))throw new Error('Invalid built-in question');
+    const expanded=expandLibraryQuestion(course,row.unit,q);if(!expanded.length)throw new Error('Empty built-in question');
+    replacements.set(id,expanded);replacedIds.add(id);
+    for(const alias of q.aliases || [])replacedIds.add(alias);
+  }
+  return [...entries.filter(e=>e.course!==course || !replacedIds.has(e.id)),...[...replacements.values()].flat()];
+}

@@ -8,6 +8,8 @@ const paths = [
   "submit.html",
   // review.html is service-owned: the GitHub Pages copy redirects back here.
   "assets/contributions.css",
+  "assets/theme.js",
+  "assets/theme.css",
   "assets/ui-consistency.css",
   "assets/contributions-config.js",
   "assets/contribution-model.js",
@@ -16,6 +18,7 @@ const paths = [
   "assets/contributions-submit.js",
   "assets/grouped-submissions.mjs",
   "assets/corrections-review.mjs",
+  "assets/builtin-review.mjs",
   "assets/learning-enhancements.css",
   "assets/submission-inbox-ui.mjs",
   "assets/submission-inbox.mjs",
@@ -53,7 +56,7 @@ const { choiceAliases, choiceCombinations, questionStemVersions } =
 const searchAliases = JSON.parse(
   await readFile(resolve(library, "assets/batch-search-aliases.json"), "utf8"),
 );
-const entries = new Map();
+const entries = new Map(), builtinQuestions = [];
 const reviewedMerges = JSON.parse(
   await readFile(resolve(root, "content/approved-merges.json"), "utf8"),
 ).entries;
@@ -71,6 +74,17 @@ for (const [course, units] of [
   for (const unit of units)
     for (const q of unit.questions) {
       displayedQuestions++;
+      const question=structuredClone(q);
+      question.aliases=[...new Set([...(q.aliases||[]),...(q.sourceVariants||[]).map(v=>v.id||v.bookmarkId),...Object.entries(unit.questionAliases||{}).filter(([,target])=>target===(q.id??q.bookmarkId)).map(([alias])=>alias)].filter(id=>id&&id!==(q.id??q.bookmarkId)))];
+      question.imageKeys=await Promise.all((q.images || []).map(async image=>{
+        const src=typeof image==='string'?image:image.src;
+        return src.startsWith('assets/') && !src.includes('..') ? 'sha256:'+createHash('sha256').update(await readFile(resolve(library,src))).digest('hex') : src;
+      }));
+      question.images=(q.images || []).map(image=>{
+        const img=typeof image==='string'?{src:image}:{...image};
+        img.src=new URL(img.src,'https://yocheng06.github.io/course-library/').href;return img;
+      });
+      builtinQuestions.push({course,unit:unit.id,id:q.id??q.bookmarkId,question,sourceHash:createHash('sha256').update(JSON.stringify(question)).digest('hex')});
       const inherited =
         choiceAliases(q.options ?? q.opts ?? [], q.optionTranslations) || [];
       // These aliases are explicitly reviewed data, also used by the batch
@@ -82,9 +96,10 @@ for (const [course, units] of [
           if (typeof stem !== "string" || !stem.trim()) return [];
           return [{
             ...q,
+            ...(typeof alias === "object" && Array.isArray(alias.options) ? {options:alias.options,opts:alias.options,answer:alias.answer,optionTranslations:[]} : {}),
             stem: stem.trim(),
             translation: "",
-            ...(typeof alias === "object" && alias?.answer
+            ...(typeof alias === "object" && alias?.answer && !alias.options
               ? { answer: alias.answer, options: [], opts: [] }
               : {}),
           }];
@@ -148,3 +163,7 @@ await writeFile(
 console.log(
   `Synchronized ${displayedQuestions} displayed questions and ${entries.size} known source variants.`,
 );
+
+await writeFile(resolve(root,'builtin-questions.json'),JSON.stringify(builtinQuestions));
+
+await cp(resolve(library,"assets/batch-model.mjs"),resolve(root,"worker/batch-model.js"));

@@ -3,6 +3,7 @@ import {
   text,
   integer,
   index,
+  uniqueIndex,
   check,
 } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
@@ -98,3 +99,10 @@ export const questionCorrections = sqliteTable('question_corrections', {
   reviewedAt: integer('reviewed_at'),
   reviewerId: text('reviewer_id'),
 }, t => [index('corrections_status_created').on(t.status,t.createdAt)]);
+
+export const builtinQuestionEdits = sqliteTable('builtin_question_edits', {
+  id:text('id').primaryKey(), course:text('course').notNull(), questionId:text('question_id').notNull(),
+  revision:integer('revision').notNull(), data:text('data').notNull(), previousData:text('previous_data').notNull(),
+  baseHash:text('base_hash').notNull(), action:text('action').notNull(), note:text('note').notNull(),
+  actor:text('actor').notNull(), createdAt:integer('created_at').notNull(),
+}, t => [uniqueIndex('builtin_edits_question_revision').on(t.course,t.questionId,t.revision)]);

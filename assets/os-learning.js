@@ -19,6 +19,7 @@ const unitNumber = i => String(UNITS[i]?.number ?? i + 2).padStart(2, '0');
 const unitData = new Map([...document.querySelectorAll('script[data-course-unit]')].map(node => [node.dataset.courseUnit, node.textContent]));
 const courseManifest = JSON.parse(document.getElementById('course-manifest').textContent);
 const UNITS = courseManifest.map(unit => ({...unit, baseQuestionCount:unit.questionCount, questions: null}));
+let builtinOverrides=new Map();
 const questionEntries = [], loadedUnits = new Set(), pendingCommunityQuestions = new Map();
 const questionUnitIndex = new Map(), canonicalQuestionId = new Map(), knownQuestionIds = new Set(), communityQuestionIds = new Set(), communityQuestionUnit = new Map();
 for (const [unitIndex, unit] of UNITS.entries()) {
@@ -30,7 +31,7 @@ function ensureUnitLoaded(unitIndex) {
   if (!unit || loadedUnits.has(unitIndex)) return unit;
   const raw = unitData.get(unit.id);
   if (raw === undefined) throw new Error(`找不到 ${unit.label} 的內嵌題目資料。`);
-  const questions = JSON.parse(raw);
+  const questions = JSON.parse(raw).map(q=>builtinOverrides.get(q.id) || q);
   if (!Array.isArray(questions) || questions.length !== unit.baseQuestionCount) throw new Error(`${unit.label} 的題目資料數量不符，請重新載入網站。`);
   unit.questions = questions;
   loadedUnits.add(unitIndex);
@@ -237,7 +238,24 @@ const linkedEntry = findEntry(linkedQuestion);
 switchUnit(linkedEntry?.unitIndex ?? 0);
 if (linkedEntry) { page=Math.floor(linkedEntry.i/pageSize)+1; render(); window.courseQuestionTools.focusLinkedQuestion(linkedEntry.q.id); }
 let waitingForLinkedQuestion = !linkedEntry && /^community-/.test(linkedQuestion || '');
-function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases = []} = {}) {
+function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases = [], overrides = []} = {}) {
+  if(!Array.isArray(overrides))throw new Error('Invalid built-in updates');
+  const next=new Map();
+  for(const row of overrides){
+    const q=row?.question,unitIndex=questionUnitIndex.get(q?.id);
+    if(unitIndex===undefined || canonicalQuestionId.has(q.id) || UNITS[unitIndex].id!==row.unit || typeof q.stem!=='string' || typeof q.answer!=='string' || !Array.isArray(q.options) || q.options.some(v=>typeof v!=='string') || next.has(q.id))throw new Error('Invalid built-in update');
+    next.set(q.id,q);
+  }
+  const changedIds=new Set([...builtinOverrides.keys(),...next.keys()].filter(id=>JSON.stringify(builtinOverrides.get(id))!==JSON.stringify(next.get(id))));
+  builtinOverrides=next;
+  for(const unitIndex of loadedUnits){
+    const unit=UNITS[unitIndex];if(!unitData.has(unit.id))continue;
+    const originals=new Map(JSON.parse(unitData.get(unit.id)).map(q=>[q.id,q]));
+    unit.questions=unit.questions.map(q=>changedIds.has(q.id)?(next.get(q.id)||originals.get(q.id)||q):q);
+    for(const entry of questionEntries)if(entry.unitIndex===unitIndex && changedIds.has(entry.q.id))entry.q=unit.questions[entry.i];
+  }
+  for(const id of changedIds){feedback.delete(id);revealed.delete(id);selections.delete(id);}
+
   for (const alias of Array.isArray(aliases) ? aliases : []) {
     if (!/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(alias?.id)) continue;
     const target = canonicalId(alias.target);
@@ -269,7 +287,7 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
     added++;
   }
   window.learningUI?.refresh();
-  if (!added && !communityAliases.size) return {added:0, openedLinkedQuestion:false};
+  if (!added && !communityAliases.size && !changedIds.size) return {added:0, openedLinkedQuestion:false};
   document.querySelector('[data-course-total]').textContent=`${UNITS.length} 個單元 · ${totalQuestionCount()} 道題目`;
   const linkedUnit = communityQuestionUnit.get(linkedQuestion) ?? questionUnitIndex.get(canonicalId(linkedQuestion));
   if (waitingForLinkedQuestion && openLinkedQuestion && linkedUnit !== undefined) ensureUnitLoaded(linkedUnit);

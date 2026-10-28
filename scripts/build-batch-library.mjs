@@ -39,12 +39,13 @@ for (const entry of [...entries])
       if (typeof stem !== "string" || !stem.trim()) continue;
       entries.push({
         ...entry,
-        ...(typeof alias === "object" && alias?.answer
+        ...(typeof alias === "object" && alias?.answer && !alias.options
           ? { answer: alias.answer, options: [], choiceKey: null }
           : {}),
         ...(typeof alias === "object" && Array.isArray(alias?.answerAliases)
           ? { answerAliases: alias.answerAliases }
           : {}),
+        ...(typeof alias === "object" && Array.isArray(alias.options) ? {optionAliases:null,options:alias.options,answer:alias.answer,choiceKey:globalThis.courseChoiceAnswers.expectedChoiceKey(alias.answer,alias.options)} : {}),
         stem: stem.trim(),
         preferred: false,
       });

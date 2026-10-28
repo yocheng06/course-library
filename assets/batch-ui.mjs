@@ -2,9 +2,10 @@ import {
   buildIndex,
   matchQuestions,
   expandLibraryQuestion,
+  applyBuiltinOverrides,
   aiPrompt,
   MAX_TEXT,
-} from "./batch-model.mjs?v=review-fixes-20261022";
+} from "./batch-model.mjs?v=builtin-editor-20261028";
 import { parseBatchInput } from "./batch-import.mjs?v=review-fixes-20261022";
 import { setupBatchImport } from "./batch-import-ui.mjs?v=review-fixes-20261022";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
@@ -112,12 +113,12 @@ function libraryStatus() {
   $("libraryStatus").textContent =
     `${names[course]}：${count} 題可供比對。` +
     (coverage[course]
-      ? "已同步內建與公開投稿題庫。"
+      ? "已同步內建題修改與公開投稿題庫。"
       : syncing
         ? "正在同步公開投稿，現在可先比對內建題庫。"
       : invalidPublicData[course]
-        ? "公開投稿資料不完整，目前僅比對內建題庫。可按「重新同步題庫」重試。"
-      : "投稿題庫暫時無法同步，目前僅比對內建題庫。可按「重新同步題庫」重試。");
+        ? "線上題庫資料不完整，目前僅比對隨站內建版本。可按「重新同步題庫」重試。"
+      : "線上題庫暫時無法同步，目前僅比對隨站內建版本。可按「重新同步題庫」重試。");
 }
 function validPublicQuestion(raw, sourceVariant = false) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return false;
@@ -153,7 +154,7 @@ async function loadLibrary() {
   $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
   try {
     const built = fetch(
-      "assets/batch-library.json?v=l6-content-review-20261026",
+      "assets/batch-library.json?v=builtin-editor-20261028",
       {
         signal: AbortSignal.timeout(12000),
       },
@@ -171,7 +172,7 @@ async function loadLibrary() {
       if (!response.ok) throw new Error("public");
       const data = await response.json();
       if (!Array.isArray(data.questions)) throw new Error("public");
-      return { course, questions: data.questions };
+      return { course, questions: data.questions, overrides:data.overrides || [] };
     });
     const publicResults = Promise.allSettled(publicLoads);
     const base = await built;
@@ -183,7 +184,7 @@ async function loadLibrary() {
     )
       throw new Error("library");
     library = base;
-    const entries = base.entries.slice();
+    let entries = base.entries.slice();
     coverage = { os: false, algorithms: false };
     invalidPublicData = { os: false, algorithms: false };
     index = buildIndex(entries);
@@ -202,7 +203,7 @@ async function loadLibrary() {
     let nextIndex = index;
     for (const result of await publicResults) {
       if (result.status !== "fulfilled") continue;
-      const { course, questions } = result.value;
+      const { course, questions, overrides } = result.value;
       try {
         // Validate and build each course atomically. A malformed public record
         // must not erase the ready built-in index or imply complete coverage.
@@ -215,12 +216,15 @@ async function loadLibrary() {
             !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(raw.id || raw.bookmarkId || "")
           ) throw new Error("public-data");
           if(!library.courses[course].units.some(u=>u.id===row.unit))newUnits.set(row.unit,{id:row.unit,name:row.unit+' · '+String(raw.unitTitle||'新單元').slice(0,60)});
+          if(base.entries.some(e=>e.course===course && e.id===(raw.id||raw.bookmarkId)))continue;
           const expanded = expandLibraryQuestion(course, row.unit, raw);
           if (!expanded.length) throw new Error("public-data");
           additions.push(...expanded);
         }
-        const candidate = buildIndex([...entries, ...additions]);
-        entries.push(...additions);
+        if(overrides.some(row=>!validPublicQuestion(row?.question)))throw new Error("builtin-data");
+        const candidateEntries=[...applyBuiltinOverrides(entries,course,overrides),...additions];
+        const candidate = buildIndex(candidateEntries);
+        entries=candidateEntries;
         library.courses[course].units.push(...newUnits.values());
         nextIndex = candidate;
         coverage[course] = true;

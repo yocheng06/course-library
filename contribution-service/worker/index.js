@@ -5,6 +5,7 @@ import {
   COURSE_UNITS,
 } from "./model.js";
 /* BUILD_DATA */
+/* BUILTIN_MANAGEMENT */
 const SITE_ORIGIN =
   "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site";
 const LIBRARY_ORIGIN = "https://yocheng06.github.io";
@@ -470,6 +471,10 @@ async function duplicates(env, keys, payload, excludeId = null) {
     ? BASE_FINGERPRINTS.filter((_, i) => BASE_QUESTIONS[i].canonicalId !== excludeId)
     : BASE_FINGERPRINTS;
   const found = new Set(keys.filter((k) => baseKeys.includes(k)));
+  for (const row of await publicBuiltinOverrides(env,payload.course)) {
+    if(row.unit===payload.unit && (row.question.id || row.question.bookmarkId)!==excludeId)
+      for(const q of builtinVariants(row.question))found.add(await hash(questionKey(payload.course,row.unit,q)));
+  }
   const result = await env.DB.prepare(
     "SELECT id,course,unit,data,fingerprint FROM public_questions WHERE course=? AND unit=?",
   )
@@ -1089,6 +1094,7 @@ function canonicalQuestion(data) {
 function publicationRow(row) {
   return {
     id: row.id,
+    builtinTarget:builtinReference(row.course,row.id)?.id || null,
     submissionId: row.submission_id,
     course: row.course,
     unit: row.unit,
@@ -1105,6 +1111,8 @@ async function suspectedDuplicates(env, payload, excludeId = null) {
   const known = BASE_QUESTIONS
     .filter((q) => q.canonicalId !== excludeId)
     .map((q) => ({ ...q, id: "內建題庫" }));
+  for(const row of await publicBuiltinOverrides(env,payload.course))
+    if(row.unit===payload.unit && (row.question.id || row.question.bookmarkId)!==excludeId)for(const q of builtinVariants(row.question))known.push({...q,course:payload.course,unit:row.unit,id:'內建題庫（已修訂）'});
   const result = await env.DB.prepare(
     "SELECT id,course,unit,data FROM public_questions WHERE course=?",
   )
@@ -1181,6 +1189,7 @@ async function editPublication(request, env, id) {
       .bind(id)
       .first();
   if (!row) throw new HttpError(404, "找不到題目。");
+  if(builtinReference(row.course,id))throw new HttpError(409,"此題已整合為內建題，請到「內建題目管理」儲存修改。",{code:"builtin_question",questionId:builtinReference(row.course,id).id});
   if (JSON.parse(row.data).mergedInto)
     throw new HttpError(
       409,
@@ -1314,16 +1323,20 @@ async function publicationHistory(request, env, id) {
 async function exportBackup(request, env) {
   await owner(request, env);
   await ensureReviewedContent(env);
-  const [questions, submissions, history, corrections] = await Promise.all([
+  const [questions, submissions, history, corrections, builtinEdits] = await Promise.all([
+    // The complete edit log allows restoring changes independently of a browser.
     env.DB.prepare("SELECT * FROM public_questions ORDER BY id").all(),
     env.DB.prepare("SELECT * FROM submissions ORDER BY created_at,id").all(),
     env.DB.prepare(
       "SELECT * FROM question_history ORDER BY created_at,id",
     ).all(),
     env.DB.prepare("SELECT * FROM question_corrections ORDER BY created_at,id").all(),
+    env.DB.prepare("SELECT * FROM builtin_question_edits ORDER BY course,question_id,revision").all(),
   ]);
   return json({
     schemaVersion: 1,
+    builtinQuestions: BUILTIN_QUESTIONS,
+    builtinEdits: builtinEdits.results.map(r=>({...r,data:JSON.parse(r.data),previous_data:JSON.parse(r.previous_data)})),
     corrections: corrections.results.map(row=>({...row,snapshot:JSON.parse(row.snapshot)})),
     exportedAt: new Date().toISOString(),
     questions: questions.results.map((r) => ({
@@ -1366,7 +1379,9 @@ async function correction(request, env, url, id) {
         typeof body.detail !== 'string' || body.detail.trim().length < 5 || body.detail.length > 4000 ||
         (body.suggestion !== undefined && (typeof body.suggestion !== 'string' || body.suggestion.length > 4000)))
       throw new HttpError(400, '請選擇題目並填寫至少 5 字的問題說明；說明與建議各最多 4,000 字。');
-    let snapshot = BASE_QUESTIONS.find(q => q.course === body.course && q.canonicalId === body.questionId);
+    const base=BUILTIN_QUESTIONS.find(q=>q.course===body.course && (q.id===body.questionId || q.question.aliases?.includes(body.questionId)));
+    const latest=base ? (await latestBuiltinEdits(env,body.course)).get(base.id) : null;
+    let snapshot=base ? {...(latest && latest.action!=='reset' ? JSON.parse(latest.data) : base.question),canonicalId:base.id} : null;
     if (!snapshot && /^community-[0-9a-f-]{36}-[1-9]\d*$/.test(body.questionId)) {
       const row = await env.DB.prepare('SELECT course,unit,data FROM public_questions WHERE id=? AND is_published=1').bind(body.questionId).first();
       if (row?.course === body.course) snapshot = {course:row.course,unit:row.unit,...JSON.parse(row.data)};
@@ -1463,11 +1478,16 @@ async function route(request, env) {
   }
   if (path === "/api/review" && request.method === "GET")
     return listReview(request, env, url);
+  let match;
+  if(path==='/api/manage/builtin-questions' && request.method==='GET')return listBuiltins(request,env,url);
+  if((match=/^\/api\/manage\/builtin-questions\/(os|algorithms)\/([A-Za-z0-9_-]{1,160})(\/history)?$/.exec(path))) {
+    if(match[3] && request.method==='GET')return builtinHistory(request,env,match[1],match[2]);
+    if(!match[3] && request.method==='POST')return saveBuiltin(request,env,match[1],match[2]);
+  }
   if (path === "/api/manage/questions" && request.method === "GET")
     return listPublications(request, env, url);
   if (path === "/api/manage/export" && request.method === "GET")
     return exportBackup(request, env);
-  let match;
   if (
     (match =
       /^\/api\/manage\/questions\/(community-[0-9a-f-]{36}-[1-9]\d*)(\/history)?$/.exec(
@@ -1535,6 +1555,7 @@ async function route(request, env) {
           id: row.id,
           target: JSON.parse(row.data).mergedInto,
         })),
+      overrides: await publicBuiltinOverrides(env,course),
       questions: result.results.map((row) => ({
         unit: row.unit,
         question: JSON.parse(row.data),

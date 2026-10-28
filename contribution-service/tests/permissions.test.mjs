@@ -892,17 +892,17 @@ test("all 76 approved explanations appear in the public API and reviewer view wi
     reviewer: true,
     body: { action: "update", revision: 2, payload: cleared },
   });
-  assert.equal(saved.response.status, 200);
+  // Incorporated submissions now have one supported editor: the built-in flow.
+  assert.equal(saved.response.status, 409);
+  assert.equal(saved.data.code, "builtin_question");
+  const builtin=(await call(env,"/api/manage/builtin-questions?course=os&q="+first.id,{reviewer:true})).data.items.find(q=>q.id===saved.data.questionId);
+  assert.ok(builtin);
+  const changed=await call(env,"/api/manage/builtin-questions/os/"+builtin.id,{method:"POST",reviewer:true,body:{action:"update",revision:builtin.revision,sourceHash:builtin.sourceHash,note:"清除過時解析",question:{...builtin.question,explanation:""}}});
+  assert.equal(changed.response.status,200);
   const afterClear = await call(env, "/api/questions?course=os");
-  assert.equal(
-    afterClear.data.questions.find((q) => q.question.id === first.id).question
-      .explanation,
-    "",
-  );
-  assert.equal(
-    env.sql.prepare("SELECT count(*) AS n FROM question_history").get().n,
-    77,
-  );
+  assert.equal(afterClear.data.overrides.find(q=>(q.question.id||q.question.bookmarkId)===builtin.id).question.explanation,"");
+  assert.equal(env.sql.prepare("SELECT count(*) AS n FROM question_history").get().n,76);
+  assert.equal(env.sql.prepare("SELECT count(*) AS n FROM builtin_question_edits").get().n,1);
   env.sql
     .prepare("UPDATE submissions SET status='pending' WHERE id=?")
     .run(submissionId);
@@ -1717,4 +1717,58 @@ test('future algorithm units stay private until review and become discoverable a
  const catalog=await call(env,'/api/units?course=algorithms');assert.equal(catalog.data.units.find(u=>u.id==='L7').title,'動態規劃與最佳化');
  const published=await call(env,'/api/questions?course=algorithms');assert.equal(published.data.questions[0].unit,'L7');assert.equal(published.data.questions[0].question.unitTitle,'動態規劃與最佳化');
  assert.equal((await call(env,'/api/units?course=invalid')).response.status,400);
+});
+
+test('built-in management lists every canonical question privately and saves durable revisions without exposing reviewer notes',async()=>{
+ const env=await setup();
+ const url='/api/manage/builtin-questions?course=os&q=basics-1';
+ assert.equal((await call(env,url)).response.status,401);
+ const list=await call(env,url,{reviewer:true});assert.equal(list.response.status,200);
+ const row=list.data.items.find(q=>q.id==='basics-1');assert.ok(row);assert.equal(row.revision,0);
+ const path='/api/manage/builtin-questions/os/'+row.id;
+ const question={...row.question,stem:'管理員已修訂的作業系統題目？',options:['A. updated-correct','B. updated-other'],type:'單選題',answer:'B',answerProvided:true,translation:'Administrator revised operating systems question?',optionTranslations:['A. 已更新甲','B. 已更新乙'],explanation:'已修正解析。'};
+ const body={action:'update',revision:row.revision,sourceHash:row.sourceHash,note:'私有管理說明',question};
+ assert.equal((await call(env,path,{method:'POST',body})).response.status,401);
+ assert.equal((await call(env,path,{method:'POST',reviewer:true,siteOrigin:'https://evil.test',body})).response.status,403);
+ assert.equal((await call(env,path,{method:'POST',reviewer:true,body:{...body,sourceHash:'old'}})).response.status,409);
+ assert.equal((await call(env,path,{method:'POST',reviewer:true,body:{...body,note:''}})).response.status,400);
+ assert.equal((await call(env,path,{method:'POST',reviewer:true,body:{...body,question:{...question,answer:'Z'}}})).response.status,400);
+ const saved=await call(env,path,{method:'POST',reviewer:true,body});assert.equal(saved.response.status,200,JSON.stringify(saved.data));assert.equal(saved.data.item.revision,1);
+ assert.equal((await call(env,path,{method:'POST',reviewer:true,body})).response.status,409);
+ const publicData=(await call(env,'/api/questions?course=os')).data;
+ const update=publicData.overrides.find(r=>r.question.id===row.id);assert.equal(update.question.answer,'B');assert.equal(update.question.choiceKey,'B');assert.equal(update.question.originalAnswer,row.question.answer);assert.equal(update.question.sourceVariants,undefined);
+ assert.ok(!JSON.stringify(publicData).includes('私有管理說明'));
+ const fresh=(await call(env,url,{reviewer:true})).data.items.find(q=>q.id===row.id);assert.equal(fresh.question.answer,'B');assert.equal(fresh.revision,1);
+ const history=(await call(env,path+'/history',{reviewer:true})).data.items;assert.equal(history.length,1);assert.equal(history[0].before.stem,row.question.stem);assert.equal(history[0].after.stem,question.stem);
+ assert.equal((await call(env,path+'/history')).response.status,401);
+ const correction=await call(env,'/api/corrections',{method:'POST',body:{course:'os',questionId:row.id,detail:'已修改題目的解析需要再核對。'}});assert.equal(correction.response.status,201);
+ const corrections=(await call(env,'/api/corrections',{reviewer:true})).data.items;assert.equal(corrections[0].snapshot.stem,question.stem);assert.equal(corrections[0].snapshot.answer,'B');
+ const duplicate={...payload(),questions:[{...question,images:[]}]};
+ assert.equal((await call(env,'/api/submissions',{method:'POST',body:duplicate})).data.status,'duplicates_only');
+ const translated={...duplicate,questions:[{...question,stem:question.translation,options:[question.optionTranslations[1],question.options[0]],answer:'A',images:[]}]};
+ assert.equal((await call(env,'/api/submissions',{method:'POST',body:translated})).data.status,'duplicates_only');
+ const similar={...duplicate,questions:[{...question,stem:question.stem.replace('？',''),images:[]}]};
+ const suspect=await call(env,'/api/submissions',{method:'POST',body:similar});assert.equal(suspect.response.status,409);assert.equal(suspect.data.code,'similar_questions');
+ const reset=await call(env,path,{method:'POST',reviewer:true,body:{action:'reset',revision:1,sourceHash:row.sourceHash,note:'還原題庫原稿'}});assert.equal(reset.response.status,200);assert.equal(reset.data.item.revision,2);assert.equal(reset.data.item.question.answer,row.question.answer);
+ assert.ok(!(await call(env,'/api/questions?course=os')).data.overrides.some(r=>r.question.id===row.id));
+ const exported=(await call(env,'/api/manage/export',{reviewer:true})).data;assert.equal(exported.builtinEdits.length,2);assert.ok(exported.builtinQuestions.length>1000);
+ const history2=(await call(env,path+'/history',{reviewer:true})).data.items;assert.equal(history2[0].action,'reset');assert.equal(history2[0].before.answer,'B');
+});
+
+test('built-in catalog covers both courses, aliases, image retention and conflict protection',async()=>{
+ const env=await setup(),catalog=JSON.parse(await readFile(new URL('../builtin-questions.json',import.meta.url),'utf8'));
+ for(const course of ['os','algorithms']){
+  let cursor=null,count=0;
+  do{const result=await call(env,'/api/manage/builtin-questions?course='+course+(cursor?'&cursor='+cursor:''),{reviewer:true});assert.equal(result.response.status,200);count+=result.data.items.length;cursor=result.data.nextCursor;}while(cursor);
+  assert.equal(count,catalog.filter(q=>q.course===course).length);
+ }
+ const image=catalog.find(q=>q.course==='algorithms'&&q.question.images?.length);assert.ok(image);
+ const row=(await call(env,'/api/manage/builtin-questions?course=algorithms&q='+image.id,{reviewer:true})).data.items.find(q=>q.id===image.id);
+ const path='/api/manage/builtin-questions/algorithms/'+row.id;
+ const question={...row.question,answerProvided:false,explanation:'圖形題修正解析。'};
+ const body={action:'update',revision:0,sourceHash:row.sourceHash,note:'核對題圖',question};
+ assert.equal((await call(env,path,{method:'POST',reviewer:true,body:{...body,question:{...question,images:['https://evil.test/image.png']}}})).response.status,400);
+ const results=await Promise.all([call(env,path,{method:'POST',reviewer:true,body}),call(env,path,{method:'POST',reviewer:true,body})]);assert.deepEqual(results.map(r=>r.response.status).sort(),[200,409]);
+ const published=(await call(env,'/api/questions?course=algorithms')).data.overrides.find(r=>r.question.bookmarkId===row.id).question;
+ assert.equal(published.q,row.question.stem);assert.equal(published.ex,question.explanation);assert.equal(published.answerProvided,false);assert.equal(published.images[0].src,row.question.images[0]);assert.equal(published.imageKeys[0],image.question.imageKeys[0]);
 });

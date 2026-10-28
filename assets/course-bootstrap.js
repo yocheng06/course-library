@@ -33,13 +33,13 @@
     const prefix = card ? `article[data-id="${CSS.escape(card.dataset.id)}"] ` : parent ? `#${CSS.escape(parent.id)} ` : '';
     return prefix + element.tagName.toLowerCase() + selected.map(name => `[${name}="${CSS.escape(element.getAttribute(name))}"]`).join('');
   }
-  function merge(entries, aliases) {
+  function merge(entries, aliases, overrides) {
     const focused = document.activeElement, selector = focusedSelector(focused);
     const selection = typeof focused?.selectionStart === 'number' ? [focused.selectionStart, focused.selectionEnd, focused.selectionDirection] : null;
     const anchor = [...config.list.children].find(card => { const r=card.getBoundingClientRect();return r.bottom>0 && r.top<innerHeight; });
     const anchorTop = anchor?.getBoundingClientRect().top;
     const scroll = {x:scrollX,y:scrollY}, menu = config.sidebar.querySelector('.course-menu'), menuScroll = menu?.scrollTop;
-    const result = config.mergeCommunityQuestions(entries, {openLinkedQuestion:linkedSubmission && !interacted, aliases});
+    const result = config.mergeCommunityQuestions(entries, {openLinkedQuestion:linkedSubmission && !interacted, aliases, overrides});
     if (!result.openedLinkedQuestion) {
       if (menu) menu.scrollTop = menuScroll;
       if (!focused?.isConnected && selector) {
@@ -56,7 +56,7 @@
   async function sync() {
     if (syncing || location.protocol === 'file:') return;
     if (!navigator.onLine) {
-      if (linkedSubmission) showNotice('這是投稿題目，需要連線才能載入；原有題庫可繼續閱讀。',true);
+      showNotice('目前離線，顯示隨站內建版本；連線後可同步題目修改與投稿題庫。',true);
       return;
     }
     syncing = true;
@@ -66,11 +66,11 @@
       if (!response.ok) throw new Error('unavailable');
       const data = await response.json();
       if (!Array.isArray(data.questions)) throw new Error('invalid');
-      merge(data.questions, data.aliases);
+      merge(data.questions, data.aliases, data.overrides || []);
       if (linkedSubmission && !config.validId(linkedId)) showNotice('這個投稿題目連結暫時沒有可用內容，已顯示原有題庫。',true);
       else { notice?.remove(); notice = null; }
     } catch {
-      showNotice('投稿題庫暫時無法同步，原有題庫可繼續閱讀與作答。',true);
+      showNotice('線上題庫暫時無法同步，目前顯示隨站內建版本；可繼續閱讀與作答。',true);
     } finally { syncing = false; }
   }
   if (linkedSubmission) showNotice('正在載入這道投稿題目…');

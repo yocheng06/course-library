@@ -1,4 +1,5 @@
-import { correctionsAccess } from './corrections-review.mjs?v=learning-improvements-20261025';
+import { correctionsAccess } from './corrections-review.mjs?v=builtin-editor-20261028';
+import { builtinAccess, openBuiltinEditor } from './builtin-review.mjs?v=builtin-editor-20261028';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -101,6 +102,7 @@ async function start() {
     const session = await api("/api/session");
     if (session.isReviewer) {
       correctionsAccess(true);
+      builtinAccess(true,session.userId);
       initDrafts(session.userId);
       $("managementTabs").hidden = false;
       $("loginPanel").hidden = true;
@@ -109,6 +111,7 @@ async function start() {
       return;
     }
     correctionsAccess(false);
+    builtinAccess(false);
     $("loginPanel").hidden = false;
     $("reviewWorkspace").hidden = true;
     $("managementWorkspace").hidden = true;
@@ -462,6 +465,8 @@ function libraryPage(course) {
   );
 }
 function managedMarkup(row) {
+  if(row.builtinTarget)return `<details class="panel management-entry" data-id="${esc(row.id)}"><summary>${esc(row.question.stem.slice(0,100))} · 已整合為內建題</summary><p>此投稿已收錄於內建題 ${esc(row.builtinTarget)}。請用內建題編輯器儲存修改，同步更新批次查題。</p><button type="button" class="button secondary" data-manage-action="builtin">編輯這道內建題</button><button type="button" class="text-button" data-manage-action="history">查看投稿修改紀錄</button><div class="history-list" hidden></div></details>`;
+
   if (row.mergedInto)
     return `<details class="panel management-entry" data-id="${esc(row.id)}"><summary>${esc(row.question.stem.slice(0, 100))} · 已合併</summary><p>原稿已封存，收錄於 <a href="${libraryPage(row.course)}?question=${encodeURIComponent(row.mergedInto)}">${esc(row.mergedInto)}</a>；完整資料仍可匯出備份。</p><p>${esc(row.question.explanation)}</p><button class="text-button" type="button" data-manage-action="history">查看修改紀錄</button><div class="history-list" hidden></div></details>`;
   return `<details class="panel management-entry draft-entry" data-id="${esc(row.id)}" data-draft-id="manage:${esc(row.id)}" data-revision="${row.revision}"><summary>${esc(row.question.stem.slice(0, 100))} · ${row.published ? "上架中" : "已下架"} · 版本 ${row.revision}</summary><p class="muted">題目 ID：${esc(row.id)}</p><div class="field-grid"><label>科目<select data-batch="course">${Object.entries(
@@ -547,6 +552,7 @@ $("publishedList").addEventListener("click", async (event) => {
     row = publications.get(card.dataset.id),
     action = button.dataset.manageAction;
   if (card.dataset.busy === "true") return;
+  if(action==="builtin"){await openBuiltinEditor(row.course,row.builtinTarget);return;}
   if (action === "history") {
     try {
       const result = await api("/api/manage/questions/" + row.id + "/history"),
@@ -647,4 +653,8 @@ document.addEventListener("click", (event) => {
   if (card.dataset.draftId.startsWith("manage:")) loadPublications();
   else load();
   message("已捨棄這份本機草稿，重新載入伺服器內容。");
+});
+
+document.addEventListener('course:edit-published',event=>{
+  $('manageCourse').value=event.detail.course;$('manageState').value='all';$('manageQuery').value=event.detail.id;$('showPublished').click();$('managementWorkspace').scrollIntoView({block:'start'});
 });

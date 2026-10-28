@@ -24,6 +24,8 @@ const current=()=>COURSES.find(c=>c.id===lesson);
 const kind=window.courseQuestionTools.questionType;
 const questionId=(course,i)=>course.questions[i].bookmarkId||course.id+'-'+String(i+1).padStart(3,'0');const idFor=i=>questionId(current(),i);
 const isMissing=window.courseQuestionTools.missingSource;
+const builtinOriginals=new Map(COURSES.flatMap(unit=>unit.questions.map(q=>[q.bookmarkId,{unit:unit.id,q:JSON.parse(JSON.stringify(q))}])));
+let builtinOverrides=new Map();
 const questionEntries=COURSES.flatMap(unit=>unit.questions.map((q,i)=>({q,i,id:questionId(unit,i),unit})));
 const allUnits=()=>$('searchScopeSelect').value==='all';
 const scopedEntries=()=>allUnits()?questionEntries:questionEntries.filter(entry=>entry.unit.id===lesson);
@@ -98,7 +100,17 @@ if(linkedEntry)lesson=linkedEntry.unit.id;
 setupLesson();
 if(linkedEntry){page=Math.floor(linkedEntry.i/PAGE_SIZE)+1;render();window.courseQuestionTools.focusLinkedQuestion(linkedEntry.id);}
 let waitingForLinkedQuestion=!linkedEntry && /^community-/.test(linkedQuestion||'');
-function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[]}={}){
+function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],overrides=[]}={}){
+ if(!Array.isArray(overrides))throw new Error('Invalid built-in updates');
+ const next=new Map();
+ for(const row of overrides){const q=row?.question,id=q?.bookmarkId;
+  if(!builtinOriginals.has(id)||builtinOriginals.get(id).unit!==row.unit||typeof q.q!=='string'||typeof q.a!=='string'||!Array.isArray(q.opts)||q.opts.some(v=>typeof v!=='string')||next.has(id))throw new Error('Invalid built-in update');
+  next.set(id,q);
+ }
+ const changedIds=new Set([...builtinOverrides.keys(),...next.keys()].filter(id=>JSON.stringify(builtinOverrides.get(id))!==JSON.stringify(next.get(id))));
+ builtinOverrides=next;
+ for(const entry of questionEntries)if(changedIds.has(entry.id)){entry.q=next.get(entry.id)||JSON.parse(JSON.stringify(builtinOriginals.get(entry.id).q));entry.unit.questions[entry.i]=entry.q;feedback.delete(entry.id);revealed.delete(entry.id);selections.delete(entry.id);}
+
  for(const alias of Array.isArray(aliases)?aliases:[])if(/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(alias?.id)&&questionEntries.some(e=>e.id===alias.target))communityAliases.set(alias.id,alias.target);
  let added=0;
  for(const entry of entries){
@@ -115,7 +127,7 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[]}={
   const i=unit.questions.length;unit.questions.push(q);questionEntries.push({q,i,id:q.bookmarkId,unit});added++;
  }
  window.learningUI?.refresh();
- if(!added&&!communityAliases.size)return {added:0,openedLinkedQuestion:false};
+ if(!added&&!communityAliases.size&&!changedIds.size)return {added:0,openedLinkedQuestion:false};
  refreshCourseSummary();
  const linked=waitingForLinkedQuestion&&openLinkedQuestion&&findEntry(linkedQuestion);
  if(linked){waitingForLinkedQuestion=false;lesson=linked.unit.id;setupLesson();page=Math.floor(linked.i/PAGE_SIZE)+1;render();window.courseQuestionTools.focusLinkedQuestion(linked.id);}

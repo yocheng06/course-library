@@ -107,7 +107,7 @@ test("public failures retain built-in results and concurrent reloads do not star
   assert.equal(ui.$("reloadLibrary").disabled, false);
   assert.equal(ui.$("staleNotice").hidden, true);
   assert.equal(ui.$("copyAnswers").disabled, false);
-  assert.match(ui.$("libraryStatus").textContent, /目前僅比對內建題庫/);
+  assert.match(ui.$("libraryStatus").textContent, /目前僅比對隨站內建版本/);
   assert.equal(ui.$("coverageNotice").hidden, false);
 });
 
@@ -131,7 +131,7 @@ for (const [name, malformed] of [
       : response([{ unit: "L2", question: otherCourse }]));
   assert.equal(ui.$("compare").disabled, false);
   assert.match(ui.$("libraryStatus").textContent, /作業系統：1 題/);
-  assert.match(ui.$("libraryStatus").textContent, /公開投稿資料不完整/);
+  assert.match(ui.$("libraryStatus").textContent, /線上題庫資料不完整/);
   ui.$("batchText").value = `1. ${stem}\nA. 短程排程器\nB. 長程排程器`;
   ui.fire("batchForm", "submit");
   assert(ui.$("resultRows").textContent.includes("A. 短程排程器"));
@@ -140,7 +140,7 @@ for (const [name, malformed] of [
 
   ui.$("course").value = "algorithms"; ui.fire("course", "change");
   assert.match(ui.$("libraryStatus").textContent, /演算法：1 題/);
-  assert.match(ui.$("libraryStatus").textContent, /已同步內建與公開投稿/);
+  assert.match(ui.$("libraryStatus").textContent, /已同步內建題修改與公開投稿/);
   ui.$("batchText").value = `1. ${otherCourse.stem}\nA. public-answer\nB. other-answer`;
   ui.fire("batchForm", "submit");
   assert(ui.$("resultRows").textContent.includes("A. public-answer"));
@@ -153,4 +153,24 @@ test('approved questions from future units join lookup and unit selection instea
  assert([...ui.$('unit').options].some(option=>option.value==='L9'));
  ui.$('batchText').value='1. 第九章公開投稿題目？\nA. verified-answer\nB. other-answer';ui.fire('batchForm','submit');
  assert.match(ui.$('resultRows').textContent,/verified-answer/);assert.doesNotMatch(ui.$('libraryStatus').textContent,/不完整/);
+});
+
+test('online built-in edits replace static answers, stale results cannot copy, and reset restores base answers',async()=>{
+ let edited=true;
+ const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>structuredClone(base)}:{ok:true,json:async()=>({questions:[],overrides:String(url).endsWith('course=os')&&edited?[{unit:'scheduling',question:{id:'os-test',stem,options:['A. 短程排程器','B. 長程排程器'],answer:'B',choiceKey:'B',answerProvided:true}}]:[]})});
+ ui.$('batchText').value=`1. ${stem}\nA. 短程排程器\nB. 長程排程器`;ui.fire('batchForm','submit');
+ assert.ok(ui.$('resultRows').textContent.includes('B. 長程排程器'));
+ ui.fire('copyAnswers','click');await tick();assert.match(ui.copied[0],/B\. 長程排程器/);
+ edited=false;ui.fire('reloadLibrary','click');await tick();assert.equal(ui.$('copyAnswers').disabled,true);
+ ui.fire('batchForm','submit');assert.ok(ui.$('resultRows').textContent.includes('A. 短程排程器'));
+});
+
+test('an incorporated community question uses its built-in edit instead of an old publication with the same ID',async()=>{
+ const communityId='community-00000000-0000-4000-8000-000000000009-1';
+ const old={id:communityId,stem,options:['A. 短程排程器','B. 長程排程器'],answer:'A',answerProvided:true};
+ const builtin={...old,answer:'B',choiceKey:'B'};
+ const localBase=structuredClone(base);localBase.entries=[toLibraryQuestion('os','scheduling',old,true)];
+ const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>localBase}:{ok:true,json:async()=>({questions:String(url).endsWith('course=os')?[{unit:'scheduling',question:old}]:[],overrides:String(url).endsWith('course=os')?[{unit:'scheduling',question:builtin}]:[]})});
+ ui.$('batchText').value=`1. ${stem}\nA. 短程排程器\nB. 長程排程器`;ui.fire('batchForm','submit');
+ assert.ok(ui.$('resultRows').textContent.includes('B. 長程排程器'));assert.match(ui.$('resultCount').textContent,/需確認 0/);
 });

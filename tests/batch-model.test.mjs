@@ -1204,5 +1204,5 @@ test("L8 Banker avoidance OCR option variant maps to maximum-request answer", as
   const [result] = matchQuestions(questions, buildIndex(data.entries), {course: "os", unit: "all"});
   assert.equal(result.status, "matched");
   assert.equal(result.answer, "D. 所有程序的最大請求數量");
-  assert(result.references.some((reference) => reference.id === "community-17f37eed-b93c-485f-9bdd-c7591a014917-20"));
+  assert(result.references.some((reference) => reference.id === "os8-118"));
 });

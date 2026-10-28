@@ -11,6 +11,8 @@ await mkdir(resolve(root, "dist/.openai"), { recursive: true });
 const entries = JSON.parse(
   await readFile(resolve(root, "existing-questions.json"), "utf8"),
 );
+const builtins=JSON.parse(await readFile(resolve(root,"builtin-questions.json"),"utf8"));
+if(new Set(builtins.map(q=>q.course+":"+q.id)).size!==builtins.length)throw new Error("Duplicate built-in IDs");
 const fingerprints = entries.map((q) =>
   createHash("sha256")
     .update(questionKey(q.course, q.unit, q))
@@ -75,6 +77,8 @@ const paths = [
   "submit.html",
   "review.html",
   "assets/contributions.css",
+  "assets/theme.js",
+  "assets/theme.css",
   "assets/ui-consistency.css",
   "assets/contributions-config.js",
   "assets/contribution-model.js",
@@ -83,6 +87,7 @@ const paths = [
   "assets/contributions-submit.js",
   "assets/grouped-submissions.mjs",
   "assets/corrections-review.mjs",
+  "assets/builtin-review.mjs",
   "assets/learning-enhancements.css",
   "assets/submission-inbox-ui.mjs",
   "assets/submission-inbox.mjs",
@@ -108,6 +113,10 @@ assets["/assets/icons/course-mascot.png"] = {
   base64: true,
 };
 let worker = await readFile(resolve(root, "worker/index.js"), "utf8");
+const builtinManagement=await readFile(resolve(root,"worker/builtin-management.js"),"utf8");
+const searchModel=(await readFile(resolve(root,"worker/batch-model.js"),"utf8")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
+worker=worker.replace("/* BUILTIN_MANAGEMENT */",()=>"const builtinSearch=(()=>{"+searchModel+";return {choiceAliases,choiceCombinations,questionStemVersions};})();\n"+builtinManagement);
+
 const model = (await readFile(resolve(root, "worker/model.js"), "utf8"))
   .replace(/^import .*;\s*$/gm, "")
   .replace(/^export /gm, "");
@@ -122,7 +131,7 @@ worker =
   "\n" +
   worker.replace(
     "/* BUILD_DATA */",
-    `const BASE_FINGERPRINTS=${JSON.stringify(fingerprints)};\nconst BASE_QUESTIONS=${JSON.stringify(entries)};\nconst STATIC_ASSETS=${JSON.stringify(assets)};\nconst REVIEWED_MERGES=${JSON.stringify(mergeCatalog)};\nconst MERGE_VERSION=${JSON.stringify(createHash("sha256").update(JSON.stringify(mergeCatalog)).digest("hex"))};\nconst REVIEWED_EXPLANATIONS=${JSON.stringify(explanations)};\nconst REVIEWED_CONTENT_VERSION=${JSON.stringify(createHash("sha256").update(JSON.stringify(explanations)).digest("hex"))};`,
+    () => `const BUILTIN_QUESTIONS=${JSON.stringify(builtins)};\nconst BASE_FINGERPRINTS=${JSON.stringify(fingerprints)};\nconst BASE_QUESTIONS=${JSON.stringify(entries)};\nconst STATIC_ASSETS=${JSON.stringify(assets)};\nconst REVIEWED_MERGES=${JSON.stringify(mergeCatalog)};\nconst MERGE_VERSION=${JSON.stringify(createHash("sha256").update(JSON.stringify(mergeCatalog)).digest("hex"))};\nconst REVIEWED_EXPLANATIONS=${JSON.stringify(explanations)};\nconst REVIEWED_CONTENT_VERSION=${JSON.stringify(createHash("sha256").update(JSON.stringify(explanations)).digest("hex"))};`,
   );
 await writeFile(resolve(root, "dist/server/index.js"), worker);
 await cp(
