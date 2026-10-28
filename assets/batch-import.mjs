@@ -278,6 +278,10 @@ function questionType(value) {
   if (/填空|文字|^(?:fill|fill[-_]in|blank|text)$/i.test(type)) return "填空題";
   return "";
 }
+const BEAST_QUESTION_HEADING = /^\s*(?:\*\*)?妖獸\s*(\d{1,4})\s*[.．。)、:：）](?:\*\*)?\s*/u;
+const stripBeastQuestionHeading = (value) =>
+  String(value ?? "").replace(BEAST_QUESTION_HEADING, "").trim();
+
 function fromRecord(value, index, warnings = []) {
   const nested = field(value, ["question"]);
   if (record(nested) && !field(value, ["stem", "q"])) value = nested;
@@ -305,8 +309,13 @@ function fromRecord(value, index, warnings = []) {
   const type = questionType(field(value, ["type", "題型", "题型"]));
   const image = field(value, ["images", "image", "img", "題圖", "题图"]);
   const hasImage = Array.isArray(image) ? image.length > 0 : Boolean(image);
+  const normalizedStem = stem
+    .trim()
+    .replace(/^(?:題目|題幹|Question|Stem)\s*[:：]\s*/i, "");
+  const beastHeading = normalizedStem.match(BEAST_QUESTION_HEADING);
   const number = String(
     field(value, ["number", "questionNumber", "no", "題號", "题号"]) ??
+      beastHeading?.[1] ??
       index + 1,
   );
   if (!/^\d{1,4}$/.test(number) || Number(number) < 1)
@@ -314,7 +323,7 @@ function fromRecord(value, index, warnings = []) {
   return {
     number,
     stem:
-      stem.trim().replace(/^(?:題目|題幹|Question|Stem)\s*[:：]\s*/i, "") +
+      stripBeastQuestionHeading(normalizedStem) +
       (hasImage && !stem.includes("[題圖未轉錄]") ? "\n[題圖未轉錄]" : ""),
     options: (() => {
       try {
