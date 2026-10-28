@@ -3,7 +3,7 @@ import {
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=beast-heading-20261028";
+} from "./batch-import.mjs?v=batch-match-normalize-20261029";
 
 export function setupBatchImport({ document, onApply }) {
   const $ = (id) => document.getElementById(id);

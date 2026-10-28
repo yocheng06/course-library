@@ -5,9 +5,9 @@ import {
   applyBuiltinOverrides,
   aiPrompt,
   MAX_TEXT,
-} from "./batch-model.mjs?v=deadlock-recognition-20261028";
-import { parseBatchInput } from "./batch-import.mjs?v=beast-heading-20261028";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=beast-heading-20261028";
+} from "./batch-model.mjs?v=batch-match-normalize-20261029";
+import { parseBatchInput } from "./batch-import.mjs?v=batch-match-normalize-20261029";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=batch-match-normalize-20261029";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
