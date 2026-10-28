@@ -113,7 +113,7 @@ function answerFormat(value) {
       hint: quotedNumberHint[1],
     };
   const englishMatch = normalized.match(
-    /\((Please\s+answer\s+in\s+(?:lowercase|uppercase)\s+English(?:,\s*leaving\s+a\s+space\s+between\s+each\s+word)?)\)$/i,
+    /\((Please\s+answer\s+in\s+(?:lowercase|uppercase)\s+English(?:,\s*(?:leaving\s+a\s+space\s+between\s+each\s+word|connecting\s+words\s+with\s+hyphens))?)\)$/i,
   );
   if (englishMatch)
     return {
@@ -136,7 +136,8 @@ function answerFormat(value) {
     .replace(/上標(?:請)?用\^/g, "")
     .replace(/下標(?:請)?用_/g, "")
     .replace(/符號請用\{big-theta,theta,big-omega,omega,O,o,?\}/g, "")
-    .replace(/字母間(?:請)?留一個空白/g, "")
+    .replace(/(?:字母|單字)間(?:請)?留一個空白/g, "")
+    .replace(/單字間(?:請)?用-連接|以連字號連接單字|需要做字母連接的兩個文字用-/g, "")
     // Some copied answer-format notes include a parenthesized log example.
     // The instruction is still presentation-only; nested parentheses must not
     // prevent the rest of the question from matching its library entry.
@@ -327,6 +328,11 @@ export function parseQuestions(text) {
   function append(raw) {
     let line = raw.trim();
     if (!line || /^```(?:\w+)?$/.test(line) || /^[-*_]{3,}$/.test(line)) return;
+    if (line === '[選項未轉錄]') {
+      current.expectsOptions = true;
+      current.missingOptionContent = true;
+      return;
+    }
     line = line.replace(stemLabel, "");
     const choicesHeading = line.match(optionsLabel);
     if (choicesHeading) {
@@ -394,6 +400,16 @@ export function parseQuestions(text) {
     )
       q.issues.push("選項代號重複或不完整，請確認多題是否已分開並補齊選項。");
     if (q.options.some((o) => !o.text.trim())) q.issues.push("選項內容為空。");
+    const fragments = q.stem.split("\n");
+    const tailStart = fragments.findIndex(line => /^[-*•·]$/.test(line));
+    const tail = tailStart > 0 ? fragments.slice(tailStart) : [];
+    if (tail.filter(line => /^[-*•·]$/.test(line)).length >= 2 &&
+        tail.every(line => /^(?:[-*•·]|svg)$/i.test(line))) {
+      q.stem = fragments.slice(0,tailStart).join("\n");
+      q.expectsOptions = true;
+      q.missingOptionContent = true;
+    }
+    if(q.missingOptionContent) q.issues.push("選項只剩空白項目或 SVG 標記，請貼上選項文字或提供原題截圖。");
     if ((/選/.test(q.type) || q.expectsOptions) && !q.options.length)
       q.issues.push("選擇題尚未附上選項。");
     if (
@@ -457,6 +473,7 @@ export function toLibraryQuestion(
       : null,
     needsImage: Boolean(raw.images?.length || raw.missingContext),
     preferred,
+    ...(raw.answerProvided === false ? {reviewReason:raw.note || "原題答案尚未確認，請開啟原題核對。"} : {}),
     ...(choiceAliases(options, raw.optionTranslations)
       ? { optionAliases: choiceAliases(options, raw.optionTranslations) }
       : {}),
@@ -485,13 +502,17 @@ function bilingualParts(stem) {
   return parts;
 }
 export function questionStemVersions(stem, translation = "") {
-  return [
-    ...new Set([
-      stem,
-      ...bilingualParts(stem),
-      ...(translation ? [translation, ...bilingualParts(translation)] : []),
-    ]),
-  ];
+  const versions = [stem, ...bilingualParts(stem), ...(translation ? [translation, ...bilingualParts(translation)] : [])];
+  for (const version of [...versions]) {
+    if (!answerFormat(version).hint) continue;
+    const normalized = normalizeText(version);
+    const slots = [...normalized.matchAll(/___|(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/gu)];
+    if (slots.length === 1) {
+      const slot = slots[0];
+      versions.push(normalized.slice(0,slot.index)+normalized.slice(slot.index+slot[0].length));
+    }
+  }
+  return [...new Set(versions)];
 }
 export function expandLibraryQuestion(course, unit, q) {
   if (!q || typeof q !== "object") return [];
@@ -504,7 +525,8 @@ export function expandLibraryQuestion(course, unit, q) {
   const inherited =
     choiceAliases(q.options ?? q.opts ?? [], q.optionTranslations) || [];
   for (const [i, v] of variants.entries()) {
-    const item = toLibraryQuestion(course, unit, v, i === 0, id);
+    const checked = q.answerProvided === false ? {...v, answerProvided:false, note:q.note} : v;
+    const item = toLibraryQuestion(course, unit, checked, i === 0, id);
     if (!item) continue;
     const aliases =
       item.optionAliases || choiceAliases(item.options, null, inherited);
@@ -569,10 +591,10 @@ function blanklessStem(value, allowMissing = false) {
   if (slots.length === 0) return allowMissing ? normalized : null;
   if (slots.length !== 1) return null;
   const slot = slots[0];
-  return (
+  return normalizeStem(
     normalized.slice(0, slot.index) +
     normalized.slice(slot.index + slot[0].length)
-  ).trim();
+  );
 }
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function filledBlankValues(questionStem, entryStem) {
@@ -634,6 +656,7 @@ function sameOptions(question, entry) {
   );
 }
 function remapAnswer(question, entry) {
+  if (typeof entry.answer !== "string" || !entry.answer.trim()) return null;
   if (!question.options.length) {
     const { hint } = answerFormat(question.stem);
     if (
@@ -645,7 +668,7 @@ function remapAnswer(question, entry) {
           /[a-z]/.test(entry.answer)) ||
         (/請用數字回答/.test(hint) &&
           !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(entry.answer.trim())) ||
-        (/單字間(?:請)?留-/.test(hint) && /[\s_]/.test(entry.answer)) ||
+        (/(?:單字間(?:請)?留-|單字間(?:請)?用-連接|以連字號連接單字|需要做字母連接的兩個文字用-|connecting\s+words\s+with\s+hyphens)/i.test(hint) && /[\s_]/.test(entry.answer)) ||
         (/中間不留空白/.test(hint) && /\s/.test(entry.answer)) ||
         (/不可用lg/.test(hint) && /\blg/.test(entry.answer)))
     )
@@ -705,7 +728,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       status: "review",
       answer: "",
       reason: question.issues.join(" "),
-      references: [],
+      references: references((index.stems.get(course + "|" + normalizeStem(question.stem)) || []).filter(eligible)),
     };
   const normalized = normalizeStem(question.stem);
   let sameStem = (index.stems.get(course + "|" + normalized) || []).filter(
@@ -713,16 +736,17 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   );
   let missingBlank = false;
   if (
-    !sameStem.length &&
+    !sameStem.some(e => !e.options.length) &&
     !question.options.length &&
     normalized.length > 0 &&
     answerFormat(question.stem).hint
   ) {
     const blankless = blanklessStem(question.stem, true);
-    sameStem = blankless === null
+    const recovered = blankless === null
       ? []
       : (index.blanklessStems.get(course + "|" + blankless) || []).filter(eligible);
-    missingBlank = sameStem.length > 0;
+    sameStem = [...sameStem, ...recovered];
+    missingBlank = recovered.length > 0;
   }
   let exact = sameStem.filter((e) => sameOptions(question, e));
   let filledAnswerMatch = false;
@@ -775,7 +799,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       return {
         status: "review",
         answer: "",
-        reason: "題庫答案的填答格式、版本或選項對應不一致，請開啟原題核對。",
+        reason: [...new Set(exact.map(e=>e.reviewReason).filter(Boolean))].join(" ") || "題庫答案的填答格式、版本或選項對應不一致，請開啟原題核對。",
         references: references(exact),
       };
     return {

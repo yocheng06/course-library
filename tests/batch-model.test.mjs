@@ -233,7 +233,7 @@ test("every canonical built-in question round trips safely and reordered choices
       course: entry.course,
       unit: entry.unit,
     })[0];
-    if (entry.needsImage) {
+    if (entry.needsImage || entry.reviewReason) {
       assert.equal(row.status, "review");
       reviewed++;
       continue;
@@ -261,7 +261,7 @@ test("every canonical built-in question round trips safely and reordered choices
     data.entries.filter((entry) => entry.preferred).length,
   );
   assert(answered > 790);
-  assert.equal(reviewed, 6);
+  assert.equal(reviewed, 8);
 });
 
 test("generated canonical index stays aligned with current course files", async () => {
@@ -1087,7 +1087,7 @@ test("verified bilingual options support mixed languages and reordered letters w
     };
     assert.equal(
       matchQuestions([mixed], index, { course: entry.course })[0].status,
-      "matched",
+      entry.reviewReason ? "review" : "matched",
       entry.id,
     );
   }

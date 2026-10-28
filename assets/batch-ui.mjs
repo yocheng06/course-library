@@ -5,9 +5,9 @@ import {
   applyBuiltinOverrides,
   aiPrompt,
   MAX_TEXT,
-} from "./batch-model.mjs?v=builtin-editor-20261028";
-import { parseBatchInput } from "./batch-import.mjs?v=review-fixes-20261022";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=review-fixes-20261022";
+} from "./batch-model.mjs?v=deadlock-recognition-20261028";
+import { parseBatchInput } from "./batch-import.mjs?v=deadlock-recognition-20261028";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=deadlock-recognition-20261028";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
@@ -154,7 +154,7 @@ async function loadLibrary() {
   $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
   try {
     const built = fetch(
-      "assets/batch-library.json?v=builtin-editor-20261028",
+      "assets/batch-library.json?v=deadlock-recognition-20261028",
       {
         signal: AbortSignal.timeout(12000),
       },

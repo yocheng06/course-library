@@ -4,7 +4,7 @@ import {
   normalizeText,
   MAX_TEXT,
   MAX_QUESTIONS,
-} from "./batch-model.mjs?v=review-fixes-20261022";
+} from "./batch-model.mjs?v=deadlock-recognition-20261028";
 import JSON5 from "./vendor/json5.mjs?v=2.2.3";
 
 export const MAX_FILE_BYTES = 2 * 1024 * 1024;
@@ -870,7 +870,7 @@ export function questionsToText(questions) {
   const text = formatQuestions(
     questions.map((q) => ({
       ...q,
-      stem: q.stem + (q.expectsOptions && !q.options.length ? "\n選項：" : ""),
+      stem: q.stem + (q.missingOptionContent ? "\n[選項未轉錄]" : "") + (q.expectsOptions && !q.options.length ? "\n選項：" : ""),
     })),
   );
   if (text.length > MAX_TEXT) fail("題目文字超過 80,000 字，請分批匯入。");

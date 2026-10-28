@@ -1772,3 +1772,14 @@ test('built-in catalog covers both courses, aliases, image retention and conflic
  const published=(await call(env,'/api/questions?course=algorithms')).data.overrides.find(r=>r.question.bookmarkId===row.id).question;
  assert.equal(published.q,row.question.stem);assert.equal(published.ex,question.explanation);assert.equal(published.answerProvided,false);assert.equal(published.images[0].src,row.question.images[0]);assert.equal(published.imageKeys[0],image.question.imageKeys[0]);
 });
+
+test('submission fingerprints recognize the reported blankless bilingual deadlock stems and the reviewed Banker wording',async()=>{
+ const env=await setup();
+ const {parseQuestions}=await import('../worker/batch-model.js');
+ const incoming=parseQuestions(await readFile(new URL('fixtures/batch-deadlocks-20261028.txt',import.meta.url),'utf8'));
+ for(const [n,answer] of [[3,'recovery'],[5,'circular wait'],[6,'deadlock'],[9,'C'],[12,'starvation'],[13,'mutual exclusion'],[21,'wait-for'],[23,'hold and wait'],[24,'dining-philosophers'],[26,'unsafe']]){
+  const q=incoming[n-1],questions=[{category:'死結回報重現',type:q.options.length?'單選題':'填空題',stem:q.stem,options:q.options.map(o=>o.label+'. '+o.text),answer,images:[]}];
+  const result=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'deadlocks',questions}});
+  assert.equal(result.response.status,200,`question ${n}: ${JSON.stringify(result.data)}`);assert.equal(result.data.status,'duplicates_only',`question ${n}`);
+ }
+});

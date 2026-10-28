@@ -3,7 +3,7 @@ import {
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=review-fixes-20261022";
+} from "./batch-import.mjs?v=deadlock-recognition-20261028";
 
 export function setupBatchImport({ document, onApply }) {
   const $ = (id) => document.getElementById(id);

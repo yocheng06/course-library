@@ -167,3 +167,6 @@ console.log(
 await writeFile(resolve(root,'builtin-questions.json'),JSON.stringify(builtinQuestions));
 
 await cp(resolve(library,"assets/batch-model.mjs"),resolve(root,"worker/batch-model.js"));
+
+await mkdir(resolve(root,'tests/fixtures'),{recursive:true});
+await cp(resolve(library,'tests/fixtures/batch-deadlocks-20261028.txt'),resolve(root,'tests/fixtures/batch-deadlocks-20261028.txt'));

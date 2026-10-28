@@ -1,0 +1,143 @@
+1. 一個系統處於不安全狀態時,可能會發生哪些情況?
+A. 所有資源都被鎖定
+B. 存在一個無法滿足的資源請求
+C. 系統可能會進入死結狀態
+D. 所有程序都無法完成
+
+2. 無搶佔(No Preemption)條件可以透過以下哪種方式來打破?
+A. 實施資源優先順序
+B. 允許程序隨時中斷並釋放資源
+C. 將所有資源標記為可搶佔
+D. 當程序請求新資源時,它必須釋放其當前持有的所有資源
+
+3. The four main methods for handling deadlocks are: prevention avoidance detection and .(Please answer in lowercase English)
+
+4. When a system transitions from an unsafe state to a deadlocked state this process is known as .(Please answer in lowercase English)
+
+5. 死結的四個必要條件是:互斥、佔用與等待、無搶佔和。(請用小寫英文回答 單字間留一個空白)
+
+6. If a resource-allocation graph contains a cycle a potential for deadlock exists. When there is only one instance of each resource type  the existence of a cycle means that  has occurred.(Please answer in lowercase English)
+
+7. What is the main advantage of deadlock avoidance?
+A. It does not require any additional information
+B. It can prevent deadlocks from occurring
+C. It has higher resource utilization
+D. It ensures all requests are satisfied
+
+8. In a resource-allocation graph what does a directed edge from process P to resource type R signify?
+A. Resource R has been released by process P
+B. Resource R is being used by process P
+C. Process P holds an instance of resource R
+D. Process P is requesting an instance of resource R
+
+9. The Banker's Algorithm belongs to which deadlock handling method?
+A. Prevention
+B. Detection
+C. Avoidance
+D. Recovery
+
+10. 如果一個系統可以找到一個序列,按照該序列為所有程序分配資源,並且不導致死結,這個系統狀態被稱為?
+A. 無效狀態
+B. 死結狀態
+C. 安全狀態
+D. 非安全狀態
+
+11. 資源分配圖(Resource-Allocation Graph)包含了哪些元素?
+A. 請求邊
+B. 資源節點
+C. 分配邊
+D. 程序節點
+
+12. In deadlock recovery to avoid  care must be taken to ensure that the same victim process is not always chosen.(Please answer in lowercase English)
+
+13. 死結預防(Deadlock Prevention)通常可以透過打破死結的四個必要條件之一來實現。例如,透過強制將所有資源標記為可分享來打破。(請用小寫英文回答 單字間留一個空白)
+
+14. 當死結偵測演算法發現一個死結時,以下哪些方法可以作為後續的恢復步驟?
+A. 忽略死結
+B. 程序終止
+C. 重新啟動系統
+D. 資源搶佔
+
+15. 以下哪些是死結處理方法的優點?
+A. 死結避免:可以處理多個資源實例
+B. 死結避免:高資源利用率
+C. 死結預防:實作簡單
+D. 死結偵測與恢復:實用且不需要預先資訊
+
+16. 在資源分配圖中,一個程序和一個資源之間的邊代表什麼?
+A. 資源被佔用或請求
+B. 資源被鎖定
+C. 資源被釋放
+D. 資源被使用
+
+17. In the resource-allocation graph algorithm which of the following can lead a system to enter an unsafe state?
+A. A new process is added
+B. A new cycle is formed in the graph
+C. A process requests a resource it has not declared
+D. A process releases a resource
+
+18. To prevent deadlocks which condition must be broken?
+A. Hold and wait
+B. Remove the critical section
+C. No preemption
+D. Mutual exclusion
+
+19. 死結偵測和死結恢復的組合方法,其優點有哪些?
+A. 簡單且實用
+B. 可以處理多種資源類型
+C. 可以確保系統始終在安全狀態
+D. 不需要預先的資源使用資訊
+
+20. In a deadlock avoidance algorithm if a process P requests a resource the request is denied unless what condition is met?
+A. The system remains in a safe state after satisfying the request
+B. P has terminated
+C. All of P's resources have been allocated
+D. P is the only process
+
+21. 死結偵測中,當資源類型有多個實例時,需要使用一種更複雜的演算法,而不是簡單地檢查圖。(請用小寫英文回答 需要做字母連接的兩個文字用 -)
+
+22. 當一個系統發生死結,下列哪個情況一定會成立?
+A. 有程序無限等待
+B. 所有資源都已被分配
+C. 互斥條件被違反
+D. 系統處於安全狀態
+
+23. 為了防止死結,條件可以被打破,方法是要求程序在啟動前請求所有其所需的資源。(請用小寫英文回答 單字間留一個空白)
+
+24. The  problem is a classic example of deadlock where five philosophers share five forks.(Please answer in lowercase English, connecting words with hyphens)
+
+25. 銀行家演算法(Banker's Algorithm)是一種用於什麼的死結演算法?
+A. 避免
+B. 預防
+C. 恢復
+D. 偵測
+
+26. If a system cannot find a safe sequence its state is .(Please answer in lowercase English)
+
+27. 資源分配圖(Resource-Allocation Graph)可以處理哪些類型的資源?
+A. 可搶佔資源
+B. 單一實例資源
+C. 不可搶佔資源
+D. 多實例資源
+
+28. 資源分配圖(Resource-Allocation Graph)中,哪些邊表示程序和資源之間的關係?
+A. 程序邊
+B. 資源邊
+C. 請求邊
+D. 分配邊
+
+29. Among the four necessary conditions for deadlock which ones are related to the type and usage of resources?
+A. No preemption, Circular wait
+B. Mutual exclusion, Hold and wait
+C. Process request, Process termination
+D. Resource allocation, Resource release
+
+30. 死結偵測(Deadlock Detection)的缺點是什麼?
+-
+-
+-
+-
+
+-
+
+svg
