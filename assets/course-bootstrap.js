@@ -47,11 +47,13 @@
       l9.push({ row: { ...row, question }, inputIndex, rank: ranks.get(question.id) ?? Number.MAX_SAFE_INTEGER });
     });
     l9.sort((a, b) => a.rank - b.rank || a.inputIndex - b.inputIndex);
-    let cursor = 0;
+    const curatedL9Rows = l9.map(entry => entry.row);
+    let inserted = false;
     return sourceRows.flatMap(row => {
-      if (row?.unit !== 'L9' || !row.question) return [row];
-      if (aliases.has(row.question.id)) return [];
-      return [l9[cursor++].row];
+      if (row?.unit !== 'L9') return [row];
+      if (inserted) return [];
+      inserted = true;
+      return curatedL9Rows;
     });
   }
   function showNotice(text, retry = false) {
@@ -108,7 +110,7 @@
     try {
       const [response, curationResponse] = await Promise.all([
         fetch(window.courseContributions.apiOrigin + '/api/questions?course=' + config.course, {signal:AbortSignal.timeout(8000)}),
-        fetch('assets/os-l9-curation.json?v=l9-curation-fallback-20261029', {signal:AbortSignal.timeout(8000)}).catch(() => null)
+        fetch('assets/os-l9-curation.json?v=l9-curation-order-fix-20261029', {signal:AbortSignal.timeout(8000)}).catch(() => null)
       ]);
       if (!response.ok) throw new Error('unavailable');
       const data = await response.json();
