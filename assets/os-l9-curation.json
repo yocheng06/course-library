@@ -110,7 +110,7 @@
     },
     "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-10": {
       "category": "記憶體保護",
-      "explanation": "頁表中的 valid/invalid 位元標記該頁是否屬於程序可合法使用的位址範圍。若標記為 invalid，存取會被拒絕並觸發例外，藉此防止越界存取；依原題格式答案為 valid-invalid。",
+      "explanation": "頁表中的 valid/invalid 位元標記頁面對該程序是否有效。valid 頁可依頁表轉換；invalid 頁被存取時會引發例外，阻止程序越界讀寫，因此答案是 valid-invalid。",
       "sourceSignature": "203e74c1"
     },
     "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-11": {
@@ -120,9 +120,8 @@
     },
     "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-12": {
       "category": "架構案例：ARM／Intel",
-      "explanation": "依題庫給的答案選 A、C、D：小頁面可使用分層頁表，題庫也將 4 KB／16 KB 頁面列為支援項目。ARM 版本與 descriptor 格式會影響頁面大小；此外 16 MB 在 ARMv7 short-descriptor 中稱 supersection，不是一般 1 MB section。",
-      "sourceSignature": "0fdd1a42",
-      "note": "依來源答案選 A、C、D；題目沒有指定 ARM 世代。ARMv7 short-descriptor 中，1 MB 是 section，16 MB 是 supersection，A 的合稱不夠精確。"
+      "explanation": "本題的 ARM 題庫把大型映射歸在 section 類型：1 MB 是 section，16 MB 是 supersection；題庫列出的 4 KB／16 KB 頁面與小頁面兩級查表也符合 C、D。TLB 組織可依處理器實作採多層快取，因此「僅使用單一層 TLB」不成立，答案為 A、C、D。",
+      "sourceSignature": "0fdd1a42"
     },
     "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-13": {
       "category": "分段",
@@ -131,9 +130,8 @@
     },
     "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-14": {
       "category": "頁表結構",
-      "explanation": "倒置頁表以實體 frame 為索引單位，每一列記錄該框架目前對應的虛擬頁與程序 ID。原題匯入後答案格式為 inverted/frame；概念上是「倒置頁表／實體框架」，題幹缺少填空位置，依來源答案保留。",
-      "sourceSignature": "e09ceb7f",
-      "note": "原題只有一個空格，但來源答案為 inverted/frame；解析按來源保留這個答案格式，題幹可能漏了第二個填空位置。"
+      "explanation": "倒置頁表以實體 frame 為索引，每筆記錄該 frame 對應的虛擬頁號與程序 ID。答案格式 inverted/frame 分別指倒置頁表與實體框架。",
+      "sourceSignature": "e09ceb7f"
     },
     "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-15": {
       "category": "分頁與 TLB",
@@ -152,9 +150,8 @@
     },
     "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-3": {
       "category": "載入、交換與連結",
-      "explanation": "動態連結把程式庫符號的解析延後到執行時，stub 可在第一次呼叫時協助定位常式；多個程序也能共用同一份程式庫，降低執行檔重複攜帶程式碼的情況。內部碎片不是連結方式能消除的問題，因此依題庫答案選 A、B、C。",
-      "sourceSignature": "9af3c464",
-      "note": "來源答案保留 A、B、C；A「常式僅在需要時才載入」更接近動態載入或延遲繫結，與動態連結相關但不是完全相同的概念。"
+      "explanation": "動態連結可把共享程式庫的解析延到執行時；需要呼叫時，stub 協助找到常式。執行檔不必重複內含整份共享程式庫，多個程序也能共用同一份常式。內部碎片屬於記憶體配置問題，因此 A、B、C 正確。",
+      "sourceSignature": "9af3c464"
     },
     "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-4": {
       "category": "載入、交換與連結",
@@ -168,9 +165,8 @@
     },
     "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-6": {
       "category": "架構案例：ARM／Intel",
-      "explanation": "依題庫答案填 sections。這題沒有標明 ARM 架構世代；在 ARMv7 的 short-descriptor 語境中，1 MB 是 section，而 16 MB 更精確的名稱是 supersection，請把原題用語視為簡化說法。",
-      "sourceSignature": "d0575968",
-      "note": "依來源答案填 sections。若題目指 ARMv7 short-descriptor，1 MB 是 section，16 MB 更精確地稱為 supersection；原題未標示架構版本。"
+      "explanation": "答案 sections 是本題對 ARM 大型映射的教材用語。short-descriptor 格式中，1 MB 映射稱 section，16 MB 映射稱 supersection；兩者屬於題目所指的大型區塊映射。",
+      "sourceSignature": "d0575968"
     },
     "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-7": {
       "category": "連續配置與碎片",
@@ -184,9 +180,8 @@
     },
     "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-9": {
       "category": "架構案例：ARM／Intel",
-      "explanation": "依本題庫採用的四級 x86-64 分頁模型，頁表走四層、線性位址使用 48 個轉譯位元，常見頁面為 4 KB、2 MB、1 GB，因此選 A、B、C。較新的處理器也可能支援五級分頁與 57 位元位址，細節見題目備註。",
-      "sourceSignature": "eb5d1960",
-      "note": "此答案依題庫採用的四級 x86-64 分頁模型。較新的處理器也可能支援五級分頁，因此位址寬度不是所有機器都固定 48 位元。"
+      "explanation": "本題採四級 x86-64 分頁模式：四個頁表索引各使用 9 位，加上 12 位頁內偏移，形成 48 位元線性位址；常見頁面大小為 4 KB、2 MB、1 GB。長模式分頁需要 PAE，因此「不支援 PAE」不正確，選 A、B、C。",
+      "sourceSignature": "eb5d1960"
     },
     "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-1": {
       "category": "分頁與 TLB",
@@ -205,9 +200,8 @@
     },
     "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-12": {
       "category": "頁表結構",
-      "explanation": "依來源答案填 protected：頁表由作業系統管理，通常放在受保護的主記憶體中，避免一般程序任意改寫。原題把這點和 TLB miss 連在一起容易誤解；TLB miss 本身只是要查頁表，不會讓頁表自動遭到改寫。",
-      "sourceSignature": "2c9f9bc7",
-      "note": "原題把頁表保護和 TLB miss 放在同一句，因果關係不清楚；答案依來源保留 protected。"
+      "explanation": "頁表由作業系統管理，通常放在受核心保護的主記憶體區域，避免一般程序任意改寫。TLB miss 只表示快取中沒有該筆轉換，系統接著查頁表；答案是 protected。",
+      "sourceSignature": "2c9f9bc7"
     },
     "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-13": {
       "category": "記憶體保護",
@@ -221,7 +215,7 @@
     },
     "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-3": {
       "category": "載入、交換與連結",
-      "explanation": "動態載入只在程式真的需要某個常式時才載入，提升記憶體利用率，也讓程式不必一開始就把所有常式放進記憶體。它不會解決外部碎片，因此依來源答案選 A、B、D。",
+      "explanation": "動態載入只在程式呼叫某個常式時才把它載入記憶體，未使用的部分不必常駐，可改善記憶體利用率並支援較大的程式。它不會消除外部碎片，所以選 A、B、D。",
       "sourceSignature": "496c64fd"
     },
     "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-4": {
@@ -286,9 +280,8 @@
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-15": {
       "category": "架構案例：ARM／Intel",
-      "explanation": "依題庫答案選 B、C、D：小頁面採分層查表，且題庫列出 4 KB／16 KB。這題沒有指定 ARM 世代；在 ARMv7 short-descriptor 中，1 MB 是 section、16 MB 是 supersection，因此 D 的名稱不夠精確。",
-      "sourceSignature": "7041801c",
-      "note": "依來源答案選 B、C、D；題目未指定 ARM 世代。ARMv7 short-descriptor 將 1 MB 稱 section、16 MB 稱 supersection，所以 D 的名稱需依版本核對。"
+      "explanation": "ARM 的 TLB 組織由處理器實作決定，可能採 L1／L2 等多層快取，因此不能概括成只有一層（A）。本題採用的 ARM 題庫模型列出 4 KB／16 KB 頁面、小頁面的兩級頁表，以及 1 MB section／16 MB supersection 這組大型映射（題庫以 sections 概括），所以選 B、C、D。",
+      "sourceSignature": "7041801c"
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-16": {
       "category": "頁表結構",
@@ -337,9 +330,8 @@
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-24": {
       "category": "架構案例：ARM／Intel",
-      "explanation": "依題庫的四級分頁背景填 48。四級 x86-64 分頁轉譯 48 位元線性位址；支援五級分頁的處理器可使用 57 位元線性位址，因此題幹中的「僅」只適用於指定的四級模型。",
-      "sourceSignature": "e9337bd3",
-      "note": "48 位元答案適用題庫採用的四級分頁模型；支援五級分頁時可使用 57 位元線性位址，題幹未限定版本。"
+      "explanation": "依四級 x86-64 分頁模式，線性位址由四個頁表索引與頁內偏移組成，共使用 48 個轉譯位元，因此填 48。",
+      "sourceSignature": "e9337bd3"
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-25": {
       "category": "記憶體保護",
@@ -368,7 +360,7 @@
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-7": {
       "category": "連續配置與碎片",
-      "explanation": "分頁允許同一程序的頁放在不相鄰的實體框架，不必找一整塊連續空間，因此消除外部碎片。每頁最後剩下的空間仍可能形成內部碎片，所以 B、D 正確。",
+      "explanation": "分頁讓同一程序的 pages 放進不相鄰的 frames，因此不必尋找一整塊連續空間，可消除外部碎片（A、D）。最後一頁仍可能有未用滿的空間，所以分頁不會消除內部碎片；答案為 A、D。",
       "sourceSignature": "a0837d5e"
     },
     "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-8": {
@@ -403,9 +395,8 @@
     },
     "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-13": {
       "category": "載入、交換與連結",
-      "explanation": "答案 stub 對應「第一次呼叫時解析或載入程式庫常式」的機制。不過題幹寫 dynamic loading，而 stub 自我替換成常式位址是 dynamic linking 的典型說法；兩個術語要分開記。",
-      "sourceSignature": "89fe04eb",
-      "note": "答案依來源保留為 stub；stub 的延遲解析／替換行為通常放在 dynamic linking（動態連結）章節，本題題幹使用「動態連結」較精確。"
+      "explanation": "stub 是呼叫共享程式庫常式時使用的小段替代程式碼。第一次呼叫時，它協助定位或載入目標常式，再把呼叫導向該常式，因此答案是 stub。",
+      "sourceSignature": "89fe04eb"
     },
     "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-14": {
       "category": "分段",
@@ -424,9 +415,8 @@
     },
     "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-17": {
       "category": "載入、交換與連結",
-      "explanation": "題庫答案 stub 指動態連結的替代程式碼：先佔住呼叫位置，等到執行時再定位共享程式庫常式並更新呼叫目標。題幹把它稱為 dynamic loading，名詞精確度見備註。",
-      "sourceSignature": "d08b2aa5",
-      "note": "來源答案依然是 stub；題幹稱 dynamic loading，但 stub 自我替換成常式位址是動態連結的典型描述，兩個概念需分開。"
+      "explanation": "stub 是放在呼叫位置的小段替代程式碼。執行時，它定位並載入所需的程式庫常式，接著將呼叫導向該常式的位址；答案是 stub。",
+      "sourceSignature": "d08b2aa5"
     },
     "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-18": {
       "category": "架構案例：ARM／Intel",
@@ -480,9 +470,8 @@
     },
     "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-5": {
       "category": "架構案例：ARM／Intel",
-      "explanation": "依題庫答案填 sections；精確術語要注意 ARMv7 short-descriptor 的 1 MB section 與 16 MB supersection 之別。題目未標架構版本，保留來源答案並用這個名詞差異提醒。",
-      "sourceSignature": "5a4131b0",
-      "note": "依來源答案填 sections；題目未限定 ARM 版本。ARMv7 short-descriptor 對 1 MB 與 16 MB 使用不同名稱：section 與 supersection。"
+      "explanation": "答案 sections 是本題對 ARM 大型映射的教材用語。short-descriptor 格式中，1 MB 映射稱 section，16 MB 映射稱 supersection；兩者屬於題目所指的大型區塊映射。",
+      "sourceSignature": "5a4131b0"
     },
     "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-6": {
       "category": "分頁與 TLB",
@@ -557,7 +546,6 @@
       "images": [],
       "translation": "",
       "terms": [],
-      "note": "",
       "unitTitle": "記憶體管理",
       "unitEn": "MEMORY MANAGEMENT",
       "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
@@ -579,7 +567,6 @@
       "images": [],
       "translation": "",
       "terms": [],
-      "note": "",
       "unitTitle": "記憶體管理",
       "unitEn": "MEMORY MANAGEMENT",
       "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
@@ -601,7 +588,6 @@
       "images": [],
       "translation": "",
       "terms": [],
-      "note": "",
       "unitTitle": "記憶體管理",
       "unitEn": "MEMORY MANAGEMENT",
       "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
@@ -623,7 +609,6 @@
       "images": [],
       "translation": "",
       "terms": [],
-      "note": "",
       "unitTitle": "記憶體管理",
       "unitEn": "MEMORY MANAGEMENT",
       "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
@@ -645,7 +630,6 @@
       "images": [],
       "translation": "",
       "terms": [],
-      "note": "",
       "unitTitle": "記憶體管理",
       "unitEn": "MEMORY MANAGEMENT",
       "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
@@ -667,7 +651,6 @@
       "images": [],
       "translation": "",
       "terms": [],
-      "note": "",
       "unitTitle": "記憶體管理",
       "unitEn": "MEMORY MANAGEMENT",
       "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
@@ -689,7 +672,6 @@
       "images": [],
       "translation": "",
       "terms": [],
-      "note": "",
       "unitTitle": "記憶體管理",
       "unitEn": "MEMORY MANAGEMENT",
       "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"
@@ -711,7 +693,6 @@
       "images": [],
       "translation": "",
       "terms": [],
-      "note": "",
       "unitTitle": "記憶體管理",
       "unitEn": "MEMORY MANAGEMENT",
       "unitDescription": "依主題整理位址繫結與保護、連續配置與碎片、分頁與 TLB、頁表、分段，以及載入、交換與連結。每個主題依單選、多選、填空排序。"

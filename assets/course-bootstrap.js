@@ -33,6 +33,7 @@
       if (row?.unit !== 'L9' || !row.question || aliases.has(row.question.id)) return;
       const original = row.question;
       const question = { ...original, stem: cleanHeading(original.stem) };
+      delete question.note;
       if (curation?.unit) {
         question.unitTitle = curation.unit.title;
         question.unitEn = curation.unit.en;
@@ -41,8 +42,7 @@
       const meta = curation?.questions?.[question.id];
       if (meta && sourceSignature(original) === meta.sourceSignature) {
         if (!original.category || original.category === 'HTML 匯入') question.category = meta.category;
-        if (!String(original.explanation || '').trim()) question.explanation = meta.explanation;
-        if (meta.note) question.note = [original.note, meta.note].filter(Boolean).join(' ');
+        if (String(meta.explanation || '').trim()) question.explanation = meta.explanation;
       }
       l9.push({ row: { ...row, question }, inputIndex, rank: ranks.get(question.id) ?? Number.MAX_SAFE_INTEGER });
     });
@@ -110,7 +110,7 @@
     try {
       const [response, curationResponse] = await Promise.all([
         fetch(window.courseContributions.apiOrigin + '/api/questions?course=' + config.course, {signal:AbortSignal.timeout(8000)}),
-        fetch('assets/os-l9-curation.json?v=l9-curation-order-fix-20261029', {signal:AbortSignal.timeout(8000)}).catch(() => null)
+        fetch('assets/os-l9-curation.json?v=l9-no-notes-explanations-20261029', {signal:AbortSignal.timeout(8000)}).catch(() => null)
       ]);
       if (!response.ok) throw new Error('unavailable');
       const data = await response.json();
