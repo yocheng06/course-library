@@ -231,15 +231,24 @@ Two-level 綁定題與 Max-Heap 的 greater 填空仍需確認題幹限定；雖
 瀏覽器驗證：作業系統 300 道、演算法 72 道可對應選項的題目均能依目前答案核對，全站 663 題待確認數為 0。新版單選、全選與一般多選核對、4 題新增文字作答、解析命中與遮答、目前／全部單元搜尋、舊 ID 定位與待複習遷移／保存均通過。390px 手機標準／大字、單元切換與換頁未見整頁水平溢出或頁面 JavaScript 錯誤；內嵌 JavaScript 語法及 Git diff 檢查通過。演算法題庫資料不變。
 
 
-## 2026-10-28：恢復兩題原題庫答案
+## 2026-10-28：恢復 12 題原題庫答案
 
-依站主要求，將以下兩題恢復為保留的原題庫答案，並移除 `originalAnswer` 標記，避免題目頁繼續把它們標成「修正後答案」：
+依站主要求，將全部 12 題恢復為保存的原題庫答案，移除「查看修正前的題庫答案」標記，並同步題目頁、批次查題索引與後台快照。
 
-- `basics-9`：答案恢復為 Timer interrupt、Software interrupt (Trap/Exception)、Error-generated、Network-request generated（對應 A、B、C、D）。
-- `basics-29`：答案恢復為 Mode bit（對應 B）；Privileged instructions 不再列為第二個答案。
+- `basics-9`：Timer interrupt、Software interrupt (Trap/Exception)、Error-generated、Network-request generated（A–D）。
+- `basics-29`：Mode bit（B）。
+- `architecture-31`：A、B、C。
+- `process-11`：process control block。
+- `threads-018`：A、B、C、D。
+- `os6-065`：任務必須在截止期限前完成（D）。
+- `os8-107`：D。
+- `os8-056`：livelock。
+- `L2-025`：A、B、D。
+- `L2-026`：A、C、D。
+- `L2-022`：O(logn)^k。
+- `L6-047`：0,0,2,3,3,3,3,0 / 0,2,3,4,7,7。
 
-
-
+`os8-107` 與 `os8-056` 依原題庫答案重新開放判分。
 ## 2026-10-10：更新 L2 作業系統基礎題庫
 
 依使用者提供的 `作業系統_L2_題庫.html` 更新，重點處理第 40 題後的選項版本及缺題。只解析 `CHAPTER1_QUESTIONS` 資料，不執行上傳 HTML 的程式。來源共 128 筆；依考點、正確選項文字及填答要求合併重複批次、換序與中英文對照，整理為 67 題，比原有 46 題新增 21 題。同一題幹若正確選項內容不同，保留各版本，例如含 FaaS／PaaS 的雲端服務模型、排除 Array／包含單向串列的核心資料結構、不同活動集合的程序管理；不同的填答方向或指定格式亦保留。
