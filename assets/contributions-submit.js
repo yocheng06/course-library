@@ -557,7 +557,7 @@ function combineCoursePracticeHtml(questionImport, resultImport) {
         new Set(letters).size !== letters.length
       )
         continue;
-      answer = letters.sort().join("");
+      answer = letters.sort().join("、");
     }
     if (!answer.trim()) continue;
     question.answer = answer;
