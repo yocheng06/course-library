@@ -1,4 +1,4 @@
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=html-question-import-20261028';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=html-answer-pair-20261028';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -469,15 +469,145 @@ function parseCoursePracticeHtml(doc, raw, name) {
     course,
     unit,
     title,
-    source: `從 ${hostname} ${courseCode} 練習頁 HTML 匯入；來源檔沒有正解，匯入後逐題核對。`,
+    source: `從 ${hostname} ${courseCode} 練習頁 HTML 匯入；解析可留空，請核對正解。`,
     questions,
   };
 }
 
+function staticHtmlText(node) {
+  const parts = [];
+  const visit = (current) => {
+    if (current.nodeType === 3) {
+      parts.push(current.nodeValue || "");
+      return;
+    }
+    if (current.nodeType !== 1) return;
+    const tag = current.tagName.toLowerCase();
+    if (["script", "style", "template", "noscript"].includes(tag)) return;
+    if (tag === "br") {
+      parts.push("\n");
+      return;
+    }
+    for (const child of current.childNodes) visit(child);
+  };
+  visit(node);
+  return parts.join("");
+}
+
+function parseCoursePracticeResultsHtml(doc) {
+  const blocks = [...doc.querySelectorAll(".question-result")];
+  if (!blocks.length) return null;
+  const clean = (value) => value.replace(/\s+/g, " ").trim();
+  const answers = blocks.map((block, index) => {
+    let stem = "",
+      correctLines = [];
+    for (const paragraph of block.querySelectorAll("p")) {
+      const text = staticHtmlText(paragraph).replace(/\r/g, "").trim();
+      const question = text.match(/^題目\s*[：:]\s*([\s\S]*)$/u);
+      if (question) stem = clean(question[1]);
+      const answer = text.match(/^正確答案\s*[：:]\s*([\s\S]*)$/u);
+      if (answer)
+        correctLines = answer[1]
+          .split("\n")
+          .map(clean)
+          .filter(Boolean);
+    }
+    return { index, stem, correctLines };
+  });
+  const meaningful = answers.filter((answer) => answer.stem || answer.correctLines.length);
+  if (!meaningful.some((answer) => answer.correctLines.length)) return null;
+  if (meaningful.some((answer) => !answer.stem || !answer.correctLines.length))
+    throw new Error("答案結果 HTML 有題目缺少題幹或正確答案；請確認這是交卷後顯示答案的頁面。");
+  return { answers: meaningful };
+}
+
+function practiceStemKey(value) {
+  return String(value ?? "")
+    .normalize("NFKC")
+    .toLocaleLowerCase()
+    .replace(/\[\s*__\s*\d+\s*__\s*\]/gu, " ")
+    .replace(/^\s*(?:妖獸|beast)\s*\d+\s*[.、．]?\s*/iu, "")
+    .replace(/[\s\p{P}\p{S}]+/gu, "");
+}
+
+function combineCoursePracticeHtml(questionImport, resultImport) {
+  const byStem = new Map();
+  questionImport.questions.forEach((question, index) => {
+    const key = practiceStemKey(question.stem);
+    if (!key) return;
+    const matches = byStem.get(key) || [];
+    matches.push(index);
+    byStem.set(key, matches);
+  });
+  const used = new Set();
+  let matchedQuestionCount = 0;
+  for (const result of resultImport.answers) {
+    const matches = byStem.get(practiceStemKey(result.stem)) || [];
+    if (matches.length !== 1 || used.has(matches[0])) continue;
+    const index = matches[0],
+      question = questionImport.questions[index];
+    let answer = result.correctLines.join("\n");
+    if (question.options.length) {
+      const choiceKeys = result.correctLines.map((line) =>
+        globalThis.courseChoiceAnswers.expectedChoiceKey(line, question.options),
+      );
+      const letters = choiceKeys.flatMap((key) => key?.split("") || []);
+      if (
+        choiceKeys.some((key) => !key) ||
+        new Set(letters).size !== letters.length
+      )
+        continue;
+      answer = letters.sort().join("");
+    }
+    if (!answer.trim()) continue;
+    question.answer = answer;
+    used.add(index);
+    matchedQuestionCount++;
+  }
+  return {
+    ...questionImport,
+    source: "題目與交卷結果 HTML 已配對；解析留白，送出前請核對答案。",
+    __answerImportSummary: {
+      matchedQuestionCount,
+      totalQuestionCount: questionImport.questions.length,
+      resultCount: resultImport.answers.length,
+    },
+  };
+}
+
+function parseCoursePracticeHtmlPair(rawFiles, names) {
+  if (rawFiles.length !== 2 || !Array.isArray(names) || names.length !== 2)
+    throw new Error("題目和答案分成兩份時，請一次選取剛好兩個 HTML 檔。");
+  if (names.some((name) => !/\.html?$/i.test(name)))
+    throw new Error("配對匯入需同時選取題目 HTML 與交卷結果 HTML。");
+  let questionImport = null,
+    resultImport = null;
+  for (let index = 0; index < rawFiles.length; index++) {
+    const doc = new DOMParser().parseFromString(rawFiles[index], "text/html"),
+      result = parseCoursePracticeResultsHtml(doc);
+    if (result) {
+      if (resultImport) throw new Error("找到兩份答案結果頁；請只選一份答案 HTML。");
+      resultImport = result;
+      continue;
+    }
+    const question = parseCoursePracticeHtml(doc, rawFiles[index], names[index]);
+    if (question) {
+      if (questionImport) throw new Error("找到兩份題目頁；請只選一份題目 HTML。");
+      questionImport = question;
+    }
+  }
+  if (!questionImport || !resultImport)
+    throw new Error("無法辨認這兩份檔案。請選一份 CCSA 題目 HTML 和一份交卷結果 HTML。");
+  return combineCoursePracticeHtml(questionImport, resultImport);
+}
+
 function parseImport(raw, name) {
+  if (Array.isArray(raw)) return parseCoursePracticeHtmlPair(raw, name);
   if (/\.json$/i.test(name)) return JSON.parse(raw);
-  const doc = new DOMParser().parseFromString(raw, "text/html"),
-    data = doc.querySelector("script#course-data");
+  const doc = new DOMParser().parseFromString(raw, "text/html");
+  if (parseCoursePracticeResultsHtml(doc))
+    throw new Error("這是交卷結果 HTML；請與題目 HTML 一起選取，系統會自動配對正解。");
+  const data = doc.querySelector("script#course-data");
   if (data) return JSON.parse(data.textContent);
   const manifest=doc.querySelector('script#course-manifest');
   if(manifest) return JSON.parse(manifest.textContent).map(unit=>{
@@ -528,8 +658,8 @@ function importedQuestions(data) {
 }
 $("chooseImport").addEventListener("click", () => $("importFile").click());
 $("importFile").addEventListener("change", async event => {
-  const file=event.target.files?.[0];if(!file)return;
-  try { await groupedSubmissions.importFile(file); }
+  const files=event.target.files;if(!files?.length)return;
+  try { await groupedSubmissions.importFiles(files); }
   catch(error) { message('無法匯入：'+error.message,true); }
   finally { event.target.value=''; }
 });

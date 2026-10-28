@@ -16,4 +16,4 @@
 .group-preview .import-answer-options label {display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid #bcaab3;border-radius:8px;cursor:pointer}
 .group-preview .import-answer-options input {width:20px;height:20px;accent-color:var(--accent)}
 .group-preview .import-answer-input {display:grid;gap:6px;margin:12px 0;font-weight:700}
-.group-preview .import-answer-input input {max-width:520px;font-weight:400}
+.group-preview .import-answer-input input,.group-preview .import-answer-input textarea {max-width:520px;font-weight:400}

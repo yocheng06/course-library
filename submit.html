@@ -15,7 +15,7 @@
       href="assets/contributions.css?v=nav-center-20261017"
     />
   <link rel="stylesheet" href="assets/ui-consistency.css?v=original-toolbar-20261018">
-  <link rel="stylesheet" href="assets/learning-enhancements.css?v=html-question-import-20261028">
+  <link rel="stylesheet" href="assets/learning-enhancements.css?v=html-answer-pair-20261028">
 <link rel="stylesheet" href="assets/theme.css?v=black-white-tools-20261027">
 </head>
   <body>
@@ -45,7 +45,7 @@
           <h2 id="pendingHeading" tabindex="-1">批次查題待補草稿 <span id="pendingCount"></span></h2>
           <button id="downloadPending" class="text-button" type="button">下載待補草稿</button>
         </div>
-        <p>這裡保留未收錄題目的題幹與選項順序。逐題確認單元與題型，補上答案及解析後，按「補齊並加入投稿清單」。</p>
+        <p>這裡保留未收錄題目的題幹與選項順序。逐題確認單元與題型、補上正確答案後，按「補齊並加入投稿清單」；解析可留白，之後再補。</p>
         <p class="muted">待補題目會另外暫存，不會覆蓋原投稿草稿，也不會自動送出。匯入檔案可依科目與單元自動分組，預覽後逐批送審。手動新增清單仍以目前所選單元為準。</p>
         <p id="pendingStatus" role="status" aria-live="polite"></p>
         <div id="pendingList"></div>
@@ -88,11 +88,12 @@
               type="file"
               id="importFile"
               accept=".json,.html,.htm,application/json,text/html"
+              multiple
               hidden /><button class="text-button" id="downloadExample" type="button">
             下載匯入範例</button
           ><button id="restorePending" class="text-button" type="button">載入待補備份</button><input id="pendingFile" type="file" accept=".json,application/json" hidden
           ><span class="muted"
-            >匯入最多 2,000 題、20 批，每批最多 200 題。HTML 可使用結構化題庫或 CCSA 測驗頁；來源沒有正解時，需逐題補上並核對。</span
+            >匯入最多 2,000 題、20 批，每批最多 200 題。可匯入結構化 JSON／HTML，或 CCSA 題目 HTML。若題目和解答分成兩個 HTML，按住 Ctrl 一次選兩份，系統會依題目配對正解；解析可留白，匯入後請核對答案。</span
           >
         </div>
       </section>
@@ -255,7 +256,7 @@
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/contributions-submit.js?v=html-question-import-20261028"
+      src="assets/contributions-submit.js?v=html-answer-pair-20261028"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
   </body>
