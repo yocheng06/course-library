@@ -21,6 +21,7 @@ const unitData = new Map([...document.querySelectorAll('script[data-course-unit]
 const courseManifest = JSON.parse(document.getElementById('course-manifest').textContent);
 const UNITS = courseManifest.map(unit => ({...unit, baseQuestionCount:unit.questionCount, questions: null}));
 let builtinOverrides=new Map();
+let builtinDeletedIds=new Set();
 const questionEntries = [], loadedUnits = new Set(), pendingCommunityQuestions = new Map();
 const questionUnitIndex = new Map(), canonicalQuestionId = new Map(), knownQuestionIds = new Set(), communityQuestionIds = new Set(), communityQuestionUnit = new Map();
 for (const [unitIndex, unit] of UNITS.entries()) {
@@ -50,10 +51,10 @@ const allUnits = () => $('searchScopeSelect').value === 'all';
 const scopedEntries = () => {
   if (allUnits()) {
     ensureAllUnitsLoaded();
-    return [...questionEntries].sort((a,b) => a.unitIndex-b.unitIndex || a.i-b.i);
+    return [...questionEntries].filter(entry=>!builtinDeletedIds.has(entry.q.id)).sort((a,b) => a.unitIndex-b.unitIndex || a.i-b.i);
   }
   ensureUnitLoaded(active);
-  return questionEntries.filter(entry => entry.unitIndex === active);
+  return questionEntries.filter(entry => entry.unitIndex === active && !builtinDeletedIds.has(entry.q.id));
 };
 const communityAliases = new Map();
 const canonicalId = id => {
@@ -62,7 +63,7 @@ const canonicalId = id => {
 };
 const findEntry = id => {
   const target = canonicalId(id);
-  return questionEntries.find(entry => entry.q.id === target || entry.q.aliases?.includes(id) || entry.q.aliases?.includes(target));
+  return questionEntries.find(entry => !builtinDeletedIds.has(entry.q.id) && (entry.q.id === target || entry.q.aliases?.includes(id) || entry.q.aliases?.includes(target)));
 };
 function refreshFilters() {
   const entries = scopedEntries();
@@ -240,9 +241,14 @@ if (linkedEntry) { page=Math.floor(linkedEntry.i/pageSize)+1; render(); window.c
 let waitingForLinkedQuestion = !linkedEntry && /^community-/.test(linkedQuestion || '');
 function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases = [], overrides = [], replace = false} = {}) {
   if(!Array.isArray(overrides))throw new Error('Invalid built-in updates');
-  const next=new Map();
+  const next=new Map(), nextDeleted=new Set();
   for(const row of overrides){
     const q=row?.question,unitIndex=questionUnitIndex.get(q?.id);
+    if(row?.deleted===true){
+      if(unitIndex===undefined || canonicalQuestionId.has(q.id) || UNITS[unitIndex].id!==row.unit || next.has(q.id) || nextDeleted.has(q.id) || (q.aliases!==undefined && (!Array.isArray(q.aliases)||q.aliases.some(alias=>typeof alias!=='string'))))throw new Error('Invalid built-in deletion');
+      nextDeleted.add(q.id);
+      continue;
+    }
     if(unitIndex===undefined || canonicalQuestionId.has(q.id) || UNITS[unitIndex].id!==row.unit || typeof q.stem!=='string' || typeof q.answer!=='string' || !Array.isArray(q.options) || q.options.some(v=>typeof v!=='string') || next.has(q.id))throw new Error('Invalid built-in update');
     next.set(q.id,q);
   }
@@ -269,8 +275,14 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
       unit.questions.forEach((q,i)=>questionEntries.push({q,i,unit,unitIndex}));
     });
   }
-  const changedIds=new Set([...builtinOverrides.keys(),...next.keys()].filter(id=>JSON.stringify(builtinOverrides.get(id))!==JSON.stringify(next.get(id))));
+  const previousDeleted=builtinDeletedIds;
+  const changedIds=new Set([...builtinOverrides.keys(),...next.keys(),...previousDeleted,...nextDeleted].filter(id=>JSON.stringify(builtinOverrides.get(id))!==JSON.stringify(next.get(id)) || previousDeleted.has(id)!==nextDeleted.has(id)));
   builtinOverrides=next;
+  builtinDeletedIds=nextDeleted;
+  for(const [unitIndex,unit] of UNITS.entries()){
+    const countDeleted=ids=>[...ids].filter(id=>questionUnitIndex.get(id)===unitIndex).length;
+    unit.questionCount=replace?unit.baseQuestionCount-countDeleted(nextDeleted):unit.questionCount+countDeleted(previousDeleted)-countDeleted(nextDeleted);
+  }
   for(const unitIndex of loadedUnits){
     const unit=UNITS[unitIndex];if(!unitData.has(unit.id))continue;
     const originals=new Map(JSON.parse(unitData.get(unit.id)).map(q=>[q.id,q]));
@@ -342,16 +354,16 @@ window.courseLearning={
     if(selection===true)ensureAllUnitsLoaded();
     else if(ids)UNITS.forEach((unit,index)=>{if(ids.has(unit.id))ensureUnitLoaded(index);});
     else ensureUnitLoaded(active);
-    return questionEntries.filter(e=>ids?ids.has(e.unit.id):selection===true||e.unitIndex===active).map(e=>({id:e.q.id,q:e.q,unit:e.unit.label,unitId:e.unit.id}));
+    return questionEntries.filter(e=>!builtinDeletedIds.has(e.q.id)&&(ids?ids.has(e.unit.id):selection===true||e.unitIndex===active)).map(e=>({id:e.q.id,q:e.q,unit:e.unit.label,unitId:e.unit.id}));
   },
   examUnitLabel:()=>UNITS[active].label,
   mergeCommunityQuestions, course:'os',toolbar:document.querySelector('.toolbar'),sidebar:document.querySelector('.sidebar'),list:$('cards'),
-  unitIds:()=>ensureUnitLoaded(active).questions.map(q=>q.id),
+  unitIds:()=>ensureUnitLoaded(active).questions.filter(q=>!builtinDeletedIds.has(q.id)).map(q=>q.id),
   scopeIds:()=>scopedEntries().map(({q})=>q.id), allUnits,
   scopeLabel:()=>allUnits()?`作業系統 · 全部 ${UNITS.length} 個單元`:`目前單元 · ${UNITS[active].label}`,
   cardTop:card=>card.querySelector('.cardtop'),render,resetPage:()=>{page=1;},
-  resolveId:id=>{const target=canonicalId(id);return knownQuestionIds.has(target)||communityQuestionIds.has(target)?target:undefined;},
-  validId:id=>knownQuestionIds.has(id)||communityQuestionIds.has(id),
+  resolveId:id=>{const target=canonicalId(id);return !builtinDeletedIds.has(target)&&(knownQuestionIds.has(target)||communityQuestionIds.has(target))?target:undefined;},
+  validId:id=>!builtinDeletedIds.has(canonicalId(id))&&(knownQuestionIds.has(id)||communityQuestionIds.has(id)),
   questionLabel:id=>{const entry=findEntry(id);return `${entry.unit.label} 第 ${entry.i+1} 題`;},
   questionDetails:id=>{const {q,unit,i}=findEntry(id);return {course:'os',id,unit:unit.label,number:i+1,question:q.stem,answer:q.answer};},
   questionForEdit:id=>findEntry(id)?.q,

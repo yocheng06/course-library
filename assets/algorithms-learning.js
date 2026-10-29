@@ -26,19 +26,21 @@ const questionId=(course,i)=>course.questions[i].bookmarkId||course.id+'-'+Strin
 const isMissing=window.courseQuestionTools.missingSource;
 const builtinOriginals=new Map(COURSES.flatMap(unit=>unit.questions.map(q=>[q.bookmarkId,{unit:unit.id,q:JSON.parse(JSON.stringify(q))}])));
 let builtinOverrides=new Map();
+let builtinDeletedIds=new Set();
 const questionEntries=COURSES.flatMap(unit=>unit.questions.map((q,i)=>({q,i,id:questionId(unit,i),unit})));
+const visibleQuestionCount=unit=>unit.questions.filter(q=>!builtinDeletedIds.has(q.bookmarkId)).length;
 const allUnits=()=>$('searchScopeSelect').value==='all';
-const scopedEntries=()=>allUnits()?questionEntries:questionEntries.filter(entry=>entry.unit.id===lesson);
+const scopedEntries=()=>allUnits()?questionEntries.filter(entry=>!builtinDeletedIds.has(entry.id)):questionEntries.filter(entry=>entry.unit.id===lesson&&!builtinDeletedIds.has(entry.id));
 const communityAliases=new Map();
-const findEntry=id=>questionEntries.find(entry=>entry.id===(communityAliases.get(id)||id)||entry.q.aliases?.includes(id));
+const findEntry=id=>questionEntries.find(entry=>!builtinDeletedIds.has(entry.id)&&(entry.id===(communityAliases.get(id)||id)||entry.q.aliases?.includes(id)));
 function refreshFilters(){const entries=scopedEntries();window.courseQuestionTools.populateSelect($('chapterSelect'),entries.map(({q})=>q.category),'全部','全部章節');window.courseQuestionTools.populateSelect($('typeSelect'),entries.map(({q})=>kind(q)),'全部','全部題型');chapter=$('chapterSelect').value;type=$('typeSelect').value;}
 function searchTerms(){return $('search').value.trim().split(/\s+/).filter(Boolean);}
 function highlighted(value){const text=String(value??''),terms=[...new Set(searchTerms())];if(!terms.length)return esc(text);const re=new RegExp(terms.sort((a,b)=>b.length-a.length).map(term=>term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'gi');let result='',last=0;for(const match of text.matchAll(re)){result+=esc(text.slice(last,match.index))+'<mark>'+esc(match[0])+'</mark>';last=match.index+match[0].length;}return result+esc(text.slice(last));}
 function selectedItems(){return scopedEntries().filter(({q,id})=>(!window.learningUI?.reviewOnly||window.learningUI.isSaved(id))&&(mode!=='practice'||window.coursePracticeProgress?.includes(id)!==false)&&(chapter==='全部'||q.category===chapter)&&(type==='全部'||kind(q)===type)&&($('qualitySelect').value!=='pending'||window.courseQuestionTools.qualityReasons(q,'algorithms').length>0)&&window.courseQuestionTools.matchesSearch(q, $('search').value));}
 function unitNumber(id){return id.replace(/^L/,'').padStart(2,'0')}
-function setupLesson(preserveCards=false){document.querySelectorAll('.community-course-link').forEach(link=>{link.href=`submit.html?course=algorithms&unit=${encodeURIComponent(lesson)}`;});const c=current(),m=meta[lesson];$('lessonPicker').innerHTML=COURSES.map(item=>`<option value="${item.id}">UNIT ${unitNumber(item.id)} · ${esc(meta[item.id].short)} · ${item.questions.length} 題</option>`).join('');$('lessonPicker').value=lesson;$('crumb').textContent='UNIT '+unitNumber(lesson)+' / '+m.short;$('eyebrow').textContent=m.en;$('lessonTitle').textContent=m.title;$('lessonSub').textContent=m.sub;$('lessonCount').textContent=c.questions.length;$('guideText').textContent=m.guide;$('sourceLabel').textContent='目前來源：'+c.source;refreshFilters();
- $('courseMenu').innerHTML=COURSES.map(item=>`<button class="course-nav ${item.id===lesson?'active':''}" data-lesson="${item.id}" aria-pressed="${item.id===lesson}"><span class="course-copy"><span class="unit-number">UNIT ${unitNumber(item.id)}</span><span class="unit-row"><strong>${esc(meta[item.id].short)}</strong><span class="unit-count">${item.questions.length} 題</span></span><small class="unit-en">${esc(meta[item.id].en)}</small></span></button>`).join('');
- $('lessonTabs').innerHTML=COURSES.map(item=>`<button class="lesson-tab ${item.id===lesson?'active':''}" data-lesson="${item.id}" aria-pressed="${item.id===lesson}"><span class="tabtop"><span>${item.id}</span><small>${item.questions.length} 題</small></span><strong>${esc(meta[item.id].short)}</strong></button>`).join('');
+function setupLesson(preserveCards=false){document.querySelectorAll('.community-course-link').forEach(link=>{link.href=`submit.html?course=algorithms&unit=${encodeURIComponent(lesson)}`;});const c=current(),m=meta[lesson];$('lessonPicker').innerHTML=COURSES.map(item=>`<option value="${item.id}">UNIT ${unitNumber(item.id)} · ${esc(meta[item.id].short)} · ${visibleQuestionCount(item)} 題</option>`).join('');$('lessonPicker').value=lesson;$('crumb').textContent='UNIT '+unitNumber(lesson)+' / '+m.short;$('eyebrow').textContent=m.en;$('lessonTitle').textContent=m.title;$('lessonSub').textContent=m.sub;$('lessonCount').textContent=visibleQuestionCount(c);$('guideText').textContent=m.guide;$('sourceLabel').textContent='目前來源：'+c.source;refreshFilters();
+ $('courseMenu').innerHTML=COURSES.map(item=>`<button class="course-nav ${item.id===lesson?'active':''}" data-lesson="${item.id}" aria-pressed="${item.id===lesson}"><span class="course-copy"><span class="unit-number">UNIT ${unitNumber(item.id)}</span><span class="unit-row"><strong>${esc(meta[item.id].short)}</strong><span class="unit-count">${visibleQuestionCount(item)} 題</span></span><small class="unit-en">${esc(meta[item.id].en)}</small></span></button>`).join('');
+ $('lessonTabs').innerHTML=COURSES.map(item=>`<button class="lesson-tab ${item.id===lesson?'active':''}" data-lesson="${item.id}" aria-pressed="${item.id===lesson}"><span class="tabtop"><span>${item.id}</span><small>${visibleQuestionCount(item)} 題</small></span><strong>${esc(meta[item.id].short)}</strong></button>`).join('');
  render(preserveCards);}
 function renderChapters(){$('chapterSelect').value=chapter;}
 function answerMarkup(q,id){return `<div class="answer" id="answer-${id}"><div><strong>${window.courseQuestionTools.answerLabel(q)}</strong><br><span class="answer-value">${window.courseQuestionTools.answerValueMarkup(q,highlighted)}</span></div><div class="explain"><strong>解析</strong><div class="explanation-text">${window.courseQuestionTools.explanationMarkup(q, highlighted)}</div></div>${q.note?`<div class="warning"><strong>觀念提醒：</strong>${highlighted(q.note)}</div>`:q.warn?'<div class="warning">原資料已標記此題需要核對；請搭配原題、完整選項或老師的說明確認。</div>':''}${window.courseQuestionTools.reviewMarkup(q)}</div>`;}
@@ -102,9 +104,11 @@ if(linkedEntry){page=Math.floor(linkedEntry.i/PAGE_SIZE)+1;render();window.cours
 let waitingForLinkedQuestion=!linkedEntry && /^community-/.test(linkedQuestion||'');
 function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],overrides=[],replace=false}={}){
  if(!Array.isArray(overrides))throw new Error('Invalid built-in updates');
- const next=new Map();
+ const next=new Map(),nextDeleted=new Set();
  for(const row of overrides){const q=row?.question,id=q?.bookmarkId;
-  if(!builtinOriginals.has(id)||builtinOriginals.get(id).unit!==row.unit||typeof q.q!=='string'||typeof q.a!=='string'||!Array.isArray(q.opts)||q.opts.some(v=>typeof v!=='string')||next.has(id))throw new Error('Invalid built-in update');
+  if(!builtinOriginals.has(id)||builtinOriginals.get(id).unit!==row.unit||next.has(id)||nextDeleted.has(id))throw new Error('Invalid built-in update');
+  if(row.deleted===true){if(q.aliases!==undefined&&(!Array.isArray(q.aliases)||q.aliases.some(alias=>typeof alias!=='string')))throw new Error('Invalid built-in deletion');nextDeleted.add(id);continue;}
+  if(typeof q.q!=='string'||typeof q.a!=='string'||!Array.isArray(q.opts)||q.opts.some(v=>typeof v!=='string'))throw new Error('Invalid built-in update');
   next.set(id,q);
  }
  if(replace){
@@ -117,8 +121,10 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],ov
   COURSES.splice(0,COURSES.length,...COURSES.filter(unit=>unit.questions.length));
   for(const unit of COURSES)unit.questions.forEach((q,i)=>questionEntries.push({q,i,id:questionId(unit,i),unit}));
  }
- const changedIds=new Set([...builtinOverrides.keys(),...next.keys()].filter(id=>JSON.stringify(builtinOverrides.get(id))!==JSON.stringify(next.get(id))));
+ const previousDeleted=builtinDeletedIds;
+ const changedIds=new Set([...builtinOverrides.keys(),...next.keys(),...previousDeleted,...nextDeleted].filter(id=>JSON.stringify(builtinOverrides.get(id))!==JSON.stringify(next.get(id))||previousDeleted.has(id)!==nextDeleted.has(id)));
  builtinOverrides=next;
+ builtinDeletedIds=nextDeleted;
  for(const entry of questionEntries)if(changedIds.has(entry.id)){entry.q=next.get(entry.id)||JSON.parse(JSON.stringify(builtinOriginals.get(entry.id).q));entry.unit.questions[entry.i]=entry.q;feedback.delete(entry.id);revealed.delete(entry.id);selections.delete(entry.id);}
 
  let added=0,updated=0;
@@ -155,7 +161,7 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],ov
 window.courseLearning={
  examUnits:()=>COURSES.map(unit=>({id:unit.id,label:`${unit.id} · ${meta[unit.id].short}`})),
  examUnitId:()=>lesson,
- examEntries:selection=>{const ids=Array.isArray(selection)?new Set(selection):null;return questionEntries.filter(e=>ids?ids.has(e.unit.id):selection===true||e.unit.id===lesson).map(e=>({id:e.id,q:e.q,unit:meta[e.unit.id].short,unitId:e.unit.id}));},
+ examEntries:selection=>{const ids=Array.isArray(selection)?new Set(selection):null;return questionEntries.filter(e=>!builtinDeletedIds.has(e.id)&&(ids?ids.has(e.unit.id):selection===true||e.unit.id===lesson)).map(e=>({id:e.id,q:e.q,unit:meta[e.unit.id].short,unitId:e.unit.id}));},
  examUnitLabel:()=>meta[lesson].short,
  mergeCommunityQuestions,
  unitIds:()=>current().questions.map((q,i)=>idFor(i)),

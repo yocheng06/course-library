@@ -984,8 +984,14 @@ export function applyBuiltinOverrides(entries,course,overrides=[]) {
   const replacements=new Map(), replacedIds=new Set();
   for(const row of overrides){
     const q=row?.question,id=q?.id || q?.bookmarkId;
-    if(!id || replacements.has(id) || !entries.some(e=>e.course===course && e.id===id && e.unit===row.unit) ||
-       typeof(q.stem??q.q)!=='string' || typeof(q.answer??q.a)!=='string' || !Array.isArray(q.options??q.opts) ||
+    if(!id || replacements.has(id) || replacedIds.has(id) || !entries.some(e=>e.course===course && e.id===id && e.unit===row.unit))throw new Error('Invalid built-in question');
+    if(row.deleted===true){
+      if(q.aliases!==undefined && (!Array.isArray(q.aliases)||q.aliases.some(alias=>typeof alias!=='string')))throw new Error('Invalid built-in question');
+      replacedIds.add(id);
+      for(const alias of q.aliases||[])replacedIds.add(alias);
+      continue;
+    }
+    if(typeof(q.stem??q.q)!=='string' || typeof(q.answer??q.a)!=='string' || !Array.isArray(q.options??q.opts) ||
        (q.options??q.opts).some(v=>typeof v!=='string'))throw new Error('Invalid built-in question');
     const expanded=expandLibraryQuestion(course,row.unit,q);if(!expanded.length)throw new Error('Empty built-in question');
     replacements.set(id,expanded);replacedIds.add(id);

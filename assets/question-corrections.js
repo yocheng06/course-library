@@ -33,6 +33,7 @@
       <label hidden>網站<input name="website" tabindex="-1" autocomplete="off"></label>
       <button type="submit" class="plain"></button>
     </form>
+    <button type="button" data-delete-question class="plain danger" hidden>刪除此題</button>
     <p data-status role="status" aria-live="polite"></p>
     <button type="button" data-download-draft class="plain" hidden>下載舊草稿</button>
     <button type="button" data-download-receipt class="plain" hidden>下載勘誤收據</button>
@@ -46,7 +47,8 @@
   const form = dialog.querySelector('form'),
     status = dialog.querySelector('[data-status]'),
     lookup = dialog.querySelector('[data-lookup]'),
-    submitButton = form.querySelector('[type="submit"]');
+    submitButton = form.querySelector('[type="submit"]'),
+    deleteButton = dialog.querySelector('[data-delete-question]');
   const drafts = new Map();
   let active = null, opener = null, pending = false, receipt = null,
     mode = 'report', currentItem = null;
@@ -71,7 +73,7 @@
     const editing = mode === 'edit';
     dialog.querySelector('#correction-title').textContent = editing ? '修改題目' : '回報題目問題';
     dialog.querySelector('[data-help]').textContent = editing
-      ? '所有單元的題目都可免登入修改並立即公開。每次修改保留前後版本，站主可管理及還原；此功能不能刪除或下架題目。'
+      ? '所有單元的題目都可免登入修改並立即公開。每次修改保留前後版本；刪除會先移出公開題庫，站主可在題庫管理中還原。'
       : '免登入回報原有題庫題目，由站主處理；回報不會直接更改公開內容。請勿填寫個人資料。';
     dialog.querySelector('[data-edit-fields]').hidden = !editing;
     dialog.querySelector('[data-report-fields]').hidden = editing;
@@ -82,6 +84,7 @@
     form.elements.detail.required = !editing;
     form.elements.detail.minLength = editing ? 0 : 5;
     submitButton.textContent = editing ? '直接儲存並公開' : '送出勘誤';
+    deleteButton.hidden = !editing || !currentItem || currentItem.deleted === true;
   }
   function fillEdit(item) {
     const shown = config.questionForEdit?.(active), raw = item.question;
@@ -126,6 +129,7 @@
     dialog.querySelector('[data-download-draft]').hidden = true;
     status.textContent = '';
     form.hidden = false;
+    deleteButton.hidden = true;
     dialog.showModal();
     {
       setMode('edit');
@@ -137,11 +141,14 @@
         const path = communityId(active) ? '/api/community/questions/' + encodeURIComponent(active) : '/api/community/builtin-questions/' + config.course + '/' + encodeURIComponent(active);
         const result = await api(path);
         fillEdit(result.item);
-        form.hidden = false;
+        form.hidden = result.item.deleted === true;
+        deleteButton.hidden = result.item.deleted === true;
         const staleDraft = drafts.has(active) && drafts.get(active).revision !== result.item.revision;
         dialog.querySelector('[data-download-draft]').hidden = !staleDraft;
-        status.textContent = staleDraft ? '題目已有新版本，已載入最新內容；舊草稿保留，可下載對照。' : '';
-        form.elements.stem.focus();
+        status.textContent = result.item.deleted === true
+          ? '此題已從公開題庫移除；站主可在題庫管理的「已刪除」範圍還原。'
+          : staleDraft ? '題目已有新版本，已載入最新內容；舊草稿保留，可下載對照。' : '';
+        if (!result.item.deleted) form.elements.stem.focus();
       } catch (error) {
         status.textContent = error.message;
       } finally {
@@ -210,6 +217,7 @@
         }
         drafts.delete(active);
         form.hidden = true;
+        deleteButton.hidden = true;
         status.textContent = '題目已儲存並公開。修改前版本已保留，站主可以管理及還原。';
         window.dispatchEvent(new Event('online'));
       } else {
@@ -229,6 +237,42 @@
     } finally {
       pending = false;
       submitButton.disabled = false;
+    }
+  });
+  deleteButton.addEventListener('click', async () => {
+    if (pending || !active || !currentItem || currentItem.deleted) return;
+    const details = config.questionDetails(active);
+    if (!window.confirm(`確定刪除「${details.unit}・第 ${details.number} 題」嗎？\n\n這題會先移出公開題庫，不會永久刪除；站主可在題庫管理中還原。`)) return;
+    pending = true;
+    submitButton.disabled = true;
+    deleteButton.disabled = true;
+    status.textContent = '正在刪除題目…';
+    try {
+      const path = communityId(active)
+        ? '/api/community/questions/' + encodeURIComponent(active)
+        : '/api/community/builtin-questions/' + config.course + '/' + encodeURIComponent(active);
+      await api(path, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'delete',
+          revision: currentItem.revision,
+          ...(currentItem.sourceHash ? {sourceHash:currentItem.sourceHash} : {}),
+          note: '使用者刪除此題；站主可從管理頁還原。',
+        }),
+      });
+      drafts.delete(active);
+      form.hidden = true;
+      deleteButton.hidden = true;
+      status.textContent = communityId(active)
+        ? '題目已移出公開題庫；站主可在投稿題目管理的「已下架」範圍重新上架。'
+        : '題目已移出公開題庫；站主可在內建題目管理的「已刪除」範圍還原。';
+      window.dispatchEvent(new Event('online'));
+    } catch (error) {
+      status.textContent = `未能刪除：${error.message}。題目與你的編輯內容仍保留。`;
+    } finally {
+      pending = false;
+      submitButton.disabled = false;
+      deleteButton.disabled = false;
     }
   });
   lookup.addEventListener('submit', async event => {

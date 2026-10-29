@@ -236,7 +236,7 @@ async function loadLibrary() {
           if (!expanded.length) throw new Error("public-data");
           additions.push(...expanded);
         }
-        if(overrides.some(row=>!validPublicQuestion(row?.question)))throw new Error("builtin-data");
+        if(overrides.some(row=>row?.deleted!==true&&!validPublicQuestion(row?.question)))throw new Error("builtin-data");
         const candidateEntries=[...applyBuiltinOverrides(entries,course,overrides),...additions];
         const candidate = buildIndex(candidateEntries);
         entries=candidateEntries;

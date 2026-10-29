@@ -49,6 +49,10 @@ test("batch overrides replace canonical and merged source answers atomically, in
   );
   assert.equal(result.status, "matched");
   assert.equal(result.answer, "A. 乙");
+  const deleted = applyBuiltinOverrides(entries, "os", [
+    { unit: "basics", deleted: true, question: { id: "stable-1", aliases: ["old-1"] } },
+  ]);
+  assert.equal(deleted.length, 0);
   assert.throws(() =>
     applyBuiltinOverrides(entries, "os", [
       { unit: "wrong", question: updated },
@@ -128,6 +132,13 @@ for (const course of ["os", "algorithms"])
         window.courseQuestionTools.matchesSearch(restored.q, "Unique revised"),
         false,
       );
+      const tombstone = course === "os"
+        ? { unit, deleted: true, question: { id, aliases: [] } }
+        : { unit, deleted: true, question: { bookmarkId: id, aliases: [] } };
+      learning.mergeCommunityQuestions([], { overrides: [tombstone] });
+      assert.equal(learning.examEntries(true).some((entry) => entry.id === id), false);
+      learning.mergeCommunityQuestions([], { overrides: [] });
+      assert.equal(learning.examEntries(true).some((entry) => entry.id === id), true);
     },
   );
 
