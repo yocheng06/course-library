@@ -1968,12 +1968,12 @@ test('grouped submission retries with the same request ID return one receipt wit
 });
 
 test('new algorithm units are discoverable immediately and their name is locked for public edits',async()=>{
- const env=await setup();const body={...payload(),course:'algorithms',unit:'L7',unitTitle:'動態規劃',title:'第七章投稿'};
- body.questions[0].stem='未收錄的第七章投稿題目';
+ const env=await setup();const body={...payload(),course:'algorithms',unit:'L8',unitTitle:'動態規劃',title:'第八章投稿'};
+ body.questions[0].stem='未收錄的第八章投稿題目';
  const posted=await call(env,'/api/submissions',{method:'POST',body});assert.equal(posted.response.status,201);
  assert.equal(posted.data.status,'approved');
- const catalog=await call(env,'/api/units?course=algorithms');assert.equal(catalog.data.units.find(u=>u.id==='L7').title,'動態規劃');
- const published=await call(env,'/api/questions?course=algorithms');assert.equal(published.data.questions.length,1);assert.equal(published.data.questions[0].unit,'L7');assert.equal(published.data.questions[0].question.unitTitle,'動態規劃');
+ const catalog=await call(env,'/api/units?course=algorithms');assert.equal(catalog.data.units.find(u=>u.id==='L8').title,'動態規劃');
+ const published=await call(env,'/api/questions?course=algorithms');assert.equal(published.data.questions.length,1);assert.equal(published.data.questions[0].unit,'L8');assert.equal(published.data.questions[0].question.unitTitle,'動態規劃');
  const path=`/api/community/questions/community-${posted.data.id}-1`;
  const changed={...body,unitTitle:'動態規劃與最佳化'};
  const denied=await call(env,path,{method:'POST',body:{action:'update',revision:1,payload:changed}});assert.equal(denied.response.status,400);

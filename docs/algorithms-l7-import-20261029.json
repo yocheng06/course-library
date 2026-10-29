@@ -1,0 +1,60 @@
+{
+  "sourceRecords": 61,
+  "uniqueQuestions": 60,
+  "mergedSourceIds": [
+    "2508",
+    "t1phishb"
+  ],
+  "topics": [
+    {
+      "category": "順序統計量與中位數",
+      "counts": {
+        "單選題": 8,
+        "多選題": 6,
+        "填空題": 2
+      }
+    },
+    {
+      "category": "最小值與最大值",
+      "counts": {
+        "單選題": 3,
+        "多選題": 3,
+        "填空題": 4
+      }
+    },
+    {
+      "category": "第二小元素",
+      "counts": {
+        "單選題": 1,
+        "多選題": 1,
+        "填空題": 1
+      }
+    },
+    {
+      "category": "Partition 分割操作",
+      "counts": {
+        "單選題": 2,
+        "多選題": 2,
+        "填空題": 3
+      }
+    },
+    {
+      "category": "Randomized-Select",
+      "counts": {
+        "單選題": 5,
+        "多選題": 4,
+        "填空題": 7
+      }
+    },
+    {
+      "category": "確定性 Select 與中位數的中位數",
+      "counts": {
+        "單選題": 1,
+        "多選題": 4,
+        "填空題": 3
+      }
+    }
+  ],
+  "preservedSourceAnswers": true,
+  "explanationsAdded": false
+}

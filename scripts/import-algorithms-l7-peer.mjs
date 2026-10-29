@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+const file='content/algorithms-l7-peer-20261029.json',raw=JSON.parse(fs.readFileSync(file,'utf8'));
+const topics=[['順序統計量與中位數',[2468,2471,2472,2479,2481,2484,2485,2487,2490,2493,2496,2498,2499,2501,2511,2526]],['最小值與最大值',[2469,2470,2483,2488,2494,2506,2510,2514,2524,2527]],['第二小元素',[2475,2502,2519]],['Partition 分割操作',[2476,2482,2500,2507,2512,2521,2523]],['Randomized-Select',[2473,2474,2477,2478,2486,2489,2491,2497,2505,2509,2515,2516,2517,2518,2520,2525]],['確定性 Select 與中位數的中位數',[2480,2492,2495,2503,2504,2508,2513,2522]]];
+const order={'單選':0,'多選':1,'填空':2};const filled=raw.題目.find(q=>q.id==='t1phishb');
+const questions=raw.題目.filter(q=>q.id!=='t1phishb').map((q,i)=>{
+ const topic=topics.find(([,ids])=>ids.includes(Number(q.id)));if(!topic)throw new Error('Unclassified '+q.id);
+ const answerSource=q.id==='2508'?filled:q;
+ const opts=(q.選項||[]).map(o=>`${o.代號}. ${o.內容}`);
+ const selected=(q.選項||[]).filter(o=>o.正確).map(o=>o.代號);
+ if(opts.length && JSON.stringify(selected)!==JSON.stringify(q.答案.map(a=>a.match(/^([A-H])\./)?.[1])))throw new Error('Answer mismatch '+q.id);
+ const a=opts.length?selected.join('、'):answerSource.答案.map(slot=>Array.isArray(slot)?slot[0]:slot).join(' / ');
+ if(!a)throw new Error('Missing answer '+q.id);
+ return {category:topic[0],type:q.題型+'題',q:q.題目,a,opts,ex:'',warn:false,answerProvided:true,verified:false,bookmarkId:'L7-'+q.id,sourceId:q.id,sourceIds:q.id==='2508'?['2508','t1phishb']:[q.id],sourceNumber:i+1,sources:['algorithms-l7-peer'],sourceFile:file,difficulty:q.難度||'',_topic:topics.indexOf(topic),_type:order[q.題型]};
+}).sort((a,b)=>a._topic-b._topic||a._type-b._type||a.sourceNumber-b.sourceNumber).map(({_topic,_type,...q})=>q);
+if(questions.length!==60)throw new Error('Incorrect count');
+const unit={id:'L7',source:'同學分享：演算法-第7章.json',categories:topics.map(([name])=>name),questions};
+const htmlFile='algorithms.html';let html=fs.readFileSync(htmlFile,'utf8');const re=/(<script id="course-data" type="application\/json">)([\s\S]*?)(<\/script>)/;const units=JSON.parse(html.match(re)[2]);if(units.some(u=>u.id==='L7'))throw new Error('L7 exists');units.push(unit);html=html.replace(re,(_,a,b,c)=>a+JSON.stringify(units)+c).replace('assets/algorithms-learning.js?v=question-revision-render-20261029','assets/algorithms-learning.js?v=algorithm-l7-20261029');fs.writeFileSync(htmlFile,html);
+let js=fs.readFileSync('assets/algorithms-learning.js','utf8');js=js.replace(/\r?\n};\r?\nlet lesson=/,",\n L7:{title:'中位數與順序統計量',short:'中位數與順序統計量',en:'MEDIANS & ORDER STATISTICS',sub:'選擇問題 · 最小與最大值 · Partition · Randomized-Select · Median of Medians',guide:'先確認目標是第幾小的元素，再看分割後要繼續處理哪一側。相同主題的題目依單選、多選、填空排列；本章答案沿用同學分享的題庫，未提供的解析留白。'}\n};\nlet lesson=");fs.writeFileSync('assets/algorithms-learning.js',js);
+let model=fs.readFileSync('assets/contribution-model.js','utf8').replace('L6: "L6 · 排序演算法",','L6: "L6 · 排序演算法",\n      L7: "L7 · 中位數與順序統計量",');fs.writeFileSync('assets/contribution-model.js',model);
+fs.writeFileSync('docs/algorithms-l7-import-20261029.json',JSON.stringify({sourceRecords:61,uniqueQuestions:60,mergedSourceIds:['2508','t1phishb'],topics:topics.map(([category])=>({category,counts:Object.fromEntries(['單選題','多選題','填空題'].map(type=>[type,questions.filter(q=>q.category===category&&q.type===type).length]))})),preservedSourceAnswers:true,explanationsAdded:false},null,2));
+console.log('Added',questions.length,'questions',topics.map(([c])=>[c,questions.filter(q=>q.category===c).length]));
