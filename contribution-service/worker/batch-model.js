@@ -866,6 +866,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     return {
       status: "matched",
       answer: answers[0].answer,
+      choiceKey: question.options.length ? answers[0].signature : null,
       reason: blankMarkerMatch
         ? "移除填空標記後與唯一題庫題幹精確符合，答案格式與填空數已核對。"
         : missingBlank

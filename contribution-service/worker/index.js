@@ -53,7 +53,7 @@ async function removePublished(env, payload, skipped, input) {
     });
     if (!sourceIndexes.has(key)) sourceIndexes.set(key, i + 1);
   });
-  const keptKeys = [];
+  const keptKeys = [], originalIndexes = [];
   const questions = payload.questions.filter((q, i) => {
     if (duplicateIndexes.has(i + 1)) {
       skipped.push({
@@ -68,11 +68,12 @@ async function removePublished(env, payload, skipped, input) {
       });
       return false;
     }
+    originalIndexes.push(sourceIndexes.get(questionKey(payload.course,payload.unit,{...q,imageKeys:undefined})) || i+1);
     keptKeys.push(keys[i]);
     return true;
   });
   skipped.sort((a, b) => a.index - b.index);
-  return { payload: { ...payload, questions }, keys: keptKeys };
+  return { payload: { ...payload, questions }, keys: keptKeys, originalIndexes };
 }
 function duplicateReport(input, payload, skipped) {
   return {
@@ -594,7 +595,7 @@ async function duplicateDecisions(env, payload, excludeId = null) {
     if (match.status !== 'matched') return review(match.reason);
     const normalize = value => builtinSearch.normalizeText(value);
     const answerKey = value => q.options.length ? globalThis.courseChoiceAnswers.expectedChoiceKey(value,q.options) : normalize(value);
-    const actual = answerKey(q.answer), expected = answerKey(match.answer);
+    const actual = answerKey(q.answer), expected = q.options.length ? match.choiceKey : normalize(match.answer);
     if (!actual || actual !== expected) return review('題幹相同，但答案不同，請核對正解');
     const type = candidates.find(entry=>entry.type)?.type || (imageKeys.length ? '圖片題' : q.options.length ? (actual.length>1?'多選題':'單選題') : '填空題');
     if (q.type !== type || candidates.some(entry=>Boolean(entry.options.length)!==Boolean(q.options.length)))
@@ -711,10 +712,10 @@ async function submit(request, env) {
     }
   }
   await attachImageKeys(env, payload);
-  let keys;
-  ({ payload, keys } = await removePublished(env, payload, skipped, body));
+  let keys, originalIndexes;
+  ({ payload, keys, originalIndexes } = await removePublished(env, payload, skipped, body));
   const report = duplicateReport(body, payload, skipped);
-  await checkSimilar(env, payload, body.confirmSimilar);
+  await checkSimilar(env, payload, body.confirmSimilar, null, originalIndexes);
   if (!payload.questions.length)
     return json({ id: null, status: "duplicates_only", ...report });
   const uploads = [];
@@ -1100,15 +1101,15 @@ async function decide(request, env, id) {
       }
       storedImagesOnly(original, payload, id);
       await attachImageKeys(env, payload, original);
-      let keys;
-      ({ payload, keys } = await removePublished(
+      let keys, originalIndexes;
+      ({ payload, keys, originalIndexes } = await removePublished(
         env,
         payload,
         skipped,
         body.payload,
       ));
       const report = duplicateReport(body.payload, payload, skipped);
-      await checkSimilar(env, payload, body.confirmSimilar);
+      await checkSimilar(env, payload, body.confirmSimilar, null, originalIndexes);
       const reviewNote = skipped.length
         ? `本次新增 ${report.acceptedCount} 題，自動略過 ${report.skippedCount} 題重複題目。\n${body.note.trim()}`
             .trim()
@@ -1426,10 +1427,11 @@ async function suspectedDuplicates(env, payload, excludeId = null) {
   const decisions = await duplicateDecisions(env,payload,excludeId);
   return decisions.flatMap((decision,i)=>decision?.status==='review' ? [{index:i+1,stem:payload.questions[i].stem.slice(0,200),reference:decision.reference,reason:decision.reason}] : []);
 }
-async function checkSimilar(env, payload, confirmed, excludeId = null) {
+async function checkSimilar(env, payload, confirmed, excludeId = null, originalIndexes = null) {
   if (!payload.questions.length) return;
   let possibleDuplicates = await suspectedDuplicates(env, payload, excludeId);
   if (confirmed === true) possibleDuplicates = possibleDuplicates.filter(q => /答案不同|題型不同|填空數不同|多道既有題目/.test(q.reason));
+  if (originalIndexes) possibleDuplicates=possibleDuplicates.map(q=>({...q,index:originalIndexes[q.index-1] || q.index}));
   if (possibleDuplicates.length)
     throw new HttpError(
       409,

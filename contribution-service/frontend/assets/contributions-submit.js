@@ -1,4 +1,4 @@
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=import-counts-20261029';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=import-conflicts-20261029';
 import {
   COURSE_UNITS,
   normalizeUnit,

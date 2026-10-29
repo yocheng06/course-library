@@ -2032,7 +2032,7 @@ test('built-in management lists every canonical question privately and saves dur
  const corrections=(await call(env,'/api/corrections',{reviewer:true})).data.items;assert.equal(corrections[0].snapshot.stem,question.stem);assert.equal(corrections[0].snapshot.answer,'B');
  const duplicate={...payload(),questions:[{...question,images:[]}]};
  assert.equal((await call(env,'/api/submissions',{method:'POST',body:duplicate})).data.status,'duplicates_only');
- const translated={...duplicate,questions:[{...question,stem:question.translation,options:[question.optionTranslations[1],question.options[0]],answer:'A',images:[]}]};
+ const translated={...duplicate,questions:[{...question,stem:question.translation,options:[question.optionTranslations[1],question.options[0]],answer:'B',images:[]}]};
  assert.equal((await call(env,'/api/submissions',{method:'POST',body:translated})).data.status,'duplicates_only');
  const similar={...duplicate,questions:[{...question,stem:question.stem.replace('？',''),images:[]}]};
  const suspect=await call(env,'/api/submissions',{method:'POST',body:similar});assert.equal(suspect.data.status,'duplicates_only');
@@ -2309,4 +2309,23 @@ test("same-batch reordered options retain the answer by content",()=>{
  const second={...first,options:['A. Beta','B. Alpha'],answer:'B'};
  assert.equal(normalizeBatch({...body,questions:[first,second]}).questions.length,1);
  assert.throws(()=>normalizeBatch({...body,questions:[first,{...second,answer:'A'}]}),/答案或題型不同/);
+});
+
+
+test("reported queue deletion permits replacement and conflict indices retain original input positions",async()=>{
+ const env=await setup();
+ const route='/api/community/builtin-questions/os/process-19';
+ const row=(await call(env,route)).data.item;
+ const deleted=await call(env,route,{method:'POST',body:{action:'delete',revision:row.revision,sourceHash:row.sourceHash,note:'原題誤判為填空'}});
+ assert.equal(deleted.response.status,200,JSON.stringify(deleted.data));
+ const queue={category:'程序與 IPC',type:'多選題',stem:'以下哪些是作業系統中的佇列？',options:['作業佇列','交換佇列','就緒佇列','設備佇列'],answer:'A、C、D',images:[]};
+ const parent={category:'程序與 IPC',type:'多選題',stem:'以下哪些原因可能導致父程序終止子程序？',options:['分配給子程序的任務不再需要','子程序陷入無限迴圈','父程序正在退出，且作業系統不允許子程序繼續','子程序超出分配的資源'],answer:'A、C、D',images:[]};
+ const wrong={...parent,answer:'A、B、C、D'};
+ const conflict=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'process',questions:[parent,wrong]}});
+ assert.equal(conflict.response.status,400); // same-batch conflicting versions are rejected before publication
+ const socket={category:'程序與 IPC',type:'填空題',stem:'A ____________ is defined as an endpoint for communication, a combination of an IP address and a port.(Please answer in lowercase English)',options:[],answer:'socket',images:[]};
+ const batch=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'process',questions:[socket,wrong]}});
+ assert.equal(batch.response.status,409,JSON.stringify(batch.data));assert.equal(batch.data.possibleDuplicates[0].index,2);
+ const imported=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'process',questions:[parent,queue]}});
+ assert.equal(imported.response.status,201,JSON.stringify(imported.data));assert.equal(imported.data.acceptedCount,1);assert.equal(imported.data.skippedCount,1);
 });

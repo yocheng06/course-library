@@ -20,7 +20,7 @@ const duplicateCatalog=entries.flatMap(entry=>{
  const index=base && duplicateIndexes.get(entry.course+":"+base.id);
  if(!index)return [];
  const result=duplicateSearch.matchQuestion({stem:"duplicate identity",options:entry.options.map((text,i)=>({label:String.fromCharCode(65+i),text})),issues:[]},index,{course:entry.course,unit:entry.unit});
- const choiceKey=entry.options.length && result.status==="matched" ? result.answer.split("；").map(part=>part.match(/^([A-H])\./)?.[1]||"").join("") : null;
+ const choiceKey=entry.options.length && result.status==="matched" ? result.choiceKey : null;
  return [{...entry,id:base.id,type:base.question.type || (entry.options.length ? (choiceKey?.length>1?'多選題':'單選題') : '填空題'),answer:choiceKey?choiceKey.split("").join("、"):result.answer||base.question.answer,choiceKey,needsImage:Boolean(entry.images?.length),preferred:false}];
 });
 const fingerprints = entries.map((q) =>

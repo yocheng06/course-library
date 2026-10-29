@@ -159,7 +159,9 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
         }catch(error){
           if(error.details?.code==='similar_questions')showSimilar(node.querySelector('[data-similar]'),error.details.possibleDuplicates);
           node.open=true;node.querySelector('[data-error]').textContent=error.message;
-          throw new Error(`第 ${index+1} 批未完成：${error.message}。已完成的批次不會重送，草稿與結果仍保留。`);
+          const conflicts=error.details?.possibleDuplicates;
+          const reason=conflicts?.length?`原始第 ${conflicts.map(q=>q.index).join('、')} 題需要核對，詳見本批疑似重複清單`:error.message.replace(/[。.!！]+$/u,'');
+          throw new Error(`第 ${index+1} 批未完成：${reason}。已完成的批次不會重送，草稿與結果仍保留。`);
         }
       }
       status.textContent='各批次均已處理。請下載分組草稿與收據以備查詢。';render();panel.querySelector('[data-import-summary]').scrollIntoView({block:'center'});
