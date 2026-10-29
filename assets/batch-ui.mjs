@@ -3,7 +3,6 @@ import {
   matchQuestions,
   expandLibraryQuestion,
   applyBuiltinOverrides,
-  aiPrompt,
   MAX_TEXT,
 } from "./batch-model.mjs?v=batch-match-normalize-20261029";
 import { parseBatchInput } from "./batch-import.mjs?v=batch-match-normalize-20261029";
@@ -71,10 +70,8 @@ function markChanged() {
   const stale = !$("staleNotice").hidden;
   $("courseMismatch").hidden = !courseSuggestion || stale || loading;
   $("switchCourse").disabled = stale || loading || !index;
-  for (const id of ["copyAnswers", "copyUnmatched", "copyReview"])
-    $(id).disabled =
-      stale || loading || !index || !results.length || !copyItems(id).length;
-  const unmatchedCount = copyItems("copyUnmatched").length;
+  $("copyAnswers").disabled = stale || loading || !index || !results.length;
+  const unmatchedCount = results.filter((r) => r.status === "unmatched").length;
   $("transferUnmatched").disabled = stale || loading || !index || !unmatchedCount || !!courseSuggestion;
   $("transferUnmatched").textContent = `轉入投稿草稿${unmatchedCount ? `（${unmatchedCount} 題）` : ""}`;
   $("inputCount").textContent =
@@ -85,13 +82,6 @@ function markChanged() {
       JSON.stringify({ ...scope(), text: $("batchText").value }),
     );
   } catch {}
-}
-function copyItems(id) {
-  return id === "copyUnmatched"
-    ? results.filter((r) => r.status === "unmatched")
-    : id === "copyReview"
-      ? results.filter((r) => r.status === "review")
-      : results;
 }
 function statusLabel(row) {
   if (row.status === "unmatched" && courseSuggestion) return "此科目未找到";
@@ -336,7 +326,6 @@ $("batchForm").addEventListener("submit", (event) => {
       "公開投稿題庫尚未同步。本次結果只涵蓋內建題庫，「未找到」不代表網站一定未收錄，請重新同步後核對。";
     $("resultFilter").querySelector('[value="unmatched"]').textContent =
       unmatchedLabel;
-    $("copyUnmatched").textContent = `複製${unmatchedLabel}題目給 AI`;
     $("staleNotice").textContent =
       "文字、科目或範圍已變更，請重新比對。下方保留的是上一批結果。";
     $("resultFilter").value = "all";
@@ -391,11 +380,6 @@ $("copyAnswers").addEventListener("click", () => {
       .join("\n");
   copy(text);
 });
-for (const id of ["copyUnmatched", "copyReview"])
-  $(id).addEventListener("click", () => {
-    if (!isStale() && !loading && index)
-      copy(aiPrompt(copyItems(id).map((r) => r.question)));
-  });
 $("transferUnmatched").addEventListener("click", () => {
   if (isStale() || loading || !index || courseSuggestion) return;
   try {

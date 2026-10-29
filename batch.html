@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta
       name="description"
-      content="貼上或匯入 TXT、Markdown、JSON、CSV、TSV、HTML，一次核對最多 30 題的題庫答案，複製未找到的題目給 AI。"
+      content="貼上或匯入 TXT、Markdown、JSON、CSV、TSV、HTML，一次核對最多 30 題的題庫答案，複製答案總表或將未收錄題目轉入投稿草稿。"
     />
     <title>批次查題｜課程學習站</title>
     <link rel="icon" href="assets/icons/course-mascot.png" />
@@ -216,7 +216,7 @@
             題時請先分批，不會自動截掉題目。PDF、Word、照片或掃描檔請先轉成題目文字。
           </p>
           <p class="format-rules">
-            只核對已收錄題庫；未找到的題目可複製給 AI 另行處理。
+            只核對已收錄題庫；未收錄題目可轉入投稿草稿，補上答案與解析後直接投稿。
           </p>
           <p class="format-rules">
             先選擇科目，再直接貼上常見 AI 抄題文字。支援「1.」、「題目 1.」、
@@ -283,18 +283,13 @@ D. 巨集排程器
           <div class="actions">
             <button id="copyAnswers" type="button" class="button secondary">
               複製答案總表</button
-            ><button id="copyUnmatched" type="button" class="text-button">
-              複製未收錄題目給 AI</button
-            ><button id="copyReview" type="button" class="text-button">
-              複製待確認題目給 AI
-            </button>
             <button id="transferUnmatched" type="button" class="button secondary" disabled>
               轉入投稿草稿
             </button>
           </div>
         </div>
         <p class="muted result-help">
-          未收錄題目可轉入待補草稿，補上答案與解析後送審；已收錄與需確認題目不會轉入。
+          未收錄題目可轉入投稿草稿，補上答案與解析後直接投稿；已收錄與需確認題目不會轉入。
           選項代號依你貼上的版本對應；其他單元已收錄會另外標示。重要成立條件會隨答案顯示並一起複製，展開每題可核對原題。
         </p>
         <div
@@ -336,7 +331,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=l9-blanks-restored-20261029"
+      src="assets/batch-ui.mjs?v=remove-ai-copy-actions-20261029"
     ></script>
   </body>
 </html>
