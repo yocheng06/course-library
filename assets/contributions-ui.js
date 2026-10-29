@@ -9,16 +9,29 @@ export const esc = (value) =>
       ],
   );
 export async function api(path, options = {}) {
-  const response = await fetch(window.courseContributions.apiOrigin + path, {
-    ...options,
-    headers: { "Content-Type": "application/json", ...options.headers },
-    signal: AbortSignal.timeout(20000),
-  });
-  let body;
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(new DOMException("服務連線逾時。", "TimeoutError")),
+    20000,
+  );
+  const abort = () => controller.abort(options.signal?.reason);
+  if (options.signal?.aborted) abort();
+  else options.signal?.addEventListener("abort", abort, { once: true });
+  let response, body;
   try {
-    body = await response.json();
-  } catch {
-    throw new Error("服務暫時無法使用，請稍後再試。");
+    response = await fetch(window.courseContributions.apiOrigin + path, {
+      ...options,
+      headers: { "Content-Type": "application/json", ...options.headers },
+      signal: controller.signal,
+    });
+    try {
+      body = await response.json();
+    } catch {
+      throw new Error("服務暫時無法使用，請稍後再試。");
+    }
+  } finally {
+    clearTimeout(timeout);
+    options.signal?.removeEventListener("abort", abort);
   }
   if (!response.ok) {
     const error = new Error(body.error || "操作未完成，請再試一次。");

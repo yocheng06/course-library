@@ -28,7 +28,7 @@ const fixture=[
 for(const course of ['os','algorithms'])test(course+' exam uses current unit or entire course independently of bank filters',()=>{
  const h=harness(course);h.click('#examMode');const bankIds=h.window.courseLearning.unitIds();
  assert.equal(h.window.courseLearning.examEntries(false).length,bankIds.length);
- assert.equal(h.window.courseLearning.examEntries(true).length,course==='os'?770:300);
+ assert.equal(h.window.courseLearning.examEntries(true).length,course==='os'?716:300);
  h.change('[data-exam-scope]','all');h.click('[data-exam-start]');
  assert.equal(h.document.querySelectorAll('.exam-card').length,20);
  assert.equal(h.document.querySelectorAll('[data-exam-review]:not([hidden])').length,0);

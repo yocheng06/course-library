@@ -45,6 +45,7 @@ async function latestBuiltinEdits(env, course) {
   return new Map(rows.results.map((r) => [r.question_id, r]));
 }
 function builtinRow(base, edit) {
+  const deleted = edit?.action === "delete";
   return {
     course: base.course,
     unit: base.unit,
@@ -52,7 +53,8 @@ function builtinRow(base, edit) {
     aliases: base.question.aliases || [],
     sourceHash: base.sourceHash,
     revision: edit?.revision || 0,
-    modified: Boolean(edit && edit.action !== "reset"),
+    modified: Boolean(edit && !["reset", "delete"].includes(edit.action)),
+    deleted,
     sourceChanged: Boolean(edit && edit.base_hash !== base.sourceHash),
     availableImages: (base.question.images || []).map((img) =>
       typeof img === "string" ? img : img.src,
@@ -73,7 +75,7 @@ async function listBuiltins(request, env, url) {
   if (
     !Object.hasOwn(COURSE_UNITS, course) ||
     query.length > 100 ||
-    !["all", "modified"].includes(state) ||
+    !["all", "modified", "deleted"].includes(state) ||
     (cursor && !/^\d{1,6}$/.test(cursor))
   )
     throw new HttpError(400, "篩選條件不正確。");
@@ -84,7 +86,7 @@ async function listBuiltins(request, env, url) {
     .map((q) => builtinRow(q, edits.get(q.id)))
     .filter(
       (q) =>
-        (state !== "modified" || q.modified) &&
+        (state === "all" || (state === "modified" && q.modified) || (state === "deleted" && q.deleted)) &&
         (!query ||
           (q.id + " " + q.aliases.join(" ") + " " + JSON.stringify(q.question))
             .toLowerCase()
@@ -224,19 +226,23 @@ async function builtinHistory(request, env, course, id) {
     })),
   });
 }
-async function saveBuiltin(request, env, course, id) {
-  const actor = await owner(request, env);
-  requireOrigin(request, true);
+async function getPublicBuiltin(env, course, id) {
+  const base = builtinBase(course, id);
+  return json({ item: builtinRow(base, (await latestBuiltinEdits(env, course)).get(base.id)) });
+}
+async function saveBuiltin(request, env, course, id, { publicEdit = false } = {}) {
+  const actor = publicEdit ? '匿名使用者' : await owner(request, env);
+  requireOrigin(request, !publicEdit);
   const base = builtinBase(course, id),
     body = await readBody(request, 100000);
   if (
     !body ||
-    !["update", "reset"].includes(body.action) ||
+    !(publicEdit ? ["update", "delete"] : ["update", "reset", "rollback"]).includes(body.action) ||
     !Number.isInteger(body.revision) ||
     body.revision < 0 ||
-    typeof body.note !== "string" ||
-    !body.note.trim() ||
-    body.note.length > 2000
+    (body.note !== undefined && typeof body.note !== "string") ||
+    (!publicEdit && !body.note?.trim()) ||
+    (body.note?.length || 0) > 2000
   )
     throw new HttpError(400, "請填寫修改說明並重新載入題目。");
   if (body.sourceHash !== base.sourceHash)
@@ -244,14 +250,30 @@ async function saveBuiltin(request, env, course, id) {
   const current = (await latestBuiltinEdits(env, course)).get(base.id);
   if ((current?.revision || 0) !== body.revision)
     throw new HttpError(409, "這道題已被更新，請先下載草稿並重新載入。");
+  if (publicEdit && current?.action === "delete")
+    throw new HttpError(404, "這道題已從公開題庫移除，請由站主還原。");
+  if (!publicEdit && current?.action === "delete" && body.action === "update")
+    throw new HttpError(409, "這道題目前已刪除，請先還原題目再修改。");
+  if (body.action === "rollback" && (!current || current.action === "reset"))
+    throw new HttpError(409, "這道題沒有可直接退回的修改版本，請重新載入。");
   const previous =
     current && current.action !== "reset"
       ? JSON.parse(current.data)
       : base.question;
-  const raw =
-    body.action === "reset"
-      ? base.question
-      : normalizeBuiltinEdit(base, previous, body.question);
+  let raw, storedAction = body.action;
+  if (body.action === "delete") raw = previous;
+  else if (body.action === "reset") raw = base.question;
+  else if (body.action === "rollback") {
+    const target = JSON.parse(current.previous_data);
+    if (
+      JSON.stringify(builtinEditable(target)) ===
+      JSON.stringify(builtinEditable(base.question))
+    ) {
+      raw = base.question;
+      storedAction = "reset";
+    } else raw = normalizeBuiltinEdit(base, previous, target);
+  } else raw = normalizeBuiltinEdit(base, previous, body.question);
+  if (publicEdit) await limit(request, env);
   const result = await env.DB.prepare(
     "INSERT INTO builtin_question_edits (id,course,question_id,revision,data,previous_data,base_hash,action,note,actor,created_at) SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ?=COALESCE((SELECT MAX(revision) FROM builtin_question_edits WHERE course=? AND question_id=?),0)",
   )
@@ -263,8 +285,8 @@ async function saveBuiltin(request, env, course, id) {
       JSON.stringify(raw),
       JSON.stringify(previous),
       base.sourceHash,
-      body.action,
-      body.note.trim(),
+      storedAction,
+      body.note?.trim() || (body.action === "delete" ? "匿名使用者刪除題目（站主可還原）" : "匿名使用者直接修正題目"),
       typeof actor === "string" ? actor : JSON.stringify(actor),
       Date.now(),
       body.revision,
@@ -289,10 +311,19 @@ async function publicBuiltinOverrides(env, course) {
         e.action !== "reset" &&
         builtinCatalog.has(course + ":" + e.question_id),
     )
-    .map((e) => ({
-      unit: builtinCatalog.get(course + ":" + e.question_id).unit,
-      question: JSON.parse(e.data),
-    }));
+    .map((e) => {
+      const base = builtinCatalog.get(course + ":" + e.question_id);
+      return e.action === "delete"
+        ? {
+            unit: base.unit,
+            deleted: true,
+            question:
+              course === "algorithms"
+                ? { bookmarkId: base.id, aliases: base.question.aliases || [] }
+                : { id: base.id, aliases: base.question.aliases || [] },
+          }
+        : { unit: base.unit, question: JSON.parse(e.data) };
+    });
 }
 
 function builtinVariants(raw) {

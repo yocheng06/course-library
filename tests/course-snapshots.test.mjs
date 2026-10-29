@@ -67,6 +67,20 @@ test('first visit renders all Chapter 9 questions, blanks and explanations befor
   assert(h.document.querySelector(`article[data-id="${linked}"]`));
 });
 
+test('conditional sync keeps the visible cache and answer fields intact when the server returns 304',async()=>{
+ const h=await page('os'),data={questions:[],aliases:[],overrides:[]},etag='"version-one"';
+ h.storage.set(key('os'),JSON.stringify({schema:1,course:'os',generatedAt:new Date(Date.now()+1000).toISOString(),data,etag}));
+ let finish, options, merges=0;
+ const merge=h.config.mergeCommunityQuestions;
+ h.config.mergeCommunityQuestions=(...args)=>{merges++;return merge(...args);};
+ h.context.fetch=(url,opts)=>{options=opts;return new Promise(resolve=>{finish=resolve;});};
+ h.boot();assert.equal(merges,1);assert.equal(options.headers['If-None-Match'],etag);
+ finish({status:304,ok:false,headers:{get:name=>name==='etag'?etag:new Date().toUTCString()},json(){throw Error('304 has no body');}});
+ await tick();
+ assert.equal(merges,1);assert.equal(h.source(),'live');
+ assert.equal(JSON.parse(h.storage.get(key('os'))).etag,etag);
+});
+
 for(const course of ['os','algorithms']) {
   test(course+': newer cache renders synchronously, live results remove hidden rows and reset built-in edits',async()=>{
     const h=await page(course), unit=course==='os'?'basics':'L2';

@@ -173,6 +173,8 @@ export function normalizeBatch(
       explanation: text(q.explanation ?? q.ex, "解析", 16000),
       images: [],
     };
+    if (!item.stem)
+      throw new Error(`第 ${index + 1} 題只有妖獸題號標記，請補上題目內容。`);
     if (["單選題", "多選題"].includes(type) && item.options.length < 2)
       throw new Error(`第 ${index + 1} 題請提供至少兩個選項。`);
     if (type === "填空題" && item.options.length)

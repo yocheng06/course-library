@@ -17,12 +17,14 @@ test('credential forms never default to GET and cannot submit before handlers lo
   }
   assert.doesNotMatch(html.match(/<form[^>]*id="passwordLoginForm"[^>]*>/)[0], /hidden/);
   const js = await read('contribution-service/frontend/assets/contributions-review.js');
-  assert.ok(js.indexOf('$("setupSubmit").disabled = false') > js.indexOf('$("passwordSetupForm").addEventListener("submit"'));
+  const setupHandler = js.search(/\$\(["']passwordSetupForm["']\)\.addEventListener\(["']submit["']/);
+  const setupEnabled = js.search(/\$\(["']setupSubmit["']\)\.disabled\s*=\s*false/);
+  assert.ok(setupHandler >= 0 && setupEnabled > setupHandler);
 });
 
 test('question bank import is a native keyboard button wired to the file chooser', async () => {
   const html = await read('submit.html');
-  assert.match(html, /<button[^>]*id="chooseImport"[^>]*type="button"[^>]*>匯入 JSON／HTML 題庫<\/button>/);
+  assert.match(html, /<button[^>]*id="chooseImport"[^>]*type="button"[^>]*>選取 JSON／HTML 題庫<\/button>/);
   assert.match(await read('assets/contributions-submit.js'), /\$\("chooseImport"\)\.addEventListener\("click", \(\) => \$\("importFile"\)\.click\(\)\)/);
 });
 

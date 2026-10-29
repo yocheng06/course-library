@@ -43,6 +43,13 @@
       "when": 1793167340805,
       "tag": "0005_lying_gravity",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1793269404911,
+      "tag": "0006_management_lookup_indexes",
+      "breakpoints": true
     }
   ]
 }

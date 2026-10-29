@@ -3,7 +3,7 @@ import {
   esc,
   questionPreview,
   downloadJSON,
-} from "./contributions-ui.js?v=site-audit-20261017";
+} from "./contributions-ui.js?v=community-direct-publish-20261028";
 import {
   COURSE_UNITS,
   TYPES,
@@ -12,6 +12,7 @@ let panel,
   tab,
   allowed = false,
   sequence = 0,
+  historySequence = 0,
   cursor = null,
   current = null,
   userKey = "",
@@ -30,27 +31,36 @@ function init() {
   tab = document.createElement("button");
   tab.type = "button";
   tab.className = "button secondary";
-  tab.textContent = "內建題目管理";
+  tab.id = "showBuiltin";
+  tab.textContent = "內建題目";
   tab.setAttribute("aria-pressed", "false");
-  document.getElementById("managementTabs").append(tab);
+  document.getElementById("showReviews").before(tab);
   panel = document.createElement("section");
   panel.hidden = true;
   panel.id = "builtinWorkspace";
-  panel.innerHTML = `<div class="panel"><h2>內建題目管理</h2><p>儲存後會同步到閱讀、練習、批次查題及投稿重複檢查。每次儲存都保留修改歷史。</p><form data-search><div class="field-grid"><label>科目<select name="course"><option value="os">作業系統</option><option value="algorithms">演算法</option></select></label><label>單元<select name="unit"></select></label><label>範圍<select name="state"><option value="all">全部內建題</option><option value="modified">已修改</option></select></label><label>搜尋題號或文字<input name="q" maxlength="100"></label></div><div class="actions"><button class="button" type="submit">搜尋／重新載入</button><button type="button" class="text-button" data-download>下載內建題編輯草稿</button></div></form><p data-status role="status" aria-live="polite"></p><div data-list></div><button type="button" class="button secondary" data-more hidden>載入更多</button></div><div data-editor></div>`;
+  panel.innerHTML = `<div class="panel"><h2>內建題目管理</h2><p>儲存後會同步到閱讀、練習、批次查題及投稿重複檢查。每次儲存都保留修改歷史；公開刪除的題目可在「已刪除」範圍還原。</p><p class="notice builtin-history-guide"><strong>還原題目：</strong>按「查看目前科目已修改題目」，列出本課程全部單元的修改題目；每題可查看歷史、退回上一版或退回原始版。操作前會先確認，目前版本也會保留在歷史中。</p><div class="actions"><button type="button" class="button secondary" data-show-modified>查看目前科目已修改題目</button></div><form data-search><div class="field-grid"><label>科目<select name="course"><option value="os">作業系統</option><option value="algorithms">演算法</option></select></label><label>單元<select name="unit"></select></label><label>範圍<select name="state"><option value="all">全部內建題</option><option value="modified">已修改</option><option value="deleted">已刪除</option></select></label><label>搜尋題號或文字<input name="q" maxlength="100"></label></div><div class="actions"><button class="button" type="submit">搜尋／重新載入</button><button type="button" class="text-button" data-download>下載內建題編輯草稿</button></div></form><p data-status role="status" aria-live="polite"></p><div data-list></div><button type="button" class="button secondary" data-more hidden>載入更多</button></div><div data-editor></div>`;
   document.getElementById("managementWorkspace").after(panel);
   tab.addEventListener("click", () => {
     if (!allowed) return;
     show();
     if (!rows.size) load();
   });
-  for (const id of ["showReviews", "showPublished"])
+  for (const id of ["showHome", "showReviews", "showPublished"])
     document.getElementById(id).addEventListener("click", () => {
       panel.hidden = true;
       tab.setAttribute("aria-pressed", "false");
+      tab.classList.add("secondary");
     });
   $("[data-search]").addEventListener("submit", (event) => {
     event.preventDefault();
     if (!busy) load();
+  });
+  $("[data-show-modified]").addEventListener("click", () => {
+    if (busy) return;
+    $("[name=unit]").value = "";
+    $("[name=state]").value = "modified";
+    $("[name=q]").value = "";
+    loadAllModified();
   });
   $("[name=course]").addEventListener("change", () => {
     units();
@@ -60,9 +70,34 @@ function init() {
   $("[data-download]").addEventListener("click", () =>
     downloadJSON(drafts, "內建題編輯草稿.json"),
   );
-  $("[data-list]").addEventListener("click", (event) => {
-    const button = event.target.closest("[data-open]");
-    if (button && !busy) open(rows.get(button.dataset.open));
+  $("[data-list]").addEventListener("click", async (event) => {
+    const historyButton = event.target.closest("[data-open-history]"),
+      rollbackButton = event.target.closest("[data-rollback]"),
+      originalButton = event.target.closest("[data-rollback-original]"),
+      restoreDeletedButton = event.target.closest("[data-restore-deleted]"),
+      editButton = event.target.closest("[data-open]"),
+      rowKey =
+        historyButton?.dataset.openHistory ||
+        rollbackButton?.dataset.rollback ||
+        originalButton?.dataset.rollbackOriginal ||
+        restoreDeletedButton?.dataset.restoreDeleted ||
+        editButton?.dataset.open,
+      row = rowKey && rows.get(rowKey);
+    if (!row || busy) return;
+    if (originalButton) {
+      await rollbackToOriginal(row);
+      return;
+    }
+    if (restoreDeletedButton) {
+      await restoreDeleted(row);
+      return;
+    }
+    if (rollbackButton) {
+      await rollbackToPrevious(row);
+      return;
+    }
+    open(row);
+    if (historyButton) await loadHistory(row);
   });
   $("[data-editor]").addEventListener("input", capture);
   $("[data-editor]").addEventListener("change", capture);
@@ -89,20 +124,7 @@ function init() {
       fill(q);
       capture();
     } else if (action === "history") {
-      try {
-        const result = await api(endpoint() + "/history");
-        $("[data-history]").innerHTML = result.items.length
-          ? result.items
-              .map(
-                (r, i) =>
-                  `<details><summary>版本 ${r.revision} · ${esc(r.note)} · ${esc(new Date(r.createdAt).toLocaleString("zh-TW"))}</summary><h4>修改前</h4>${questionPreview(r.before, i)}</article><h4>修改後</h4>${questionPreview(r.after, i)}</article><button type="button" class="button secondary" data-action="restore" data-index="${i}">套用此版本到編輯器</button></details>`,
-              )
-              .join("")
-          : "尚無修改歷史。";
-        panel.historyRows = result.items;
-      } catch (e) {
-        editorStatus(e.message);
-      }
+      await loadHistory();
     } else if (action === "restore") {
       const q = panel.historyRows?.[Number(button.dataset.index)]?.after;
       if (q) {
@@ -131,11 +153,16 @@ function units() {
 }
 function show() {
   panel.hidden = false;
+  document.getElementById("managementHome").hidden = true;
   document.getElementById("reviewWorkspace").hidden = true;
   document.getElementById("managementWorkspace").hidden = true;
   tab.setAttribute("aria-pressed", "true");
-  for (const id of ["showReviews", "showPublished"])
-    document.getElementById(id).setAttribute("aria-pressed", "false");
+  tab.classList.remove("secondary");
+  for (const id of ["showHome", "showReviews", "showPublished"]) {
+    const button = document.getElementById(id);
+    button.setAttribute("aria-pressed", "false");
+    button.classList.add("secondary");
+  }
 }
 export function builtinAccess(value, userId = "") {
   init();
@@ -196,7 +223,7 @@ async function load(append = false) {
       rows.set(key(row), row);
       $("[data-list]").insertAdjacentHTML(
         "beforeend",
-        `<p><button type="button" class="text-button" data-open="${esc(key(row))}">${esc(row.id)} · ${esc(row.question.stem.slice(0, 100))}</button> ${row.modified ? "已修改" : ""} · 版本 ${row.revision}</p>`,
+        renderBuiltinRow(row),
       );
     }
     cursor = result.nextCursor;
@@ -206,22 +233,197 @@ async function load(append = false) {
     if (seq === sequence) status(e.message);
   }
 }
-function endpoint() {
+function renderBuiltinRow(row) {
+  const id = esc(key(row));
+  if (row.deleted)
+    return `<article class="builtin-question-row"><div class="builtin-question-summary"><button type="button" class="text-button" data-open="${id}">查看已刪除題目：${esc(row.id)} · ${esc(row.question.stem.slice(0, 100))}</button><span class="builtin-question-meta">已刪除 · 版本 ${row.revision}</span></div><div class="actions builtin-question-actions"><button type="button" class="button" data-restore-deleted="${id}">還原題目</button><button type="button" class="button secondary" data-open-history="${id}">查看修改歷史</button></div></article>`;
+  return `<article class="builtin-question-row"><div class="builtin-question-summary"><button type="button" class="text-button" data-open="${id}">編輯題目：${esc(row.id)} · ${esc(row.question.stem.slice(0, 100))}</button><span class="builtin-question-meta">${row.modified ? "已修改" : "尚未修改"} · 版本 ${row.revision}</span></div>${row.modified ? `<div class="actions builtin-question-actions"><button type="button" class="button secondary" data-open-history="${id}">查看修改歷史</button><button type="button" class="button" data-rollback="${id}">直接退回上一版</button><button type="button" class="button secondary" data-rollback-original="${id}">直接退回原始版</button></div>` : `<span class="builtin-question-meta">尚無修改歷史</span>`}</article>`;
+}
+async function loadAllModified() {
+  const seq = ++sequence,
+    paramsBase = new URLSearchParams(new FormData($("[data-search]"))),
+    courseLabel = $("[name=course]").selectedOptions[0]?.textContent || "";
+  paramsBase.set("state", "modified");
+  paramsBase.set("unit", "");
+  status("正在載入所有已修改題目…");
+  rows.clear();
+  $("[data-list]").replaceChildren();
+  $("[data-more]").hidden = true;
+  cursor = null;
+  let nextCursor = null,
+    total = 0;
+  try {
+    do {
+      const params = new URLSearchParams(paramsBase);
+      if (nextCursor) params.set("cursor", nextCursor);
+      const result = await api("/api/manage/builtin-questions?" + params);
+      if (seq !== sequence || !allowed) return;
+      total = result.total;
+      for (const row of result.items) {
+        rows.set(key(row), row);
+        $("[data-list]").insertAdjacentHTML("beforeend", renderBuiltinRow(row));
+      }
+      nextCursor = result.nextCursor;
+      status(`已載入 ${rows.size}／${total} 題已修改題目…`);
+    } while (nextCursor);
+    status(
+      total
+        ? `${courseLabel}共 ${total} 題已修改，已顯示全部單元。`
+        : `${courseLabel}目前沒有已修改題目。`,
+    );
+  } catch (e) {
+    if (seq === sequence) status(e.message);
+  }
+}
+function endpoint(row = current) {
   return (
     "/api/manage/builtin-questions/" +
-    current.course +
+    row.course +
     "/" +
-    encodeURIComponent(current.id)
+    encodeURIComponent(row.id)
   );
+}
+async function loadHistory(row = current) {
+  if (!row) return;
+  const request = ++historySequence;
+  editorStatus("正在載入修改歷史…");
+  try {
+    const result = await api(
+      "/api/manage/builtin-questions/" +
+        row.course +
+        "/" +
+        encodeURIComponent(row.id) +
+        "/history",
+    );
+    if (request !== historySequence || current !== row) return;
+    panel.historyRows = result.items;
+    $("[data-history]").innerHTML = result.items.length
+      ? result.items
+          .map(
+            (r, i) =>
+              `<details><summary>版本 ${r.revision} · ${esc(r.note)} · ${esc(new Date(r.createdAt).toLocaleString("zh-TW"))}</summary><h4>修改前</h4>${questionPreview(r.before, i)}</article><h4>修改後</h4>${questionPreview(r.after, i)}</article><button type="button" class="button secondary" data-action="restore" data-index="${i}">載入此版本進行還原</button></details>`,
+          )
+          .join("") +
+        `<p class="muted">載入舊版後，請填寫修改說明並按「儲存並同步題庫」才會生效；目前版本仍保留在歷史中。</p>`
+      : "尚無修改歷史。";
+    editorStatus("");
+  } catch (e) {
+    if (request === historySequence && current === row)
+      editorStatus(e.message);
+  }
+}
+async function rollbackToPrevious(row) {
+  if (busy) return;
+  busy = true;
+  status(`正在確認 ${row.id} 的上一個版本…`);
+  try {
+    const result = await api(endpoint(row) + "/history"),
+      latest = result.items[0];
+    if (!latest || latest.revision !== row.revision) {
+      await loadAllModified();
+      status("題目已有新修改，清單已重新載入；請確認最新版本後再操作。");
+      return;
+    }
+    const previous = latest.before,
+      clip = (text) => String(text || "（空白）").slice(0, 100),
+      confirmed = confirm(
+        `確定將「${row.id}」直接退回上一版嗎？\n\n` +
+          `目前題幹：${clip(row.question.stem)}\n` +
+          `退回題幹：${clip(previous.stem)}\n` +
+          `目前答案：${clip(row.question.answer)}\n` +
+          `退回答案：${clip(previous.answer)}\n\n` +
+          "退回後會立即同步題庫；目前版本也會保留在修改歷史中。",
+      );
+    if (!confirmed) {
+      status("已取消，題目未變動。");
+      return;
+    }
+    status(`正在退回 ${row.id}…`);
+    await api(endpoint(row), {
+      method: "POST",
+      body: JSON.stringify({
+        action: "rollback",
+        revision: row.revision,
+        sourceHash: row.sourceHash,
+        note: `站主確認直接退回上一版（從第 ${row.revision} 版退回）`,
+      }),
+    });
+    await loadAllModified();
+    status(`${row.id} 已退回上一版；本次還原也已記入修改歷史。`);
+  } catch (e) {
+    status(e.message);
+  } finally {
+    busy = false;
+  }
+}
+async function rollbackToOriginal(row) {
+  if (busy) return;
+  const clip = (text) => String(text || "（空白）").slice(0, 100),
+    confirmed = confirm(
+      `確定將「${row.id}」直接退回原始版嗎？\n\n` +
+        `目前題幹：${clip(row.question.stem)}\n` +
+        `目前答案：${clip(row.question.answer)}\n\n` +
+        "退回後會立即同步原始題庫內容；目前版本也會保留在修改歷史中。",
+    );
+  if (!confirmed) {
+    status("已取消，題目未變動。");
+    return;
+  }
+  busy = true;
+  status(`正在將 ${row.id} 退回原始版…`);
+  try {
+    await api(endpoint(row), {
+      method: "POST",
+      body: JSON.stringify({
+        action: "reset",
+        revision: row.revision,
+        sourceHash: row.sourceHash,
+        note: "站主確認直接退回原始題庫版本",
+      }),
+    });
+    await loadAllModified();
+    status(`${row.id} 已退回原始題庫版本；原修改仍保留在歷史中。`);
+  } catch (e) {
+    status(e.message);
+  } finally {
+    busy = false;
+  }
+}
+async function restoreDeleted(row) {
+  if (busy || !row.deleted) return;
+  if (!confirm(`確定還原「${row.id}」嗎？\n\n題目會重新出現在公開題庫；這次刪除紀錄仍會保留。`)) {
+    status("已取消，題目未變動。");
+    return;
+  }
+  busy = true;
+  status(`正在還原 ${row.id}…`);
+  try {
+    await api(endpoint(row), {
+      method: "POST",
+      body: JSON.stringify({
+        action: "rollback",
+        revision: row.revision,
+        sourceHash: row.sourceHash,
+        note: "站主還原誤刪題目",
+      }),
+    });
+    await load();
+    status(`${row.id} 已還原並重新公開；刪除紀錄仍保留在修改歷史中。`);
+  } catch (e) {
+    status(e.message);
+  } finally {
+    busy = false;
+  }
 }
 function editorStatus(text) {
   $("[data-editor-status]").textContent = text;
 }
 function open(row, restore = true) {
+  historySequence++;
   current = row;
   panel.historyRows = [];
   $("[data-editor]").innerHTML =
-    `<form class="panel" data-edit><h2>${esc(row.id)} · 編輯題目</h2><p>版本 ${row.revision}${row.sourceChanged ? " · 內建原稿已更新，請核對目前內容。" : ""}</p><div data-fields></div><label>本次修改說明（必填）<textarea name="editNote" required maxlength="2000" rows="2"></textarea></label><div class="actions"><button type="submit" class="button">儲存並同步題庫</button><button type="button" class="button secondary" data-action="history">修改歷史</button><button type="button" class="text-button" data-action="reset">還原內建內容</button><button type="button" class="text-button" data-action="discard">捨棄本機草稿</button></div><p role="status" aria-live="polite" data-editor-status></p><div data-history></div></form>`;
+    `<form class="panel" data-edit><h2>${esc(row.id)} · 編輯題目</h2><p>版本 ${row.revision}${row.sourceChanged ? " · 內建原稿已更新，請核對目前內容。" : ""}</p><div class="actions"><button type="button" class="button secondary" data-action="history">查看／還原修改歷史</button></div><div data-fields></div><label>本次修改說明（必填）<textarea name="editNote" required maxlength="2000" rows="2"></textarea></label><div class="actions"><button type="submit" class="button">儲存並同步題庫</button><button type="button" class="text-button" data-action="reset">還原內建內容</button><button type="button" class="text-button" data-action="discard">捨棄本機草稿</button></div><p role="status" aria-live="polite" data-editor-status></p><div data-history></div></form>`;
   const draft = drafts[key(row)],
     usable =
       restore &&

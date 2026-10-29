@@ -48,8 +48,14 @@ const cleanKey = (value) =>
   String(value ?? "")
     .normalize("NFKC")
     .replace(/\s+/g, "");
+const stripBeastQuestionHeading = (value) =>
+  String(value ?? "")
+    .replace(/^\s*(?:\*\*)?妖獸\s*\d{1,4}\s*[.．。)、:：）](?:\*\*)?\s*/u, "")
+    .trim();
 const stemKey = (value) =>
-  cleanKey(String(value ?? "").replace(/\[_{2,}\d*_{0,}\]|_{2,}/g, "___"));
+  cleanKey(
+    stripBeastQuestionHeading(value).replace(/\[_{2,}\d*_{0,}\]|_{2,}/g, "___"),
+  );
 function imageKey(question) {
   return (question.imageKeys || question.images || [])
     .map((image) => (typeof image === "string" ? image : image.src))
@@ -136,7 +142,7 @@ function text(value, label, max, required = false) {
 }
 export function normalizeBatch(
   input,
-  { allowImages = true, onDuplicate = () => {} } = {},
+  { allowImages = true, allowMissingAnswers = false, onDuplicate = () => {} } = {},
 ) {
   if (!input || typeof input !== "object" || Array.isArray(input))
     throw new Error("投稿資料格式不正確。");
@@ -159,19 +165,23 @@ export function normalizeBatch(
     const item = {
       category: text(q.category, "分類", 100, true),
       type,
-      stem: text(q.stem ?? q.q, "題目", 10000, true),
+      stem: stripBeastQuestionHeading(
+        text(q.stem ?? q.q, "題目", 10000, true),
+      ),
       options: options.map((o) => text(o, "選項", 2000, true)),
-      answer: text(q.answer ?? q.a, "答案", 4000, true),
+      answer: text(q.answer ?? q.a, "答案", 4000, !allowMissingAnswers),
       explanation: text(q.explanation ?? q.ex, "解析", 16000),
       images: [],
     };
+    if (!item.stem)
+      throw new Error(`第 ${index + 1} 題只有妖獸題號標記，請補上題目內容。`);
     if (["單選題", "多選題"].includes(type) && item.options.length < 2)
       throw new Error(`第 ${index + 1} 題請提供至少兩個選項。`);
     if (type === "填空題" && item.options.length)
       throw new Error(`第 ${index + 1} 題為文字題，請清空選項。`);
     if (type === "圖片題" && item.options.length === 1)
       throw new Error(`第 ${index + 1} 題如需選項，請提供至少兩個選項。`);
-    if (item.options.length) {
+    if (item.options.length && item.answer) {
       const choiceKey = globalThis.courseChoiceAnswers.expectedChoiceKey(
         item.answer,
         item.options,

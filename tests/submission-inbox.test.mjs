@@ -35,7 +35,8 @@ async function page(s){
  }}prepareForms();
  window.HTMLElement.prototype.focus=function(){};window.HTMLElement.prototype.scrollIntoView=function(){};
  const requests=[];
- const globals={document,localStorage:s,location:{href:'https://example.invalid/submit.html',hash:'#pendingHeading'},URL,AbortSignal,Event:window.Event,TextDecoder,Uint8Array,console,setTimeout,
+ const globals={document,localStorage:s,location:{href:'https://example.invalid/submit.html',hash:'#pendingHeading'},URL,AbortSignal,AbortController,Event:window.Event,TextDecoder,Uint8Array,console,setTimeout,clearTimeout,crypto,btoa,
+ DOMParser:class{parseFromString(html){return parseHTML(html).document;}},
  FormData:class{constructor(form){this.form=form;}*[Symbol.iterator](){for(const field of this.form.querySelectorAll('[name]'))yield [field.name,field.value];}},addEventListener(){},
  fetch:async(url,opts)=>{requests.push({url,opts});return {ok:true,json:async()=>({id:'11111111-1111-1111-1111-111111111111',acceptedCount:1,receivedCount:1,status:'pending',questions:[]})};}};
  globals.window=globals;globals.courseContributions={apiOrigin:'https://example.invalid'};
@@ -56,7 +57,7 @@ test('incomplete drafts survive reload; only completed questions reach the submi
  ui.fire(ui.pending(),'submit');assert.equal(ui.$('draftCount').textContent,'1 題');assert.equal(readInbox(s).length,6);
  const saved=JSON.parse(s.getItem(draftKey));assert.equal(saved.course,'os');assert.equal(saved.unit,'scheduling');assert.deepEqual(saved.questions[0].options,['第二個值','第一個值']);assert.equal(saved.questions[0].answer,'B');
  assert.equal(ui.$('submitBatch').disabled,true);ui.$('consent').checked=true;ui.fire(ui.$('consent'),'change');assert.equal(ui.$('submitBatch').disabled,false);
- ui.fire(ui.$('submitBatch'),'click');await new Promise(resolve=>setImmediate(resolve));const post=ui.requests.find(r=>r.opts?.method==='POST');assert(post);assert.equal(JSON.parse(post.opts.body).questions.length,1);assert.equal(readInbox(s).length,6);assert.equal(ui.$('draftCount').textContent,'0 題');
+ ui.fire(ui.$('submitBatch'),'click');await new Promise(resolve=>setImmediate(resolve));const post=ui.requests.find(r=>r.opts?.method==='POST');assert(post,ui.$('message').textContent);assert.equal(JSON.parse(post.opts.body).questions.length,1);assert.equal(readInbox(s).length,6);assert.equal(ui.$('draftCount').textContent,'0 題');
 });
 test('existing drafts and unfinished editors in another unit remain intact',async()=>{
  const s=storage();stageUnmatched(rows(1),{course:'os',unit:'scheduling'},s);
@@ -98,5 +99,30 @@ test('manual future-unit submission retains chapter metadata through draft reloa
  ui.fire(form,'submit');assert.equal(ui.$('draftCount').textContent,'1 題',ui.$('message').textContent);
  ui=await page(s);assert.equal(ui.$('newUnitNumber').value,'7');assert.equal(ui.$('newUnitTitle').value,'動態規劃');assert.equal(ui.$('draftCount').textContent,'1 題');
  ui.$('consent').checked=true;ui.fire(ui.$('consent'),'change');ui.fire(ui.$('submitBatch'),'click');await new Promise(resolve=>setImmediate(resolve));
- const post=ui.requests.find(row=>row.opts?.method==='POST');assert(post);const sent=JSON.parse(post.opts.body);assert.equal(sent.unit,'L7');assert.equal(sent.unitTitle,'動態規劃');
+ const post=ui.requests.find(row=>row.opts?.method==='POST');assert(post,ui.$('message').textContent);const sent=JSON.parse(post.opts.body);assert.equal(sent.unit,'L7');assert.equal(sent.unitTitle,'動態規劃');
+});
+
+test('separate HTML pickers produce a paired preview and switching modes preserves the manual editor',async()=>{
+ const s=storage(),ui=await page(s),form=ui.$('questionForm');
+ assert.equal(form.hidden,true);
+ ui.fire(ui.$('showManualEntry'),'click');
+ form.elements.stem.value='保留手動編輯的原題 ___';
+ ui.fire(ui.$('showHtmlImport'),'click');
+ assert.equal(form.hidden,true);
+ assert.equal(form.elements.stem.value,'保留手動編輯的原題 ___');
+ const html='<form id="practice-quiz-form" action="https://example.com/course/OS26B/process_practice.php?realm_id=4"><div class="question-block"><p class="question-text">Beast 1.</p><div class="question-text"><input type="text" class="text-answer">充當一個通道，允許兩個程序通訊。</div></div></form>';
+ const result='<div class="question-result"><p>題目：[__1__]充當一個通道，允許兩個程序通訊。</p><p>正確答案：pipe</p></div>';
+ for(const [id,name,text] of [['questionHtmlFile','questions.html',html],['answerHtmlFile','answers.html',result]]){
+  Object.defineProperty(ui.$(id),'files',{configurable:true,value:[{name,size:text.length,text:async()=>text}]});
+  ui.fire(ui.$(id),'change');
+ }
+ assert.equal(ui.$('previewHtmlPair').disabled,false);
+ ui.fire(ui.$('previewHtmlPair'),'click');
+ await new Promise(resolve=>setImmediate(resolve)); await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(ui.document.querySelector('[data-import-answer="fill"]').value,'pipe');
+ assert.match(ui.document.querySelector('.group-preview').textContent,/1\/1/);
+ assert.match(ui.$('htmlPairStatus').textContent,/尚未送出/);
+ assert.equal(ui.requests.filter(r=>r.opts?.method==='POST').length,0);
+ ui.fire(ui.$('showManualEntry'),'click');
+ assert.equal(form.hidden,false);assert.equal(form.elements.stem.value,'保留手動編輯的原題 ___');
 });

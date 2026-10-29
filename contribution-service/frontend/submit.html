@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta
       name="description"
-      content="補充課程題庫：免登入投稿，經站主審核後加入題庫。"
+      content="補充課程題庫：免登入投稿，送出後立即加入公開題庫；投稿題目可直接修正。"
     />
     <title>投稿題庫｜課程學習站</title>
     <link rel="icon" href="assets/icons/course-mascot.png" />
@@ -15,38 +15,44 @@
       href="assets/contributions.css?v=nav-center-20261017"
     />
   <link rel="stylesheet" href="assets/ui-consistency.css?v=original-toolbar-20261018">
-  <link rel="stylesheet" href="assets/learning-enhancements.css?v=learning-improvements-20261025">
-<link rel="stylesheet" href="assets/theme.css?v=black-white-tools-20261027">
+  <link rel="stylesheet" href="assets/learning-enhancements.css?v=integrated-import-flow-20261029">
+<link rel="stylesheet" href="assets/theme.css?v=integrated-flow-20261029">
 </head>
   <body>
     <header class="contribution-nav">
       <a class="brand" href="https://yocheng06.github.io/course-library/">課程學習站</a>
       <nav aria-label="網站導覽">
         <a href="https://yocheng06.github.io/course-library/">課程首頁</a>
-        <a class="button secondary" href="https://yocheng06.github.io/course-library/review.html">站主審核</a>
+        <a href="batch.html">批次查題</a>
+        <a href="submit.html" aria-current="page">投稿題庫</a>
+        <a href="review.html">題庫管理</a>
       </nav>
     </header>
     <main class="contribution-page">
       <div class="page-heading">
         <span class="eyebrow">一起補充題庫</span>
         <h1>投稿題庫</h1>
-        <p>把整理好的題目分享給同學。送出後由站主審核，通過才會加入題庫。</p>
+        <p>把整理好的題目分享給同學。送出後會立即加入公開題庫；所有題目都可由大家直接修正。</p>
       </div>
       <ol class="flow-steps" aria-label="投稿流程">
         <li>1 填寫或匯入</li>
         <li>2 預覽並送出</li>
-        <li>3 等待站主審核</li>
+        <li>3 立即加入題庫</li>
       </ol>
       <p class="notice">
-        同學投稿不需要登入。投稿內容會交給站主；審核通過的題目、答案與解析會公開。
+        投稿與修正題目不需要登入。題目與答案會立即公開；每次修改及移除都保留紀錄，站主可在題庫管理查看與還原。
       </p>
+      <div class="submission-modes" role="group" aria-label="選擇投稿方式">
+        <button type="button" class="button" id="showHtmlImport" aria-pressed="true" aria-controls="importWorkspace">匯入題庫</button>
+        <button type="button" class="button secondary" id="showManualEntry" aria-pressed="false" aria-controls="questionForm">手動新增</button>
+      </div>
       <section id="pendingDrafts" class="panel" aria-labelledby="pendingHeading" hidden>
         <div class="section-heading">
           <h2 id="pendingHeading" tabindex="-1">批次查題待補草稿 <span id="pendingCount"></span></h2>
           <button id="downloadPending" class="text-button" type="button">下載待補草稿</button>
         </div>
-        <p>這裡保留未收錄題目的題幹與選項順序。逐題確認單元與題型，補上答案及解析後，按「補齊並加入投稿清單」。</p>
-        <p class="muted">待補題目會另外暫存，不會覆蓋原投稿草稿，也不會自動送出。匯入檔案可依科目與單元自動分組，預覽後逐批送審。手動新增清單仍以目前所選單元為準。</p>
+        <p>這裡保留未收錄題目的題幹與選項順序。逐題確認單元與題型、補上正確答案後，按「補齊並加入投稿清單」；解析可留白，之後再補。</p>
+        <p class="muted">待補題目會另外暫存，不會覆蓋原投稿草稿，也不會自動送出。匯入檔案可依科目與單元自動分組，核對後逐批直接加入公開題庫。手動新增清單仍以目前所選單元為準。</p>
         <p id="pendingStatus" role="status" aria-live="polite"></p>
         <div id="pendingList"></div>
       </section>
@@ -70,9 +76,9 @@
           /></label>
         </div>
         <div id="newUnitFields" class="panel" hidden>
-          <p>新單元投稿會先交由站主審核，核准後才出現在公開題庫。</p>
+          <p>新單元投稿後會立即出現在公開題庫，請先核對單元編號與名稱。</p>
           <div class="field-grid"><label>新單元編號<input id="newUnitNumber" type="number" min="1" max="99" step="1" placeholder="例如：7"></label><label>單元名稱（選填）<input id="newUnitTitle" maxlength="60" placeholder="例如：動態規劃"></label></div>
-          <p class="muted">例如演算法第七章填 7；不知道名稱可先留空，由站主審核確認。</p>
+          <p class="muted">例如演算法第七章填 7；名稱可留空，之後可由管理者調整。</p>
         </div>
         <label
           >來源說明（選填）<textarea
@@ -82,18 +88,34 @@
             placeholder="例如：課堂講義第 12 頁、自行整理的練習題"
           ></textarea>
         </label>
-        <p class="muted">跨單元 JSON 可使用單元清單：每組填寫 course、unit、questions；也可在每題指定 course 與 unit。未指定時使用上方所選範圍，匯入後請逐組核對。</p>
+        <div id="importWorkspace">
+          <h3>題目與答案分成兩份 HTML</h3>
+          <p class="muted">依序選取檔案，再產生預覽。解析可以留白，核對後才會送出。</p>
+          <ol class="html-import-steps">
+            <li><strong>題目 HTML</strong><button class="button secondary" id="chooseQuestionHtml" type="button">選取題目檔</button><input id="questionHtmlFile" type="file" accept=".html,.htm,text/html" hidden><span id="questionHtmlName">尚未選取</span></li>
+            <li><strong>答案 HTML</strong><button class="button secondary" id="chooseAnswerHtml" type="button">選取交卷結果檔</button><input id="answerHtmlFile" type="file" accept=".html,.htm,text/html" hidden><span id="answerHtmlName">尚未選取</span></li>
+            <li><strong>題圖（有圖片時）</strong><button class="text-button" id="chooseImportImages" type="button">選取 HTML 題圖資料夾</button><input
+              type="file" id="importImages" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
+              webkitdirectory directory multiple hidden>
+              <span id="importImageStatus" class="muted" role="status" aria-live="polite">沒有本機題圖可略過；有圖片時選取題目 HTML 同名的「_files」資料夾。</span></li>
+            <li><strong>核對結果</strong><button class="button" id="previewHtmlPair" type="button" disabled>產生題目與答案預覽</button><span id="htmlPairStatus" role="status" aria-live="polite">請先選取題目及交卷結果兩份 HTML。</span></li>
+          </ol>
+        <details class="import-other-formats"><summary>其他格式、單一題庫檔與備份</summary>
+        <p class="muted">可匯入單一 JSON／HTML，或一次選取兩份題目與答案 HTML。跨單元 JSON 可使用 course、unit、questions；未指定範圍時沿用上方科目與單元。</p>
         <div class="import-row">
-          <button class="button secondary" id="chooseImport" type="button">匯入 JSON／HTML 題庫</button><input
+          <button class="button secondary" id="chooseImport" type="button">選取 JSON／HTML 題庫</button><input
               type="file"
               id="importFile"
               accept=".json,.html,.htm,application/json,text/html"
+              multiple
               hidden /><button class="text-button" id="downloadExample" type="button">
             下載匯入範例</button
           ><button id="restorePending" class="text-button" type="button">載入待補備份</button><input id="pendingFile" type="file" accept=".json,application/json" hidden
           ><span class="muted"
-            >匯入最多 2,000 題、20 批，每批最多 200 題。HTML 須含結構化題目資料，也可逐題填寫。</span
+            >匯入最多 2,000 題、20 批，每批最多 200 題。題目與答案會自動配對；匯入後請核對，解析可留白。</span
           >
+        </div>
+        </details>
         </div>
       </section>
       <form id="questionForm" class="panel">
@@ -187,13 +209,13 @@
           ><input
             id="consent"
             type="checkbox"
-          />我已確認題目附有答案，並同意站主審核、編輯與公開通過的內容。</label
+          />我已確認題目與答案正確，並了解送出後會立即公開。</label
         >
         <div class="actions">
           <button id="submitBatch" class="button" type="button" disabled>
-            送出，等待審核</button
+            送出並加入題庫</button
           ><span class="muted"
-            >送出不會立即發布；重複題會自動略過，其餘題目照常送審。</span
+            >送出後立即公開；重複題會自動略過，其餘題目直接加入題庫。</span
           >
         </div>
       </section>
@@ -219,7 +241,7 @@
       </section>
       <section id="possibleDuplicates" class="panel" hidden></section>
       <section id="success" class="panel" hidden>
-        <h2>投稿已送出</h2>
+        <h2>題目已加入題庫</h2>
         <p>投稿編號：<strong id="receipt"></strong></p>
         <div class="actions">
           <button type="button" id="copyReceipt" class="button secondary">
@@ -228,7 +250,7 @@
             下載投稿收據
           </button>
         </div>
-        <p>這份題庫正在等待站主審核。請保留編號；你可以在下方查詢審核狀態。</p>
+        <p>題目已公開。請保留投稿編號，方便日後查詢或回報問題。</p>
       </section>
       <section id="recentReceipts" class="panel" hidden>
         <h2>這台裝置的近期投稿</h2>
@@ -255,7 +277,7 @@
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/contributions-submit.js?v=new-units-20261026"
+      src="assets/contributions-submit.js?v=integrated-import-flow-20261029"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
   </body>

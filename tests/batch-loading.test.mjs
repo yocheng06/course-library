@@ -19,7 +19,7 @@ const base = {
   }, true)],
 };
 
-async function page(fetch) {
+async function page(fetch, {storage = new Map()} = {}) {
   const { document, window } = parseHTML(await readFile(new URL("../batch.html", import.meta.url), "utf8"));
   Object.defineProperty(window.HTMLSelectElement.prototype, "value", {
     configurable: true,
@@ -32,7 +32,7 @@ async function page(fetch) {
   const context = vm.createContext({
     document, window: { courseContributions: { apiOrigin: "https://example.invalid" } },
     location: { href: "https://example.invalid/batch.html" },
-    localStorage: { getItem: () => null, setItem() {} }, fetch,
+    localStorage: { getItem: key => storage.get(key), setItem(key,value) { storage.set(key,value); } }, fetch,
     navigator: { clipboard: { writeText: async (text) => copied.push(text) } },
     URL, AbortSignal, TextDecoder, Uint8Array, console, Event: window.Event,
   });
@@ -58,10 +58,10 @@ test("built-in lookup and copying work while public sync waits, then new data in
   const ui = await page(async (url) => String(url).startsWith("assets/")
     ? { ok: true, json: async () => base }
     : new Promise((resolve) => pending.push(resolve)));
-  assert.equal(pending.length, 2);
+  assert.equal(pending.length, 1);
   assert.equal(ui.$("compare").disabled, false);
   assert.equal(ui.$("reloadLibrary").disabled, true);
-  assert.match(ui.$("libraryStatus").textContent, /可先比對內建題庫/);
+  assert.match(ui.$("libraryStatus").textContent, /可先使用已載入題庫/);
   ui.$("batchText").value = `1. ${stem}\nA. 短程排程器\nB. 長程排程器\n\n2. 新增的公開投稿題目？\nA. verified-answer\nB. other-answer`;
   ui.fire("batchForm", "submit");
   assert(ui.$("resultRows").textContent.includes("A. 短程排程器"));
@@ -74,7 +74,7 @@ test("built-in lookup and copying work while public sync waits, then new data in
     id: "community-00000000-0000-4000-8000-000000000001-1",
     stem: "新增的公開投稿題目？", options: ["A. verified-answer", "B. other-answer"], answer: "A", answerProvided: true,
   } }]));
-  pending[1](response()); await tick();
+  await tick();
   assert.equal(ui.$("compare").disabled, false);
   assert.equal(ui.$("reloadLibrary").disabled, false);
   assert.equal(ui.$("staleNotice").hidden, false);
@@ -99,7 +99,7 @@ test("public failures retain built-in results and concurrent reloads do not star
       : new Promise((resolve, reject) => pending.push({ resolve, reject }));
   });
   ui.fire("reloadLibrary", "click"); await tick();
-  assert.equal(requests, 3);
+  assert.equal(requests, 2);
   ui.$("batchText").value = `1. ${stem}\nA. 短程排程器\nB. 長程排程器`;
   ui.fire("batchForm", "submit");
   pending.forEach(({ reject }) => reject(new Error("offline"))); await tick();
@@ -138,7 +138,7 @@ for (const [name, malformed] of [
   assert.equal(ui.$("coverageNotice").hidden, false);
   assert.equal(ui.$("copyAnswers").disabled, false);
 
-  ui.$("course").value = "algorithms"; ui.fire("course", "change");
+  ui.$("course").value = "algorithms"; ui.fire("course", "change"); await tick();
   assert.match(ui.$("libraryStatus").textContent, /演算法：1 題/);
   assert.match(ui.$("libraryStatus").textContent, /已同步內建題修改與公開投稿/);
   ui.$("batchText").value = `1. ${otherCourse.stem}\nA. public-answer\nB. other-answer`;
@@ -149,7 +149,7 @@ for (const [name, malformed] of [
 
 test('approved questions from future units join lookup and unit selection instead of invalidating public coverage',async()=>{
  const pending=[];const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>base}:new Promise(resolve=>pending.push(resolve)));
- pending[0](response([{unit:'L9',question:{id:'community-00000000-0000-4000-8000-000000000099-1',unitTitle:'新章節',stem:'第九章公開投稿題目？',options:['A. verified-answer','B. other-answer'],answer:'A',answerProvided:true}}]));pending[1](response());await tick();
+ pending[0](response([{unit:'L9',question:{id:'community-00000000-0000-4000-8000-000000000099-1',unitTitle:'新章節',stem:'第九章公開投稿題目？',options:['A. verified-answer','B. other-answer'],answer:'A',answerProvided:true}}]));await tick();
  assert([...ui.$('unit').options].some(option=>option.value==='L9'));
  ui.$('batchText').value='1. 第九章公開投稿題目？\nA. verified-answer\nB. other-answer';ui.fire('batchForm','submit');
  assert.match(ui.$('resultRows').textContent,/verified-answer/);assert.doesNotMatch(ui.$('libraryStatus').textContent,/不完整/);
@@ -173,4 +173,28 @@ test('an incorporated community question uses its built-in edit instead of an ol
  const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>localBase}:{ok:true,json:async()=>({questions:String(url).endsWith('course=os')?[{unit:'scheduling',question:old}]:[],overrides:String(url).endsWith('course=os')?[{unit:'scheduling',question:builtin}]:[]})});
  ui.$('batchText').value=`1. ${stem}\nA. 短程排程器\nB. 長程排程器`;ui.fire('batchForm','submit');
  assert.ok(ui.$('resultRows').textContent.includes('B. 長程排程器'));assert.match(ui.$('resultCount').textContent,/需確認 0/);
+});
+
+test('course sync is lazy, revisiting a fresh course reuses data, and a 304 keeps verified results usable',async()=>{
+  const requests = [], tag = '"revision-one"';
+  let osReads = 0;
+  const ui = await page(async (url, options) => {
+    requests.push({url:String(url),options});
+    if (String(url).startsWith('assets/')) return {ok:true,json:async()=>structuredClone(base)};
+    if (String(url).endsWith('course=os') && ++osReads > 1) return {status:304,ok:false};
+    return {ok:true,headers:{get:name=>name==='etag'?tag:null},json:async()=>({questions:[],overrides:[],aliases:[]})};
+  });
+  assert.equal(requests.filter(r=>r.url.includes('course=algorithms')).length,0);
+  ui.$('batchText').value=`1. ${stem}\nA. 短程排程器\nB. 長程排程器`;
+  ui.fire('batchForm','submit');
+  assert.equal(ui.$('copyAnswers').disabled,false);
+  ui.fire('reloadLibrary','click'); await tick();
+  assert.equal(requests.filter(r=>r.url.startsWith('assets/')).length,1);
+  assert.equal(requests.at(-1).options.headers['If-None-Match'],tag);
+  assert.equal(ui.$('copyAnswers').disabled,false);
+  assert.equal(ui.$('staleNotice').hidden,true);
+  ui.$('course').value='algorithms'; ui.fire('course','change'); await tick();
+  assert.equal(requests.filter(r=>r.url.includes('course=algorithms')).length,1);
+  ui.$('course').value='os'; ui.fire('course','change'); await tick();
+  assert.equal(osReads,2);
 });

@@ -144,6 +144,8 @@
       if (initial === cached && validEnvelope(snapshot)) { try { apply(snapshot.data, 'snapshot'); } catch {} }
     }
   }
+  let latestData = initial?.data || null;
+  let latestEtag = /^(?:W\/)?".*"$/.test(initial?.etag || '') ? initial.etag : null;
   async function sync() {
     if (syncing) { syncAgain = true; return; }
     if (location.protocol === 'file:') {
@@ -157,13 +159,22 @@
     syncing = true;
     notice?.querySelector('button')?.setAttribute('disabled','');
     try {
-      const response = await fetch(window.courseContributions.apiOrigin + '/api/questions?course=' + config.course, {signal:AbortSignal.timeout(8000), cache:'no-store'});
-      if (!response.ok) throw new Error('unavailable');
-      const data = await response.json();
-      apply(data, 'live');
+      const response = await fetch(window.courseContributions.apiOrigin + '/api/questions?course=' + config.course, {
+        signal:AbortSignal.timeout(8000), cache:'no-cache',
+        headers:latestEtag ? {'If-None-Match':latestEtag} : {}
+      });
+      const unchanged = response.status === 304 && latestData;
+      if (!unchanged && !response.ok) throw new Error('unavailable');
+      const data = unchanged ? latestData : await response.json();
+      if (!validData(data)) throw new Error('Invalid public snapshot');
+      if (JSON.stringify(data) !== JSON.stringify(latestData)) apply(data, 'live');
+      else { source = 'live'; document.documentElement.dataset.questionSource = 'live'; }
+      latestData = data;
+      const responseEtag = response.headers?.get('etag');
+      latestEtag = /^(?:W\/)?".*"$/.test(responseEtag || '') ? responseEtag : unchanged ? latestEtag : null;
       const serverTime = Date.parse(response.headers?.get('date'));
       const generatedAt = new Date(Number.isFinite(serverTime) ? serverTime : Date.now()).toISOString();
-      try { localStorage.setItem(cacheKey, JSON.stringify({schema:1, course:config.course, generatedAt, data})); } catch {}
+      try { localStorage.setItem(cacheKey, JSON.stringify({schema:1, course:config.course, generatedAt, data, etag:latestEtag})); } catch {}
       if (linkedSubmission && !config.validId(linkedId)) showNotice('這個投稿題目連結暫時沒有可用內容，已顯示原有題庫。',true);
       else { notice?.remove(); notice = null; }
     } catch {

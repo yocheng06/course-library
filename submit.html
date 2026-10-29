@@ -15,22 +15,24 @@
       href="assets/contributions.css?v=nav-center-20261017"
     />
   <link rel="stylesheet" href="assets/ui-consistency.css?v=original-toolbar-20261018">
-  <link rel="stylesheet" href="assets/learning-enhancements.css?v=html-answer-pair-20261028">
-<link rel="stylesheet" href="assets/theme.css?v=black-white-tools-20261027">
+  <link rel="stylesheet" href="assets/learning-enhancements.css?v=integrated-import-flow-20261029">
+<link rel="stylesheet" href="assets/theme.css?v=integrated-flow-20261029">
 </head>
   <body>
     <header class="contribution-nav">
       <a class="brand" href="https://yocheng06.github.io/course-library/">課程學習站</a>
       <nav aria-label="網站導覽">
         <a href="https://yocheng06.github.io/course-library/">課程首頁</a>
-        <a class="button secondary" href="https://yocheng06.github.io/course-library/review.html">管理者後台</a>
+        <a href="batch.html">批次查題</a>
+        <a href="submit.html" aria-current="page">投稿題庫</a>
+        <a href="review.html">題庫管理</a>
       </nav>
     </header>
     <main class="contribution-page">
       <div class="page-heading">
         <span class="eyebrow">一起補充題庫</span>
         <h1>投稿題庫</h1>
-        <p>把整理好的題目分享給同學。送出後會立即加入公開題庫；投稿新增的題目也可由大家直接修正。</p>
+        <p>把整理好的題目分享給同學。送出後會立即加入公開題庫；所有題目都可由大家直接修正。</p>
       </div>
       <ol class="flow-steps" aria-label="投稿流程">
         <li>1 填寫或匯入</li>
@@ -38,8 +40,12 @@
         <li>3 立即加入題庫</li>
       </ol>
       <p class="notice">
-        投稿不需要登入。題目與答案會立即公開；投稿新增的題目可直接修正，修改紀錄保留供站主管理與還原。原有內建題目仍由站主處理回報。
+        投稿與修正題目不需要登入。題目與答案會立即公開；每次修改及移除都保留紀錄，站主可在題庫管理查看與還原。
       </p>
+      <div class="submission-modes" role="group" aria-label="選擇投稿方式">
+        <button type="button" class="button" id="showHtmlImport" aria-pressed="true" aria-controls="importWorkspace">匯入題庫</button>
+        <button type="button" class="button secondary" id="showManualEntry" aria-pressed="false" aria-controls="questionForm">手動新增</button>
+      </div>
       <section id="pendingDrafts" class="panel" aria-labelledby="pendingHeading" hidden>
         <div class="section-heading">
           <h2 id="pendingHeading" tabindex="-1">批次查題待補草稿 <span id="pendingCount"></span></h2>
@@ -82,28 +88,35 @@
             placeholder="例如：課堂講義第 12 頁、自行整理的練習題"
           ></textarea>
         </label>
-        <p class="muted">跨單元 JSON 可使用單元清單：每組填寫 course、unit、questions；也可在每題指定 course 與 unit。未指定時使用上方所選範圍，匯入後請逐組核對。</p>
+        <div id="importWorkspace">
+          <h3>題目與答案分成兩份 HTML</h3>
+          <p class="muted">依序選取檔案，再產生預覽。解析可以留白，核對後才會送出。</p>
+          <ol class="html-import-steps">
+            <li><strong>題目 HTML</strong><button class="button secondary" id="chooseQuestionHtml" type="button">選取題目檔</button><input id="questionHtmlFile" type="file" accept=".html,.htm,text/html" hidden><span id="questionHtmlName">尚未選取</span></li>
+            <li><strong>答案 HTML</strong><button class="button secondary" id="chooseAnswerHtml" type="button">選取交卷結果檔</button><input id="answerHtmlFile" type="file" accept=".html,.htm,text/html" hidden><span id="answerHtmlName">尚未選取</span></li>
+            <li><strong>題圖（有圖片時）</strong><button class="text-button" id="chooseImportImages" type="button">選取 HTML 題圖資料夾</button><input
+              type="file" id="importImages" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
+              webkitdirectory directory multiple hidden>
+              <span id="importImageStatus" class="muted" role="status" aria-live="polite">沒有本機題圖可略過；有圖片時選取題目 HTML 同名的「_files」資料夾。</span></li>
+            <li><strong>核對結果</strong><button class="button" id="previewHtmlPair" type="button" disabled>產生題目與答案預覽</button><span id="htmlPairStatus" role="status" aria-live="polite">請先選取題目及交卷結果兩份 HTML。</span></li>
+          </ol>
+        <details class="import-other-formats"><summary>其他格式、單一題庫檔與備份</summary>
+        <p class="muted">可匯入單一 JSON／HTML，或一次選取兩份題目與答案 HTML。跨單元 JSON 可使用 course、unit、questions；未指定範圍時沿用上方科目與單元。</p>
         <div class="import-row">
-          <button class="button secondary" id="chooseImport" type="button">匯入 JSON／HTML 題庫</button><input
+          <button class="button secondary" id="chooseImport" type="button">選取 JSON／HTML 題庫</button><input
               type="file"
               id="importFile"
               accept=".json,.html,.htm,application/json,text/html"
-              multiple
-              hidden /><button class="text-button" id="chooseImportImages" type="button">選取 HTML 題圖資料夾</button><input
-              type="file"
-              id="importImages"
-              accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
-              webkitdirectory
-              directory
               multiple
               hidden /><button class="text-button" id="downloadExample" type="button">
             下載匯入範例</button
           ><button id="restorePending" class="text-button" type="button">載入待補備份</button><input id="pendingFile" type="file" accept=".json,application/json" hidden
           ><span class="muted"
-            >匯入最多 2,000 題、20 批，每批最多 200 題。可匯入結構化 JSON／HTML，或 CCSA 題目 HTML。若題目和解答分成兩個 HTML，按住 Ctrl 一次選兩份，系統會依題目配對正解；解析可留白，匯入後請核對答案。若題目含有下載的本機圖片，請先選取題目 HTML 同名的「_files」資料夾，再匯入兩份 HTML；不含圖片可略過。</span
+            >匯入最多 2,000 題、20 批，每批最多 200 題。題目與答案會自動配對；匯入後請核對，解析可留白。</span
           >
         </div>
-        <p id="importImageStatus" class="muted" role="status" aria-live="polite">尚未選取題圖資料夾；沒有本機圖片時可直接匯入。</p>
+        </details>
+        </div>
       </section>
       <form id="questionForm" class="panel">
         <h2 id="editorHeading">新增一題</h2>
@@ -264,7 +277,7 @@
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/contributions-submit.js?v=html-image-import-20261029"
+      src="assets/contributions-submit.js?v=integrated-import-flow-20261029"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
   </body>

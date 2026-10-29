@@ -107,7 +107,7 @@ const payload = () => ({
       stem: "新的投稿題目：作業系統怎麼分配測試資源？",
       options: ["A. 分配", "B. 忽略"],
       answer: "A",
-      explanation: "核准後才會公開。",
+      explanation: "投稿後直接公開。",
       images: [],
     },
   ],
@@ -151,6 +151,24 @@ async function call(
     data = await response.clone().json();
   } catch {}
   return { response, data };
+}
+async function submitLegacyPending(env, body, options = {}) {
+  const sent = await call(env, "/api/submissions", {
+    method: "POST",
+    body,
+    ...options,
+  });
+  if (sent.data?.id && sent.data.status === "approved") {
+    env.sql
+      .prepare("DELETE FROM public_questions WHERE submission_id=?")
+      .run(sent.data.id);
+    env.sql
+      .prepare(
+        "UPDATE submissions SET status='pending',revision=1,reviewed_at=NULL,reviewer_id=NULL,note='' WHERE id=?",
+      )
+      .run(sent.data.id);
+  }
+  return sent;
 }
 
 test("submission and review pages serve their complete local module graph with correct MIME types", async () => {
@@ -367,7 +385,7 @@ test("one-time setup code creates the admin account without Site identity and ca
     200,
   );
 });
-test("anonymous submission stays private; only an authenticated reviewer can review and publish", async () => {
+test("anonymous submissions publish immediately; only the owner can manage them", async () => {
   const env = await setup();
   const submitted = await call(env, "/api/submissions", {
     method: "POST",
@@ -375,17 +393,16 @@ test("anonymous submission stays private; only an authenticated reviewer can rev
   });
   assert.equal(submitted.response.status, 201);
   const id = submitted.data.id;
-  assert.equal(
-    (await call(env, "/api/questions?course=os")).data.questions.length,
-    0,
-  );
+  const pubBeforeReview = (await call(env, "/api/questions?course=os")).data.questions;
+  assert.equal(pubBeforeReview.length, 1);
+  assert.equal(pubBeforeReview[0].question.stem, payload().questions[0].stem);
   const status = await call(env, "/api/status/" + id);
   assert.deepEqual(Object.keys(status.data).sort(), [
     "note",
     "reviewedAt",
     "status",
   ]);
-  assert.equal(status.data.status, "pending");
+  assert.equal(status.data.status, "approved");
   assert.equal((await call(env, "/api/review")).response.status, 401);
   assert.equal(
     (await call(env, "/api/review", { otherUser: true })).response.status,
@@ -424,13 +441,13 @@ test("anonymous submission stays private; only an authenticated reviewer can rev
     403,
   );
   const list = await call(env, "/api/review", { reviewer: true });
-  assert.equal(list.data.items[0].id, id);
+  assert.equal(list.data.items.length, 0);
   const approved = await call(env, "/api/review/" + id, {
     method: "POST",
     body: decision,
     reviewer: true,
   });
-  assert.equal(approved.response.status, 200);
+  assert.equal(approved.response.status, 409);
   const pub = (await call(env, "/api/questions?course=os")).data.questions;
   assert.equal(pub.length, 1);
   assert.equal(pub[0].question.answer, "A");
@@ -456,12 +473,9 @@ test("anonymous submission stays private; only an authenticated reviewer can rev
   assert.equal(repeat.data.acceptedCount, 0);
   assert.equal(repeat.data.skippedCount, 1);
 });
-test("rejecting a submission never publishes it; status gives the submitter the review note", async () => {
+test("legacy pending submissions can still be rejected with a status note", async () => {
   const env = await setup(),
-    submitted = await call(env, "/api/submissions", {
-      method: "POST",
-      body: payload(),
-    }),
+    submitted = await submitLegacyPending(env, payload()),
     id = submitted.data.id;
   const result = await call(env, "/api/review/" + id, {
     method: "POST",
@@ -481,8 +495,8 @@ test("rejecting a submission never publishes it; status gives the submitter the 
 test("approvals automatically skip questions published since submission", async () => {
   const env = await setup(),
     p = payload(),
-    one = await call(env, "/api/submissions", { method: "POST", body: p }),
-    two = await call(env, "/api/submissions", { method: "POST", body: p });
+    one = await submitLegacyPending(env, p),
+    two = await submitLegacyPending(env, p);
   const first = await call(env, "/api/review/" + one.data.id, {
     method: "POST",
     reviewer: true,
@@ -567,16 +581,60 @@ test("duplicate items and built-in questions are skipped; invalid data still fai
   assert.equal(existing.data.skippedCount, 1);
   assert.equal(existing.data.skipped[0].reason, "published");
 });
+test("legacy hidden question fingerprints are released before duplicate filtering", async () => {
+  const env = await setup(),
+    body = payload();
+  body.questions[0].stem = "舊版下架題目仍可重新投稿：" + crypto.randomUUID();
+  const first = await call(env, "/api/submissions", {
+    method: "POST",
+    body,
+  });
+  assert.equal(first.response.status, 201);
+  const oldId = `community-${first.data.id}-1`,
+    originalFingerprint = env.sql
+      .prepare("SELECT fingerprint FROM public_questions WHERE id=?")
+      .get(oldId).fingerprint;
+  // Simulate a database created before hidden-question fingerprint migration.
+  env.sql
+    .prepare("DELETE FROM content_updates WHERE id=?")
+    .run("hidden-question-fingerprints-v1");
+  env.sql
+    .prepare("UPDATE public_questions SET is_published=0 WHERE id=?")
+    .run(oldId);
+
+  const repeated = await call(env, "/api/submissions", {
+    method: "POST",
+    body,
+  });
+  assert.equal(repeated.response.status, 201, JSON.stringify(repeated.data));
+  assert.equal(repeated.data.status, "approved");
+  assert.equal(repeated.data.acceptedCount, 1);
+  assert.match(
+    env.sql.prepare("SELECT fingerprint FROM public_questions WHERE id=?").get(oldId)
+      .fingerprint,
+    /^__hidden__:/,
+  );
+  assert.equal(
+    env.sql
+      .prepare("SELECT fingerprint FROM public_questions WHERE id=?")
+      .get(`community-${repeated.data.id}-1`).fingerprint,
+    originalFingerprint,
+  );
+
+  const next = await call(env, "/api/submissions", {
+    method: "POST",
+    body,
+  });
+  assert.equal(next.response.status, 200);
+  assert.equal(next.data.status, "duplicates_only");
+});
 test("pending images require a reviewer session; only retained images become public after approval", async () => {
   const env = await setup(),
     p = payload();
   p.questions[0].images = [
     "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j1ioAAAAASUVORK5CYII=",
   ];
-  const submitted = await call(env, "/api/submissions", {
-    method: "POST",
-    body: p,
-  });
+  const submitted = await submitLegacyPending(env, p);
   assert.equal(submitted.response.status, 201);
   const id = submitted.data.id,
     imagePath = "/api/image/" + id + "/0-0";
@@ -603,7 +661,7 @@ test("pending images require a reviewer session; only retained images become pub
   assert.equal(approved.response.status, 200);
   assert.equal((await call(env, imagePath)).response.status, 200);
 });
-test("anonymous posts have bounded rate and allowed origins; public results never include pending records", async () => {
+test("anonymous posts have bounded rate, allowed origins and immediate public results", async () => {
   const env = await setup();
   assert.equal(
     (
@@ -633,8 +691,9 @@ test("anonymous posts have bounded rate and allowed origins; public results neve
   );
   assert.equal(
     (await call(env, "/api/questions?course=os")).data.questions.length,
-    0,
+    20,
   );
+  assert.equal((await call(env, "/api/review", { reviewer: true })).data.items.length, 0);
   const cors = await call(env, "/api/questions?course=os", {
     siteOrigin: "https://yocheng06.github.io",
   });
@@ -648,13 +707,95 @@ test("anonymous posts have bounded rate and allowed origins; public results neve
   );
 });
 
+test("community submissions can be edited publicly with version history but never deleted or hidden", async () => {
+  const env = await setup(),
+    original = payload(),
+    sent = await call(env, "/api/submissions", {
+      method: "POST",
+      body: original,
+    });
+  assert.equal(sent.response.status, 201);
+  assert.equal(sent.data.status, "approved");
+  const id = `community-${sent.data.id}-1`,
+    path = `/api/community/questions/${id}`;
+  const loaded = await call(env, path);
+  assert.equal(loaded.response.status, 200);
+  assert.equal(loaded.data.item.id, id);
+  assert.equal(loaded.data.item.revision, 1);
+
+  const revised = {
+    ...original,
+    questions: [{
+      ...original.questions[0],
+      stem: "同學補充後修正的投稿題目：作業系統如何安排資源？",
+      explanation: "社群直接補充的解析。",
+    }],
+  };
+  const saved = await call(env, path, {
+    method: "POST",
+    body: { action: "update", revision: 1, payload: revised, note: "修正題幹" },
+  });
+  assert.equal(saved.response.status, 200, JSON.stringify(saved.data));
+  assert.equal(saved.data.item.revision, 2);
+  assert.equal(saved.data.item.published, true);
+  assert.equal(saved.data.item.question.explanation, "社群直接補充的解析。");
+  const history = env.sql.prepare(
+    "SELECT actor,action,data FROM question_history WHERE question_id=? ORDER BY revision",
+  ).all(id);
+  assert.equal(history.length, 1);
+  assert.equal(history[0].actor, "匿名投稿者");
+  assert.equal(history[0].action, "update");
+  assert.equal(JSON.parse(history[0].data).stem, original.questions[0].stem);
+  assert.equal((await call(env, "/api/review", { reviewer: true })).data.items.length, 0);
+
+  const ownerHistory = await call(env, `/api/manage/questions/${id}/history`, {
+    reviewer: true,
+  });
+  const restored = await call(env, `/api/manage/questions/${id}`, {
+    method: "POST",
+    reviewer: true,
+    body: {
+      action: "restoreVersion",
+      revision: 2,
+      historyId: ownerHistory.data.items[0].id,
+      note: "還原至修正前版本",
+    },
+  });
+  assert.equal(restored.response.status, 200, JSON.stringify(restored.data));
+  assert.equal(restored.data.item.revision, 3);
+  assert.equal(restored.data.item.question.stem, original.questions[0].stem);
+  assert.equal(
+    env.sql.prepare("SELECT action FROM question_history WHERE question_id=? ORDER BY created_at DESC,id DESC LIMIT 1").get(id).action,
+    "restoreVersion",
+  );
+
+  const stale = await call(env, path, {
+    method: "POST",
+    body: { action: "update", revision: 1, payload: revised },
+  });
+  assert.equal(stale.response.status, 409);
+  const hide = await call(env, path, {
+    method: "POST",
+    body: { action: "hide", revision: 3 },
+  });
+  assert.equal(hide.response.status, 400);
+  const publicRestore = await call(env, path, {
+    method: "POST",
+    body: {
+      action: "restoreVersion",
+      revision: 3,
+      historyId: ownerHistory.data.items[0].id,
+    },
+  });
+  assert.equal(publicRestore.response.status, 400);
+  assert.equal((await call(env, path, { method: "DELETE" })).response.status, 405);
+  assert.equal((await call(env, "/api/questions?course=os")).data.questions.length, 1);
+});
+
 test("mixed submissions keep new questions, report original positions and never overwrite existing answers", async () => {
   const env = await setup(),
     p = payload();
-  const first = await call(env, "/api/submissions", {
-    method: "POST",
-    body: p,
-  });
+  const first = await submitLegacyPending(env, p);
   await call(env, "/api/review/" + first.data.id, {
     method: "POST",
     reviewer: true,
@@ -686,7 +827,7 @@ test("mixed submissions keep new questions, report original positions and never 
     ["published", "batch", "batch"],
   );
   const saved = (
-    await call(env, "/api/review", { reviewer: true })
+    await call(env, "/api/review?status=approved", { reviewer: true })
   ).data.items.find((q) => q.id === mixed.data.id);
   assert.equal(saved.payload.questions.length, 1);
   assert.equal(saved.payload.questions[0].stem, novel.stem);
@@ -743,12 +884,9 @@ test("approval retries a publication collision and publishes only the remaining 
   const env = await setup(),
     p = payload();
   const novel = { ...p.questions[0], stem: "並行審核時保留的新題目？" };
-  const one = await call(env, "/api/submissions", { method: "POST", body: p });
+  const one = await submitLegacyPending(env, p);
   const both = { ...p, questions: [p.questions[0], novel] };
-  const two = await call(env, "/api/submissions", {
-    method: "POST",
-    body: both,
-  });
+  const two = await submitLegacyPending(env, both);
   const batch = env.DB.batch;
   let collided = false;
   env.DB.batch = async (statements) => {
@@ -955,7 +1093,7 @@ test("reviewed explanations preserve later edits and require the matching id, qu
   }
 });
 
-test("images on questions 101 and 200 remain readable by the owner and after approval", async () => {
+test("question images are public immediately after anonymous submission", async () => {
   const env = await setup(),
     p = payload(),
     png =
@@ -967,34 +1105,13 @@ test("images on questions 101 and 200 remain readable by the owner and after app
   }));
   const sent = await call(env, "/api/submissions", { method: "POST", body: p });
   assert.equal(sent.response.status, 201);
-  for (const i of [100, 199])
-    assert.equal(
-      (await call(env, `/api/image/${sent.data.id}/${i}-0`, { reviewer: true }))
-        .response.status,
-      200,
-    );
-  const saved = (await call(env, "/api/review", { reviewer: true })).data
-    .items[0];
-  assert.equal(
-    (
-      await call(env, "/api/review/" + sent.data.id, {
-        method: "POST",
-        reviewer: true,
-        body: {
-          action: "approve",
-          revision: 1,
-          payload: saved.payload,
-          note: "",
-        },
-      })
-    ).response.status,
-    200,
-  );
+  assert.equal(sent.data.status, "approved");
   for (const i of [100, 199])
     assert.equal(
       (await call(env, `/api/image/${sent.data.id}/${i}-0`)).response.status,
       200,
     );
+  assert.equal((await call(env, "/api/questions?course=os")).data.questions.length, 200);
 });
 test("submission validation rejects impossible single-choice and out-of-range answers", async () => {
   for (const answer of ["A,B", "H", "Z", "無法對應的內容"]) {
@@ -1012,16 +1129,12 @@ test("submission validation rejects impossible single-choice and out-of-range an
   p.questions[0].answer = "A,B";
   assert.equal(normalizeBatch(p).questions[0].choiceKey, "AB");
 });
-test("option order and relabeling automatically skip duplicates across all units; punctuation differences require review", async () => {
+test("option order and relabeling skip immediate duplicates; punctuation differences require submitter confirmation", async () => {
   const env = await setup(),
     p = payload();
   p.questions[0].options = ["A. Alpha", "B. Beta"];
   const sent = await call(env, "/api/submissions", { method: "POST", body: p });
-  await call(env, "/api/review/" + sent.data.id, {
-    method: "POST",
-    reviewer: true,
-    body: { action: "approve", revision: 1, payload: p, note: "" },
-  });
+  assert.equal(sent.data.status, "approved");
   const q = {
     ...p,
     questions: [
@@ -1059,15 +1172,42 @@ test("option order and relabeling automatically skip duplicates across all units
     201,
   );
 });
+test("妖獸題號標頭在投稿前清除，且不影響一般題幹", async () => {
+  const env = await setup();
+  const original = payload();
+  const sent = await call(env, "/api/submissions", { method: "POST", body: original });
+  assert.equal(sent.response.status, 201);
+  assert.equal(sent.data.status, "approved");
+
+  const imported = structuredClone(original);
+  imported.questions[0].stem = `妖獸 8. ${original.questions[0].stem}`;
+  assert.equal(normalizeBatch(imported).questions[0].stem, original.questions[0].stem);
+  assert.equal(
+    questionKey("os", "basics", imported.questions[0]),
+    questionKey("os", "basics", original.questions[0]),
+  );
+  const duplicate = await call(env, "/api/submissions", {
+    method: "POST",
+    body: imported,
+  });
+  assert.equal(duplicate.response.status, 200);
+  assert.equal(duplicate.data.status, "duplicates_only");
+  assert.equal(duplicate.data.skippedCount, 1);
+
+  const ordinary = normalizeBatch({
+    ...original,
+    questions: [{
+      ...original.questions[0],
+      stem: "妖獸在模擬系統中的角色是什麼？",
+    }],
+  });
+  assert.equal(ordinary.questions[0].stem, "妖獸在模擬系統中的角色是什麼？");
+});
 test("published management enforces permissions, revisions, history, hide/restore and complete exports", async () => {
   const env = await setup(),
     p = payload(),
     sent = await call(env, "/api/submissions", { method: "POST", body: p });
-  await call(env, "/api/review/" + sent.data.id, {
-    method: "POST",
-    reviewer: true,
-    body: { action: "approve", revision: 1, payload: p, note: "" },
-  });
+  assert.equal(sent.data.status, "approved");
   const id = `community-${sent.data.id}-1`,
     path = "/api/manage/questions/" + id;
   assert.equal((await call(env, "/api/manage/questions")).response.status, 401);
@@ -1176,6 +1316,202 @@ test("published management enforces permissions, revisions, history, hide/restor
   );
 });
 
+test("published submission questions can be hidden or restored as a batch or individually", async () => {
+  const env = await setup(),
+    p = payload();
+  p.title = "批次下架回歸題庫";
+  p.questions = [1, 2, 3].map((n) => ({
+    ...payload().questions[0],
+    stem: `批次下架測試題目 ${n}？`,
+  }));
+  const sent = await call(env, "/api/submissions", {
+    method: "POST",
+    body: p,
+  });
+  assert.equal(sent.response.status, 201);
+  assert.equal(sent.data.status, "approved");
+  assert.equal(sent.data.acceptedCount, 3);
+
+  const submissionId = sent.data.id,
+    path = `/api/review/${submissionId}/publications`,
+    firstQuestionId = `community-${submissionId}-1`;
+  assert.equal(
+    env.sql.prepare("SELECT is_published FROM public_questions WHERE id=?").get(firstQuestionId).is_published,
+    1,
+  );
+  const approvedList = await call(env, "/api/review?status=approved", {
+      reviewer: true,
+    }),
+    item = approvedList.data.items.find((entry) => entry.id === submissionId);
+  assert.equal(item.publications.length, 3);
+  assert.deepEqual(
+    item.publications.map((publication) => publication.questionNumber),
+    [1, 2, 3],
+  );
+
+  const first = item.publications[0];
+  assert.equal(
+    (
+      await call(env, path, {
+        method: "POST",
+        body: { action: "hide", questions: [{ id: first.id, revision: first.revision }] },
+      })
+    ).response.status,
+    401,
+  );
+  assert.equal(
+    (
+      await call(env, path, {
+        method: "POST",
+        reviewer: true,
+        siteOrigin: "https://evil.test",
+        body: { action: "hide", questions: [{ id: first.id, revision: first.revision }] },
+      })
+    ).response.status,
+    403,
+  );
+  const hiddenOne = await call(env, path, {
+    method: "POST",
+    reviewer: true,
+    body: {
+      action: "hide",
+      questions: [{ id: first.id, revision: first.revision }],
+    },
+  });
+  assert.equal(hiddenOne.response.status, 200, JSON.stringify(hiddenOne.data));
+  assert.equal(hiddenOne.data.changedCount, 1);
+  assert.equal(
+    env.sql.prepare("SELECT is_published FROM public_questions WHERE id=?").get(first.id)
+      .is_published,
+    0,
+  );
+
+  const afterOne = (await call(env, "/api/review?status=approved", {
+    reviewer: true,
+  })).data.items.find((entry) => entry.id === submissionId);
+  const restoredOriginalFingerprint = env.sql
+    .prepare("SELECT fingerprint FROM public_questions WHERE id=?")
+    .get(afterOne.publications[1].id).fingerprint;
+  const hiddenBatch = await call(env, path, {
+    method: "POST",
+    reviewer: true,
+    body: {
+      action: "hide",
+      questions: afterOne.publications.map(({ id, revision }) => ({ id, revision })),
+    },
+  });
+  assert.equal(hiddenBatch.response.status, 200, JSON.stringify(hiddenBatch.data));
+  assert.equal(hiddenBatch.data.changedCount, 2);
+  assert.match(
+    env.sql
+      .prepare("SELECT fingerprint FROM public_questions WHERE id=?")
+      .get(afterOne.publications[1].id).fingerprint,
+    /^__hidden__:/,
+  );
+  assert.equal(
+    env.sql.prepare("SELECT count(*) AS n FROM public_questions WHERE submission_id=? AND is_published=1").get(submissionId).n,
+    0,
+  );
+
+  const allHidden = (await call(env, "/api/review?status=approved", {
+    reviewer: true,
+  })).data.items.find((entry) => entry.id === submissionId);
+  const restoreOne = await call(env, path, {
+    method: "POST",
+    reviewer: true,
+    body: {
+      action: "restore",
+      questions: [{
+        id: allHidden.publications[1].id,
+        revision: allHidden.publications[1].revision,
+      }],
+    },
+  });
+  assert.equal(restoreOne.response.status, 200, JSON.stringify(restoreOne.data));
+  assert.equal(restoreOne.data.changedCount, 1);
+  assert.equal(
+    env.sql
+      .prepare("SELECT fingerprint FROM public_questions WHERE id=?")
+      .get(allHidden.publications[1].id).fingerprint,
+    restoredOriginalFingerprint,
+  );
+
+  const stale = await call(env, path, {
+    method: "POST",
+    reviewer: true,
+    body: {
+      action: "hide",
+      questions: [{ id: allHidden.publications[1].id, revision: 1 }],
+    },
+  });
+  assert.equal(stale.response.status, 409);
+  assert.equal(
+    env.sql.prepare("SELECT is_published FROM public_questions WHERE id=?").get(allHidden.publications[1].id)
+      .is_published,
+    1,
+  );
+
+  const partiallyRestored = (await call(env, "/api/review?status=approved", {
+    reviewer: true,
+  })).data.items.find((entry) => entry.id === submissionId);
+  const restoreBatch = await call(env, path, {
+    method: "POST",
+    reviewer: true,
+    body: {
+      action: "restore",
+      questions: partiallyRestored.publications.map(({ id, revision }) => ({ id, revision })),
+    },
+  });
+  assert.equal(restoreBatch.response.status, 200, JSON.stringify(restoreBatch.data));
+  assert.equal(restoreBatch.data.changedCount, 2);
+  assert.equal(
+    env.sql.prepare("SELECT count(*) AS n FROM public_questions WHERE submission_id=? AND is_published=1").get(submissionId).n,
+    3,
+  );
+  assert.equal(
+    env.sql.prepare("SELECT count(*) AS n FROM question_history WHERE question_id LIKE ?").get(`community-${submissionId}-%`).n,
+    6,
+  );
+});
+
+test("bulk restore rejects a question that was re-posted while hidden", async () => {
+  const env = await setup(),
+    body = payload();
+  body.title = "下架後重新投稿的還原衝突";
+  body.questions[0].stem = "下架後允許重新投稿再阻止重複還原：" + crypto.randomUUID();
+  const first = await call(env, "/api/submissions", {
+    method: "POST",
+    body,
+  });
+  assert.equal(first.response.status, 201);
+  const oldId = `community-${first.data.id}-1`,
+    path = `/api/review/${first.data.id}/publications`;
+  const hidden = await call(env, path, {
+    method: "POST",
+    reviewer: true,
+    body: { action: "hide", questions: [{ id: oldId, revision: 1 }] },
+  });
+  assert.equal(hidden.response.status, 200, JSON.stringify(hidden.data));
+  const repeated = await call(env, "/api/submissions", {
+    method: "POST",
+    body,
+  });
+  assert.equal(repeated.response.status, 201, JSON.stringify(repeated.data));
+
+  const restore = await call(env, path, {
+    method: "POST",
+    reviewer: true,
+    body: { action: "restore", questions: [{ id: oldId, revision: 2 }] },
+  });
+  assert.equal(restore.response.status, 409);
+  assert.match(restore.data.error, /相同題目/);
+  assert.equal(
+    env.sql.prepare("SELECT is_published FROM public_questions WHERE id=?").get(oldId)
+      .is_published,
+    0,
+  );
+});
+
 test("answer matching keeps mathematics case-sensitive and supports explicit bilingual answer labels", () => {
   const key = globalThis.courseChoiceAnswers.expectedChoiceKey;
   assert.equal(key("ω", ["A. ω", "B. O", "C. Ω", "D. o"]), "A");
@@ -1217,14 +1553,11 @@ test("L7 merges option-order duplicates and recognizes every reviewed source ver
     body: p,
   });
   assert.equal(submitted.response.status, 201);
-  const approved = await call(env, "/api/review/" + submitted.data.id, {
-    method: "POST",
-    reviewer: true,
-    body: { action: "approve", revision: 1, payload: p, note: "" },
-  });
-  assert.equal(approved.response.status, 200);
+  assert.equal(submitted.data.status, "approved");
   assert.equal(
-    (await call(env, "/api/questions?course=os")).data.questions[0].unit,
+    (await call(env, "/api/questions?course=os")).data.questions.find(
+      (question) => question.question.stem === p.questions[0].stem,
+    ).unit,
     "synchronization",
   );
   const known = l7.find((q) => q.options.length);
@@ -1294,8 +1627,8 @@ test("different diagrams stay separate; identical image bytes deduplicate after 
   );
   const sent = await call(env, "/api/submissions", { method: "POST", body: p });
   assert.equal(sent.response.status, 201);
-  const stored = (await call(env, "/api/review", { reviewer: true })).data
-    .items[0];
+  const stored = (await call(env, "/api/review?status=approved", { reviewer: true })).data
+    .items.find((item) => item.id === sent.data.id);
   assert.notEqual(
     stored.payload.questions[0].imageKeys[0],
     stored.payload.questions[1].imageKeys[0],
@@ -1303,12 +1636,7 @@ test("different diagrams stay separate; identical image bytes deduplicate after 
   assert(
     stored.payload.questions.every((q) => q.imageKeys[0].startsWith("sha256:")),
   );
-  const approved = await call(env, "/api/review/" + sent.data.id, {
-    method: "POST",
-    reviewer: true,
-    body: { action: "approve", revision: 1, payload: stored.payload, note: "" },
-  });
-  assert.equal(approved.data.acceptedCount, 2);
+  assert.equal(sent.data.status, "approved");
   let live = await call(env, "/api/questions?course=os");
   assert.equal(live.data.questions.length, 2);
   for (const row of live.data.questions)
@@ -1704,19 +2032,43 @@ test('grouped submission retries with the same request ID return one receipt wit
  assert.equal((await call(env,'/api/submissions',{method:'POST',body:changed})).response.status,409);
 });
 
-test('future algorithm units stay private until review and become discoverable after approval',async()=>{
+test('new algorithm units are discoverable immediately and their name is locked for public edits',async()=>{
  const env=await setup();const body={...payload(),course:'algorithms',unit:'L7',unitTitle:'動態規劃',title:'第七章投稿'};
  body.questions[0].stem='未收錄的第七章投稿題目';
  const posted=await call(env,'/api/submissions',{method:'POST',body});assert.equal(posted.response.status,201);
- assert.equal((await call(env,'/api/units?course=algorithms')).data.units.some(u=>u.id==='L7'),false);
- assert.equal((await call(env,'/api/questions?course=algorithms')).data.questions.length,0);
- const review=await call(env,'/api/review',{reviewer:true});assert.equal(review.data.items[0].payload.unitTitle,'動態規劃');
- const revised={...review.data.items[0].payload,unitTitle:'動態規劃與最佳化'};
- const approved=await call(env,'/api/review/'+posted.data.id,{method:'POST',reviewer:true,body:{action:'approve',revision:1,note:'已核對新單元名稱及內容',payload:revised}});
- assert.equal(approved.response.status,200);
- const catalog=await call(env,'/api/units?course=algorithms');assert.equal(catalog.data.units.find(u=>u.id==='L7').title,'動態規劃與最佳化');
- const published=await call(env,'/api/questions?course=algorithms');assert.equal(published.data.questions[0].unit,'L7');assert.equal(published.data.questions[0].question.unitTitle,'動態規劃與最佳化');
+ assert.equal(posted.data.status,'approved');
+ const catalog=await call(env,'/api/units?course=algorithms');assert.equal(catalog.data.units.find(u=>u.id==='L7').title,'動態規劃');
+ const published=await call(env,'/api/questions?course=algorithms');assert.equal(published.data.questions.length,1);assert.equal(published.data.questions[0].unit,'L7');assert.equal(published.data.questions[0].question.unitTitle,'動態規劃');
+ const path=`/api/community/questions/community-${posted.data.id}-1`;
+ const changed={...body,unitTitle:'動態規劃與最佳化'};
+ const denied=await call(env,path,{method:'POST',body:{action:'update',revision:1,payload:changed}});assert.equal(denied.response.status,400);
  assert.equal((await call(env,'/api/units?course=invalid')).response.status,400);
+});
+
+test('publicly deleted community questions appear in the owner hidden list and can be restored',async()=>{
+ const env=await setup(),body=payload();
+ body.title='可還原刪除測試';
+ body.questions[0].stem='社群題目可還原刪除測試：'+crypto.randomUUID();
+ const posted=await call(env,'/api/submissions',{method:'POST',body});
+ assert.equal(posted.response.status,201);assert.equal(posted.data.status,'approved');
+ const id='community-'+posted.data.id+'-1',publicPath='/api/community/questions/'+id;
+ assert.equal((await call(env,publicPath)).response.status,200);
+ const deleted=await call(env,publicPath,{method:'POST',body:{action:'delete',revision:1,note:'誤收錄重複題'}});
+ assert.equal(deleted.response.status,200,JSON.stringify(deleted.data));assert.equal(deleted.data.item.published,false);assert.equal(deleted.data.item.revision,2);
+ assert.equal((await call(env,publicPath)).response.status,404);
+ assert.ok(!(await call(env,'/api/questions?course=os')).data.questions.some(row=>row.question.id===id));
+ const reposted=await call(env,'/api/submissions',{method:'POST',body});
+  assert.equal(reposted.response.status,201,JSON.stringify(reposted.data));assert.equal(reposted.data.status,'approved');
+  const repostId='community-'+reposted.data.id+'-1';
+  const repostDeleted=await call(env,'/api/community/questions/'+repostId,{method:'POST',body:{action:'delete',revision:1}});
+  assert.equal(repostDeleted.response.status,200,JSON.stringify(repostDeleted.data));
+ const hidden=(await call(env,'/api/manage/questions?course=os&state=hidden',{reviewer:true})).data.items.find(row=>row.id===id);
+ assert.ok(hidden);assert.equal(hidden.published,false);
+ const restored=await call(env,'/api/manage/questions/'+id,{method:'POST',reviewer:true,body:{action:'restore',revision:2,note:'站主還原誤刪題目'}});
+ assert.equal(restored.response.status,200,JSON.stringify(restored.data));assert.equal(restored.data.item.published,true);assert.equal(restored.data.item.revision,3);
+ assert.ok((await call(env,'/api/questions?course=os')).data.questions.some(row=>row.question.id===id));
+ const history=(await call(env,'/api/manage/questions/'+id+'/history',{reviewer:true})).data.items;
+ assert.equal(history.length,2);assert.ok(history.some(row=>row.action==='delete'));
 });
 
 test('built-in management lists every canonical question privately and saves durable revisions without exposing reviewer notes',async()=>{
@@ -1755,6 +2107,89 @@ test('built-in management lists every canonical question privately and saves dur
  const history2=(await call(env,path+'/history',{reviewer:true})).data.items;assert.equal(history2[0].action,'reset');assert.equal(history2[0].before.answer,'B');
 });
 
+test('anonymous users can update or recoverably delete built-in questions; only the owner can restore them',async()=>{
+ const env=await setup();
+ for(const course of ['os','algorithms']){
+  const catalog=(await call(env,'/api/manage/builtin-questions?course='+course,{reviewer:true})).data.items;
+  const original=catalog.find(r=>!r.question.images.length&&r.question.options.length);
+  const route='/api/community/builtin-questions/'+course+'/'+original.id;
+  const loaded=await call(env,route);assert.equal(loaded.response.status,200);
+  const row=loaded.data.item;
+  const question={...row.question,explanation:'公開修正的解析，保留原題與選項。'};
+  const body={action:'update',revision:row.revision,sourceHash:row.sourceHash,note:'',question};
+  assert.equal((await call(env,route,{method:'POST',siteOrigin:'https://evil.test',body})).response.status,403);
+  for(const action of ['reset','rollback','hide','restore','restoreVersion'])assert.equal((await call(env,route,{method:'POST',body:{...body,action}})).response.status,400);
+  assert.equal((await call(env,route,{method:'DELETE'})).response.status,405);
+  const saved=await call(env,route,{method:'POST',body});assert.equal(saved.response.status,200,JSON.stringify(saved.data));assert.equal(saved.data.item.revision,1);
+  assert.equal((await call(env,route,{method:'POST',body})).response.status,409);
+  assert.equal((await call(env,route)).data.item.question.explanation,question.explanation);
+  const publicRows=(await call(env,'/api/questions?course='+course)).data.overrides;
+  assert.ok(publicRows.some(r=>(r.question.id||r.question.bookmarkId)===row.id));
+  const historyPath='/api/manage/builtin-questions/'+course+'/'+row.id+'/history';
+  assert.equal((await call(env,historyPath)).response.status,401);
+  const history=(await call(env,historyPath,{reviewer:true})).data.items;
+  assert.equal(history.length,1);assert.equal(history[0].before.stem,row.question.stem);assert.equal(history[0].after.explanation,question.explanation);
+  const deleted=await call(env,route,{method:'POST',body:{action:'delete',revision:1,sourceHash:row.sourceHash,note:'清除誤收錄重複題'}});
+  assert.equal(deleted.response.status,200,JSON.stringify(deleted.data));assert.equal(deleted.data.item.deleted,true);assert.equal(deleted.data.item.revision,2);
+  const tombstone=(await call(env,'/api/questions?course='+course)).data.overrides.find(r=>r.deleted&&(r.question.id||r.question.bookmarkId)===row.id);
+  assert.ok(tombstone);assert.equal(tombstone.question.id||tombstone.question.bookmarkId,row.id);
+  assert.equal((await call(env,route)).data.item.deleted,true);
+  assert.equal((await call(env,route,{method:'POST',body:{...body,revision:2}})).response.status,404);
+  const deletedList=(await call(env,'/api/manage/builtin-questions?course='+course+'&state=deleted&q='+row.id,{reviewer:true})).data.items.find(item=>item.id===row.id);
+  assert.equal(deletedList.deleted,true);
+  const repost=await call(env,'/api/submissions',{method:'POST',body:{...payload(),course,unit:row.unit,title:'刪除後重新投稿',questions:[{...row.question,images:[]}]}});
+  assert.equal(repost.response.status,201,JSON.stringify(repost.data));assert.equal(repost.data.status,'approved');
+  const restore=await call(env,'/api/manage/builtin-questions/'+course+'/'+row.id,{method:'POST',reviewer:true,body:{action:'rollback',revision:2,sourceHash:row.sourceHash,note:'站主還原誤刪題目'}});
+  assert.equal(restore.response.status,200,JSON.stringify(restore.data));assert.equal(restore.data.item.deleted,false);assert.equal(restore.data.item.revision,3);assert.equal(restore.data.item.question.explanation,question.explanation);
+  assert.ok((await call(env,'/api/questions?course='+course)).data.overrides.some(r=>!r.deleted&&(r.question.id||r.question.bookmarkId)===row.id));
+  const reset=await call(env,'/api/manage/builtin-questions/'+course+'/'+row.id,{method:'POST',reviewer:true,body:{action:'reset',revision:3,sourceHash:row.sourceHash,note:'站主還原'}});assert.equal(reset.response.status,200);
+  assert.equal((await call(env,route)).data.item.question.explanation,row.question.explanation);
+  const historyAfterRestore=(await call(env,historyPath,{reviewer:true})).data.items;
+  assert.equal(historyAfterRestore.length,4);assert.ok(historyAfterRestore.some(row=>row.action==='delete'));
+ }
+});
+
+test('owner can directly roll a built-in question back one version and the current version remains in history',async()=>{
+ const env=await setup();
+ const row=(await call(env,'/api/manage/builtin-questions?course=os&q=basics-1',{reviewer:true})).data.items.find(item=>item.id==='basics-1');
+ const path='/api/manage/builtin-questions/os/'+row.id;
+ const firstQuestion={...row.question,stem:'直接還原測試：第一次修改'};
+ const first=await call(env,path,{method:'POST',reviewer:true,body:{action:'update',revision:0,sourceHash:row.sourceHash,note:'第一次修改',question:firstQuestion}});
+ assert.equal(first.response.status,200);
+ const secondQuestion={...first.data.item.question,stem:'直接還原測試：第二次修改'};
+ const second=await call(env,path,{method:'POST',reviewer:true,body:{action:'update',revision:1,sourceHash:row.sourceHash,note:'第二次修改',question:secondQuestion}});
+ assert.equal(second.response.status,200);
+ const rollback=await call(env,path,{method:'POST',reviewer:true,body:{action:'rollback',revision:2,sourceHash:row.sourceHash,note:'站主確認直接退回上一版'}});
+ assert.equal(rollback.response.status,200,JSON.stringify(rollback.data));
+ assert.equal(rollback.data.item.revision,3);
+ assert.equal(rollback.data.item.question.stem,firstQuestion.stem);
+ assert.equal(rollback.data.item.modified,true);
+ const history=(await call(env,path+'/history',{reviewer:true})).data.items;
+ assert.equal(history[0].action,'rollback');
+ assert.equal(history[0].before.stem,secondQuestion.stem);
+ assert.equal(history[0].after.stem,firstQuestion.stem);
+});
+
+test('direct rollback to original built-in content removes the override but preserves its history',async()=>{
+ const env=await setup();
+ const row=(await call(env,'/api/manage/builtin-questions?course=os&q=basics-1',{reviewer:true})).data.items.find(item=>item.id==='basics-1');
+ const path='/api/manage/builtin-questions/os/'+row.id;
+ const edited={...row.question,stem:'第一次修改後直接退回原題'};
+ const saved=await call(env,path,{method:'POST',reviewer:true,body:{action:'update',revision:0,sourceHash:row.sourceHash,note:'測試原題還原',question:edited}});
+ assert.equal(saved.response.status,200);
+ const rollback=await call(env,path,{method:'POST',reviewer:true,body:{action:'rollback',revision:1,sourceHash:row.sourceHash,note:'站主退回原題'}});
+ assert.equal(rollback.response.status,200,JSON.stringify(rollback.data));
+ assert.equal(rollback.data.item.revision,2);
+ assert.equal(rollback.data.item.question.stem,row.question.stem);
+ assert.equal(rollback.data.item.modified,false);
+ assert.ok(!(await call(env,'/api/questions?course=os')).data.overrides.some(item=>item.question.id===row.id));
+ const history=(await call(env,path+'/history',{reviewer:true})).data.items;
+ assert.equal(history.length,2);
+ assert.equal(history[0].action,'reset');
+ assert.equal(history[0].before.stem,edited.stem);
+ assert.equal(history[0].after.stem,row.question.stem);
+});
+
 test('built-in catalog covers both courses, aliases, image retention and conflict protection',async()=>{
  const env=await setup(),catalog=JSON.parse(await readFile(new URL('../builtin-questions.json',import.meta.url),'utf8'));
  for(const course of ['os','algorithms']){
@@ -1782,4 +2217,113 @@ test('submission fingerprints recognize the reported blankless bilingual deadloc
   const result=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'deadlocks',questions}});
   assert.equal(result.response.status,200,`question ${n}: ${JSON.stringify(result.data)}`);assert.equal(result.data.status,'duplicates_only',`question ${n}`);
  }
+});
+
+test("批次查題能清除妖獸題號標頭後命中原題",async()=>{
+ const {buildIndex,matchQuestion,normalizeStem,parseQuestions}=await import('../worker/batch-model.js');
+ const stem='當一個系統發生死結時，以下哪些必要條件是同時成立的？';
+ const options=['循環等待','互斥','無搶佔','佔用與等待'];
+ const parsed=parseQuestions(`妖獸 8. ${stem}\n${options.map((value,i)=>`${'ABCD'[i]}. ${value}`).join('\n')}`)[0];
+ assert.equal(parsed.number,'8');
+ assert.equal(normalizeStem(parsed.stem),normalizeStem(stem));
+ const structuredImport={...parsed,stem:`妖獸 8. ${stem}`,type:'多選題'};
+ assert.equal(normalizeStem(structuredImport.stem),normalizeStem(stem));
+ const entry={course:'os',unit:'deadlocks',id:'os8-deadlock-conditions',stem,options,answer:'A、B、C、D',choiceKey:'ABCD',preferred:true,needsImage:false,conditions:[]};
+ const matched=matchQuestion(structuredImport,buildIndex([entry]),{course:'os',unit:'deadlocks'});
+ assert.equal(matched.status,'matched');
+ assert.equal(matched.answer,'A. 循環等待；B. 互斥；C. 無搶佔；D. 佔用與等待');
+});
+
+test('unified management returns private lightweight summaries and preserves history after a reset',async()=>{
+ const env=await setup();
+ for(const path of ['/api/manage/library','/api/manage/library/item?source=builtin&course=os&id=basics-1'])
+   assert.equal((await call(env,path)).response.status,401);
+ const list=await call(env,'/api/manage/library?course=os&source=builtin',{reviewer:true});
+ assert.equal(list.response.status,200,JSON.stringify(list.data));
+ assert.equal(list.data.items.length,25);assert.ok(list.data.total>100);
+ assert.ok(list.data.items.every(row=>row.source==='builtin'&&!('question'in row)&&!('images'in row)&&!('explanation'in row)));
+ assert.ok(list.data.units.some(row=>row.id==='basics'));
+ const detail='/api/manage/library/item?source=builtin&course=os&id=basics-1';
+ const original=(await call(env,detail,{reviewer:true})).data.item;
+ assert.equal(original.hasHistory,false);assert.equal(original.currentOriginal,true);
+ const endpoint='/api/manage/builtin-questions/os/basics-1';
+ assert.equal((await call(env,endpoint,{method:'POST',reviewer:true,body:{action:'update',revision:0,sourceHash:original.sourceHash,note:'統一管理測試修改',question:{...original.question,explanation:'新的統一管理測試解析'}}})).response.status,200);
+ assert.equal((await call(env,endpoint,{method:'POST',reviewer:true,body:{action:'reset',revision:1,sourceHash:original.sourceHash,note:'還原原始內容'}})).response.status,200);
+ const changed=(await call(env,'/api/manage/library?course=os&state=modified',{reviewer:true})).data.items.find(row=>row.id==='basics-1');
+ assert.equal(changed.hasHistory,true);assert.equal(changed.currentOriginal,true);assert.equal(changed.revision,2);
+ const after=(await call(env,detail,{reviewer:true})).data.item;
+ assert.deepEqual(after.question,after.original);assert.equal(after.hasHistory,true);
+ const invalid=await call(env,'/api/manage/library?source=unexpected',{reviewer:true});assert.equal(invalid.response.status,400);
+});
+
+test('management import history sends summaries first and loads one batch only when opened',async()=>{
+ const env=await setup(),sent=await call(env,'/api/submissions',{method:'POST',body:{...payload(),title:'匯入摘要測試'}});
+ const id=sent.data.id,summary=await call(env,'/api/manage/imports?status=approved',{reviewer:true});
+ assert.equal(summary.response.status,200);const row=summary.data.items.find(item=>item.id===id);
+ assert.ok(row);assert.equal(row.title,'匯入摘要測試');assert.equal(row.questionCount,payload().questions.length);
+ assert.equal('payload'in row,false);assert.ok(Array.isArray(row.publications));
+ assert.equal((await call(env,'/api/manage/imports/'+id)).response.status,401);
+ const detail=await call(env,'/api/manage/imports/'+id,{reviewer:true});
+ assert.equal(detail.response.status,200);assert.equal(detail.data.item.payload.questions.length,row.questionCount);
+ assert.equal(detail.data.item.publications.length,row.publications.length);
+});
+
+test('unified community management restores previous and original versions with conflicts and deletion recovery intact',async()=>{
+ const env=await setup(), sent=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'L9',unitTitle:'記憶體管理'}});
+ assert.equal(sent.response.status,201,JSON.stringify(sent.data));
+ const id='community-'+sent.data.id+'-1',endpoint='/api/manage/questions/'+id;
+ const detail='/api/manage/library/item?course=os&source=community&id='+id;
+ const original=(await call(env,detail,{reviewer:true})).data.item;
+ const body=(answer)=>({action:'update',revision:1,note:'管理測試',payload:{...payload(),unit:'L9',unitTitle:'記憶體管理',questions:[{...original.question,answer}]}});
+ assert.equal((await call(env,endpoint,{method:'POST',reviewer:true,body:body('B')})).response.status,200);
+ assert.equal((await call(env,endpoint,{method:'POST',reviewer:true,body:{action:'rollback',revision:2,note:'退回上一版'}})).response.status,200);
+ assert.equal((await call(env,detail,{reviewer:true})).data.item.question.answer,original.question.answer);
+ const second=body('B');second.revision=3;
+ assert.equal((await call(env,endpoint,{method:'POST',reviewer:true,body:second})).response.status,200);
+ const reset=await call(env,endpoint,{method:'POST',reviewer:true,body:{action:'resetOriginal',revision:4,note:'退回原始版'}});
+ assert.equal(reset.response.status,200,JSON.stringify(reset.data));assert.equal(reset.data.item.question.answer,original.question.answer);
+ assert.equal((await call(env,endpoint,{method:'POST',reviewer:true,body:{action:'resetOriginal',revision:4}})).response.status,409);
+ assert.equal((await call(env,'/api/community/questions/'+id,{method:'POST',body:{action:'resetOriginal',revision:5}})).response.status,400);
+ assert.equal((await call(env,'/api/community/questions/'+id,{method:'POST',body:{action:'delete',revision:5}})).response.status,200);
+ const removed=(await call(env,'/api/manage/library?course=os&state=deleted',{reviewer:true})).data;
+ assert.ok(removed.items.some(row=>row.id===id&&row.deleted&&row.hasHistory));
+ assert.ok(removed.units.some(row=>row.id==='L9'));
+ assert.ok(!(await call(env,'/api/manage/library?course=os',{reviewer:true})).data.items.some(row=>row.id===id));
+ assert.equal((await call(env,endpoint,{method:'POST',reviewer:true,body:{action:'restore',revision:6,note:'復原誤刪'}})).response.status,200);
+ const history=await call(env,endpoint+'/history',{reviewer:true});assert.equal(history.data.items.length,6);
+ assert.ok(history.data.items.some(row=>row.action==='resetOriginal'));
+});
+
+test('community editor preserves translation, option translations and notes through saves and history',async()=>{
+ const env=await setup(),sent=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'L9',unitTitle:'記憶體管理'}});
+ const id='community-'+sent.data.id+'-1',detail='/api/manage/library/item?course=os&source=community&id='+id,endpoint='/api/manage/questions/'+id;
+ const original=(await call(env,detail,{reviewer:true})).data.item.question;
+ const translation='題幹翻譯保留';
+ const optionTranslations=original.options.map((_,i)=>'選項翻譯'+(i+1));
+ const question={...original,answer:'B',translation,optionTranslations,note:'題目備註保留'};
+ const payloadBody={...payload(),unit:'L9',unitTitle:'記憶體管理',questions:[question]};
+ assert.equal((await call(env,endpoint,{method:'POST',reviewer:true,body:{action:'update',revision:1,note:'修正翻譯',payload:payloadBody}})).response.status,200);
+ const updated=(await call(env,detail,{reviewer:true})).data.item.question;
+ assert.equal(updated.translation,translation);assert.deepEqual(updated.optionTranslations,optionTranslations);assert.equal(updated.note,'題目備註保留');
+ question.explanation='保留翻譯的第二版';
+ assert.equal((await call(env,endpoint,{method:'POST',reviewer:true,body:{action:'update',revision:2,note:'第二次修正',payload:payloadBody}})).response.status,200);
+ const history=await call(env,endpoint+'/history',{reviewer:true});
+ assert.equal(history.data.items[0].data.translation,translation);assert.equal(history.data.items[0].data.note,'題目備註保留');
+});
+
+test('public conditional synchronization responds 304 only for the current content revision including edits and removals',async()=>{
+ const env=await setup();
+ const conditional=etag=>worker.fetch(new Request(origin+'/api/questions?course=os',{headers:{origin:'https://yocheng06.github.io',...(etag?{'if-none-match':etag}:{})}}),env);
+ const first=await conditional(),etag=first.headers.get('etag');assert.match(etag,/^"[0-9a-f]{64}"$/);
+ assert.equal(first.headers.get('access-control-expose-headers'),'ETag');
+ assert.equal((await conditional(etag)).status,304);
+ const row=(await call(env,'/api/manage/library/item?course=os&source=builtin&id=basics-1',{reviewer:true})).data.item;
+ const endpoint='/api/manage/builtin-questions/os/basics-1';
+ await call(env,endpoint,{method:'POST',reviewer:true,body:{action:'update',revision:0,sourceHash:row.sourceHash,note:'etag 測試',question:{...row.question,explanation:'etag changed'}}});
+ const changed=await conditional(etag);assert.equal(changed.status,200);assert.notEqual(changed.headers.get('etag'),etag);
+ const nextTag=changed.headers.get('etag');assert.equal((await conditional(nextTag)).status,304);
+ await call(env,'/api/community/builtin-questions/os/basics-1',{method:'POST',body:{action:'delete',revision:1,sourceHash:row.sourceHash}});
+ const deleted=await conditional(nextTag);assert.equal(deleted.status,200);assert.notEqual(deleted.headers.get('etag'),nextTag);
+ const preflight=await worker.fetch(new Request(origin+'/api/questions?course=os',{method:'OPTIONS',headers:{origin:'https://yocheng06.github.io'}}),env);
+ assert.match(preflight.headers.get('access-control-allow-headers'),/If-None-Match/);
 });

@@ -90,3 +90,20 @@
   html[data-theme="dark"] .community-entry p { color:#D0D0D0!important; }
 }
 @media print { .theme-toggle { display:none!important; } }
+/* Quick paging must inherit the same readable palette as the main toolbar. */
+@media screen {
+  html[data-theme="dark"] .reading-pager {
+    background:#111111!important;color:#FFFFFF!important;border-color:#555555!important;
+  }
+  html[data-theme="dark"] .reading-pager button {
+    background:#222222!important;color:#FFFFFF!important;border-color:#777777!important;
+  }
+  html[data-theme="dark"] .reading-pager button:hover:not(:disabled) { background:#393939!important; }
+  html[data-theme="dark"] .reading-pager button:disabled {
+    background:#171717!important;color:#AFAFAF!important;opacity:1;
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  html { scroll-behavior:auto!important; }
+  *,*::before,*::after { transition:none!important;animation:none!important; }
+}

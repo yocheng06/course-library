@@ -23,6 +23,7 @@ const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
 let selectedImportImageFiles = [];
+let selectedQuestionHtml = null, selectedAnswerHtml = null, importBusy = false, draftSaveTimer;
 let questions = [],
   images = [],
   editIndex = -1,
@@ -71,6 +72,7 @@ function metadata() {
     title:$("batchTitle").value,name:$("submitter").value,source:$("source").value};
 }
 function save() {
+  clearTimeout(draftSaveTimer);
   try {
     localStorage.setItem(
       key,
@@ -91,6 +93,12 @@ function save() {
     return false;
   }
 }
+function scheduleDraftSave() {
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = setTimeout(save, 300);
+}
+window.addEventListener("pagehide", save);
+document.addEventListener("visibilitychange", () => { if (document.hidden) save(); });
 function ready() {
   $("submitBatch").disabled =
     !questions.length ||
@@ -243,10 +251,10 @@ $("course").addEventListener("change", () => {
   loadPublicUnits();
 });
 ["unit", "newUnitNumber", "newUnitTitle", "batchTitle", "submitter", "source"].forEach((id) =>
-  $(id).addEventListener("input", save),
+  $(id).addEventListener("input", scheduleDraftSave),
 );
 $("unit").addEventListener("change",unitFields);
-form.addEventListener("input", save);
+form.addEventListener("input", scheduleDraftSave);
 form.elements.type.addEventListener("change", typeChanged);
 $("consent").addEventListener("change", ready);
 $("cancelEdit").addEventListener("click", clearEditor);
@@ -323,6 +331,7 @@ $("draftList").addEventListener("click", (event) => {
     nextAction.focus();
   }
   if (b.dataset.edit !== undefined) {
+    setSubmissionMode("manual");
     editIndex = Number(b.dataset.edit);
     const q = questions[editIndex];
     for (const name of ["category", "type", "stem", "answer", "explanation"])
@@ -731,6 +740,66 @@ function importedQuestions(data) {
   return data.questions;
 }
 $("chooseImport").addEventListener("click", () => $("importFile").click());
+function setSubmissionMode(mode) {
+  const importing = mode === "import";
+  $("importWorkspace").hidden = !importing;
+  form.hidden = importing;
+  $("draftHeading").closest("section").hidden = importing;
+  const grouped = document.querySelector(".group-preview");
+  if (grouped) grouped.hidden = !importing;
+  for (const [id, active] of [["showHtmlImport", importing], ["showManualEntry", !importing]]) {
+    $(id).setAttribute("aria-pressed", String(active));
+    $(id).classList.toggle("secondary", !active);
+  }
+}
+function updatePairStatus() {
+  for (const id of ["chooseQuestionHtml", "chooseAnswerHtml", "chooseImportImages", "chooseImport"]) $(id).disabled = importBusy;
+  $("questionHtmlName").textContent = selectedQuestionHtml?.name || "尚未選取";
+  $("answerHtmlName").textContent = selectedAnswerHtml?.name || "尚未選取";
+  $("previewHtmlPair").disabled = importBusy || !selectedQuestionHtml || !selectedAnswerHtml;
+  $("htmlPairStatus").textContent = importBusy ? "正在產生預覽，請稍候…" :
+    selectedQuestionHtml && selectedAnswerHtml ? "檔案已備妥；有題圖時選取資料夾，再產生預覽。" : "請先選取題目及交卷結果兩份 HTML。";
+}
+for (const [buttonId, inputId, kind] of [["chooseQuestionHtml", "questionHtmlFile", "question"], ["chooseAnswerHtml", "answerHtmlFile", "answer"]]) {
+  $(buttonId).addEventListener("click", () => $(inputId).click());
+  $(inputId).addEventListener("change", event => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (kind === "question") selectedQuestionHtml = file;
+      else selectedAnswerHtml = file;
+    }
+    event.target.value = "";
+    updatePairStatus();
+  });
+}
+$("showHtmlImport").addEventListener("click", () => setSubmissionMode("import"));
+$("showManualEntry").addEventListener("click", () => setSubmissionMode("manual"));
+async function previewImport(files) {
+  if (importBusy) return false;
+  importBusy = true;
+  updatePairStatus();
+  try {
+    await groupedSubmissions.importFiles(files, selectedImportImageFiles);
+    selectedImportImageFiles = [];
+    $("importImageStatus").textContent = "題圖已帶入預覽；選取的圖片暫存已清除。";
+    setSubmissionMode("import");
+    return true;
+  } catch(error) {
+    message("無法匯入：" + error.message, true);
+    return false;
+  } finally {
+    importBusy = false;
+    updatePairStatus();
+  }
+}
+$("previewHtmlPair").addEventListener("click", async () => {
+  if (!selectedQuestionHtml || !selectedAnswerHtml) return;
+  if (await previewImport([selectedQuestionHtml, selectedAnswerHtml])) {
+    selectedQuestionHtml = selectedAnswerHtml = null;
+    updatePairStatus();
+    $("htmlPairStatus").textContent = "已產生預覽，尚未送出。請往下核對每題、正解與題圖。";
+  }
+});
 $("chooseImportImages").addEventListener("click", () => $("importImages").click());
 $("importImages").addEventListener("change", (event) => {
   const files = Array.from(event.target.files || []),
@@ -743,12 +812,7 @@ $("importImages").addEventListener("change", (event) => {
 });
 $("importFile").addEventListener("change", async event => {
   const files=event.target.files;if(!files?.length)return;
-  try {
-    await groupedSubmissions.importFiles(files, selectedImportImageFiles);
-    selectedImportImageFiles = [];
-    $("importImageStatus").textContent = "尚未選取題圖資料夾；沒有本機圖片時可直接匯入。";
-  }
-  catch(error) { message('無法匯入：'+error.message,true); }
+  try { await previewImport(files); }
   finally { event.target.value=''; }
 });
 $("downloadExample").addEventListener("click", () =>
@@ -938,6 +1002,7 @@ setupSubmissionInbox({
   message,
   onStorage: handler => window.addEventListener("storage", handler),
   addQuestion(q) {
+    setSubmissionMode("manual");
     if (submitPending || imageReadPending) throw new Error("請等待目前操作完成。");
     const hasEditor = editIndex !== -1 || images.length ||
       ["category", "stem", "options", "answer", "explanation"].some(name => form.elements[name].value.trim());
@@ -978,3 +1043,5 @@ const groupedSubmissions=setupGroupedSubmissions({parseImport,metadata,message,o
 }});
 
 loadPublicUnits();
+setSubmissionMode(document.querySelector(".group-preview [data-group-index]") ? "import" :
+  questions.length || editIndex !== -1 || form.elements.stem.value.trim() ? "manual" : "import");

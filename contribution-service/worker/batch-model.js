@@ -159,6 +159,7 @@ function answerFormat(value) {
 export const normalizeStem = (value) =>
   answerFormat(value)
     .stem.replace(/使用著空間/g, "使用者空間")
+    .replace(/^\s*(?:\*\*)?妖獸\s*\d{1,4}\s*[.．。)、:：）](?:\*\*)?\s*/u, "")
     .replace(/[?？。.!！]+$/u, "")
     .trim();
 export const optionText = (value) =>

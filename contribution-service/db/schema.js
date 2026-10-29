@@ -38,7 +38,7 @@ export const publicQuestions = sqliteTable(
     updatedAt: integer("updated_at"),
     createdAt: integer("created_at").notNull(),
   },
-  (t) => [index("questions_course_unit").on(t.course, t.unit)],
+  (t) => [index("questions_course_unit").on(t.course, t.unit),index("questions_course_visibility_id").on(t.course,t.isPublished,t.id)],
 );
 export const rateWindows = sqliteTable("rate_windows", {
   key: text("key").primaryKey(),
@@ -78,7 +78,7 @@ export const questionHistory = sqliteTable(
     note: text("note").notNull().default(""),
     createdAt: integer("created_at").notNull(),
   },
-  (t) => [index("history_question_created").on(t.questionId, t.createdAt)],
+  (t) => [index("history_question_created").on(t.questionId, t.createdAt),index("history_question_revision").on(t.questionId,t.revision)],
 );
 export const contentUpdates = sqliteTable("content_updates", {
   id: text("id").primaryKey(),

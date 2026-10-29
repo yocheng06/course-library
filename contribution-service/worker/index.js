@@ -6,12 +6,14 @@ import {
 } from "./model.js";
 /* BUILD_DATA */
 /* BUILTIN_MANAGEMENT */
+/* LIBRARY_MANAGEMENT */
 const SITE_ORIGIN =
   "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site";
 const LIBRARY_ORIGIN = "https://yocheng06.github.io";
 const ADMIN_COOKIE = "__Host-course-admin";
 const ADMIN_SESSION_MS = 8 * 60 * 60 * 1000;
 const ADMIN_PASSWORD_ITERATIONS = 100000;
+const HIDDEN_FINGERPRINT_VERSION = "hidden-question-fingerprints-v1";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const origins = new Set([SITE_ORIGIN, LIBRARY_ORIGIN]);
 const initializedAdminDatabases = new WeakSet();
@@ -32,6 +34,7 @@ function json(value, status = 200) {
   });
 }
 async function removePublished(env, payload, skipped, input) {
+  await releaseLegacyHiddenFingerprints(env);
   const keys = await fingerprints(payload);
   const duplicateIndexes = new Set(await duplicates(env, keys, payload));
   const sourceIndexes = new Map();
@@ -71,6 +74,54 @@ function duplicateReport(input, payload, skipped) {
     skippedCount: skipped.length,
     skipped,
   };
+}
+function publicationRows(payload, keys, submissionId, createdAt = Date.now()) {
+  return payload.questions.map((q, i) => {
+    const id = `community-${submissionId}-${i + 1}`;
+    const raw =
+      payload.course === "os"
+        ? {
+            id,
+            category: q.category,
+            type: q.type,
+            stem: q.stem,
+            options: q.options,
+            answer: q.answer,
+            explanation: q.explanation,
+            choiceKey: q.choiceKey,
+            imageKeys: q.imageKeys,
+            answerProvided: true,
+            images: q.images.map((src) => ({ src, alt: q.stem })),
+            translation: "",
+            terms: [],
+            note: "",
+          }
+        : {
+            bookmarkId: id,
+            category: q.category,
+            type: q.type,
+            q: q.stem,
+            opts: q.options,
+            a: q.answer,
+            ex: q.explanation,
+            choiceKey: q.choiceKey,
+            imageKeys: q.imageKeys,
+            answerProvided: true,
+            images: q.images.map((src) => ({ src, alt: q.stem })),
+            warn: false,
+            exact: false,
+          };
+    if (payload.unitTitle) raw.unitTitle = payload.unitTitle;
+    return {
+      id,
+      fingerprint: keys[i],
+      submissionId,
+      course: payload.course,
+      unit: payload.unit,
+      data: JSON.stringify(raw),
+      createdAt,
+    };
+  });
 }
 async function ensureAdminDatabase(env) {
   if (initializedAdminDatabases.has(env.DB)) return;
@@ -466,22 +517,48 @@ async function fingerprints(payload) {
     ),
   );
 }
+async function releaseLegacyHiddenFingerprints(env) {
+  if (
+    await env.DB.prepare("SELECT id FROM content_updates WHERE id=?")
+      .bind(HIDDEN_FINGERPRINT_VERSION)
+      .first()
+  )
+    return;
+  await env.DB.batch([
+    env.DB.prepare(
+      "UPDATE public_questions SET fingerprint='__hidden__:' || id || ':' || revision WHERE is_published=0 AND substr(fingerprint,1,11)<>'__hidden__:'",
+    ),
+    env.DB.prepare(
+      "INSERT OR IGNORE INTO content_updates (id,applied_at) VALUES (?,?)",
+    ).bind(HIDDEN_FINGERPRINT_VERSION, Date.now()),
+  ]);
+}
 async function duplicates(env, keys, payload, excludeId = null) {
-  const baseKeys = excludeId
-    ? BASE_FINGERPRINTS.filter((_, i) => BASE_QUESTIONS[i].canonicalId !== excludeId)
-    : BASE_FINGERPRINTS;
+  const builtinRows = await publicBuiltinOverrides(env, payload.course),
+    deletedBuiltins = new Set(
+      builtinRows
+        .filter((row) => row.deleted)
+        .map((row) => row.question.id || row.question.bookmarkId),
+    ),
+    baseKeys = BASE_FINGERPRINTS.filter((_, i) => {
+      const base = BASE_QUESTIONS[i];
+      return (
+        (!excludeId || base.canonicalId !== excludeId) &&
+        !(base.course === payload.course && deletedBuiltins.has(base.canonicalId))
+      );
+    });
   const found = new Set(keys.filter((k) => baseKeys.includes(k)));
-  for (const row of await publicBuiltinOverrides(env,payload.course)) {
-    if(row.unit===payload.unit && (row.question.id || row.question.bookmarkId)!==excludeId)
+  for (const row of builtinRows) {
+    if(!row.deleted && row.unit===payload.unit && (row.question.id || row.question.bookmarkId)!==excludeId)
       for(const q of builtinVariants(row.question))found.add(await hash(questionKey(payload.course,row.unit,q)));
   }
   const result = await env.DB.prepare(
-    "SELECT id,course,unit,data,fingerprint FROM public_questions WHERE course=? AND unit=?",
+    "SELECT id,course,unit,data,fingerprint,is_published FROM public_questions WHERE course=? AND unit=?",
   )
     .bind(payload.course, payload.unit)
     .all();
   for (const row of result.results) {
-    if (row.id === excludeId) continue;
+    if (row.id === excludeId || !row.is_published) continue;
     const raw = JSON.parse(row.data),
       q = canonicalQuestion(raw);
     await attachImageKeys(env, { questions: [q] }, { questions: [raw] });
@@ -588,15 +665,16 @@ async function submit(request, env) {
   if (body.clientRequestId !== undefined) {
     if (!uuid.test(body.clientRequestId)) throw new HttpError(400,'批次識別碼不正確。');
     requestHash=await hash(JSON.stringify(payload));
-    const previous=await env.DB.prepare('SELECT payload FROM submissions WHERE id=?').bind(body.clientRequestId).first();
+    const previous=await env.DB.prepare('SELECT payload,status FROM submissions WHERE id=?').bind(body.clientRequestId).first();
     if(previous){
       const saved=JSON.parse(previous.payload);
       if(saved.requestHash!==requestHash)throw new HttpError(409,'此批次識別碼已使用，請重新匯入修改後的檔案。');
-      return json({id:body.clientRequestId,status:'pending',...saved.requestResult});
+      return json({id:body.clientRequestId,status:previous.status,...saved.requestResult});
     }
   }
   await attachImageKeys(env, payload);
-  ({ payload } = await removePublished(env, payload, skipped, body));
+  let keys;
+  ({ payload, keys } = await removePublished(env, payload, skipped, body));
   const report = duplicateReport(body, payload, skipped);
   await checkSimilar(env, payload, body.confirmSimilar);
   if (!payload.questions.length)
@@ -638,28 +716,36 @@ async function submit(request, env) {
       payload.questions[image.i].images[image.j] =
         SITE_ORIGIN + "/api/image/" + id + "/" + image.i + "-" + image.j;
     }
-    await env.DB.prepare(
-      "INSERT INTO submissions (id,course,unit,title,payload,status,revision,created_at,note) VALUES (?,?,?,?,?,'pending',1,?,'')",
-    )
-      .bind(
+    const createdAt = Date.now();
+    const rows = publicationRows(payload, keys, id, createdAt);
+    await env.DB.batch([
+      env.DB.prepare(
+        "INSERT INTO submissions (id,course,unit,title,payload,status,revision,created_at,reviewed_at,reviewer_id,note) VALUES (?,?,?,?,?,'approved',1,?,?,'community','投稿後立即加入公開題庫')",
+      ).bind(
         id,
         payload.course,
         payload.unit,
         payload.title,
         JSON.stringify(payload),
-        Date.now(),
-      )
-      .run();
+        createdAt,
+        createdAt,
+      ),
+      env.DB.prepare(
+        "INSERT INTO public_questions (id,fingerprint,submission_id,course,unit,data,created_at) SELECT json_extract(value,'$.id'),json_extract(value,'$.fingerprint'),json_extract(value,'$.submissionId'),json_extract(value,'$.course'),json_extract(value,'$.unit'),json_extract(value,'$.data'),json_extract(value,'$.createdAt') FROM json_each(?) WHERE EXISTS (SELECT 1 FROM submissions WHERE id=? AND status='approved' AND reviewer_id='community')",
+      ).bind(JSON.stringify(rows), id),
+    ]);
   } catch (error) {
     if(requestHash){
-      const previous=await env.DB.prepare('SELECT payload FROM submissions WHERE id=?').bind(id).first();
+      const previous=await env.DB.prepare('SELECT payload,status FROM submissions WHERE id=?').bind(id).first();
       const stored=previous && JSON.parse(previous.payload);
-      if(stored?.requestHash===requestHash)return json({id,status:'pending',...stored.requestResult});
+      if(stored?.requestHash===requestHash)return json({id,status:previous.status,...stored.requestResult});
     }
     await Promise.allSettled(saved.map((key) => env.BUCKET.delete(key)));
+    if (String(error).includes("UNIQUE constraint failed: public_questions.fingerprint"))
+      throw new HttpError(409, "題庫剛加入相同題目，請重新檢查重複清單後再送出。");
     throw error;
   }
-  return json({ id, status: "pending", ...report }, 201);
+  return json({ id, status: "approved", ...report }, 201);
 }
 function supplementApprovedQuestion(
   question,
@@ -735,10 +821,200 @@ async function listReview(request, env, url) {
       .bind(status)
       .all();
   const rows = records.results.slice(0, 20);
+  const items = rows.map(submissionRow);
+  if (status === "approved" && rows.length) {
+    const placeholders = rows.map(() => "?").join(",");
+    const publications = await env.DB.prepare(
+      `SELECT submission_id,id,is_published,revision,data FROM public_questions WHERE submission_id IN (${placeholders}) ORDER BY submission_id,created_at,id`,
+    )
+      .bind(...rows.map((row) => row.id))
+      .all();
+    const bySubmission = new Map();
+    for (const publication of publications.results) {
+      const entries = bySubmission.get(publication.submission_id) || [];
+      entries.push({
+        id: publication.id,
+        questionNumber: Number(publication.id.match(/-(\d+)$/)?.[1]) || 0,
+        revision: publication.revision,
+        published: Boolean(publication.is_published),
+        mergedInto: JSON.parse(publication.data).mergedInto || null,
+      });
+      bySubmission.set(publication.submission_id, entries);
+    }
+    for (const item of items)
+      item.publications = (bySubmission.get(item.id) || []).sort(
+        (a, b) => a.questionNumber - b.questionNumber,
+      );
+  }
   return json({
-    items: rows.map(submissionRow),
+    items,
     nextCursor: records.results.length > 20 ? rows.at(-1).id : null,
   });
+}
+async function manageSubmissionPublications(request, env, id) {
+  const actor = await owner(request, env);
+  requireOrigin(request, true);
+  const body = await readBody(request);
+  if (!body || !["hide", "restore"].includes(body.action))
+    throw new HttpError(400, "下架操作不正確。");
+  if (
+    !Array.isArray(body.questions) ||
+    !body.questions.length ||
+    body.questions.length > 200
+  )
+    throw new HttpError(400, "請選擇 1 到 200 題再操作。");
+  if (body.note !== undefined && (typeof body.note !== "string" || body.note.length > 2000))
+    throw new HttpError(400, "修改說明格式不正確。");
+
+  const submission = await env.DB.prepare(
+    "SELECT status,payload FROM submissions WHERE id=?",
+  )
+    .bind(id)
+    .first();
+  if (!submission) throw new HttpError(404, "找不到這份投稿。");
+  if (submission.status !== "approved")
+    throw new HttpError(409, "只有已核准的投稿可以管理上架狀態。");
+
+  const approvedPayload = JSON.parse(submission.payload),
+    requests = new Map();
+  for (const item of body.questions) {
+    if (
+      !item ||
+      typeof item.id !== "string" ||
+      !Number.isSafeInteger(item.revision) ||
+      item.revision < 1
+    )
+      throw new HttpError(400, "題目編號或版本格式不正確。");
+    const match = /^community-([0-9a-f-]{36})-([1-9]\d*)$/.exec(item.id);
+    if (!match || match[1] !== id || Number(match[2]) > approvedPayload.questions.length)
+      throw new HttpError(400, "題目不屬於這份已核准投稿。");
+    if (requests.has(item.id)) throw new HttpError(400, "題目不可重複選取。");
+    requests.set(item.id, item.revision);
+  }
+
+  const result = await env.DB.prepare(
+    "SELECT * FROM public_questions WHERE submission_id=?",
+  )
+    .bind(id)
+    .all();
+  const byId = new Map(result.results.map((row) => [row.id, row]));
+  const targetPublished = body.action === "restore" ? 1 : 0,
+    currentPublished = targetPublished ? 0 : 1,
+    changed = [],
+    restoredFingerprints = new Set();
+  for (const [questionId, expectedRevision] of requests) {
+    const row = byId.get(questionId);
+    if (!row) throw new HttpError(404, "找不到所選的已發布題目。");
+    if (row.is_published === targetPublished) continue;
+    if (row.revision !== expectedRevision)
+      throw new HttpError(409, "題目狀態已更新，請重新載入後再操作。");
+    if (body.action === "restore" && JSON.parse(row.data).mergedInto)
+      throw new HttpError(409, "此題已整合至內建題目，不能單獨重新上架。");
+    let fingerprint;
+    if (body.action === "restore") {
+      const raw = JSON.parse(row.data),
+        restored = {
+          course: row.course,
+          unit: row.unit,
+          questions: [canonicalQuestion(raw)],
+        };
+      await attachImageKeys(env, restored, { questions: [raw] });
+      [fingerprint] = await fingerprints(restored);
+      if (
+        restoredFingerprints.has(fingerprint) ||
+        (await duplicates(env, [fingerprint], restored, row.id)).length
+      )
+        throw new HttpError(409, "已有相同題目，請先處理重複題再還原。");
+      restoredFingerprints.add(fingerprint);
+    } else {
+      fingerprint = `__hidden__:${row.id}:${row.revision + 1}`;
+    }
+    changed.push({
+      id: row.id,
+      revision: row.revision,
+      historyId: crypto.randomUUID(),
+      fingerprint,
+    });
+  }
+  if (!changed.length)
+    return json({ action: body.action, changedCount: 0 });
+
+  const packed = JSON.stringify(changed),
+    now = Date.now(),
+    note = body.note?.trim() ||
+      (body.action === "hide" ? "從已核准投稿批次下架" : "從已核准投稿批次重新上架"),
+    expectedCount = changed.length,
+    exactRows = `(
+      SELECT COUNT(*)
+      FROM public_questions AS checked
+      JOIN json_each(?) AS requested ON checked.id=json_extract(requested.value,'$.id')
+      WHERE checked.submission_id=?
+        AND checked.revision=json_extract(requested.value,'$.revision')
+        AND checked.is_published=?
+    )`;
+  const history = env.DB.prepare(
+    `INSERT INTO question_history (id,question_id,revision,course,unit,data,is_published,action,actor,note,created_at)
+      SELECT json_extract(requested.value,'$.historyId'),current.id,current.revision,current.course,current.unit,current.data,current.is_published,?,?,?,?
+      FROM public_questions AS current
+      JOIN json_each(?) AS requested ON current.id=json_extract(requested.value,'$.id')
+      WHERE current.submission_id=?
+        AND current.revision=json_extract(requested.value,'$.revision')
+        AND current.is_published=?
+        AND ${exactRows}=?`,
+  ).bind(
+    body.action,
+    actor,
+    note,
+    now,
+    packed,
+    id,
+    currentPublished,
+    packed,
+    id,
+    currentPublished,
+    expectedCount,
+  );
+  const update = env.DB.prepare(
+    `UPDATE public_questions
+      SET is_published=?,
+        fingerprint=(SELECT json_extract(requested.value,'$.fingerprint')
+          FROM json_each(?) AS requested
+          WHERE json_extract(requested.value,'$.id')=public_questions.id),
+        revision=revision+1,updated_at=?
+      WHERE submission_id=?
+        AND is_published=?
+        AND EXISTS (
+          SELECT 1 FROM json_each(?) AS requested
+          WHERE json_extract(requested.value,'$.id')=public_questions.id
+            AND json_extract(requested.value,'$.revision')=public_questions.revision
+        )
+        AND ${exactRows}=?`,
+  ).bind(
+    targetPublished,
+    packed,
+    now,
+    id,
+    currentPublished,
+    packed,
+    packed,
+    id,
+    currentPublished,
+    expectedCount,
+  );
+  let results;
+  try {
+    results = await env.DB.batch([history, update]);
+  } catch (error) {
+    if (String(error).includes("public_questions.fingerprint"))
+      throw new HttpError(409, "題庫剛加入相同題目，請重新載入後再還原。");
+    throw error;
+  }
+  if (
+    results[0].meta.changes !== expectedCount ||
+    results[1].meta.changes !== expectedCount
+  )
+    throw new HttpError(409, "題目狀態已更新，未完成操作；請重新載入後再試。");
+  return json({ action: body.action, changedCount: expectedCount });
 }
 function storedImagesOnly(original, payload, id) {
   const allowed = new Set(original.questions.flatMap((q) => q.images));
@@ -941,9 +1217,10 @@ async function ensureReviewedContent(env) {
       );
       statements.push(
         env.DB.prepare(
-          "UPDATE public_questions SET data=?,is_published=0,revision=revision+1,updated_at=? WHERE id=? AND revision=? AND data=?",
+          "UPDATE public_questions SET data=?,fingerprint=?,is_published=0,revision=revision+1,updated_at=? WHERE id=? AND revision=? AND data=?",
         ).bind(
           JSON.stringify({ ...raw, mergedInto: spec.target }),
+          `__hidden__:${row.id}:${row.revision + 1}`,
           now,
           row.id,
           row.revision,
@@ -1108,18 +1385,24 @@ function publicationRow(row) {
   };
 }
 async function suspectedDuplicates(env, payload, excludeId = null) {
-  const known = BASE_QUESTIONS
-    .filter((q) => q.canonicalId !== excludeId)
+  const builtinRows = await publicBuiltinOverrides(env, payload.course),
+    deletedBuiltins = new Set(
+      builtinRows
+        .filter((row) => row.deleted)
+        .map((row) => row.question.id || row.question.bookmarkId),
+    ),
+    known = BASE_QUESTIONS
+    .filter((q) => q.canonicalId !== excludeId && !(q.course === payload.course && deletedBuiltins.has(q.canonicalId)))
     .map((q) => ({ ...q, id: "內建題庫" }));
-  for(const row of await publicBuiltinOverrides(env,payload.course))
-    if(row.unit===payload.unit && (row.question.id || row.question.bookmarkId)!==excludeId)for(const q of builtinVariants(row.question))known.push({...q,course:payload.course,unit:row.unit,id:'內建題庫（已修訂）'});
+  for(const row of builtinRows)
+    if(!row.deleted && row.unit===payload.unit && (row.question.id || row.question.bookmarkId)!==excludeId)for(const q of builtinVariants(row.question))known.push({...q,course:payload.course,unit:row.unit,id:'內建題庫（已修訂）'});
   const result = await env.DB.prepare(
-    "SELECT id,course,unit,data FROM public_questions WHERE course=?",
+    "SELECT id,course,unit,data,is_published FROM public_questions WHERE course=?",
   )
     .bind(payload.course)
     .all();
   for (const row of result.results) {
-    if (row.id === excludeId) continue;
+    if (row.id === excludeId || !row.is_published) continue;
     known.push({
       ...canonicalQuestion(JSON.parse(row.data)),
       id: row.id,
@@ -1180,15 +1463,30 @@ async function listPublications(request, env, url) {
     nextCursor: result.results.length > 25 ? result.results[24].id : null,
   });
 }
-async function editPublication(request, env, id) {
-  const actor = await owner(request, env);
-  requireOrigin(request, true);
-  await ensureReviewedContent(env);
+async function getCommunityQuestion(env, id) {
+  const row = await env.DB.prepare(
+    "SELECT * FROM public_questions WHERE id=? AND is_published=1",
+  )
+    .bind(id)
+    .first();
+  if (!row || JSON.parse(row.data).mergedInto || builtinReference(row.course, id))
+    throw new HttpError(404, "找不到這道公開投稿題目。");
+  return json({ item: publicationRow(row) });
+}
+async function editPublication(request, env, id, { publicEdit = false } = {}) {
+  const actor = publicEdit ? "匿名投稿者" : await owner(request, env);
+  requireOrigin(request, !publicEdit);
+  if (!publicEdit) await ensureReviewedContent(env);
   const body = await readBody(request),
     row = await env.DB.prepare("SELECT * FROM public_questions WHERE id=?")
       .bind(id)
       .first();
   if (!row) throw new HttpError(404, "找不到題目。");
+  if (
+    publicEdit &&
+    (!row.is_published || JSON.parse(row.data).mergedInto || builtinReference(row.course, id))
+  )
+    throw new HttpError(404, "找不到這道公開投稿題目。");
   if(builtinReference(row.course,id))throw new HttpError(409,"此題已整合為內建題，請到「內建題目管理」儲存修改。",{code:"builtin_question",questionId:builtinReference(row.course,id).id});
   if (JSON.parse(row.data).mergedInto)
     throw new HttpError(
@@ -1200,39 +1498,91 @@ async function editPublication(request, env, id) {
       409,
       "題目已更新，請重新載入後再修改；本機草稿仍保留。",
     );
-  if (!["update", "hide", "restore"].includes(body.action))
+  if (
+    publicEdit
+      ? !["update", "delete"].includes(body.action)
+      : !["update", "hide", "restore", "restoreVersion", "rollback", "resetOriginal"].includes(body.action)
+  )
     throw new HttpError(400, "操作不正確。");
   const note = body.note ?? "";
   if (typeof note !== "string" || note.length > 2000)
     throw new HttpError(400, "修改說明格式不正確。");
+  if (publicEdit && body.action === "delete") await limit(request, env);
   let raw = JSON.parse(row.data),
     course = row.course,
     unit = row.unit,
     fingerprint = row.fingerprint;
-  if (body.action === "update") {
+  let sourcePayload = body.payload,
+    sourceData = raw;
+  const restoringContent = ["restoreVersion", "rollback", "resetOriginal"].includes(body.action);
+  if (restoringContent) {
+    if (body.action === "restoreVersion" && (typeof body.historyId !== "string" || !uuid.test(body.historyId)))
+      throw new HttpError(400, "歷史版本編號不正確。");
+    const historical = body.action === "restoreVersion"
+      ? await env.DB.prepare("SELECT course,unit,data FROM question_history WHERE id=? AND question_id=?").bind(body.historyId,id).first()
+      : await env.DB.prepare("SELECT course,unit,data FROM question_history WHERE question_id=? ORDER BY revision " + (body.action === "rollback" ? "DESC" : "ASC") + ",created_at " + (body.action === "rollback" ? "DESC" : "ASC") + ",id ASC LIMIT 1").bind(id).first();
+    if (!historical)
+      throw new HttpError(404, "找不到這道題目的歷史版本。");
+    sourceData = JSON.parse(historical.data);
+    if (sourceData.mergedInto)
+      throw new HttpError(409, "這個歷史版本已合併，不能直接還原。");
+    sourcePayload = {
+      course: historical.course,
+      unit: historical.unit,
+      unitTitle: sourceData.unitTitle || "",
+      title: "還原歷史版本",
+      questions: [{
+        ...canonicalQuestion(sourceData),
+        translation: sourceData.translation || "",
+        optionTranslations: Array.isArray(sourceData.optionTranslations) ? sourceData.optionTranslations : [],
+        note: sourceData.note || "",
+        answerProvided: sourceData.answerProvided !== false,
+      }],
+    };
+  }
+  if (body.action === "update" || restoringContent) {
     let batch;
     try {
-      batch = normalizeBatch(body.payload);
+      batch = normalizeBatch(sourcePayload);
     } catch (e) {
       throw new HttpError(400, e.message);
     }
-    if (body.payload.questions.length !== 1)
+    if (
+      publicEdit &&
+      (batch.course !== row.course ||
+        batch.unit !== row.unit ||
+        (batch.unitTitle || "") !== (JSON.parse(row.data).unitTitle || ""))
+    )
+      throw new HttpError(400, "公開修正只能修改原投稿題目內容，不能更換科目、單元或新單元名稱。");
+    if (sourcePayload.questions.length !== 1)
       throw new HttpError(400, "每次只修改一題。");
     storedImagesOnly(
-      { questions: [canonicalQuestion(raw)] },
+      { questions: [canonicalQuestion(sourceData)] },
       batch,
       row.submission_id,
     );
-    await attachImageKeys(env, batch, { questions: [raw] });
+    await attachImageKeys(env, batch, { questions: [sourceData] });
     await checkSimilar(env, batch, body.confirmSimilar, id);
+    if (publicEdit) await limit(request, env);
     [fingerprint] = await fingerprints(batch);
     if ((await duplicates(env, [fingerprint], batch, id)).length)
       throw new HttpError(409, "修改後與既有題目完全重複，請調整內容。");
     const q = batch.questions[0];
+    const editorQuestion = sourcePayload.questions[0];
+    for (const [field, limit] of [["translation", 10000], ["note", 4000]]) {
+      if (editorQuestion[field] !== undefined && (typeof editorQuestion[field] !== "string" || editorQuestion[field].length > limit))
+        throw new HttpError(400, `${field === "translation" ? "題幹翻譯" : "題目備註"}格式不正確。`);
+    }
+    if (editorQuestion.optionTranslations !== undefined &&
+      (!Array.isArray(editorQuestion.optionTranslations) || editorQuestion.optionTranslations.length > 8 ||
+       editorQuestion.optionTranslations.some((value) => typeof value !== "string" || value.length > 2000)))
+      throw new HttpError(400, "選項翻譯格式不正確。");
+    if (editorQuestion.answerProvided !== undefined && typeof editorQuestion.answerProvided !== "boolean")
+      throw new HttpError(400, "答案確認狀態不正確。");
     course = batch.course;
     unit = batch.unit;
     const images = q.images.map((src) => ({ src, alt: q.stem }));
-    const retained = row.course === course ? raw : {};
+    const retained = row.course === course ? (restoringContent ? sourceData : raw) : {};
     raw =
       course === "os"
         ? {
@@ -1264,16 +1614,50 @@ async function editPublication(request, env, id) {
             imageKeys: q.imageKeys,
           };
     if(batch.unitTitle)raw.unitTitle=batch.unitTitle;else delete raw.unitTitle;
+    if(editorQuestion.translation !== undefined)raw.translation=editorQuestion.translation.trim();
+    if(editorQuestion.optionTranslations !== undefined)raw.optionTranslations=editorQuestion.optionTranslations.map((value)=>value.trim());
+    if(editorQuestion.note !== undefined)raw.note=editorQuestion.note.trim();
+    if(editorQuestion.answerProvided !== undefined)raw.answerProvided=editorQuestion.answerProvided;
   }
   const published =
-      body.action === "hide"
+      body.action === "hide" || body.action === "delete"
         ? 0
         : body.action === "restore"
           ? 1
           : row.is_published,
     now = Date.now();
+  if (published && !row.is_published) {
+    const restored = {
+      course: row.course,
+      unit: row.unit,
+      questions: [canonicalQuestion(raw)],
+    };
+    await attachImageKeys(env, restored, { questions: [raw] });
+    [fingerprint] = await fingerprints(restored);
+    if ((await duplicates(env, [fingerprint], restored, id)).length)
+      throw new HttpError(
+        409,
+        "已有相同題目，請先處理重複題再還原。",
+      );
+  } else if (!published) {
+    // Free the unique public fingerprint so the same question can be re-posted.
+    // The original content remains in the row and history for owner recovery.
+    fingerprint = `__hidden__:${id}:${row.revision + 1}`;
+  }
   const statements = [
-    historyStatement(env, row, actor, body.action, note, now),
+    historyStatement(
+      env,
+      row,
+      actor,
+      body.action,
+      publicEdit
+        ? note.trim() ||
+          (body.action === "delete"
+            ? "匿名使用者刪除公開題目（站主可還原）"
+            : "匿名投稿者直接修正題目")
+        : note,
+      now,
+    ),
     env.DB.prepare(
       "UPDATE public_questions SET course=?,unit=?,fingerprint=?,data=?,is_published=?,revision=revision+1,updated_at=? WHERE id=? AND revision=?",
     ).bind(
@@ -1435,7 +1819,7 @@ async function route(request, env) {
       status: 204,
       headers: {
         "access-control-allow-methods": "GET,POST,OPTIONS",
-        "access-control-allow-headers": "Content-Type",
+        "access-control-allow-headers": "Content-Type,If-None-Match",
         "access-control-max-age": "600",
       },
     });
@@ -1448,6 +1832,24 @@ async function route(request, env) {
   }
   if (path === "/api/submissions" && request.method === "POST")
     return submit(request, env);
+  const publicBuiltinMatch = /^\/api\/community\/builtin-questions\/(os|algorithms)\/([A-Za-z0-9_-]{1,160})$/.exec(path);
+  if (publicBuiltinMatch) {
+    const [, course, id] = publicBuiltinMatch;
+    if (request.method === 'GET') return getPublicBuiltin(env, course, id);
+    if (request.method === 'POST') return saveBuiltin(request, env, course, id, { publicEdit: true });
+    throw new HttpError(405, '公開題目只能修改或刪除；刪除後可由站主還原。');
+  }
+  const communityQuestionMatch =
+    /^\/api\/community\/questions\/community-([0-9a-f-]{36})-([1-9]\d*)$/.exec(path);
+  if (communityQuestionMatch) {
+    if (!uuid.test(communityQuestionMatch[1]))
+      throw new HttpError(400, "投稿題目編號不正確。");
+    const id = `community-${communityQuestionMatch[1]}-${communityQuestionMatch[2]}`;
+    if (request.method === "GET") return getCommunityQuestion(env, id);
+    if (request.method === "POST")
+      return editPublication(request, env, id, { publicEdit: true });
+    throw new HttpError(405, "公開投稿題目只能直接修改或刪除；刪除後可由站主重新上架。");
+  }
   if (path === "/api/login" && request.method === "POST")
     return adminLogin(request, env);
   if (path === "/api/password/setup" && request.method === "POST")
@@ -1479,6 +1881,10 @@ async function route(request, env) {
   if (path === "/api/review" && request.method === "GET")
     return listReview(request, env, url);
   let match;
+  if (path === '/api/manage/library' && request.method === 'GET') return listManagementLibrary(request,env,url);
+  if (path === '/api/manage/library/item' && request.method === 'GET') return managementLibraryItem(request,env,url);
+  if (path === '/api/manage/imports' && request.method === 'GET') return listManagementImports(request,env,url);
+  if ((match=/^\/api\/manage\/imports\/([0-9a-f-]{36})$/.exec(path)) && request.method === 'GET') return managementImportDetail(request,env,match[1]);
   if(path==='/api/manage/builtin-questions' && request.method==='GET')return listBuiltins(request,env,url);
   if((match=/^\/api\/manage\/builtin-questions\/(os|algorithms)\/([A-Za-z0-9_-]{1,160})(\/history)?$/.exec(path))) {
     if(match[3] && request.method==='GET')return builtinHistory(request,env,match[1],match[2]);
@@ -1498,6 +1904,13 @@ async function route(request, env) {
       return publicationHistory(request, env, match[1]);
     if (request.method === "POST" && !match[2])
       return editPublication(request, env, match[1]);
+  }
+  if (
+    (match = /^\/api\/review\/([^/]+)\/publications$/.exec(path)) &&
+    request.method === "POST"
+  ) {
+    if (!uuid.test(match[1])) throw new HttpError(400, "投稿編號不正確。");
+    return manageSubmissionPublications(request, env, match[1]);
   }
   if (
     (match = /^\/api\/review\/([^/]+)$/.exec(path)) &&
@@ -1538,6 +1951,9 @@ async function route(request, env) {
     const course = url.searchParams.get("course");
     if (!COURSE_UNITS[course]) throw new HttpError(400, "請指定科目。");
     await ensureReviewedContent(env);
+    const etag = await publicLibraryEtag(env,course);
+    if ((request.headers.get('if-none-match') || '').split(',').some((value) => value.trim() === etag || value.trim() === 'W/' + etag || value.trim() === '*'))
+      return new Response(null,{status:304,headers:{etag,'cache-control':'no-cache'}});
     const result = await env.DB.prepare(
       "SELECT unit,data FROM public_questions WHERE course=? AND is_published=1 ORDER BY created_at,id",
     )
@@ -1548,7 +1964,8 @@ async function route(request, env) {
     )
       .bind(course)
       .all();
-    return json({
+    const response = json({
+      revision: etag.slice(1,-1),
       aliases: archived.results
         .filter((row) => JSON.parse(row.data).mergedInto)
         .map((row) => ({
@@ -1561,6 +1978,9 @@ async function route(request, env) {
         question: JSON.parse(row.data),
       })),
     });
+    response.headers.set('etag',etag);
+    response.headers.set('cache-control','no-cache');
+    return response;
   }
   if (
     (match =
@@ -1620,6 +2040,7 @@ export default {
     if (origins.has(origin)) {
       headers.set("access-control-allow-origin", origin);
       headers.set("vary", "Origin");
+      headers.set("access-control-expose-headers", "ETag");
     }
     return new Response(response.body, { status: response.status, headers });
   },

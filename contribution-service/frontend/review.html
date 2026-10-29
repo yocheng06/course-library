@@ -3,200 +3,81 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>審核題庫｜課程學習站</title>
     <meta name="robots" content="noindex" />
+    <title>題庫管理｜課程學習站</title>
     <link rel="icon" href="assets/icons/course-mascot.png" />
-    <link
-      rel="stylesheet"
-      href="assets/contributions.css?v=review-login-20261017"
-    />
+    <link rel="stylesheet" href="assets/contributions.css?v=management-workspace-20261029" />
+    <link rel="stylesheet" href="assets/theme.css?v=integrated-management-20261029" />
+    <link rel="stylesheet" href="assets/management.css?v=integrated-management-20261029" />
+    <script src="assets/theme.js?v=integrated-management-20261029" defer></script>
   </head>
   <body>
+    <a class="skip-link" href="#main">跳到主要內容</a>
     <header class="contribution-nav">
-      <a class="brand" href="https://yocheng06.github.io/course-library/"
-        >課程學習站</a
-      >
+      <a class="brand" href="https://yocheng06.github.io/course-library/">課程學習站</a>
       <nav aria-label="網站導覽">
-        <a href="https://yocheng06.github.io/course-library/submit.html"
-          >同學投稿</a
-        ><a href="https://yocheng06.github.io/course-library/">課程首頁</a>
+        <a href="https://yocheng06.github.io/course-library/" >課程首頁</a>
+        <a href="https://yocheng06.github.io/course-library/batch.html">批次查題</a>
+        <a href="https://yocheng06.github.io/course-library/submit.html">投稿題庫</a>
       </nav>
     </header>
-    <main class="contribution-page">
+    <main id="main" class="contribution-page management-page">
       <div class="page-heading">
-        <span class="eyebrow">管理者專區</span>
-        <h1>審核題庫</h1>
-        <p>確認題目、答案與解析，核准後才會出現在課程題庫。</p>
+        <div>
+          <span class="eyebrow">管理者專區</span>
+          <h1>題庫管理</h1>
+          <p>搜尋所有題目、查看修改前後內容，或還原已移除的題目。</p>
+        </div>
       </div>
-      <section class="panel" id="loginPanel">
+
+      <p id="authStatus" class="panel auth-status" role="status" aria-live="polite">正在確認管理者身份…</p>
+
+      <section id="loginPanel" class="panel" aria-labelledby="loginTitle" hidden>
         <h2 id="loginTitle">管理者登入</h2>
-        <p id="loginHint">輸入已設定的帳號與密碼即可登入審核。</p>
+        <p id="loginHint">輸入已設定的帳號與密碼即可管理題庫。</p>
         <form id="passwordLoginForm" class="login-form" method="post" action="/api/login">
-          <label
-            >帳號<input
-              id="loginUsername"
-              name="username"
-              autocomplete="username"
-              maxlength="32"
-              required
-          /></label>
-          <label
-            >密碼<input
-              id="loginPassword"
-              name="password"
-              type="password"
-              autocomplete="current-password"
-              maxlength="128"
-              required
-          /></label>
+          <label>帳號<input id="loginUsername" name="username" autocomplete="username" maxlength="32" required /></label>
+          <label>密碼<input id="loginPassword" name="password" type="password" autocomplete="current-password" maxlength="128" required /></label>
           <button class="button" id="loginSubmit" type="submit" disabled>登入</button>
         </form>
         <form id="passwordSetupForm" class="login-form" method="post" action="/api/password/setup" hidden>
-          <label id="setupCodeField" hidden
-            >一次性設定碼<input
-              id="setupCode"
-              name="setup-code"
-              type="password"
-              autocomplete="one-time-code"
-              maxlength="96"
-          /></label>
-          <label
-            >管理者帳號<input
-              id="setupUsername"
-              name="username"
-              autocomplete="username"
-              minlength="3"
-              maxlength="32"
-              pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,31}"
-              required
-          /></label>
-          <label
-            >設定新密碼<input
-              id="setupPassword"
-              name="new-password"
-              type="password"
-              autocomplete="new-password"
-              minlength="12"
-              maxlength="128"
-              required
-          /></label>
-          <label
-            >再次輸入新密碼<input
-              id="setupPasswordConfirm"
-              name="new-password-confirm"
-              type="password"
-              autocomplete="new-password"
-              minlength="12"
-              maxlength="128"
-              required
-          /></label>
-          <button class="button" id="setupSubmit" type="submit" disabled>
-            儲存並登入
-          </button>
+          <label id="setupCodeField" hidden>一次性設定碼<input id="setupCode" name="setup-code" type="password" autocomplete="one-time-code" maxlength="96" /></label>
+          <label>管理者帳號<input id="setupUsername" name="username" autocomplete="username" minlength="3" maxlength="32" pattern="[A-Za-z0-9][A-Za-z0-9._-]{2,31}" required /></label>
+          <label>設定新密碼<input id="setupPassword" name="new-password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required /></label>
+          <label>再次輸入新密碼<input id="setupPasswordConfirm" name="new-password-confirm" type="password" autocomplete="new-password" minlength="12" maxlength="128" required /></label>
+          <button class="button" id="setupSubmit" type="submit" disabled>儲存並登入</button>
         </form>
-        <a
-          class="text-button"
-          id="credentialAccess"
-          href="/signin-with-chatgpt?return_to=%2Freview%3Fcredentials%3Dreset"
-          target="_top"
-          >忘記密碼？以綁定的管理者帳號驗證</a
-        >
+        <a class="text-button" id="credentialAccess" href="/signin-with-chatgpt?return_to=%2Freview%3Fcredentials%3Dreset" target="_top">忘記密碼？以綁定的管理者帳號驗證</a>
       </section>
-      <div
-        id="managementTabs"
-        class="actions"
-        role="group"
-        aria-label="管理工作區"
-        hidden
-      >
-        <button
-          type="button"
-          id="showReviews"
-          class="button"
-          aria-pressed="true"
-        >
-          投稿審核</button
-        ><button
-          type="button"
-          id="showPublished"
-          class="button secondary"
-          aria-pressed="false"
-        >
-          已發布題目管理</button
-        ><button type="button" id="exportReviewDrafts" class="text-button">
-          下載本機編輯草稿
-        </button>
-      </div>
-      <p
-        id="reviewDraftStatus"
-        class="muted"
-        role="status"
-        aria-live="polite"
-      ></p>
-      <section id="reviewWorkspace" hidden>
-        <div class="panel review-controls">
-          <label
-            >審核狀態<select id="statusFilter">
-              <option value="pending">待審核</option>
-              <option value="approved">已核准</option>
-              <option value="rejected">已退回</option>
-            </select></label
-          ><button class="button secondary" id="refresh" type="button">
-            重新載入</button
-          ><button class="text-button" id="signOut" type="button">登出</button>
+
+      <section id="managementArea" hidden aria-label="管理題庫">
+        <div id="managementTabs" class="management-toolbar panel">
+          <nav id="managementNav" class="management-tabs" aria-label="管理清單">
+            <button type="button" class="button secondary" data-view="all" aria-current="false">全部題目 <span class="count-badge" data-count="all">—</span></button>
+            <button type="button" class="button secondary" data-view="modified" aria-current="page">最近修改 <span class="count-badge" data-count="modified">—</span></button>
+            <button type="button" class="button secondary" data-view="deleted" aria-current="false">已移除 <span class="count-badge" data-count="deleted">—</span></button>
+            <button type="button" class="button secondary" data-view="imports" aria-current="false">匯入紀錄</button>
+          </nav>
+          <details class="management-tools">
+            <summary class="text-button">管理工具</summary>
+            <div class="management-tool-menu">
+              <button type="button" class="text-button" id="exportQuestionDrafts">下載題目編輯草稿</button>
+              <button type="button" class="text-button" id="exportImportDrafts">下載匯入紀錄草稿</button>
+              <button type="button" class="text-button" id="exportBackup">下載完整備份</button>
+              <p class="muted">備份含題目、歷史與移除狀態；題圖以連結保存。</p>
+              <button type="button" class="text-button" id="signOut">登出</button>
+            </div>
+          </details>
         </div>
-        <p id="reviewCount" class="muted"></p>
-        <div id="reviewList"></div>
-        <button id="loadMore" class="button secondary" type="button" hidden>
-          載入更多投稿
-        </button>
+        <section id="libraryWorkspace" aria-labelledby="libraryTitle"></section>
+        <section id="importWorkspace" class="import-records" hidden aria-label="匯入紀錄管理"></section>
       </section>
-      <section id="managementWorkspace" hidden>
-        <h2>已發布題目管理</h2>
-        <p class="muted">
-          可編輯題目與解析、下架或重新上架。修改前版本會保留在紀錄中；下架不會刪除資料。已核准投稿列表保留核准時的紀錄，目前內容以此處為準。
-        </p>
-        <form id="manageSearchForm" class="panel review-controls">
-          <label>科目<select id="manageCourse"></select></label
-          ><label
-            >狀態<select id="manageState">
-              <option value="published">上架中</option>
-              <option value="hidden">已下架</option>
-              <option value="all">全部</option>
-            </select></label
-          ><label
-            >搜尋<input
-              id="manageQuery"
-              maxlength="100"
-              placeholder="題幹、答案或解析" /></label
-          ><button class="button secondary" type="submit">搜尋／重新載入</button
-          ><button id="exportBackup" class="button secondary" type="button">
-            下載完整備份
-          </button>
-        </form>
-        <p class="muted">
-          JSON
-          備份包含全部已核准投稿題目（含下架）、原始資料、投稿與修改紀錄；題圖以連結保存。
-        </p>
-        <p id="manageCount" class="muted" role="status"></p>
-        <div id="publishedList"></div>
-        <button id="manageMore" type="button" class="button secondary" hidden>
-          載入更多題目
-        </button>
-      </section>
-      <p
-        id="message"
-        class="message"
-        role="status"
-        aria-live="polite"
-        tabindex="-1"
-      ></p>
+      <p id="message" class="message" role="status" aria-live="polite" tabindex="-1"></p>
     </main>
-    <script src="assets/contributions-config.js?v=password-setup-code-20261017"></script>
-    <script
-      type="module"
-      src="assets/contributions-review.js?v=builtin-editor-20261028"
-    ></script>
-    <noscript>請開啟 JavaScript 使用題庫審核功能。</noscript>
+
+    <dialog id="questionDialog" class="question-dialog" aria-labelledby="questionDialogTitle"></dialog>
+    <script src="assets/contributions-config.js?v=management-workspace-20261029"></script>
+    <script type="module" src="assets/contributions-review.js?v=integrated-management-20261029"></script>
+    <noscript>請開啟 JavaScript 使用題庫管理功能。</noscript>
   </body>
 </html>

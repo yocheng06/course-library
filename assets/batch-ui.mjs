@@ -118,6 +118,8 @@ function statusLabel(row) {
 let snapshotCoverage = false;
 let snapshotUnit = "all";
 let restoreUnit = null;
+const publicFlights = new Map(), publicData = new Map(), publicEtags = new Map(), syncedAt = new Map();
+let baseLibrary, basePromise;
 function libraryStatus() {
   const course = $("course").value;
   const count = new Set(
@@ -125,12 +127,16 @@ function libraryStatus() {
   ).size;
   $("libraryStatus").textContent =
     `${names[course]}：${count} 題可供比對。` +
-    (coverage[course]
-      ? "已同步內建題修改與公開投稿題庫。"
+    (publicFlights.has(course)
+      ? "正在確認最新變更，現在可先使用已載入題庫。"
+      : coverage[course]
+      ? "已同步內建題修改與公開投稿題庫。" + (syncedAt.has(course) ? " 最後同步：" + new Date(syncedAt.get(course)).toLocaleTimeString("zh-TW") : "")
       : syncing
         ? "正在同步公開投稿，現在可先比對內建題庫。"
       : invalidPublicData[course]
         ? "線上題庫資料不完整，目前僅比對隨站內建版本。可按「重新同步題庫」重試。"
+      : publicData.has(course)
+        ? "暫時無法確認最新變更，目前使用上次題庫快取；請重新同步後核對。"
       : "線上題庫暫時無法同步，目前僅比對隨站內建版本。可按「重新同步題庫」重試。");
 }
 function validPublicQuestion(raw, sourceVariant = false) {
@@ -152,131 +158,124 @@ function validPublicQuestion(raw, sourceVariant = false) {
       (!Array.isArray(raw.sourceVariants) || raw.sourceVariants.some((variant) => !validPublicQuestion(variant, true)))) return false;
   return true;
 }
-async function loadLibrary() {
-  if (syncing) return;
-  syncing = true;
-  loading = true;
-  libraryGeneration++;
-  if (results.length) {
-    $("staleNotice").textContent =
-      "正在重新同步題庫，以下為上次比對結果；完成後請重新比對。";
-    markChanged();
-  }
-  $("compare").disabled = true;
-  $("reloadLibrary").disabled = true;
-  $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
+const publicCacheKey = course => "course-library.questions.v1." + course;
+function restorePublicCache(course) {
+  if (publicData.has(course)) return;
   try {
-    const built = fetch(
-      "assets/batch-library.json?v=l9-blanks-restored-20261029",
-      {
-        signal: AbortSignal.timeout(12000),
-      },
-    ).then(async (r) => {
-      if (!r.ok) throw new Error("library");
-      return r.json();
-    });
-    const publicLoads = Object.keys(names).map(async (course) => {
-      const response = await fetch(
-        window.courseContributions.apiOrigin +
-          "/api/questions?course=" +
-          course,
-        { signal: AbortSignal.timeout(6000) },
-      );
-      if (!response.ok) throw new Error("public");
-      const data = await response.json();
-      if (!Array.isArray(data.questions)) throw new Error("public");
-      return { course, questions: data.questions, overrides:data.overrides || [] };
-    });
-    const publicResults = Promise.allSettled(publicLoads);
-    const base = await built;
-    if (
-      base.schemaVersion !== 1 ||
-      !Array.isArray(base.entries) ||
-      !base.courses?.os ||
-      !base.courses?.algorithms
-    )
-      throw new Error("library");
-    library = base;
-    const curatedAliasIds = new Set((Array.isArray(base.curatedAliasIds) ? base.curatedAliasIds : []).filter((id) => typeof id === 'string'));
-    let entries = base.entries.slice();
-    coverage = { os: false, algorithms: false };
-    invalidPublicData = { os: false, algorithms: false };
-    index = buildIndex(entries);
-    units();
-    loading = false;
-    $("compare").disabled = false;
-    libraryStatus();
-    if (results.length)
-      $("staleNotice").textContent =
-        "內建題庫已載入，可先重新比對；公開投稿仍在背景同步。";
-    markChanged();
-
-    // Public submissions must not block built-in question lookup. Publishing
-    // this later index invalidates results produced against the earlier data.
-    let publicChanged = false;
-    let nextIndex = index;
-    for (const result of await publicResults) {
-      if (result.status !== "fulfilled") continue;
-      const { course, questions, overrides } = result.value;
-      try {
-        // Validate and build each course atomically. A malformed public record
-        // must not erase the ready built-in index or imply complete coverage.
-        const additions = [], newUnits = new Map();
-        for (const row of questions) {
-          const raw = row?.question;
-          if (
-            (!library.courses[course].units.some((u) => u.id === row?.unit) && !/^L[1-9]\d?$/.test(row?.unit)) ||
-            !validPublicQuestion(raw) ||
-            !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(raw.id || raw.bookmarkId || "")
-          ) throw new Error("public-data");
-          const questionId=raw.id||raw.bookmarkId;
-          if(curatedAliasIds.has(questionId) || base.entries.some(e=>e.course===course && e.id===questionId))continue;
-          if(!library.courses[course].units.some(u=>u.id===row.unit))newUnits.set(row.unit,{id:row.unit,name:row.unit+' · '+String(raw.unitTitle||'新單元').slice(0,60)});
-          const expanded = expandLibraryQuestion(course, row.unit, raw);
-          if (!expanded.length) throw new Error("public-data");
-          additions.push(...expanded);
-        }
-        if(overrides.some(row=>row?.deleted!==true&&!validPublicQuestion(row?.question)))throw new Error("builtin-data");
-        const candidateEntries=[...applyBuiltinOverrides(entries,course,overrides),...additions];
-        const candidate = buildIndex(candidateEntries);
-        entries=candidateEntries;
-        library.courses[course].units.push(...newUnits.values());
-        nextIndex = candidate;
-        coverage[course] = true;
-        publicChanged = true;
-      } catch {
-        invalidPublicData[course] = true;
+    const cached = JSON.parse(localStorage.getItem(publicCacheKey(course)) || "null");
+    if (cached?.schema !== 1 || cached.course !== course || !Array.isArray(cached.data?.questions) || !Array.isArray(cached.data?.overrides)) return;
+    const time = Date.parse(cached.generatedAt);
+    if (!Number.isFinite(time) || time > Date.now() + 300000) return;
+    publicData.set(course, cached.data);
+    if (/^(?:W\/)?".*"$/.test(cached.etag || "")) publicEtags.set(course, cached.etag);
+  } catch {}
+}
+function rebuildLibraryIndex() {
+  if (!baseLibrary) return;
+  library = { ...baseLibrary, courses: Object.fromEntries(Object.entries(baseLibrary.courses).map(([course, data]) => [course, {...data, units:data.units.slice()}])) };
+  let entries = baseLibrary.entries.slice();
+  const curatedAliasIds = new Set(baseLibrary.curatedAliasIds || []);
+  for (const [course, data] of publicData) {
+    try {
+      const additions = [], newUnits = new Map(), overrides = data.overrides || [];
+      for (const row of data.questions) {
+        const raw = row?.question, questionId = raw?.id || raw?.bookmarkId;
+        if ((!library.courses[course].units.some(u => u.id === row?.unit) && !/^L[1-9]\d?$/.test(row?.unit)) ||
+            !validPublicQuestion(raw) || !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(questionId || "")) throw Error("public-data");
+        if (curatedAliasIds.has(questionId) || baseLibrary.entries.some(e => e.course === course && e.id === questionId)) continue;
+        if (!library.courses[course].units.some(u => u.id === row.unit)) newUnits.set(row.unit, {id:row.unit,name:row.unit+" · "+String(raw.unitTitle || "新單元").slice(0,60)});
+        const expanded = expandLibraryQuestion(course,row.unit,raw);
+        if (!expanded.length) throw Error("public-data");
+        additions.push(...expanded);
       }
+      if (overrides.some(row => row?.deleted !== true && !validPublicQuestion(row?.question))) throw Error("builtin-data");
+      const candidate = [...applyBuiltinOverrides(entries,course,overrides),...additions];
+      // Validate an entire course before replacing any usable records.
+      buildIndex(candidate);
+      entries = candidate;
+      library.courses[course].units.push(...newUnits.values());
+      invalidPublicData[course] = false;
+    } catch {
+      invalidPublicData[course] = true;
+      coverage[course] = false;
     }
-    if (publicChanged) {
-      index = nextIndex;
-      libraryGeneration++;
-      units();
-    }
-    syncing = false;
-    libraryStatus();
-    if (publicChanged && results.length) {
-      $("staleNotice").textContent =
-        "題庫比對資料已更新，請重新比對。下方保留的是上一批結果。";
-    }
-    markChanged();
-  } catch {
-    index = null;
-    $("libraryStatus").textContent =
-      "無法載入內建題庫，貼上的文字仍保留。請確認網路連線後按「重新同步題庫」。";
-    if (results.length) {
-      $("staleNotice").textContent =
-        "題庫同步失敗，以下為上次比對結果；請重新同步並比對後再複製。";
+  }
+  index = buildIndex(entries);
+  libraryGeneration++;
+  units();
+}
+async function getBaseLibrary() {
+  if (baseLibrary) return baseLibrary;
+  if (!basePromise) basePromise = fetch("assets/batch-library.json?v=l9-blanks-restored-20261029", {signal:AbortSignal.timeout(12000)})
+    .then(async response => {
+      if (!response.ok) throw Error("library");
+      const data = await response.json();
+      if (data.schemaVersion !== 1 || !Array.isArray(data.entries) || !data.courses?.os || !data.courses?.algorithms) throw Error("library");
+      return baseLibrary = data;
+    }).catch(error => { basePromise = null; throw error; });
+  return basePromise;
+}
+async function loadLibrary() {
+  const course = $("course").value;
+  if (publicFlights.has(course)) return publicFlights.get(course);
+  restorePublicCache(course);
+  const firstLoad = !index;
+  loading = firstLoad;
+  if (firstLoad) $("libraryStatus").textContent = "正在載入內建題庫……";
+  $("compare").disabled = firstLoad;
+  $("reloadLibrary").disabled = true;
+  syncing = true;
+  const task = (async () => {
+    const publicRequest = fetch(window.courseContributions.apiOrigin + "/api/questions?course=" + course, {
+      signal:AbortSignal.timeout(6000),
+      headers:publicEtags.has(course) ? {"If-None-Match":publicEtags.get(course)} : {},
+    }).then(async response => {
+      if (response.status === 304 && publicData.has(course)) return {data:publicData.get(course),etag:publicEtags.get(course)};
+      if (!response.ok) throw Error("public");
+      const data = await response.json();
+      if (!Array.isArray(data.questions) || !Array.isArray(data.overrides || [])) throw Error("public-data");
+      const etag = response.headers?.get?.("etag");
+      return {data,etag:/^(?:W\/)?".*"$/.test(etag || "") ? etag : null};
+    }).then(value => ({value}), error => ({error}));
+    try {
+      await getBaseLibrary();
+      if (!index) rebuildLibraryIndex();
+      loading = false;
+      $("compare").disabled = false;
+      libraryStatus();
+      markChanged();
+      const result = await publicRequest;
+      if (result.error) throw result.error;
+      const {data,etag} = result.value;
+      const changed = JSON.stringify(publicData.get(course)) !== JSON.stringify(data);
+      publicData.set(course,data);
+      if (etag) publicEtags.set(course,etag); else publicEtags.delete(course);
+      coverage[course] = true;
+      invalidPublicData[course] = false;
+      if (changed) rebuildLibraryIndex();
+      if (invalidPublicData[course]) throw Error("public-data");
+      syncedAt.set(course,Date.now());
+      try { localStorage.setItem(publicCacheKey(course), JSON.stringify({schema:1,course,generatedAt:new Date().toISOString(),data,etag})); } catch {}
+      if (changed && results.length) $("staleNotice").textContent = "題庫比對資料已更新，請重新比對。下方保留的是上一批結果。";
+    } catch (error) {
+      coverage[course] = false;
+      if (error.message === "public-data") invalidPublicData[course] = true;
+      if (!index) $("libraryStatus").textContent = "無法載入內建題庫，貼上的文字仍保留。請確認網路後重新同步。";
+    } finally {
+      publicFlights.delete(course);
+      syncing = publicFlights.size > 0;
+      loading = !index;
+      $("compare").disabled = !index;
+      $("reloadLibrary").disabled = publicFlights.has($("course").value);
+      if (index) libraryStatus();
       markChanged();
     }
-  } finally {
-    loading = false;
-    syncing = false;
-    $("compare").disabled = !index;
-    $("reloadLibrary").disabled = false;
-    markChanged();
-  }
+  })();
+  publicFlights.set(course,task);
+  if (index) libraryStatus();
+  return task;
 }
+
 function sourceURL(id) {
   return (
     (snapshotCourse === "os" ? "os.html" : "algorithms.html") +
@@ -426,6 +425,7 @@ $("switchCourse").addEventListener("click", () => {
   units();
   $("unit").value = "all";
   libraryStatus();
+  loadLibrary();
   markChanged();
   $("batchForm").dispatchEvent(
     new Event("submit", { bubbles: true, cancelable: true }),
@@ -442,6 +442,7 @@ $("course").addEventListener("change", () => {
   restoreUnit = null;
   units();
   if (index) libraryStatus();
+  if (!coverage[$("course").value] || Date.now() - (syncedAt.get($("course").value) || 0) > 60000) loadLibrary();
   markChanged();
 });
 $("unit").addEventListener("change", markChanged);

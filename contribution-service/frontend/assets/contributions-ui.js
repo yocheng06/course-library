@@ -9,16 +9,29 @@ export const esc = (value) =>
       ],
   );
 export async function api(path, options = {}) {
-  const response = await fetch(window.courseContributions.apiOrigin + path, {
-    ...options,
-    headers: { "Content-Type": "application/json", ...options.headers },
-    signal: AbortSignal.timeout(20000),
-  });
-  let body;
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(new DOMException("服務連線逾時。", "TimeoutError")),
+    20000,
+  );
+  const abort = () => controller.abort(options.signal?.reason);
+  if (options.signal?.aborted) abort();
+  else options.signal?.addEventListener("abort", abort, { once: true });
+  let response, body;
   try {
-    body = await response.json();
-  } catch {
-    throw new Error("服務暫時無法使用，請稍後再試。");
+    response = await fetch(window.courseContributions.apiOrigin + path, {
+      ...options,
+      headers: { "Content-Type": "application/json", ...options.headers },
+      signal: controller.signal,
+    });
+    try {
+      body = await response.json();
+    } catch {
+      throw new Error("服務暫時無法使用，請稍後再試。");
+    }
+  } finally {
+    clearTimeout(timeout);
+    options.signal?.removeEventListener("abort", abort);
   }
   if (!response.ok) {
     const error = new Error(body.error || "操作未完成，請再試一次。");
@@ -57,12 +70,12 @@ export function showDuplicates(result) {
   }
 }
 export const statusLabel = {
-  pending: "等待站主審核",
-  approved: "已核准，題目已加入題庫",
+  pending: "舊版待審核",
+  approved: "已加入公開題庫",
   rejected: "已退回",
 };
 export function questionPreview(q, index) {
-  return `<article class="draft-card"><div class="draft-meta">第 ${index + 1} 題 · ${esc(q.category)} · ${esc(normalizeType(q.type, q.images))}</div><h3>${esc(q.stem)}</h3>${q.images.map((src) => `<img src="${esc(src)}" alt="第 ${index + 1} 題的題圖" loading="lazy">`).join("")}${q.options.length ? '<ol type="A">' + q.options.map((option) => `<li>${esc(option)}</li>`).join("") + "</ol>" : ""}<p><strong>答案：</strong>${esc(q.answer)}</p>${q.explanation ? `<p><strong>解析：</strong>${esc(q.explanation)}</p>` : '<p class="muted">尚未提供解析，交由站主審核補充。</p>'}`;
+  return `<article class="draft-card"><div class="draft-meta">第 ${index + 1} 題 · ${esc(q.category)} · ${esc(normalizeType(q.type, q.images))}</div><h3>${esc(q.stem)}</h3>${q.images.map((src) => `<img src="${esc(src)}" alt="第 ${index + 1} 題的題圖" loading="lazy">`).join("")}${q.options.length ? '<ol type="A">' + q.options.map((option) => `<li>${esc(option)}</li>`).join("") + "</ol>" : ""}<p><strong>答案：</strong>${esc(q.answer)}</p>${q.explanation ? `<p><strong>解析：</strong>${esc(q.explanation)}</p>` : '<p class="muted">尚未提供解析，之後可直接補充。</p>'}`;
 }
 
 export function showSimilar(container, items) {

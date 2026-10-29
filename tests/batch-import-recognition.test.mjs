@@ -72,8 +72,14 @@ test("inline 妖獸／Beast headings keep all 10 scheduling questions separate",
     course: "os",
   });
   // The reviewed Chinese source variant now includes 中斷式. Its reordered
-  // options must match; an actually unseen distractor must still be rejected.
-  assert.equal(results.filter((r) => r.status === "matched").length, 10);
+  // options must match; ambiguous duplicate fill-in stems must stay in review.
+  assert.equal(results.filter((r) => r.status === "matched").length, 8);
+  for (const result of results.slice(6, 8)) {
+    assert.equal(result.status, "review");
+    assert.equal(result.answer, "");
+    assert.match(result.reason, /多道題幹完全相同/);
+    assert(result.references.length > 1);
+  }
   assert.equal(results[5].answer, "A. 非搶佔式");
   const changed = structuredClone(questions[5]);
   changed.options[1].text = "未核對的新干擾選項";
@@ -83,7 +89,6 @@ test("inline 妖獸／Beast headings keep all 10 scheduling questions separate",
   assert.match(unverified.reason, /選項不同/);
   assert.equal(results[0].answer, "A. 飢餓(Starvation)");
   assert.equal(results[4].answer, "A. Time Sharing");
-  assert.equal(results[6].answer, "time quantum");
 });
 
 test("mixed Markdown sync questions split inline headings and discard hard-break slashes at boundaries", async () => {

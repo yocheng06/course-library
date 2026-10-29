@@ -92,6 +92,9 @@ const paths = [
   "assets/submission-inbox-ui.mjs",
   "assets/submission-inbox.mjs",
   "assets/contributions-review.js",
+  "assets/library-manager.mjs",
+  "assets/import-records.mjs",
+  "assets/management.css",
 ];
 const assets = {};
 for (const path of paths) {
@@ -114,8 +117,10 @@ assets["/assets/icons/course-mascot.png"] = {
 };
 let worker = await readFile(resolve(root, "worker/index.js"), "utf8");
 const builtinManagement=await readFile(resolve(root,"worker/builtin-management.js"),"utf8");
+const readLibraryManagement=await readFile(resolve(root,"worker/library-management.js"),"utf8");
 const searchModel=(await readFile(resolve(root,"worker/batch-model.js"),"utf8")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
 worker=worker.replace("/* BUILTIN_MANAGEMENT */",()=>"const builtinSearch=(()=>{"+searchModel+";return {choiceAliases,choiceCombinations,questionStemVersions};})();\n"+builtinManagement);
+worker=worker.replace("/* LIBRARY_MANAGEMENT */",()=>readLibraryManagement);
 
 const model = (await readFile(resolve(root, "worker/model.js"), "utf8"))
   .replace(/^import .*;\s*$/gm, "")
@@ -124,6 +129,8 @@ worker = worker.replace(
   /^import\s+\{[^}]*\}\s+from\s+["']\.\/model\.js["'];\s*/,
   "",
 );
+const libraryBuildRevision=createHash('sha256').update(JSON.stringify([builtins,entries,mergeCatalog,explanations])).digest('hex');
+worker=worker.replace('/* BUILD_DATA */', 'const LIBRARY_BUILD_REVISION='+JSON.stringify(libraryBuildRevision)+';\n/* BUILD_DATA */');
 worker =
   (await readFile(resolve(root, "worker/choice-answers.js"), "utf8")) +
   "\n" +

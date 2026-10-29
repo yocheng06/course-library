@@ -69,7 +69,7 @@ export function setupSubmissionInbox({ document, storage, courses, addQuestion, 
       }
       render();
       $("pendingStatus").textContent = `原第 ${q.number} 題已加入投稿清單。`;
-      message(`原第 ${q.number} 題已加入投稿清單，預覽後可送出審核。`);
+      message(`原第 ${q.number} 題已加入投稿清單，預覽後可直接加入公開題庫。`);
       ($( "pendingList").querySelector("summary") || $("draftHeading")).focus();
     } catch (error) { message(error.message, true); }
   });
