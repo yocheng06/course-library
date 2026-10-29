@@ -431,7 +431,7 @@ function parseCoursePracticeHtml(doc, raw, name) {
     if (!responseInputs.length) throw new Error(`第 ${questions.length + 1} 個題目區塊的作答欄位無法辨識，沒有匯入任何題目。`);
     if (block.querySelector("img")) throw new Error(`第 ${questions.length + 1} 題含有圖片；目前無法從已下載的 HTML 還原題圖，沒有匯入任何題目。`);
     const stemNodes = [...block.querySelectorAll(".question-text")]
-      .map((node) => cleanText(node.textContent))
+      .map((node) => cleanText(staticHtmlText(node)))
       .filter(Boolean)
       .sort((a, b) => b.length - a.length);
     if (!stemNodes.length) throw new Error(`第 ${questions.length + 1} 題缺少題幹，沒有匯入任何題目。`);
@@ -481,6 +481,10 @@ function staticHtmlText(node) {
     if (current.nodeType !== 1) return;
     const tag = current.tagName.toLowerCase();
     if (["script", "style", "template", "noscript"].includes(tag)) return;
+    if (tag === "input" && current.classList.contains("text-answer")) {
+      parts.push(" ____________ ");
+      return;
+    }
     if (tag === "br") {
       parts.push("\n");
       return;

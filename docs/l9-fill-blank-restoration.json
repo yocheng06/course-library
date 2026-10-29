@@ -1,0 +1,274 @@
+{
+  "restored": 28,
+  "missing": [],
+  "changes": [
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-1",
+      "before": "Memory protection is implemented by a pair of registers: the register holds the smallest legal physical address, and the register specifies the size of the program's address range. (Please answer in English lowercase, one space between letters)",
+      "after": "Memory protection is implemented by a pair of registers: the ____________ register holds the smallest legal physical address, and the ____________ register specifies the size of the program's address range. (Please answer in English lowercase, one space between letters)",
+      "sources": [
+        "記憶體沼澤9-3(結丹中期) - 獵妖與修練.html",
+        "9-1結果.html",
+        "9-3結果.html"
+      ]
+    },
+    {
+      "id": "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-10",
+      "before": "在分頁中，頁表中的位元用於指示對應的頁面是合法還是非法的，從而提供記憶體保護。 (請用小寫英文回答 字母間用-)",
+      "after": "在分頁中，頁表中的 ____________ 位元用於指示對應的頁面是合法還是非法的，從而提供記憶體保護。 (請用小寫英文回答 字母間用-)",
+      "sources": [
+        "記憶體沼澤9-3(結丹中期) - 獵妖與修練.html",
+        "記憶體沼澤9-4(結丹中期) - 獵妖與修練.html",
+        "course-library-batch-all.txt",
+        "9-3結果.html",
+        "9-4結果.html"
+      ]
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-21",
+      "before": "如果程序在執行期間可以從記憶體的一個位置移動到另一個位置，則地址綁定必須推遲到時間。 (請用小寫英文回答)",
+      "after": "如果程序在執行期間可以從記憶體的一個位置移動到另一個位置，則地址綁定必須推遲到[__1__]時間。 (請用小寫英文回答)",
+      "sources": [
+        "9-1結果.html"
+      ]
+    },
+    {
+      "id": "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-7",
+      "before": "If a process can be moved from one memory location to another during execution, address binding must be delayed until time. (Please answer in English lowercase)",
+      "after": "If a process can be moved from one memory location to another during execution, address binding must be delayed until ____________ time. (Please answer in English lowercase)",
+      "sources": [
+        "記憶體沼澤9-2(結丹中期) - 獵妖與修練.html",
+        "9-2結果.html"
+      ]
+    },
+    {
+      "id": "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-19",
+      "before": "Load Time address binding requires the compiler to generate code. (Please answer in English lowercase)",
+      "after": "Load Time address binding requires the compiler to generate ____________ code. (Please answer in English lowercase)",
+      "sources": [
+        "記憶體沼澤9-2(結丹中期) - 獵妖與修練.html",
+        "9-2結果.html"
+      ]
+    },
+    {
+      "id": "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-5",
+      "before": "is the mechanism for mapping logical addresses to physical addresses in a program. (Please answer in English lowercase, one space between letters)",
+      "after": "____________ is the mechanism for mapping logical addresses to physical addresses in a program. (Please answer in English lowercase, one space between letters)",
+      "sources": [
+        "記憶體沼澤9-4(結丹中期) - 獵妖與修練.html",
+        "course-library-batch-all.txt",
+        "9-4結果.html"
+      ]
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-5",
+      "before": "The main problem with contiguous memory allocation is fragmentation, where total available space is sufficient but not contiguous. (Please answer in English lowercase)",
+      "after": "The main problem with contiguous memory allocation is ____________ fragmentation, where total available space is sufficient but not contiguous. (Please answer in English lowercase)",
+      "sources": [
+        "記憶體沼澤9-3(結丹中期) - 獵妖與修練.html",
+        "記憶體沼澤9-4(結丹中期) - 獵妖與修練.html",
+        "course-library-batch-all.txt",
+        "9-1結果.html",
+        "9-3結果.html",
+        "9-4結果.html"
+      ]
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-20",
+      "before": "In Contiguous Memory Allocation, if a sufficiently large contiguous space cannot be found, must be performed to eliminate external fragmentation. (Please answer in English lowercase)",
+      "after": "In Contiguous Memory Allocation, if a sufficiently large contiguous space cannot be found, [__1__] must be performed to eliminate external fragmentation. (Please answer in English lowercase)",
+      "sources": [
+        "9-1結果.html"
+      ]
+    },
+    {
+      "id": "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-3",
+      "before": "在連續記憶體分配中，若無法找到足夠大的連續空間，則需要執行來消除外部碎片。 (請用小寫英文回答)",
+      "after": "在連續記憶體分配中，若無法找到足夠大的連續空間，則需要執行 ____________ 來消除外部碎片。 (請用小寫英文回答)",
+      "sources": [
+        "記憶體沼澤9-2(結丹中期) - 獵妖與修練.html",
+        "9-2結果.html"
+      ]
+    },
+    {
+      "id": "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-4",
+      "before": "連續記憶體分配的主要問題是碎片，即總可用空間足夠，但不是連續的。 (請用小寫英文回答)",
+      "after": "連續記憶體分配的主要問題是 ____________ 碎片，即總可用空間足夠，但不是連續的。 (請用小寫英文回答)",
+      "sources": [
+        "記憶體沼澤9-2(結丹中期) - 獵妖與修練.html",
+        "9-2結果.html"
+      ]
+    },
+    {
+      "id": "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-7",
+      "before": "The unused space resulting from an allocated block being larger than the process requires in paging is called fragmentation. (Please answer in English lowercase)",
+      "after": "The unused space resulting from an allocated block being larger than the process requires in paging is called ____________ fragmentation. (Please answer in English lowercase)",
+      "sources": [
+        "記憶體沼澤9-3(結丹中期) - 獵妖與修練.html",
+        "9-3結果.html"
+      ]
+    },
+    {
+      "id": "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-11",
+      "before": "The is a special, fast lookup hardware cache used to speed up page table entry lookups. Please answer using English abbreviations in uppercase.",
+      "after": "The ____________ is a special, fast lookup hardware cache used to speed up page table entry lookups. Please answer using English abbreviations in uppercase.",
+      "sources": [
+        "記憶體沼澤9-2(結丹中期) - 獵妖與修練.html",
+        "9-2結果.html"
+      ]
+    },
+    {
+      "id": "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-11",
+      "before": "In paging, the address generated by the CPU is translated into a address. (Please answer in English lowercase)",
+      "after": "In paging, the ____________ address generated by the CPU is translated into a ____________ address. (Please answer in English lowercase)",
+      "sources": [
+        "記憶體沼澤9-3(結丹中期) - 獵妖與修練.html",
+        "9-3結果.html"
+      ]
+    },
+    {
+      "id": "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-11",
+      "before": "The logical address generated by the CPU is divided into two parts during address translation: the and the . (Please answer in English lowercase, one space between letters)",
+      "after": "The logical address generated by the CPU is divided into two parts during address translation: the ____________ and the ____________ . (Please answer in English lowercase, one space between letters)",
+      "sources": [
+        "記憶體沼澤9-4(結丹中期) - 獵妖與修練.html",
+        "course-library-batch-all.txt",
+        "9-4結果.html"
+      ]
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-16",
+      "before": "To handle excessively large page tables, Hashed Page Tables use the virtual address to perform a into a hash table, with each entry containing a linked list. (Please answer in English lowercase)",
+      "after": "To handle excessively large page tables, Hashed Page Tables use the virtual address to perform a [__1__] into a hash table, with each entry containing a linked list. (Please answer in English lowercase)",
+      "sources": [
+        "9-1結果.html"
+      ]
+    },
+    {
+      "id": "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-14",
+      "before": "在頁表中，每個條目對應一個物理，且包含虛擬地址的頁號和擁有該頁的程序 ID。 (請用小寫英文回答)",
+      "after": "在 ____________ 頁表中，每個條目對應一個物理 ____________ ，且包含虛擬地址的頁號和擁有該頁的程序 ID。 (請用小寫英文回答)",
+      "sources": [
+        "記憶體沼澤9-3(結丹中期) - 獵妖與修練.html",
+        "記憶體沼澤9-4(結丹中期) - 獵妖與修練.html",
+        "course-library-batch-all.txt",
+        "9-3結果.html",
+        "9-4結果.html"
+      ]
+    },
+    {
+      "id": "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-12",
+      "before": "為了在 TLB 遺失時保護程序的頁表，頁表本身通常存儲在主記憶體的記憶體區域中。 (請用小寫英文回答)",
+      "after": "為了在 TLB 遺失時保護程序的頁表，頁表本身通常存儲在主記憶體的 ____________ 記憶體區域中。 (請用小寫英文回答)",
+      "sources": [
+        "記憶體沼澤9-4(結丹中期) - 獵妖與修練.html",
+        "course-library-batch-all.txt",
+        "9-4結果.html"
+      ]
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-4",
+      "before": "在分段中，邏輯地址由號和組成。 (請用小寫英文回答，字母間留一個空白)",
+      "after": "在分段中，邏輯地址由[__1__]號和[__2__]組成。 (請用小寫英文回答，字母間留一個空白)",
+      "sources": [
+        "9-1結果.html"
+      ]
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-12",
+      "before": "分段 (Segmentation) 是一種記憶體管理方案，它將記憶體視為一組邏輯單元，稱為。 (請用小寫英文回答)",
+      "after": "分段 (Segmentation) 是一種記憶體管理方案，它將記憶體視為一組邏輯單元，稱為 ____________ 。 (請用小寫英文回答)",
+      "sources": [
+        "記憶體沼澤9-4(結丹中期) - 獵妖與修練.html",
+        "course-library-batch-all.txt",
+        "9-1結果.html",
+        "9-4結果.html"
+      ]
+    },
+    {
+      "id": "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-14",
+      "before": "In segmentation, the logical address consists of the and the . (Please answer in English lowercase, one space between letters)",
+      "after": "In segmentation, the logical address consists of the ____________ and the ____________ . (Please answer in English lowercase, one space between letters)",
+      "sources": [
+        "記憶體沼澤9-2(結丹中期) - 獵妖與修練.html",
+        "9-2結果.html"
+      ]
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-11",
+      "before": "動態連結中，連結過程被延遲到時間。 (請用小寫英文回答)",
+      "after": "動態連結中，連結過程被延遲到 ____________ 時間。 (請用小寫英文回答)",
+      "sources": [
+        "記憶體沼澤9-3(結丹中期) - 獵妖與修練.html",
+        "9-1結果.html",
+        "9-3結果.html"
+      ]
+    },
+    {
+      "id": "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-17",
+      "before": "動態載入使用一個稱為的代碼片段來定位和載入所需的庫常式，並在載入後用常式的地址替換它。 (請用小寫英文回答)",
+      "after": "動態載入使用一個稱為 ____________ 的代碼片段來定位和載入所需的庫常式，並在載入後用常式的地址替換它。 (請用小寫英文回答)",
+      "sources": [
+        "記憶體沼澤9-2(結丹中期) - 獵妖與修練.html",
+        "記憶體沼澤9-4(結丹中期) - 獵妖與修練.html",
+        "course-library-batch-all.txt",
+        "9-2結果.html",
+        "9-4結果.html"
+      ]
+    },
+    {
+      "id": "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-5",
+      "before": "Dynamic linking uses a small piece of code called a to locate and load the required library routine, and replaces itself with the routine's address after loading. (Please answer in English lowercase)",
+      "after": "Dynamic linking uses a small piece of code called a ____________ to locate and load the required library routine, and replaces itself with the routine's address after loading. (Please answer in English lowercase)",
+      "sources": [
+        "記憶體沼澤9-3(結丹中期) - 獵妖與修練.html",
+        "9-3結果.html"
+      ]
+    },
+    {
+      "id": "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-24",
+      "before": "Intel x86-64 架構在實務上僅實作了位元的虛擬地址空間。 (請用數字回答)",
+      "after": "Intel x86-64 架構在實務上僅實作了[__1__]位元的虛擬地址空間。 (請用數字回答)",
+      "sources": [
+        "9-1結果.html"
+      ]
+    },
+    {
+      "id": "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-5",
+      "before": "ARM 架構將 1 MB 和 16 MB 頁面稱為。 (請用小寫英文回答)",
+      "after": "ARM 架構將 1 MB 和 16 MB 頁面稱為 ____________ 。 (請用小寫英文回答)",
+      "sources": [
+        "記憶體沼澤9-2(結丹中期) - 獵妖與修練.html",
+        "9-2結果.html"
+      ]
+    },
+    {
+      "id": "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-18",
+      "before": "允許 32 位元應用程式存取超過 4GB 物理記憶體空間的 Intel 技術是。 (請用小寫英文回答)",
+      "after": "允許 32 位元應用程式存取超過 4GB 物理記憶體空間的 Intel 技術是 ____________ 。 (請用小寫英文回答)",
+      "sources": [
+        "記憶體沼澤9-2(結丹中期) - 獵妖與修練.html",
+        "9-2結果.html"
+      ]
+    },
+    {
+      "id": "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-6",
+      "before": "The ARM architecture refers to 1 MB and 16 MB pages as . (Please answer in English lowercase)",
+      "after": "The ARM architecture refers to 1 MB and 16 MB pages as ____________ . (Please answer in English lowercase)",
+      "sources": [
+        "記憶體沼澤9-3(結丹中期) - 獵妖與修練.html",
+        "9-3結果.html"
+      ]
+    },
+    {
+      "id": "community-11faf01e-95cb-48df-a51f-04fd1d3b4923-6",
+      "before": "The Intel technology that allows 32-bit applications to access more than 4GB of physical memory space is . (Please answer in English lowercase)",
+      "after": "The Intel technology that allows 32-bit applications to access more than 4GB of physical memory space is ____________ . (Please answer in English lowercase)",
+      "sources": [
+        "記憶體沼澤9-4(結丹中期) - 獵妖與修練.html",
+        "course-library-batch-all.txt",
+        "9-4結果.html"
+      ]
+    }
+  ]
+}

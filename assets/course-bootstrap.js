@@ -41,6 +41,7 @@
       }
       const meta = curation?.questions?.[question.id];
       if (meta && sourceSignature(original) === meta.sourceSignature) {
+        if (String(meta.stem || '').trim()) question.stem = meta.stem;
         if (!original.category || original.category === 'HTML 匯入') question.category = meta.category;
         if (String(meta.explanation || '').trim()) question.explanation = meta.explanation;
       }
@@ -110,7 +111,7 @@
     try {
       const [response, curationResponse] = await Promise.all([
         fetch(window.courseContributions.apiOrigin + '/api/questions?course=' + config.course, {signal:AbortSignal.timeout(8000)}),
-        fetch('assets/os-l9-curation.json?v=l9-no-notes-explanations-20261029', {signal:AbortSignal.timeout(8000)}).catch(() => null)
+        fetch('assets/os-l9-curation.json?v=l9-blanks-restored-20261029', {signal:AbortSignal.timeout(8000)}).catch(() => null)
       ]);
       if (!response.ok) throw new Error('unavailable');
       const data = await response.json();

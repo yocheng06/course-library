@@ -154,7 +154,7 @@ async function loadLibrary() {
   $("libraryStatus").textContent = "正在載入內建題庫與同步公開投稿……";
   try {
     const built = fetch(
-      "assets/batch-library.json?v=l9-curation-20261029",
+      "assets/batch-library.json?v=l9-blanks-restored-20261029",
       {
         signal: AbortSignal.timeout(12000),
       },
