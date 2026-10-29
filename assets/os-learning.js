@@ -142,9 +142,8 @@ function render(preserveCards = false) {
   $('qualitySelect').options[1].textContent=`待確認（${entries.filter(({q})=>window.courseQuestionTools.qualityReasons(q,'os').length).length} 題）`;
   $('resultCount').innerHTML=`<strong>${allUnits()?'全部單元':'目前單元'} · ${$('chapter').value==='all'?'全部章節':esc($('chapter').value)}</strong> · ${filtered.length} / ${entries.length} 題`;
   $('pageRange').textContent=filtered.length?`${start+1}–${Math.min(start+pageSize,filtered.length)} · 第 ${page} / ${pages} 頁`:'0 題';
-  const visible=filtered.slice(start,start+pageSize), cards=[...$('cards').children];
-  if (!preserveCards || visible.length!==cards.length || visible.some(({q},index)=>q.id!==cards[index].dataset.id))
-    $('cards').innerHTML=visible.map(cardMarkup).join('');
+  const visible=filtered.slice(start,start+pageSize);
+  window.courseQuestionTools.renderQuestionCards($('cards'),visible,cardMarkup,preserveCards);
   $('empty').hidden=filtered.length!==0;
   $('pager').innerHTML=pages>1?`<button data-page="${page-1}" aria-label="上一頁" ${page===1?'disabled':''}>←</button>`+Array.from({length:pages},(_,i)=>`<button data-page="${i+1}" ${page===i+1?'class="active" aria-current="page"':''} aria-label="第 ${i+1} 頁">${i+1}</button>`).join('')+`<button data-page="${page+1}" aria-label="下一頁" ${page===pages?'disabled':''}>→</button>`:'';
   $('studyMode').classList.toggle('active',mode==='study'); $('practiceMode').classList.toggle('active',mode==='practice');

@@ -71,6 +71,46 @@ test('both courses refresh an already loaded community question immediately afte
  }
 });
 
+test('same-ID built-in updates refresh visible answers, explanation and correct-option marks in both courses',async()=>{
+ for(const course of ['os','algorithms']){
+  const h=await coursePage(course),id=course==='os'?'basics-9':h.config.examEntries(false)[0].id;
+  h.document.getElementById('showAnswers').checked=true;h.config.render();
+  const row=h.config.examEntries(false).find(e=>e.id===id),before=h.document.querySelector(`article[data-id="${id}"]`);
+  const untouched=h.document.querySelector(`article[data-id="${course==='os'?'basics-1':h.config.examEntries(false)[1].id}"]`);
+  const q=course==='os'?{...row.q,answer:'A、C',choiceKey:'AC',explanation:'最新儲存的解析'}:{...row.q,a:'A、C',choiceKey:'AC',type:'多選題',ex:'最新儲存的解析'};
+  h.config.mergeCommunityQuestions([],{overrides:[{unit:row.unitId,question:q}]});
+  const card=h.document.querySelector(`article[data-id="${id}"]`);
+  assert.equal(card.querySelector('.answer-value').textContent,'A、C');
+  assert.equal(card.querySelector('.explanation-text').textContent,'最新儲存的解析');
+  assert.equal(card.querySelectorAll('.option.correct').length,2);
+  assert.notEqual(card,before);
+  assert.equal(h.document.querySelector(`article[data-id="${untouched.dataset.id}"]`),untouched);
+  h.config.mergeCommunityQuestions([],{overrides:[]});
+  const restored=h.document.querySelector(`article[data-id="${id}"]`);
+  assert.equal(restored.querySelector('.answer-value').textContent,before.querySelector('.answer-value').textContent);
+ }
+});
+
+test('editing one community card refreshes its contents while retaining another card and its typed response',async()=>{
+ for(const course of ['os','algorithms']){
+  const id=n=>'community-22222222-2222-4222-8222-222222222222-'+n;
+  const h=await coursePage(course,{search:'?question='+id(1)}),unit=course==='os'?'L9':'L7';
+  const q=n=>course==='os'?{id:id(n),stem:'填空 ___ '+n,options:[],answer:'base',type:'填空題',category:'分類',explanation:'原解析'}:{bookmarkId:id(n),q:'填空 ___ '+n,opts:[],a:'base',type:'填空題',category:'分類',ex:'原解析'};
+  const rows=[1,2].map(n=>({unit,question:q(n)}));
+  h.config.mergeCommunityQuestions(rows,{openLinkedQuestion:true});h.practice();
+  const card=h.document.querySelector(`article[data-id="${id(1)}"]`),input=card.querySelector('[data-draft]');
+  input.value='正在輸入的作答';h.fire(input,'input');
+  const changed=course==='os'?{...q(2),stem:'修正後題幹 ___',answer:'limit',explanation:'修正後解析'}:{...q(2),q:'修正後題幹 ___',a:'limit',ex:'修正後解析'};
+  h.config.mergeCommunityQuestions([{unit,question:changed}]);
+  const updated=h.document.querySelector(`article[data-id="${id(2)}"]`);
+  assert.equal(updated.querySelector('.question').textContent,'修正後題幹 ___');
+  assert.equal(updated.querySelector('.answer-value').textContent,'limit');
+  assert.equal(updated.querySelector('.explanation-text').textContent,'修正後解析');
+  assert.equal(h.document.querySelector(`article[data-id="${id(1)}"]`),card);
+  assert.equal(card.querySelector('[data-draft]').value,'正在輸入的作答');
+ }
+});
+
 test('both courses enable clear after the first selection and disable it after the last checkbox is cleared', async () => {
   for (const course of ['os','algorithms']) {
     const h=await coursePage(course);h.practice();

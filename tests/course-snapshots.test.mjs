@@ -173,6 +173,18 @@ test('a save notification arriving during initial synchronization queues a fresh
   assert.equal(JSON.parse(h.storage.get(key('os'))).data.questions.length,1);
 });
 
+test('background sync replaces the reported stale ABCD answer with AC on the visible card',async()=>{
+  const h=await page('os',{search:'?question=basics-9'});
+  const q=h.config.examEntries(false).find(e=>e.id==='basics-9').q;
+  const older={...q,answer:'A、B、C、D',choiceKey:'ABCD',explanation:'舊解析'};
+  cache(h,{...empty(),overrides:[{unit:'basics',question:older}]});h.boot();
+  assert.equal(h.document.querySelector('article[data-id="basics-9"] .answer-value').textContent,'A、B、C、D');
+  await h.complete({...empty(),overrides:[{unit:'basics',question:{...q,answer:'A、C',choiceKey:'AC',explanation:'已儲存的新解析'}}]});
+  assert.equal(h.config.questionForEdit('basics-9').answer,'A、C');
+  assert.equal(h.document.querySelector('article[data-id="basics-9"] .answer-value').textContent,'A、C');
+  assert.equal(h.document.querySelector('article[data-id="basics-9"] .explanation-text').textContent,'已儲存的新解析');
+});
+
 test('a network failure retains the last cache, and full synchronization preserves built-in questions with community IDs',async()=>{
   const h=await page('os');cache(h,{...empty(),questions:[row('os',1)]});h.boot();
   const before=h.storage.get(key('os'));

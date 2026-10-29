@@ -223,5 +223,25 @@
     return (q.images||[]).filter(img=>/^assets\/questions\/[a-z0-9/_-]+\.(png|jpe?g)$/i.test(img.src)||/^https:\/\//.test(img.src)).map(img=>`<figure class="question-figure"><button type="button" class="question-image-open" data-image-viewer aria-haspopup="dialog" aria-controls="question-image-viewer"><img src="${esc(img.src)}" alt="${esc(img.alt||q.stem||q.q)}" ${img.width&&img.height?`width="${Number(img.width)}" height="${Number(img.height)}"`:''} loading="lazy"><span>放大題圖（可縮放）</span></button></figure>`).join('');
   }
 
-  window.courseQuestionTools = { questionType, answerType, questionImagesMarkup, hasProvidedAnswer, matchesSearch, searchMatchMarkup, createPracticeOrder, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion };
+  const renderedCardVersions = new WeakMap();
+  function renderQuestionCards(list, entries, markup, preserveCards = false) {
+    const cards = [...list.children];
+    const id = entry => entry.id ?? entry.q.id;
+    // A stable ID identifies a question, not a revision. Compare public content
+    // too, replacing changed cards while leaving other responses/focus intact.
+    const versions = entries.map(entry => JSON.stringify([entry.q, entry.i, entry.unit?.id, entry.unit?.label]));
+    if (!preserveCards || entries.length !== cards.length || entries.some((entry,i) => id(entry) !== cards[i].dataset.id)) {
+      list.innerHTML = entries.map(markup).join('');
+    } else {
+      entries.forEach((entry,i) => {
+        if (renderedCardVersions.get(cards[i]) === versions[i]) return;
+        const template = document.createElement('template');
+        template.innerHTML = markup(entry);
+        cards[i].replaceWith(template.content.firstElementChild);
+      });
+    }
+    [...list.children].forEach((card,i) => renderedCardVersions.set(card, versions[i]));
+  }
+
+  window.courseQuestionTools = { questionType, answerType, questionImagesMarkup, hasProvidedAnswer, matchesSearch, searchMatchMarkup, createPracticeOrder, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
 })();
