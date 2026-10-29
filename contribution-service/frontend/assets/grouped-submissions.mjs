@@ -36,12 +36,37 @@ export function groupImport(data, fallback, filename='匯入題庫', {allowMissi
   return result;
 }
 
+const countValue = (value, fallback=0) => Number.isSafeInteger(value) && value>=0 ? value : fallback;
+export function groupImportCounts(group) {
+  const localDuplicates=countValue(group.skippedCount);
+  const pending=group.payload.questions.length;
+  const result=group.result;
+  if(!result)return {total:pending+localDuplicates,added:0,duplicates:localDuplicates,pending,completed:0};
+  const received=countValue(result.receivedCount,pending);
+  const added=countValue(result.acceptedCount,result.status==='duplicates_only'?0:Math.max(0,received-countValue(result.skippedCount)));
+  const duplicates=countValue(result.skippedCount,Math.max(0,received-added));
+  return {total:received+localDuplicates,added,duplicates:duplicates+localDuplicates,pending:0,completed:1};
+}
+export function groupedImportSummary(groups) {
+  const totals=groups.map(groupImportCounts).reduce((sum,counts)=>Object.fromEntries(Object.keys(sum).map(key=>[key,sum[key]+counts[key]])),{total:0,added:0,duplicates:0,pending:0,completed:0});
+  return {...totals,batches:groups.length};
+}
+export function groupedImportSummaryText(groups) {
+  const n=groupedImportSummary(groups);
+  return `本次共 ${n.total} 題 · 已新增 ${n.added} 題 · 重複略過 ${n.duplicates} 題 · 已完成 ${n.completed}／${n.batches} 批${n.pending?` · 尚有 ${n.pending} 題待處理`:''}`;
+}
+
 export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}) {
   const key='course-library-grouped-submissions-v1';let queue=[],busy=false;
   const panel=document.createElement('section');panel.className='group-preview';
-  panel.innerHTML='<h2>匯入分組預覽</h2><p>依科目與單元分組，每批最多 200 題。可同時選取 CCSA 題目 HTML 和交卷結果 HTML，自動配對正解；解析可留白。確認每組內容與答案後再送出；下方手動編輯中的原草稿會保留。已送出的批次會保留收據，重試只處理未完成批次。沒有配對到的正解需先補上。</p><div data-groups></div><label class="consent"><input type="checkbox" data-consent>我已預覽各組題目，確認題目與答案正確並了解送出後會立即公開。</label><div class="actions"><button type="button" class="button" data-send>確認分組並逐批加入題庫</button><button type="button" class="button secondary" data-download>下載分組草稿與收據</button><button type="button" class="text-button" data-clear>清空分組預覽</button></div><p role="status" aria-live="polite"></p>';
+  panel.innerHTML='<h2>匯入分組預覽</h2><p>依科目與單元分組，每批最多 200 題。可同時選取 CCSA 題目 HTML 和交卷結果 HTML，自動配對正解；解析可留白。確認每組內容與答案後再送出；下方手動編輯中的原草稿會保留。已送出的批次會保留收據，重試只處理未完成批次。沒有配對到的正解需先補上。</p><p class="notice" data-import-summary role="status" aria-live="polite" hidden></p><div data-groups></div><label class="consent"><input type="checkbox" data-consent>我已預覽各組題目，確認題目與答案正確並了解送出後會立即公開。</label><div class="actions"><button type="button" class="button" data-send>確認分組並逐批加入題庫</button><button type="button" class="button secondary" data-download>下載分組草稿與收據</button><button type="button" class="text-button" data-clear>清空分組預覽</button></div><p data-import-status role="status" aria-live="polite"></p>';
   document.getElementById('draftHeading').closest('section').before(panel);
-  const list=panel.querySelector('[data-groups]'),status=panel.querySelector('[role="status"]'),consent=panel.querySelector('[data-consent]');
+  const list=panel.querySelector('[data-groups]'),status=panel.querySelector('[data-import-status]'),consent=panel.querySelector('[data-consent]');
+  function updateSummary(){
+    const summary=panel.querySelector('[data-import-summary]');
+    summary.hidden=!queue.length;
+    summary.textContent=queue.length?groupedImportSummaryText(queue):'';
+  }
   function save(){localStorage.setItem(key,JSON.stringify({version:1,groups:queue}));}
   function missingAnswerCount(group){return group.payload.questions.filter(q=>!String(q.answer||'').trim()).length;}
   function answerEditor(q,groupIndex,questionIndex){
@@ -78,10 +103,10 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
   function render(){
     panel.hidden=!queue.length;
     list.innerHTML=queue.map((group,index)=>{
-      const missing=missingAnswerCount(group);
-      return `<details data-group-index="${index}"><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${group.payload.questions.length} 題 · ${group.result?'已完成':'待送出'}${group.htmlImport?` <span data-answer-count>（待補正解 ${missing} 題）</span>`:''}${group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary>${group.payload.questions.map((q,i)=>group.htmlImport?importedPreview(q,index,i):questionPreview(q,i)+'</article>').join('')}${group.result?`<p>結果：${esc(group.result.status)}；收據：${esc(group.result.id || '全部已收錄，未新增投稿')}</p>`:''}<div data-similar></div><p data-error role="status"></p></details>`;
+      const missing=missingAnswerCount(group),counts=groupImportCounts(group);
+      return `<details data-group-index="${index}"><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} 題 · 重複 ${counts.duplicates} 題`:'待送出'}${group.htmlImport?` <span data-answer-count>（待補正解 ${missing} 題）</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary>${group.payload.questions.map((q,i)=>group.htmlImport?importedPreview(q,index,i):questionPreview(q,i)+'</article>').join('')}${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，重複略過 ${counts.duplicates} 題。收據：${esc(group.result.id || '全部已收錄，未新增投稿')}</p>`:''}<div data-similar></div><p data-error role="status"></p></details>`;
     }).join('');
-    refreshSendButton();
+    updateSummary();refreshSendButton();
   }
   try{
     const saved=JSON.parse(localStorage.getItem(key)||'null');
@@ -116,7 +141,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
   panel.querySelector('[data-send]').addEventListener('click',async()=>{
     if(busy || !consent.checked)return;
     if(queue.some(group=>!group.result&&missingAnswerCount(group)>0)){updateAnswerStatus();return;}
-    busy=true;panel.querySelector('[data-send]').disabled=true;
+    busy=true;updateSummary();panel.querySelector('[data-send]').disabled=true;
     // Snapshot consent per group; a similar-question warning needs its own explicit consent.
     try{
       for(let index=0;index<queue.length;index++){
@@ -127,17 +152,19 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
           const payload=normalizeBatch(group.payload);
           group.result=await api('/api/submissions',{method:'POST',body:JSON.stringify({...payload,clientRequestId:group.requestId,website:document.getElementById('website').value,confirmSimilar:node.querySelector('.similar-consent')?.checked===true})});
           // Persist each completion before starting the next request.
-          save();if(group.result.id)onReceipt(group.result,payload);
-          node.querySelector('[data-error]').textContent=group.result.id?`已加入公開題庫。收據：${group.result.id}`:'全部題目已收錄，沒有新增投稿。';
+          save();updateSummary();if(group.result.id)onReceipt(group.result,payload);
+          const counts=groupImportCounts(group);
+          node.querySelector('summary').textContent=`${COURSE_UNITS[group.payload.course].name}／${unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle)} · ${counts.total} 題 · 已完成 · 新增 ${counts.added} 題 · 重複 ${counts.duplicates} 題`;
+          node.querySelector('[data-error]').textContent=`本批共 ${counts.total} 題，已新增 ${counts.added} 題，重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+group.result.id:'全部已收錄，沒有新增題目。'}`;
         }catch(error){
           if(error.details?.code==='similar_questions')showSimilar(node.querySelector('[data-similar]'),error.details.possibleDuplicates);
           node.open=true;node.querySelector('[data-error]').textContent=error.message;
           throw new Error(`第 ${index+1} 批未完成：${error.message}。已完成的批次不會重送，草稿與結果仍保留。`);
         }
       }
-      status.textContent='各批次均已處理。請下載分組草稿與收據以備查詢。';render();
+      status.textContent='各批次均已處理。請下載分組草稿與收據以備查詢。';render();panel.querySelector('[data-import-summary]').scrollIntoView({block:'center'});
     }catch(error){status.textContent=error.message;}
-    finally{busy=false;refreshSendButton();}
+    finally{busy=false;updateSummary();refreshSendButton();}
   });
   render();
   if(queue.some(group=>group.htmlImport&&!group.result))updateAnswerStatus();
