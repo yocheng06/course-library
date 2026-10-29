@@ -113,7 +113,7 @@ function answerFormat(value) {
       hint: quotedNumberHint[1],
     };
   const englishMatch = normalized.match(
-    /\((Please\s+answer\s+in\s+(?:lowercase|uppercase)\s+English(?:,\s*(?:leaving\s+a\s+space\s+between\s+each\s+word|connecting\s+words\s+with\s+hyphens))?)\)$/i,
+    /\((Please\s+answer\s+in\s+(?:(?:lowercase|uppercase)\s+English|English\s+(?:lowercase|uppercase))(?:,\s*(?:leaving\s+a\s+space\s+between\s+each\s+word|connecting\s+words\s+with\s+hyphens|one\s+space\s+between\s+letters))?)\)$/i,
   );
   if (englishMatch)
     return {
@@ -138,6 +138,7 @@ function answerFormat(value) {
     .replace(/符號請用\{big-theta,theta,big-omega,omega,O,o,?\}/g, "")
     .replace(/(?:字母|單字)間(?:請)?留一個空白/g, "")
     .replace(/單字間(?:請)?用-連接|以連字號連接單字|需要做字母連接的兩個文字用-/g, "")
+    .replace(/字母間(?:請)?用-/g, "")
     // Some copied answer-format notes include a parenthesized log example.
     // The instruction is still presentation-only; nested parentheses must not
     // prevent the rest of the question from matching its library entry.
@@ -159,7 +160,7 @@ function answerFormat(value) {
 export const normalizeStem = (value) =>
   answerFormat(value)
     .stem.replace(/使用著空間/g, "使用者空間")
-    .replace(/^\s*(?:\*\*)?妖獸\s*\d{1,4}\s*[.．。)、:：）](?:\*\*)?\s*/u, "")
+    .replace(/^(?:(?:Beast|妖獸)\s*\d{1,4}\s*[.)、:]\s*)+/iu, "")
     .replace(/[?？。.!！]+$/u, "")
     .trim();
 export const optionText = (value) =>
@@ -597,6 +598,28 @@ function blanklessStem(value, allowMissing = false) {
     normalized.slice(slot.index + slot[0].length)
   );
 }
+function fillBlankCount(value) {
+  return [
+    ...normalizeStem(value).matchAll(
+      /___|(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/gu,
+    ),
+  ].length;
+}
+function withoutFillBlanks(value) {
+  return normalizeStem(
+    normalizeStem(value).replace(
+      /___|(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/gu,
+      "",
+    ),
+  );
+}
+function answerFitsBlankCount(answer, count) {
+  if (typeof answer !== "string" || !answer.trim()) return false;
+  if (count <= 1) return true;
+  return answer
+    .split(/\s*(?:\/|[、，,;；])\s*/)
+    .filter(Boolean).length === count;
+}
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function filledBlankValues(questionStem, entryStem) {
   const expected = normalizeStem(entryStem);
@@ -663,13 +686,14 @@ function remapAnswer(question, entry) {
     if (
       hint &&
       (/[\p{Script=Han}]/u.test(entry.answer) ||
-        (/(?:小寫英文|lowercase\s+English)/i.test(hint) &&
+        (/(?:小寫英文|lowercase\s+English|English\s+lowercase)/i.test(hint) &&
           /[A-Z]/.test(entry.answer)) ||
-        (/(?:大寫英文|uppercase\s+English)/i.test(hint) &&
+        (/(?:大寫英文|uppercase\s+English|English\s+uppercase)/i.test(hint) &&
           /[a-z]/.test(entry.answer)) ||
         (/請用數字回答/.test(hint) &&
           !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(entry.answer.trim())) ||
-        (/(?:單字間(?:請)?留-|單字間(?:請)?用-連接|以連字號連接單字|需要做字母連接的兩個文字用-|connecting\s+words\s+with\s+hyphens)/i.test(hint) && /[\s_]/.test(entry.answer)) ||
+        (/(?:單字間(?:請)?留-|單字間(?:請)?用-連接|字母間(?:請)?用-|以連字號連接單字|需要做字母連接的兩個文字用-|connecting\s+words\s+with\s+hyphens)/i.test(hint) && /[\s_]/.test(entry.answer)) ||
+        (/one\s+space\s+between\s+letters/i.test(hint) && /\s{2,}/.test(entry.answer)) ||
         (/中間不留空白/.test(hint) && /\s/.test(entry.answer)) ||
         (/不可用lg/.test(hint) && /\blg/.test(entry.answer)))
     )
@@ -732,11 +756,13 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       references: references((index.stems.get(course + "|" + normalizeStem(question.stem)) || []).filter(eligible)),
     };
   const normalized = normalizeStem(question.stem);
+  const blankCount = question.options.length ? 0 : fillBlankCount(question.stem);
   let sameStem = (index.stems.get(course + "|" + normalized) || []).filter(
     eligible,
   );
   let missingBlank = false;
   if (
+    !blankCount &&
     !sameStem.some(e => !e.options.length) &&
     !question.options.length &&
     normalized.length > 0 &&
@@ -749,7 +775,41 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     sameStem = [...sameStem, ...recovered];
     missingBlank = recovered.length > 0;
   }
-  let exact = sameStem.filter((e) => sameOptions(question, e));
+  let exact = [];
+  let blankMarkerMatch = false;
+  if (blankCount) {
+    const blankless = withoutFillBlanks(question.stem);
+    const candidates = index.entries.filter(
+      (entry) =>
+        eligible(entry) &&
+        !entry.options.length &&
+        withoutFillBlanks(entry.stem) === blankless,
+    );
+    const preferred = candidates.some((entry) => entry.preferred)
+      ? candidates.filter((entry) => entry.preferred)
+      : candidates;
+    const candidateIds = new Set(candidates.map((entry) => entry.id));
+    if (candidateIds.size > 1)
+      return {
+        status: "review",
+        answer: "",
+        reason: "移除填空標記後仍有多道題幹完全相同的題目，請核對原題。",
+        references: references(candidates),
+      };
+    if (candidateIds.size === 1) {
+      if (preferred.some((entry) => !answerFitsBlankCount(entry.answer, blankCount)))
+        return {
+          status: "review",
+          answer: "",
+          reason: "題幹唯一符合，但答案項目數與填空數不一致，請核對原題。",
+          references: references(preferred),
+        };
+      exact = preferred;
+      blankMarkerMatch = true;
+    }
+  } else {
+    exact = sameStem.filter((e) => sameOptions(question, e));
+  }
   let filledAnswerMatch = false;
   let correctedFilledTypo = false;
   if (!exact.length && !question.options.length) {
@@ -806,7 +866,9 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     return {
       status: "matched",
       answer: answers[0].answer,
-      reason: missingBlank
+      reason: blankMarkerMatch
+        ? "移除填空標記後與唯一題庫題幹精確符合，答案格式與填空數已核對。"
+        : missingBlank
         ? "填空標記格式不同或未貼出；其餘文字符合題庫，已核對答案一致且符合填答格式。"
         : textAnswerBridge
           ? "題幹符合，題庫的文字答案唯一對應本次選項。"
@@ -922,8 +984,14 @@ export function applyBuiltinOverrides(entries,course,overrides=[]) {
   const replacements=new Map(), replacedIds=new Set();
   for(const row of overrides){
     const q=row?.question,id=q?.id || q?.bookmarkId;
-    if(!id || replacements.has(id) || !entries.some(e=>e.course===course && e.id===id && e.unit===row.unit) ||
-       typeof(q.stem??q.q)!=='string' || typeof(q.answer??q.a)!=='string' || !Array.isArray(q.options??q.opts) ||
+    if(!id || replacements.has(id) || replacedIds.has(id) || !entries.some(e=>e.course===course && e.id===id && e.unit===row.unit))throw new Error('Invalid built-in question');
+    if(row.deleted===true){
+      if(q.aliases!==undefined && (!Array.isArray(q.aliases)||q.aliases.some(alias=>typeof alias!=='string')))throw new Error('Invalid built-in question');
+      replacedIds.add(id);
+      for(const alias of q.aliases||[])replacedIds.add(alias);
+      continue;
+    }
+    if(typeof(q.stem??q.q)!=='string' || typeof(q.answer??q.a)!=='string' || !Array.isArray(q.options??q.opts) ||
        (q.options??q.opts).some(v=>typeof v!=='string'))throw new Error('Invalid built-in question');
     const expanded=expandLibraryQuestion(course,row.unit,q);if(!expanded.length)throw new Error('Empty built-in question');
     replacements.set(id,expanded);replacedIds.add(id);

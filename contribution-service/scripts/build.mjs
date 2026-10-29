@@ -13,6 +13,16 @@ const entries = JSON.parse(
 );
 const builtins=JSON.parse(await readFile(resolve(root,"builtin-questions.json"),"utf8"));
 if(new Set(builtins.map(q=>q.course+":"+q.id)).size!==builtins.length)throw new Error("Duplicate built-in IDs");
+const duplicateSearch=await import(pathToFileURL(resolve(root,"worker/batch-model.js")).href);
+const duplicateIndexes=new Map(builtins.map(base=>[base.course+":"+base.id,duplicateSearch.buildIndex(duplicateSearch.expandLibraryQuestion(base.course,base.unit,base.question).map(q=>({...q,stem:"duplicate identity",needsImage:false})))]));
+const duplicateCatalog=entries.flatMap(entry=>{
+ const base=builtins.find(base=>base.course===entry.course && (base.id===entry.canonicalId || base.question.aliases?.includes(entry.canonicalId)));
+ const index=base && duplicateIndexes.get(entry.course+":"+base.id);
+ if(!index)return [];
+ const result=duplicateSearch.matchQuestion({stem:"duplicate identity",options:entry.options.map((text,i)=>({label:String.fromCharCode(65+i),text})),issues:[]},index,{course:entry.course,unit:entry.unit});
+ const choiceKey=entry.options.length && result.status==="matched" ? result.answer.split("；").map(part=>part.match(/^([A-H])\./)?.[1]||"").join("") : null;
+ return [{...entry,id:base.id,type:base.question.type || (entry.options.length ? (choiceKey?.length>1?'多選題':'單選題') : '填空題'),answer:choiceKey?choiceKey.split("").join("、"):result.answer||base.question.answer,choiceKey,needsImage:Boolean(entry.images?.length),preferred:false}];
+});
 const fingerprints = entries.map((q) =>
   createHash("sha256")
     .update(questionKey(q.course, q.unit, q))
@@ -119,7 +129,7 @@ let worker = await readFile(resolve(root, "worker/index.js"), "utf8");
 const builtinManagement=await readFile(resolve(root,"worker/builtin-management.js"),"utf8");
 const readLibraryManagement=await readFile(resolve(root,"worker/library-management.js"),"utf8");
 const searchModel=(await readFile(resolve(root,"worker/batch-model.js"),"utf8")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
-worker=worker.replace("/* BUILTIN_MANAGEMENT */",()=>"const builtinSearch=(()=>{"+searchModel+";return {choiceAliases,choiceCombinations,questionStemVersions};})();\n"+builtinManagement);
+worker=worker.replace("/* BUILTIN_MANAGEMENT */",()=>"const builtinSearch=(()=>{"+searchModel+";return {choiceAliases,choiceCombinations,questionStemVersions,expandLibraryQuestion,buildIndex,matchQuestion,normalizeText};})();\n"+builtinManagement);
 worker=worker.replace("/* LIBRARY_MANAGEMENT */",()=>readLibraryManagement);
 
 const model = (await readFile(resolve(root, "worker/model.js"), "utf8"))
@@ -138,7 +148,7 @@ worker =
   "\n" +
   worker.replace(
     "/* BUILD_DATA */",
-    () => `const BUILTIN_QUESTIONS=${JSON.stringify(builtins)};\nconst BASE_FINGERPRINTS=${JSON.stringify(fingerprints)};\nconst BASE_QUESTIONS=${JSON.stringify(entries)};\nconst STATIC_ASSETS=${JSON.stringify(assets)};\nconst REVIEWED_MERGES=${JSON.stringify(mergeCatalog)};\nconst MERGE_VERSION=${JSON.stringify(createHash("sha256").update(JSON.stringify(mergeCatalog)).digest("hex"))};\nconst REVIEWED_EXPLANATIONS=${JSON.stringify(explanations)};\nconst REVIEWED_CONTENT_VERSION=${JSON.stringify(createHash("sha256").update(JSON.stringify(explanations)).digest("hex"))};`,
+    () => `const DUPLICATE_CATALOG=${JSON.stringify(duplicateCatalog)};\nconst BUILTIN_QUESTIONS=${JSON.stringify(builtins)};\nconst BASE_FINGERPRINTS=${JSON.stringify(fingerprints)};\nconst BASE_QUESTIONS=${JSON.stringify(entries)};\nconst STATIC_ASSETS=${JSON.stringify(assets)};\nconst REVIEWED_MERGES=${JSON.stringify(mergeCatalog)};\nconst MERGE_VERSION=${JSON.stringify(createHash("sha256").update(JSON.stringify(mergeCatalog)).digest("hex"))};\nconst REVIEWED_EXPLANATIONS=${JSON.stringify(explanations)};\nconst REVIEWED_CONTENT_VERSION=${JSON.stringify(createHash("sha256").update(JSON.stringify(explanations)).digest("hex"))};`,
   );
 await writeFile(resolve(root, "dist/server/index.js"), worker);
 await cp(

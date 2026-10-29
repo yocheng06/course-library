@@ -84,7 +84,7 @@ export function showSimilar(container, items) {
     container.replaceChildren();
     return;
   }
-  container.innerHTML = `<h3>請確認疑似重複題</h3><p>以下題幹與選項內容相同，但次序或代號不同。系統不會自動刪除，請確認是否需要保留。</p><ul>${items.map((q) => `<li>第 ${Number(q.index)} 題：${esc(q.stem)}（${esc(q.reason)}；對照：${esc(q.reference)}）</li>`).join("")}</ul><label class="consent"><input type="checkbox" class="similar-consent">我已確認，這些題目仍需要保留。</label>`;
+  container.innerHTML = `<h3>請確認疑似重複題</h3><p>以下題目對到既有題目，但題型、填空數、選項或答案仍需核對。請確認是否需要保留此版本。</p><ul>${items.map((q) => `<li>第 ${Number(q.index)} 題：${esc(q.stem)}（${esc(q.reason)}；對照：${esc(q.reference)}）</li>`).join("")}</ul><label class="consent"><input type="checkbox" class="similar-consent">我已確認，這些題目仍需要保留。</label>`;
 }
 export function downloadJSON(value, name) {
   const url = URL.createObjectURL(

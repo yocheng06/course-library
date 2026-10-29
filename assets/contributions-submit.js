@@ -1,4 +1,4 @@
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=html-image-import-20261029';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=import-dedup-20261029';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -6,7 +6,7 @@ import {
   normalizeType,
   normalizeBatch,
   uniqueQuestions,
-} from "./contribution-model.js?v=html-question-import-20261028";
+} from "./contribution-model.js?v=import-dedup-20261029";
 import {
   esc,
   api,
@@ -17,7 +17,7 @@ import {
   showSimilar,
   downloadJSON,
   copyText,
-} from "./contributions-ui.js?v=community-direct-publish-20261028";
+} from "./contributions-ui.js?v=import-dedup-20261029";
 import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=community-direct-publish-20261028";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),

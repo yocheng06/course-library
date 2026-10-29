@@ -50,12 +50,30 @@ const cleanKey = (value) =>
     .replace(/\s+/g, "");
 const stripBeastQuestionHeading = (value) =>
   String(value ?? "")
-    .replace(/^\s*(?:\*\*)?妖獸\s*\d{1,4}\s*[.．。)、:：）](?:\*\*)?\s*/u, "")
+    .replace(/^(?:\s*(?:\*\*)?(?:Beast|妖獸)\s*\d{1,4}\s*[.．。)、:：）](?:\*\*)?\s*)+/iu, "")
     .trim();
-const stemKey = (value) =>
-  cleanKey(
-    stripBeastQuestionHeading(value).replace(/\[_{2,}\d*_{0,}\]|_{2,}/g, "___"),
-  );
+// Only complete, known presentation instructions may leave the comparison key.
+// The original stem is retained by normalizeBatch for display and history.
+export function stripAnswerFormatHint(value) {
+  let text = stripBeastQuestionHeading(String(value ?? "").normalize("NFKC"));
+  text = text.replace(/\s*\((Please\s+answer\s+in\s+(?:(?:lowercase|uppercase)\s+English|English\s+(?:lowercase|uppercase))(?:,\s*(?:leaving\s+a\s+space\s+between\s+each\s+word|connecting\s+words\s+with\s+hyphens|one\s+space\s+between\s+letters))?)\)[。.!！?？]*$/i, "");
+  const hint = text.match(/\s*\((請用(?:小寫英文|大寫英文|英文|數字)回答[\s\S]*)\)[。.!！?？]*$/u);
+  if (hint) {
+    const rest = hint[1].replace(/\s+/g, "").replace(/^請用(?:小寫英文|大寫英文|英文|數字)回答/u, "")
+      .replace(/(?:字母|單字)間(?:請)?留一個空白|(?:字母|單字)間(?:請)?用-|單字間(?:請)?留-|單字間(?:請)?用-連接|以連字號連接單字|需要做字母連接的兩個文字用-|(?:符號)?中間不留空白/gu, "")
+      .replace(/[,，;；\s]/gu, "");
+    if (!rest) text = text.slice(0, hint.index);
+  }
+  return text.trim();
+}
+export function duplicateStemKey(value, blankless = false) {
+  const text = stripAnswerFormatHint(value)
+    .replace(/(?:\\_){2,}/g, blank => blank.replaceAll("\\", ""))
+    .replace(/\[_{2,}\d*_*\]|_{2,}|\[\d+\]/g, "___")
+    .replace(/[。.!！?？]+$/u, "");
+  return cleanKey(blankless ? text.replace(/___/g, "") : text);
+}
+const stemKey = value => duplicateStemKey(value);
 function imageKey(question) {
   return (question.imageKeys || question.images || [])
     .map((image) => (typeof image === "string" ? image : image.src))
@@ -117,9 +135,16 @@ export function uniqueQuestions(
   questions,
   onDuplicate = () => {},
 ) {
-  const keys = new Set();
+  const keys = new Set(), identities = new Map();
   return questions.filter((question, index) => {
-    const key = questionKey(course, unit, question);
+    const identity = questionKey(course, unit, question);
+    const options=question.options ?? question.opts ?? [];
+    const letters=options.length && globalThis.courseChoiceAnswers.expectedChoiceKey(question.answer,options);
+    const answerIdentity=letters ? [...letters].map(letter=>cleanKey(String(options[letter.charCodeAt(0)-65]).replace(/^[A-H][.、．:：]\s*/i,''))).sort() : cleanKey(question.answer);
+    const signature = JSON.stringify([normalizeType(question.type, question.images), answerIdentity]);
+    if (identities.has(identity) && identities.get(identity) !== signature) throw new Error(`第 ${index + 1} 題與同批題目相同，但答案或題型不同，請核對後再匯入。`);
+    identities.set(identity, signature);
+    const key = JSON.stringify([identity, signature]);
     if (keys.has(key)) {
       onDuplicate({
         index: index + 1,

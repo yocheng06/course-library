@@ -1,5 +1,5 @@
-import {COURSE_UNITS,normalizeBatch,normalizeType,normalizeUnit,unitLabel} from './contribution-model.js?v=html-question-import-20261028';
-import {api,esc,questionPreview,downloadJSON,showSimilar} from './contributions-ui.js?v=community-direct-publish-20261028';
+import {COURSE_UNITS,normalizeBatch,normalizeType,normalizeUnit,unitLabel} from './contribution-model.js?v=import-dedup-20261029';
+import {api,esc,questionPreview,downloadJSON,showSimilar} from './contributions-ui.js?v=import-dedup-20261029';
 
 export function groupImport(data, fallback, filename='匯入題庫', {allowMissingAnswers=false}={}) {
   const groups=new Map();let count=0;

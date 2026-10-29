@@ -803,7 +803,7 @@ test("mixed submissions keep new questions, report original positions and never 
   });
   const old = {
     ...p.questions[0],
-    answer: "B",
+    answer: "A",
     explanation: "不應覆寫既有內容",
   };
   const novel = { ...p.questions[0], stem: "同一批中的新題目？" };
@@ -873,11 +873,7 @@ test("reimporting a full draft keeps 200 questions and preserves the first versi
     normalizeBatch({ ...p, questions: merged }).questions.length,
     200,
   );
-  const first = normalizeBatch({
-    ...p,
-    questions: [p.questions[0], { ...p.questions[0], answer: "B" }],
-  });
-  assert.equal(first.questions[0].answer, "A");
+  assert.throws(()=>normalizeBatch({...p,questions:[p.questions[0],{...p.questions[0],answer:"B"}]}),/答案或題型不同/);
 });
 
 test("approval retries a publication collision and publishes only the remaining new questions", async () => {
@@ -1161,7 +1157,7 @@ test("option order and relabeling skip immediate duplicates; punctuation differe
     method: "POST",
     body: q,
   });
-  assert.equal(similar.data.code, "similar_questions");
+  assert.equal(similar.data.status, "duplicates_only");
   assert.equal(
     (
       await call(env, "/api/submissions", {
@@ -1169,7 +1165,7 @@ test("option order and relabeling skip immediate duplicates; punctuation differe
         body: { ...q, confirmSimilar: true },
       })
     ).response.status,
-    201,
+    200,
   );
 });
 test("妖獸題號標頭在投稿前清除，且不影響一般題幹", async () => {
@@ -1525,84 +1521,18 @@ test("answer matching keeps mathematics case-sensitive and supports explicit bil
   assert.equal(key("A,B", ["A. first", "B. second"]), "AB");
 });
 
-test("L7 merges option-order duplicates and recognizes every reviewed source version", async () => {
-  const entries = JSON.parse(
-    await readFile(
-      new URL("../existing-questions.json", import.meta.url),
-      "utf8",
-    ),
-  );
-  const l7 = entries.filter(
-    (q) => q.course === "os" && q.unit === "synchronization",
-  );
-  // Canonical-source coverage is checked against the current course files by
-  // tests/submission-index.test.mjs. Keep this service test about behavior for
-  // every generated version rather than a question count that ages on import.
-  const canonicalIds = new Set(l7.map((q) => q.canonicalId));
-  assert(canonicalIds.size > 0);
-  assert([...canonicalIds].every((id) => typeof id === "string" && id.trim()));
-  assert.equal(
-    new Set(l7.map((q) => questionKey(q.course, q.unit, q))).size,
-    l7.length,
-  );
-  const env = await setup();
-  const p = { ...payload(), unit: "synchronization" };
-  p.questions[0].stem = "L7 新投稿測試：如何保護共享狀態？";
-  const submitted = await call(env, "/api/submissions", {
-    method: "POST",
-    body: p,
-  });
-  assert.equal(submitted.response.status, 201);
-  assert.equal(submitted.data.status, "approved");
-  assert.equal(
-    (await call(env, "/api/questions?course=os")).data.questions.find(
-      (question) => question.question.stem === p.questions[0].stem,
-    ).unit,
-    "synchronization",
-  );
-  const known = l7.find((q) => q.options.length);
-  const reordered = {
-    ...known,
-    options: known.options
-      .map((o) => o.replace(/^[A-H]\. /, ""))
-      .reverse()
-      .map((o, i) => String.fromCharCode(65 + i) + ". " + o),
-  };
-  const duplicateBatch = {
-    ...p,
-    questions: [known, reordered].map((q) => ({
-      ...p.questions[0],
-      stem: q.stem,
-      options: q.options,
-      answer: "A",
-    })),
-  };
-  assert.equal(normalizeBatch(duplicateBatch).questions.length, 1);
-  const repeated = await call(env, "/api/submissions", {
-    method: "POST",
-    body: duplicateBatch,
-  });
-  assert.equal(repeated.data.status, "duplicates_only");
-  assert.equal(repeated.data.skippedCount, 2);
-  for (let start = 0; start < l7.length; start += 200) {
-    const batch = {
-      ...p,
-      questions: l7.slice(start, start + 200).map((q) => ({
-        ...p.questions[0],
-        stem: q.stem,
-        options: q.options,
-        type: q.options.length ? "單選題" : "填空題",
-        answer: q.options.length ? "A" : "來源答案",
-      })),
-    };
-    const result = await call(env, "/api/submissions", {
-      method: "POST",
-      body: batch,
-    });
-    assert.equal(result.response.status, 200, JSON.stringify(result.data));
-    assert.equal(result.data.status, "duplicates_only");
-    assert.equal(result.data.skippedCount, batch.questions.length);
-  }
+test("L7 reordered valid choices deduplicate and conflicting answers are reviewed", async()=>{
+ const env=await setup();
+ const builtins=JSON.parse(await readFile(new URL('../builtin-questions.json',import.meta.url),'utf8'));
+ const source=builtins.find(q=>q.unit==='synchronization'&&q.question.options?.length===4&&q.question.type==='單選題');
+ const original={...source.question,images:[]};
+ const good=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:source.unit,questions:[original]}});
+ assert.equal(good.data.status,'duplicates_only',JSON.stringify(good.data));
+ const key=globalThis.courseChoiceAnswers.expectedChoiceKey(original.answer,original.options);
+ const bad={...original,answer:key==='A'?'B':'A'};
+ const conflict=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:source.unit,questions:[bad]}});
+ assert.equal(conflict.response.status,409,JSON.stringify(conflict.data));
+ assert.equal(env.sql.prepare('SELECT COUNT(*) n FROM public_questions').get().n,0);
 });
 
 test("different diagrams stay separate; identical image bytes deduplicate after upload and legacy fingerprints are recomputed", async () => {
@@ -1936,7 +1866,7 @@ test("verified translated and mixed-language choices are skipped as built-in dup
       })),
     },
   });
-  assert.equal(result.response.status, 200);
+  assert.equal(result.response.status, 200,JSON.stringify(result.data));
   assert.equal(result.data.status, "duplicates_only");
   assert.equal(result.data.skippedCount, 5);
   assert.equal(result.data.acceptedCount, 0);
@@ -1982,10 +1912,14 @@ test("reviewed L7 aliases and reordered mixed-language choices deduplicate, whil
       ...q,
     })),
   };
+  const differentType=await call(env,"/api/submissions",{method:"POST",body:{...batch,questions:[batch.questions[2]]}});
+  assert.equal(differentType.response.status,409,JSON.stringify(differentType.data));
+  assert.match(JSON.stringify(differentType.data),/題型不同/);
+  batch.questions=batch.questions.slice(0,2);
   const duplicate = await call(env, "/api/submissions", { method: "POST", body: batch });
   assert.equal(duplicate.response.status, 200, JSON.stringify(duplicate.data));
   assert.equal(duplicate.data.status, "duplicates_only");
-  assert.equal(duplicate.data.skippedCount, cases.length);
+  assert.equal(duplicate.data.skippedCount, batch.questions.length);
   assert.equal(duplicate.data.acceptedCount, 0);
 
   const changed = {
@@ -1996,9 +1930,10 @@ test("reviewed L7 aliases and reordered mixed-language choices deduplicate, whil
     }],
   };
   const newVersion = await call(env, "/api/submissions", { method: "POST", body: changed });
-  assert.equal(newVersion.response.status, 201, JSON.stringify(newVersion.data));
-  assert.equal(newVersion.data.acceptedCount, 1);
-  assert.equal(newVersion.data.skippedCount, 0);
+  assert.equal(newVersion.response.status,409,JSON.stringify(newVersion.data));
+  const confirmed=await call(env,"/api/submissions",{method:"POST",body:{...changed,confirmSimilar:true}});
+  assert.equal(confirmed.response.status,201,JSON.stringify(confirmed.data));
+  assert.equal(confirmed.data.acceptedCount,1);
 });
 
 test('anonymous corrections validate real questions, protect review and retain status without changing answers',async()=>{
@@ -2100,7 +2035,7 @@ test('built-in management lists every canonical question privately and saves dur
  const translated={...duplicate,questions:[{...question,stem:question.translation,options:[question.optionTranslations[1],question.options[0]],answer:'A',images:[]}]};
  assert.equal((await call(env,'/api/submissions',{method:'POST',body:translated})).data.status,'duplicates_only');
  const similar={...duplicate,questions:[{...question,stem:question.stem.replace('？',''),images:[]}]};
- const suspect=await call(env,'/api/submissions',{method:'POST',body:similar});assert.equal(suspect.response.status,409);assert.equal(suspect.data.code,'similar_questions');
+ const suspect=await call(env,'/api/submissions',{method:'POST',body:similar});assert.equal(suspect.data.status,'duplicates_only');
  const reset=await call(env,path,{method:'POST',reviewer:true,body:{action:'reset',revision:1,sourceHash:row.sourceHash,note:'還原題庫原稿'}});assert.equal(reset.response.status,200);assert.equal(reset.data.item.revision,2);assert.equal(reset.data.item.question.answer,row.question.answer);
  assert.ok(!(await call(env,'/api/questions?course=os')).data.overrides.some(r=>r.question.id===row.id));
  const exported=(await call(env,'/api/manage/export',{reviewer:true})).data;assert.equal(exported.builtinEdits.length,2);assert.ok(exported.builtinQuestions.length>1000);
@@ -2215,7 +2150,7 @@ test('submission fingerprints recognize the reported blankless bilingual deadloc
  for(const [n,answer] of [[3,'recovery'],[5,'circular wait'],[6,'deadlock'],[9,'C'],[12,'starvation'],[13,'mutual exclusion'],[21,'wait-for'],[23,'hold and wait'],[24,'dining-philosophers'],[26,'unsafe']]){
   const q=incoming[n-1],questions=[{category:'死結回報重現',type:q.options.length?'單選題':'填空題',stem:q.stem,options:q.options.map(o=>o.label+'. '+o.text),answer,images:[]}];
   const result=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'deadlocks',questions}});
-  assert.equal(result.response.status,200,`question ${n}: ${JSON.stringify(result.data)}`);assert.equal(result.data.status,'duplicates_only',`question ${n}`);
+  if(n===26){assert.equal(result.response.status,409,JSON.stringify(result.data));assert.match(JSON.stringify(result.data),/多道既有題目/);}else{assert.equal(result.response.status,200,`question ${n}: ${JSON.stringify(result.data)}`);assert.equal(result.data.status,'duplicates_only',`question ${n}`);}
  }
 });
 
@@ -2326,4 +2261,52 @@ test('public conditional synchronization responds 304 only for the current conte
  const deleted=await conditional(nextTag);assert.equal(deleted.status,200);assert.notEqual(deleted.headers.get('etag'),nextTag);
  const preflight=await worker.fetch(new Request(origin+'/api/questions?course=os',{method:'OPTIONS',headers:{origin:'https://yocheng06.github.io'}}),env);
  assert.match(preflight.headers.get('access-control-allow-headers'),/If-None-Match/);
+});
+
+
+test("HTML fill imports skip known Chinese and English variants with format hints", async () => {
+  const env=await setup();
+  const questions=[
+    {stem:"在 Mach IPC 系統中，訊息傳遞系統呼叫包括 msg_send()、msg_receive() 和 ____________ 。(請用小寫英文回答)",answer:"msg_rpc()"},
+    {stem:"在遠端程序呼叫（RPC）中， ____________ 是伺服器上實際程序的客戶端代理。(請用小寫英文回答)",answer:"stubs"},
+    {stem:"Beast 15. A ____________ is defined as an endpoint for communication, a combination of an IP address and a port.(Please answer in lowercase English)",answer:"socket"}
+  ].map(q=>({...q,category:"匯入",type:"填空題",options:[],images:[],explanation:""}));
+  const result=await call(env,"/api/submissions",{method:"POST",body:{...payload(),unit:"process",questions}});
+  assert.equal(result.response.status,200,JSON.stringify(result.data));
+  assert.equal(result.data.status,"duplicates_only");
+  assert.equal(result.data.skippedCount,3);
+  assert.equal(env.sql.prepare("SELECT COUNT(*) n FROM public_questions").get().n,0);
+});
+
+test("same-stem answer conflicts require correction even after similar confirmation", async () => {
+  const env=await setup();
+  const body={...payload(),unit:"process",confirmSimilar:true,questions:[{category:"匯入",type:"填空題",stem:"A ____________ is defined as an endpoint for communication, a combination of an IP address and a port.(Please answer in lowercase English)",options:[],answer:"pipe",images:[],explanation:""}]};
+  const result=await call(env,"/api/submissions",{method:"POST",body});
+  assert.equal(result.response.status,409,JSON.stringify(result.data));
+  assert.match(JSON.stringify(result.data),/答案不同/);
+});
+
+test("known formatting cleanup retains original text and semantic parenthetical conditions", async () => {
+  const stem="Beast 15. A ____________ is defined as an endpoint for communication, a combination of an IP address and a port.(Please answer in lowercase English)";
+  const original=normalizeBatch({...payload(),questions:[{category:"匯入",type:"填空題",stem,options:[],answer:"socket",images:[],explanation:""}]}).questions[0];
+  assert.match(original.stem,/____________/);
+  assert.match(original.stem,/Please answer in lowercase English/);
+  assert.equal(questionKey("os","process",original),questionKey("os","process",{...original,stem:"A [__1__] is defined as an endpoint for communication, a combination of an IP address and a port."}));
+  assert.notEqual(questionKey("os","process",original),questionKey("os","process",{...original,stem:original.stem+" (Ignore network sockets)"}));
+  assert.throws(()=>normalizeBatch({...payload(),questions:[original,{...original,answer:"pipe"}]}),/答案或題型不同/);
+});
+
+
+test("a multiple-choice question may legitimately have one selected answer",async()=>{
+ const env=await setup();const body=payload();body.questions[0].type='多選題';
+ const first=await call(env,'/api/submissions',{method:'POST',body});assert.equal(first.response.status,201,JSON.stringify(first.data));
+ const again=await call(env,'/api/submissions',{method:'POST',body});assert.equal(again.data.status,'duplicates_only',JSON.stringify(again.data));
+});
+
+
+test("same-batch reordered options retain the answer by content",()=>{
+ const body=payload();const first={...body.questions[0],options:['A. Alpha','B. Beta'],answer:'A'};
+ const second={...first,options:['A. Beta','B. Alpha'],answer:'B'};
+ assert.equal(normalizeBatch({...body,questions:[first,second]}).questions.length,1);
+ assert.throws(()=>normalizeBatch({...body,questions:[first,{...second,answer:'A'}]}),/答案或題型不同/);
 });

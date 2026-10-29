@@ -1,0 +1,358 @@
+{
+  "generatedAt": "2026-10-29T13:24:17.125Z",
+  "scope": "OS fill questions; normalized exact stems only; candidates require manual review",
+  "groups": [
+    [
+      {
+        "id": "os6-004",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "衡量排程演算法的吞吐量（Throughput）是指什麼？",
+        "translation": "What is throughput as a measure of a scheduling algorithm?",
+        "answer": "C",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-119",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "________ 是排程演算法每單位時間完成的程序數量，用來衡量其效率。",
+        "translation": "________ is the number of processes that complete their execution per time unit, used to measure the efficiency of a scheduling algorithm.",
+        "answer": "throughput",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-008",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "________ 時間是從提交請求到產生第一個回應所需的時間，而不是完整的輸出。",
+        "translation": "____________________ time is the amount of time it takes from when a request was submitted until the first response is produced, not the output. (Please answer in lowercase English, leaving a space between each word)",
+        "answer": "response",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-120",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "回應時間是從提交請求到第一次 ________ 產生的時間。",
+        "translation": "Response time is the time from request submission to the first ________ produced.",
+        "answer": "response",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-025",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "哪一個排程演算法會導致「護航效應」(convoy effect) ？",
+        "translation": "Which scheduling algorithm can lead to the 'convoy effect'?",
+        "answer": "A",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-121",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "________ 排程可能導致護航效應，使其他程序都要等待一個長程序完成。（請填英文縮寫）",
+        "translation": "[__1__] scheduling can lead to the convoy effect, where other processes wait for one long process to finish.",
+        "answer": "FCFS",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-025",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "哪一個排程演算法會導致「護航效應」(convoy effect) ？",
+        "translation": "Which scheduling algorithm can lead to the 'convoy effect'?",
+        "answer": "A",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-122",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "________ 排程演算法因其簡潔而廣泛使用，但可能導致護航效應。",
+        "translation": "The ________ scheduling algorithm is widely used for its simplicity but can lead to the \"convoy effect.\"",
+        "answer": "first-come first-served",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-031",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "哪一個排程演算法被認為是最佳的，因為它能提供給定程序集的最小平均等待時間？",
+        "translation": "Which scheduling algorithm is considered optimal because it provides the minimum average waiting time for a given set of processes?",
+        "answer": "A",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-123",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "____________ 排程演算法是最佳的，因為它能為一組程序提供最小平均等待時間。",
+        "translation": "The ________ scheduling algorithm is optimal because it provides the minimum average waiting time for a given set of processes.",
+        "answer": "shortest-job-first",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-036",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "迴圈排程 (RR) 演算法中，每個程序獲得一小段CPU時間的單位稱為？",
+        "translation": "In the Round Robin (RR) scheduling algorithm, what is the unit of a small amount of CPU time given to each process?",
+        "answer": "C",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-134",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "在 Round Robin 排程中，____________ 決定每個程序可以獲得的 CPU 時間長度。",
+        "translation": "In the Round Robin scheduling algorithm, the ____________ determines the length of CPU time each process gets.",
+        "answer": "time quantum",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-036",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "迴圈排程 (RR) 演算法中，每個程序獲得一小段CPU時間的單位稱為？",
+        "translation": "In the Round Robin (RR) scheduling algorithm, what is the unit of a small amount of CPU time given to each process?",
+        "answer": "C",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-124",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "在 Round Robin（RR）排程中，分配給每個程序的一小段 CPU 時間稱為 ____________。",
+        "translation": "In the Round Robin (RR) algorithm, the unit of a small amount of CPU time given to each process is called a ____________.",
+        "answer": "time quantum",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-038",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "當迴圈排程（RR）中的時間片 (q) 非常大時，該演算法的行為會趨近於哪種排程？",
+        "translation": "When the time quantum (q) is very large relative to the context switch time, the Round Robin (RR) algorithm approaches which scheduling algorithm?",
+        "answer": "B",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-125",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "當 Round Robin（RR）的時間片相較於上下文切換時間非常大時，其行為會趨近於 ____________。",
+        "translation": "When the Round Robin (RR) time quantum is very large relative to context-switch time, its behavior approaches [__1__].",
+        "answer": "first-come first-served",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-044",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "在優先權排程中，什麼問題可能導致低優先權程序永遠無法執行？",
+        "translation": "In priority scheduling, what problem may cause low-priority processes to never execute?",
+        "answer": "C",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-126",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "優先權排程可能導致 ____________，使低優先權程序一直無法執行。",
+        "translation": "Priority scheduling can lead to ____________, where low-priority processes may never run.",
+        "answer": "starvation",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-046",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "在優先權排程中，解決「飢餓」問題的方法是什麼？",
+        "translation": "In priority scheduling, what is the solution to the problem of 'starvation'?",
+        "answer": "C",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-133",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "在優先權排程中，解決「飢餓」問題的方法是什麼？",
+        "translation": "In priority scheduling, the solution to the \"starvation\" problem is ________.",
+        "answer": "aging",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-052",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "________ 允許程序根據其服務的時間長短在不同佇列之間移動。",
+        "translation": "____________________ allows processes to move between different queues based on the length of time for which they have been serviced.(Please answer in lowercase English, leaving a space between each word)",
+        "answer": "multilevel feedback queue",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-127",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "在 ____________ 排程中，程序可以在不同的佇列之間移動，這有助於實現老化。(請用小寫英文回答 字母間留一個空白)",
+        "translation": "In a ____________ scheduling, a process can move between the various queues, which helps to implement aging.",
+        "answer": "multilevel feedback queue",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-065",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "硬即時系統（Hard real-time systems）的關鍵特性是什麼？",
+        "translation": "Hard real-time systems require a task to be serviced by its ________. (Please answer in lowercase English.)",
+        "answer": "任務必須在截止期限前完成",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-128",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "硬即時系統要求每個任務都必須在其 ____________ 前完成。",
+        "translation": "Hard real-time systems require a task to be serviced by its ________.",
+        "answer": "deadline",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-065",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "硬即時系統（Hard real-time systems）的關鍵特性是什麼？",
+        "translation": "Hard real-time systems require a task to be serviced by its ________. (Please answer in lowercase English.)",
+        "answer": "任務必須在截止期限前完成",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-129",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "硬即時系統的排程必須保證任務在 ____________ 前完成。",
+        "translation": "Hard real-time scheduling must guarantee that each task is completed before its ____________.",
+        "answer": "deadline",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-072",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "________ 是根據截止時間分配優先權的演算法：截止時間越早，優先權越高。",
+        "translation": "________ is a scheduling algorithm where priorities are assigned according to deadlines: the earlier the deadline, the higher the priority.",
+        "answer": "earliest deadline first scheduling",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-130",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "即時排程中的[__1__]排程演算法，會依任務截止時間分配優先權。",
+        "translation": "The [__1__] scheduling algorithm assigns priorities according to task deadlines in real-time scheduling.",
+        "answer": "earliest deadline first",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-084",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "在Windows排程中，哪個優先權類別的程序不能被提升優先權？",
+        "translation": "In the Windows system, threads in the ________ priority class cannot have their priority boosted.",
+        "answer": "B",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-131",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "在 Windows 系統中，________ 優先權類別的執行緒無法獲得優先權提升。",
+        "translation": "In Windows, threads in the ________ priority class cannot have their priority boosted.",
+        "answer": "realtime_priority_class",
+        "hasExplanation": true
+      }
+    ],
+    [
+      {
+        "id": "os6-086",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "在 Windows 排程中，哪個功能允許應用程式獨立於核心來創建和管理執行緒？",
+        "translation": "In Windows scheduling, what feature allows applications to create and manage threads independently of the kernel?",
+        "answer": "A",
+        "hasExplanation": true
+      },
+      {
+        "id": "os6-132",
+        "course": "os",
+        "unit": "scheduling",
+        "source": "內建題庫",
+        "stem": "________ 是 Windows 7 引入的功能，讓應用程式能獨立於核心建立與管理執行緒。",
+        "translation": "________ is a Windows 7 feature that lets applications create and manage threads independently of the kernel.",
+        "answer": "user mode scheduling",
+        "hasExplanation": true
+      }
+    ]
+  ]
+}

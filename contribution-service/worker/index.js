@@ -2,9 +2,16 @@ import {
   normalizeBatch,
   questionKey,
   possibleMatches,
+  duplicateStemKey,
   COURSE_UNITS,
 } from "./model.js";
 /* BUILD_DATA */
+const duplicateCatalogById = new Map();
+for (const entry of DUPLICATE_CATALOG) {
+  const key=entry.course+":"+entry.id;
+  if (!duplicateCatalogById.has(key)) duplicateCatalogById.set(key,[]);
+  duplicateCatalogById.get(key).push(entry);
+}
 /* BUILTIN_MANAGEMENT */
 /* LIBRARY_MANAGEMENT */
 const SITE_ORIGIN =
@@ -533,39 +540,70 @@ async function releaseLegacyHiddenFingerprints(env) {
     ).bind(HIDDEN_FINGERPRINT_VERSION, Date.now()),
   ]);
 }
+async function duplicateDecisions(env, payload, excludeId = null) {
+  const overrides = await publicBuiltinOverrides(env, payload.course);
+  const revised = new Map(overrides.map(row => [row.question.id || row.question.bookmarkId, row]));
+  const entries = [];
+  for (const base of BUILTIN_QUESTIONS) {
+    if (base.course !== payload.course || base.id === excludeId) continue;
+    const override = revised.get(base.id);
+    if (override?.deleted) continue;
+    const unit = override?.unit || base.unit;
+    if (unit !== payload.unit) continue;
+    const q = override?.question || base.question;
+    const versions = override ? builtinSearch.expandLibraryQuestion(base.course,unit,{...q,id:base.id}) : (duplicateCatalogById.get(base.course+":"+base.id)||[]);
+    entries.push(...versions.map(entry=>({...entry,type:entry.type||q.type,imageKeys:q.imageKeys||q.images||[]})));
+  }
+  const rows = await env.DB.prepare("SELECT id,course,unit,data,is_published FROM public_questions WHERE course=? AND unit=?")
+    .bind(payload.course,payload.unit).all();
+  for (const row of rows.results) {
+    if (!row.is_published || row.id === excludeId) continue;
+    const raw = JSON.parse(row.data);
+    const q = {...raw,...canonicalQuestion(raw),id:row.id};
+    await attachImageKeys(env,{questions:[q]},{questions:[raw]});
+    entries.push(...builtinSearch.expandLibraryQuestion(row.course,row.unit,q).map(entry=>({...entry,type:entry.type||q.type,imageKeys:q.imageKeys||q.images||[]})));
+  }
+  const groups = new Map();
+  for (const entry of entries) {
+    const key = duplicateStemKey(entry.stem,true);
+    if (!groups.has(key)) groups.set(key,[]);
+    groups.get(key).push(entry);
+  }
+  return payload.questions.map(q => {
+    const imageKeys = q.imageKeys || q.images || [];
+    const stems=builtinSearch.questionStemVersions(q.stem,q.translation);
+    const stem=stems.find(stem=>groups.has(duplicateStemKey(stem,true))) || q.stem;
+    let candidates = (groups.get(duplicateStemKey(stem,true)) || []).filter(entry=>JSON.stringify(entry.imageKeys||[])===JSON.stringify(imageKeys));
+    if (imageKeys.length) candidates=candidates.map(entry=>({...entry,needsImage:false}));
+    if (!candidates.length) return null;
+    const ids = new Set(candidates.map(entry=>entry.id));
+    const reference = [...ids].slice(0,3).join('、');
+    const review = reason => ({status:'review',reference,reason});
+    if (ids.size !== 1) return review('題幹對到多道既有題目，請確認應保留的版本');
+    const count = stem => (duplicateStemKey(stem).match(/___/g)||[]).length;
+    const sameType=candidates.filter(entry=>!entry.type || entry.type===q.type);
+    if (!sameType.length) return review('題幹相同，但題型不同');
+    candidates=sameType;
+    if (!q.options.length) {
+      const sameCount=candidates.filter(entry=>count(entry.stem)===count(stem));
+      if (!sameCount.length) return review('題幹相同，但填空數不同');
+      candidates=sameCount;
+    }
+    const parsed = {...q,stem,issues:[],options:q.options.map((text,i)=>({label:String.fromCharCode(65+i),text:text.replace(/^[A-H][.、．:：]\s*/i,'')}))};
+    const match = builtinSearch.matchQuestion(parsed,builtinSearch.buildIndex(candidates),{course:payload.course,unit:payload.unit});
+    if (match.status !== 'matched') return review(match.reason);
+    const normalize = value => builtinSearch.normalizeText(value);
+    const answerKey = value => q.options.length ? globalThis.courseChoiceAnswers.expectedChoiceKey(value,q.options) : normalize(value);
+    const actual = answerKey(q.answer), expected = answerKey(match.answer);
+    if (!actual || actual !== expected) return review('題幹相同，但答案不同，請核對正解');
+    const type = candidates.find(entry=>entry.type)?.type || (imageKeys.length ? '圖片題' : q.options.length ? (actual.length>1?'多選題':'單選題') : '填空題');
+    if (q.type !== type || candidates.some(entry=>Boolean(entry.options.length)!==Boolean(q.options.length)))
+      return review('題幹相同，但題型不同');
+    return {status:'duplicate',reference};
+  });
+}
 async function duplicates(env, keys, payload, excludeId = null) {
-  const builtinRows = await publicBuiltinOverrides(env, payload.course),
-    deletedBuiltins = new Set(
-      builtinRows
-        .filter((row) => row.deleted)
-        .map((row) => row.question.id || row.question.bookmarkId),
-    ),
-    baseKeys = BASE_FINGERPRINTS.filter((_, i) => {
-      const base = BASE_QUESTIONS[i];
-      return (
-        (!excludeId || base.canonicalId !== excludeId) &&
-        !(base.course === payload.course && deletedBuiltins.has(base.canonicalId))
-      );
-    });
-  const found = new Set(keys.filter((k) => baseKeys.includes(k)));
-  for (const row of builtinRows) {
-    if(!row.deleted && row.unit===payload.unit && (row.question.id || row.question.bookmarkId)!==excludeId)
-      for(const q of builtinVariants(row.question))found.add(await hash(questionKey(payload.course,row.unit,q)));
-  }
-  const result = await env.DB.prepare(
-    "SELECT id,course,unit,data,fingerprint,is_published FROM public_questions WHERE course=? AND unit=?",
-  )
-    .bind(payload.course, payload.unit)
-    .all();
-  for (const row of result.results) {
-    if (row.id === excludeId || !row.is_published) continue;
-    const raw = JSON.parse(row.data),
-      q = canonicalQuestion(raw);
-    await attachImageKeys(env, { questions: [q] }, { questions: [raw] });
-    found.add(await hash(questionKey(row.course, row.unit, q)));
-    found.add(row.fingerprint);
-  }
-  return keys.map((key, i) => (found.has(key) ? i + 1 : null)).filter(Boolean);
+  return (await duplicateDecisions(env,payload,excludeId)).flatMap((decision,i)=>decision?.status==='duplicate'?[i+1]:[]);
 }
 async function attachImageKeys(env, payload, original = { questions: [] }) {
   const trusted = new Map();
@@ -1385,45 +1423,17 @@ function publicationRow(row) {
   };
 }
 async function suspectedDuplicates(env, payload, excludeId = null) {
-  const builtinRows = await publicBuiltinOverrides(env, payload.course),
-    deletedBuiltins = new Set(
-      builtinRows
-        .filter((row) => row.deleted)
-        .map((row) => row.question.id || row.question.bookmarkId),
-    ),
-    known = BASE_QUESTIONS
-    .filter((q) => q.canonicalId !== excludeId && !(q.course === payload.course && deletedBuiltins.has(q.canonicalId)))
-    .map((q) => ({ ...q, id: "內建題庫" }));
-  for(const row of builtinRows)
-    if(!row.deleted && row.unit===payload.unit && (row.question.id || row.question.bookmarkId)!==excludeId)for(const q of builtinVariants(row.question))known.push({...q,course:payload.course,unit:row.unit,id:'內建題庫（已修訂）'});
-  const result = await env.DB.prepare(
-    "SELECT id,course,unit,data,is_published FROM public_questions WHERE course=?",
-  )
-    .bind(payload.course)
-    .all();
-  for (const row of result.results) {
-    if (row.id === excludeId || !row.is_published) continue;
-    known.push({
-      ...canonicalQuestion(JSON.parse(row.data)),
-      id: row.id,
-      course: row.course,
-      unit: row.unit,
-    });
-  }
-  return possibleMatches(
-    payload.course,
-    payload.unit,
-    payload.questions,
-    known,
-  );
+  const decisions = await duplicateDecisions(env,payload,excludeId);
+  return decisions.flatMap((decision,i)=>decision?.status==='review' ? [{index:i+1,stem:payload.questions[i].stem.slice(0,200),reference:decision.reference,reason:decision.reason}] : []);
 }
 async function checkSimilar(env, payload, confirmed, excludeId = null) {
-  if (confirmed === true || !payload.questions.length) return;
-  const possibleDuplicates = await suspectedDuplicates(env, payload, excludeId);
+  if (!payload.questions.length) return;
+  let possibleDuplicates = await suspectedDuplicates(env, payload, excludeId);
+  if (confirmed === true) possibleDuplicates = possibleDuplicates.filter(q => /答案不同|題型不同|填空數不同|多道既有題目/.test(q.reason));
   if (possibleDuplicates.length)
     throw new HttpError(
       409,
-      "發現題幹僅有標點差異的疑似重複題，請確認後再送出。",
+      "發現相同題幹的版本差異，請核對題型、填空數及答案後再送出。",
       { code: "similar_questions", possibleDuplicates },
     );
 }
