@@ -154,10 +154,9 @@
         report.dataset.correction = card.dataset.id;
         actions.append(report);
       }
-      const canEdit = communityId(card.dataset.id);
       report.dataset.correction = card.dataset.id;
-      report.textContent = canEdit ? '修正投稿題目' : '回報題目問題';
-      report.setAttribute('aria-label', `${config.questionLabel(card.dataset.id)}，免登入${canEdit ? '直接修正投稿題目' : '回報題目問題'}`);
+      report.textContent = '修改題目';
+      report.setAttribute('aria-label', `${config.questionLabel(card.dataset.id)}，免登入直接修改題目`);
     });
     filter.querySelector('span').textContent = config.scopeIds().filter(id => saved.has(id)).length;
     filter.setAttribute('aria-pressed', String(reviewOnly));

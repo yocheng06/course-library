@@ -112,12 +112,19 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],ov
  for(const entry of questionEntries)if(changedIds.has(entry.id)){entry.q=next.get(entry.id)||JSON.parse(JSON.stringify(builtinOriginals.get(entry.id).q));entry.unit.questions[entry.i]=entry.q;feedback.delete(entry.id);revealed.delete(entry.id);selections.delete(entry.id);}
 
  for(const alias of Array.isArray(aliases)?aliases:[])if(/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(alias?.id)&&questionEntries.some(e=>e.id===alias.target))communityAliases.set(alias.id,alias.target);
- let added=0;
+ let added=0,updated=0;
  for(const entry of entries){
   if(!entry||typeof entry!=='object')continue;
   const {unit:unitId,question:q}=entry;
   let unit=COURSES.find(unit=>unit.id===unitId);
-  if(!q||!/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(q.bookmarkId)||typeof q.q!=='string'||typeof q.a!=='string'||findEntry(q.bookmarkId))continue;
+  if(!q||!/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(q.bookmarkId)||typeof q.q!=='string'||typeof q.a!=='string')continue;
+  const existing=findEntry(q.bookmarkId);
+  if(existing){
+   if(existing.q.bookmarkId===q.bookmarkId&&existing.unit.id===unitId&&JSON.stringify(existing.q)!==JSON.stringify(q)){
+    existing.q=q;existing.unit.questions[existing.i]=q;updated++;feedback.delete(q.bookmarkId);revealed.delete(q.bookmarkId);selections.delete(q.bookmarkId);
+   }
+   continue;
+  }
   if(!unit){
    if(!/^L[1-9]\d?$/.test(unitId))continue;
    const title=String(q.unitTitle||'第 '+unitId.slice(1)+' 單元').slice(0,60);
@@ -127,7 +134,7 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],ov
   const i=unit.questions.length;unit.questions.push(q);questionEntries.push({q,i,id:q.bookmarkId,unit});added++;
  }
  window.learningUI?.refresh();
- if(!added&&!communityAliases.size&&!changedIds.size)return {added:0,openedLinkedQuestion:false};
+ if(!added&&!updated&&!communityAliases.size&&!changedIds.size)return {added:0,openedLinkedQuestion:false};
  refreshCourseSummary();
  const linked=waitingForLinkedQuestion&&openLinkedQuestion&&findEntry(linkedQuestion);
  if(linked){waitingForLinkedQuestion=false;lesson=linked.unit.id;setupLesson();page=Math.floor(linked.i/PAGE_SIZE)+1;render();window.courseQuestionTools.focusLinkedQuestion(linked.id);}
@@ -149,6 +156,7 @@ window.courseLearning={
  validId:id=>Boolean(findEntry(id)),
  questionLabel:id=>{const entry=findEntry(id);return entry?meta[entry.unit.id].short+' 第 '+String(entry.i+1).padStart(3,'0')+' 題':'題目';},
  questionDetails:id=>{const {q,unit,i}=findEntry(id);return {course:'algorithms',id,unit:meta[unit.id].short,number:i+1,question:q.q,answer:q.a};},
+ questionForEdit:id=>{const q=findEntry(id)?.q;return q?{...q,stem:q.q,options:q.opts,answer:q.a,explanation:q.ex}:undefined;},
  currentPage:()=>page,pageCount:()=>totalPages,practiceMode:()=>mode==='practice',
  resetPractice:()=>{drafts.clear();selections.clear();revealed.clear();feedback.clear();practiceSequence.reset();page=1;render();}
 };

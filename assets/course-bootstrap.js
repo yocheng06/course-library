@@ -41,6 +41,7 @@
       }
       const meta = curation?.questions?.[question.id];
       if (meta && sourceSignature(original) === meta.sourceSignature) {
+        question.editSource = Object.fromEntries(['category','type','stem','options','answer','explanation'].map(key => [key, original[key] ?? (key === 'options' ? [] : '')]));
         if (String(meta.stem || '').trim()) question.stem = meta.stem;
         if (!original.category || original.category === 'HTML 匯入') question.category = meta.category;
         if (String(meta.explanation || '').trim()) question.explanation = meta.explanation;
@@ -120,7 +121,7 @@
       try { if (curationResponse?.ok) curation = await curationResponse.json(); } catch {}
       const aliases = [...(Array.isArray(data.aliases) ? data.aliases : []), ...(Array.isArray(curation?.aliases) ? curation.aliases : [])];
       merge(curateRows(data.questions, curation), aliases, data.overrides || []);
-      merge([], aliases, []);
+      merge([], aliases, data.overrides || []);
       if (linkedSubmission && !config.validId(linkedId)) showNotice('這個投稿題目連結暫時沒有可用內容，已顯示原有題庫。',true);
       else { notice?.remove(); notice = null; }
     } catch {

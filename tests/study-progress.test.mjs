@@ -45,6 +45,32 @@ async function coursePage(course, {storage = new Map(), search = '', failStorage
   return {window, document, context, storage, fire, click, choose, check, question, practice, cards, config:window.courseLearning, progress:window.coursePracticeProgress};
 }
 
+test('background alias synchronization retains the latest public built-in edit',async()=>{
+ const ui=await coursePage('os'), original=ui.config.questionForEdit('basics-1');
+ const modified={...original,stem:'已公開的新題目內容'};
+ ui.window.courseContributions={apiOrigin:'https://example.com'};ui.window.scrollTo=()=>{};
+ ui.window.HTMLElement.prototype.getBoundingClientRect=()=>({top:0,bottom:0});
+ Object.assign(ui.context,{fetch:async url=>({ok:true,json:async()=>url.startsWith('assets/')?null:{questions:[],aliases:[],overrides:[{unit:'basics',question:modified}]}}),AbortSignal,scrollX:0,scrollY:0,innerHeight:900});
+ vm.runInContext("location.protocol='https:'; navigator.onLine=true;",ui.context);
+ vm.runInContext(await read('assets/course-bootstrap.js'),ui.context);
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(ui.config.questionForEdit('basics-1').stem,modified.stem);
+});
+
+test('both courses refresh an already loaded community question immediately after a saved edit', async () => {
+ for(const course of ['os','algorithms']){
+  const ui=await coursePage(course), id='community-11111111-1111-4111-8111-111111111111-1';
+  const raw=course==='os'?{id,stem:'原題 ___',options:[],answer:'base',explanation:'原解析',type:'填空題',category:'分類',images:[]}:{bookmarkId:id,q:'原題 ___',opts:[],a:'base',ex:'原解析',type:'填空題',category:'分類',images:[]};
+  const unit=course==='os'?'L9':'L7';
+  ui.config.mergeCommunityQuestions([{unit,question:raw}]);
+  const changed=course==='os'?{...raw,stem:'已公開修正 ___',explanation:'新版解析'}:{...raw,q:'已公開修正 ___',ex:'新版解析'};
+  ui.config.mergeCommunityQuestions([{unit,question:changed}]);
+  assert.equal(ui.config.questionForEdit(id).stem,'已公開修正 ___');
+  assert.equal(ui.config.questionForEdit(id).explanation,'新版解析');
+  assert.equal(ui.config.examEntries(true).filter(row=>row.id===id).length,1);
+ }
+});
+
 test('both courses enable clear after the first selection and disable it after the last checkbox is cleared', async () => {
   for (const course of ['os','algorithms']) {
     const h=await coursePage(course);h.practice();

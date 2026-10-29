@@ -265,13 +265,24 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
     const targetUnit = questionUnitIndex.get(target) ?? communityQuestionUnit.get(target);
     if (targetUnit !== undefined) questionUnitIndex.set(alias.id,targetUnit);
   }
-  let added = 0;
+  let added = 0, updated = 0;
   for (const entry of entries) {
     if (!entry || typeof entry!=='object') continue;
     const {unit:unitId, question:q}=entry;
     let unitIndex=UNITS.findIndex(unit=>unit.id===unitId), unit=UNITS[unitIndex];
     if (!q || !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(q.id) ||
-        typeof q.stem!=='string' || typeof q.answer!=='string' || communityQuestionIds.has(q.id) || knownQuestionIds.has(q.id)) continue;
+        typeof q.stem!=='string' || typeof q.answer!=='string' || knownQuestionIds.has(q.id)) continue;
+    if (communityQuestionIds.has(q.id)) {
+      const existing = findEntry(q.id);
+      if (existing?.q.id === q.id && existing.unit.id === unitId && JSON.stringify(existing.q) !== JSON.stringify(q)) {
+        existing.q = q; existing.unit.questions[existing.i] = q; updated++;
+        feedback.delete(q.id); revealed.delete(q.id); selections.delete(q.id);
+      } else if (!existing) {
+        const pending = pendingCommunityQuestions.get(unitId) || [], i = pending.findIndex(old => old.id === q.id);
+        if (i >= 0 && JSON.stringify(pending[i]) !== JSON.stringify(q)) { pending[i] = q; updated++; }
+      }
+      continue;
+    }
     if(!unit){
       if(!/^L[1-9]\d?$/.test(unitId))continue;
       unit={id:unitId,number:Number(unitId.slice(1)),label:String(q.unitTitle||'第 '+unitId.slice(1)+' 單元').slice(0,60),en:String(q.unitEn||'COMMUNITY QUESTIONS').slice(0,60),desc:String(q.unitDescription||'公開投稿題目').slice(0,240),baseQuestionCount:0,questionCount:0,questions:[],questionIds:[],questionAliases:{}};
@@ -288,7 +299,7 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
     added++;
   }
   window.learningUI?.refresh();
-  if (!added && !communityAliases.size && !changedIds.size) return {added:0, openedLinkedQuestion:false};
+  if (!added && !updated && !communityAliases.size && !changedIds.size) return {added:0, openedLinkedQuestion:false};
   document.querySelector('[data-course-total]').textContent=`${UNITS.length} 個單元 · ${totalQuestionCount()} 道題目`;
   const linkedUnit = communityQuestionUnit.get(linkedQuestion) ?? questionUnitIndex.get(canonicalId(linkedQuestion));
   if (waitingForLinkedQuestion && openLinkedQuestion && linkedUnit !== undefined) ensureUnitLoaded(linkedUnit);
@@ -320,6 +331,7 @@ window.courseLearning={
   validId:id=>knownQuestionIds.has(id)||communityQuestionIds.has(id),
   questionLabel:id=>{const entry=findEntry(id);return `${entry.unit.label} 第 ${entry.i+1} 題`;},
   questionDetails:id=>{const {q,unit,i}=findEntry(id);return {course:'os',id,unit:unit.label,number:i+1,question:q.stem,answer:q.answer};},
+  questionForEdit:id=>findEntry(id)?.q,
   currentPage:()=>page, pageCount:()=>totalPages, practiceMode:()=>mode==='practice',
   resetPractice:()=>{drafts.clear();selections.clear();revealed.clear();feedback.clear();practiceSequence.reset();page=1;render();}
 };
