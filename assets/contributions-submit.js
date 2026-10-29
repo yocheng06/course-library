@@ -1,4 +1,4 @@
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=community-direct-publish-20261028';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=html-image-import-20261029';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -22,6 +22,7 @@ import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=community-dire
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
+let selectedImportImageFiles = [];
 let questions = [],
   images = [],
   editIndex = -1,
@@ -388,7 +389,58 @@ $("questionImages").addEventListener("change", async (event) => {
     ready();
   }
 });
-function parseCoursePracticeHtml(doc, raw, name) {
+function normalizedImagePath(value) {
+  let path = String(value ?? "").split(/[?#]/, 1)[0].replace(/\\/g, "/");
+  try {
+    path = decodeURIComponent(path);
+  } catch {}
+  return path
+    .normalize("NFKC")
+    .toLocaleLowerCase()
+    .replace(/^[a-z][a-z\d+.-]*:\/\//i, "")
+    .replace(/^\/+/, "")
+    .replace(/^\.\/+/, "")
+    .split("/")
+    .filter((part) => part && part !== ".")
+    .join("/");
+}
+function imageFileType(file) {
+  const mime = String(file.type ?? "").toLocaleLowerCase();
+  if (["image/png", "image/jpeg", "image/webp"].includes(mime)) return mime;
+  const extension = /\.([^.]+)$/.exec(file.name ?? "")?.[1]?.toLocaleLowerCase();
+  return ({ png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp" })[extension] || "";
+}
+function findImageFile(source, files) {
+  const path = normalizedImagePath(source),
+    candidates = [...(files || [])]
+      .filter((file) => imageFileType(file))
+      .map((file) => ({
+        file,
+        path: normalizedImagePath(file.webkitRelativePath || file.name),
+      }));
+  let matches = candidates.filter(
+    (item) => item.path === path || item.path.endsWith("/" + path),
+  );
+  if (!matches.length) {
+    const name = path.split("/").at(-1);
+    matches = candidates.filter((item) => item.path.split("/").at(-1) === name);
+  }
+  if (matches.length > 1) return { ambiguous: true };
+  return matches[0] || null;
+}
+async function imageFileDataUrl(file, questionNumber) {
+  const type = imageFileType(file);
+  if (!type)
+    throw new Error(`第 ${questionNumber} 題的題圖格式不支援；請使用 PNG、JPEG 或 WebP。`);
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (bytes.length > 1024 * 1024)
+    throw new Error(`第 ${questionNumber} 題的題圖超過 1 MB，請縮小圖片後再匯入。`);
+  let binary = "";
+  for (let offset = 0; offset < bytes.length; offset += 0x8000)
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+  return `data:${type};base64,${btoa(binary)}`;
+}
+async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
   const form = doc.querySelector("#practice-quiz-form");
   if (!form) return null;
   const action = form.getAttribute("action") || "",
@@ -429,7 +481,22 @@ function parseCoursePracticeHtml(doc, raw, name) {
     // This site's v_user_answer field is a bot-check decoy, not a course question.
     if (responseInputs.some((input) => input.name === "v_user_answer")) continue;
     if (!responseInputs.length) throw new Error(`第 ${questions.length + 1} 個題目區塊的作答欄位無法辨識，沒有匯入任何題目。`);
-    if (block.querySelector("img")) throw new Error(`第 ${questions.length + 1} 題含有圖片；目前無法從已下載的 HTML 還原題圖，沒有匯入任何題目。`);
+    const questionNumber = questions.length + 1,
+      questionImages = [];
+    for (const image of block.querySelectorAll("img")) {
+      if (hidden(image)) continue;
+      const source = image.getAttribute("src") || "";
+      if (/^https:\/\//i.test(source) || /^data:image\/(?:png|jpeg|webp);base64,/i.test(source)) {
+        questionImages.push(source);
+        continue;
+      }
+      const match = findImageFile(source, imageFiles);
+      if (match?.ambiguous)
+        throw new Error(`第 ${questionNumber} 題有多個同名題圖「${source.split("/").at(-1)}」；請只選取題目 HTML 對應的「${name.replace(/\.html?$/i, "")}_files」資料夾。沒有匯入任何題目。`);
+      if (!match)
+        throw new Error(`第 ${questionNumber} 題的題圖「${source.split("/").at(-1) || "未命名"}」不在 HTML 內；請先選取下載時產生的「${name.replace(/\.html?$/i, "")}_files」資料夾，再重新匯入。沒有匯入任何題目。`);
+      questionImages.push(await imageFileDataUrl(match.file, questionNumber));
+    }
     const stemNodes = [...block.querySelectorAll(".question-text")]
       .map((node) => cleanText(staticHtmlText(node)))
       .filter(Boolean)
@@ -456,7 +523,7 @@ function parseCoursePracticeHtml(doc, raw, name) {
       options,
       answer: "",
       explanation: "",
-      images: [],
+      images: questionImages,
     });
   }
   if (!questions.length) throw new Error("這份測驗 HTML 裡找不到可匯入的題目區塊。");
@@ -576,7 +643,7 @@ function combineCoursePracticeHtml(questionImport, resultImport) {
   };
 }
 
-function parseCoursePracticeHtmlPair(rawFiles, names) {
+async function parseCoursePracticeHtmlPair(rawFiles, names, imageFiles = []) {
   if (rawFiles.length !== 2 || !Array.isArray(names) || names.length !== 2)
     throw new Error("題目和答案分成兩份時，請一次選取剛好兩個 HTML 檔。");
   if (names.some((name) => !/\.html?$/i.test(name)))
@@ -591,7 +658,12 @@ function parseCoursePracticeHtmlPair(rawFiles, names) {
       resultImport = result;
       continue;
     }
-    const question = parseCoursePracticeHtml(doc, rawFiles[index], names[index]);
+    const question = await parseCoursePracticeHtml(
+      doc,
+      rawFiles[index],
+      names[index],
+      imageFiles,
+    );
     if (question) {
       if (questionImport) throw new Error("找到兩份題目頁；請只選一份題目 HTML。");
       questionImport = question;
@@ -602,8 +674,9 @@ function parseCoursePracticeHtmlPair(rawFiles, names) {
   return combineCoursePracticeHtml(questionImport, resultImport);
 }
 
-function parseImport(raw, name) {
-  if (Array.isArray(raw)) return parseCoursePracticeHtmlPair(raw, name);
+async function parseImport(raw, name, imageFiles = []) {
+  if (Array.isArray(raw))
+    return parseCoursePracticeHtmlPair(raw, name, imageFiles);
   if (/\.json$/i.test(name)) return JSON.parse(raw);
   const doc = new DOMParser().parseFromString(raw, "text/html");
   if (parseCoursePracticeResultsHtml(doc))
@@ -616,7 +689,7 @@ function parseImport(raw, name) {
     if(!block)throw new Error('缺少單元題目：'+unit.id);
     return {course:'os',unit:unit.id,questions:JSON.parse(block.textContent)};
   });
-  const practice = parseCoursePracticeHtml(doc, raw, name);
+  const practice = await parseCoursePracticeHtml(doc, raw, name, imageFiles);
   if (practice) return practice;
   for (const script of doc.querySelectorAll("script")) {
     const source = script.textContent,
@@ -658,9 +731,23 @@ function importedQuestions(data) {
   return data.questions;
 }
 $("chooseImport").addEventListener("click", () => $("importFile").click());
+$("chooseImportImages").addEventListener("click", () => $("importImages").click());
+$("importImages").addEventListener("change", (event) => {
+  const files = Array.from(event.target.files || []),
+    supported = files.filter((file) => imageFileType(file));
+  selectedImportImageFiles = supported;
+  $("importImageStatus").textContent = supported.length
+    ? `已選取 ${supported.length} 個 PNG／JPEG／WebP 檔；匯入成功後會清除暫存選擇。`
+    : "沒有找到 PNG、JPEG 或 WebP 題圖；可選取題目 HTML 同名的「_files」資料夾。";
+  event.target.value = "";
+});
 $("importFile").addEventListener("change", async event => {
   const files=event.target.files;if(!files?.length)return;
-  try { await groupedSubmissions.importFiles(files); }
+  try {
+    await groupedSubmissions.importFiles(files, selectedImportImageFiles);
+    selectedImportImageFiles = [];
+    $("importImageStatus").textContent = "尚未選取題圖資料夾；沒有本機圖片時可直接匯入。";
+  }
   catch(error) { message('無法匯入：'+error.message,true); }
   finally { event.target.value=''; }
 });

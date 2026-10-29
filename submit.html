@@ -89,13 +89,21 @@
               id="importFile"
               accept=".json,.html,.htm,application/json,text/html"
               multiple
+              hidden /><button class="text-button" id="chooseImportImages" type="button">選取 HTML 題圖資料夾</button><input
+              type="file"
+              id="importImages"
+              accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
+              webkitdirectory
+              directory
+              multiple
               hidden /><button class="text-button" id="downloadExample" type="button">
             下載匯入範例</button
           ><button id="restorePending" class="text-button" type="button">載入待補備份</button><input id="pendingFile" type="file" accept=".json,application/json" hidden
           ><span class="muted"
-            >匯入最多 2,000 題、20 批，每批最多 200 題。可匯入結構化 JSON／HTML，或 CCSA 題目 HTML。若題目和解答分成兩個 HTML，按住 Ctrl 一次選兩份，系統會依題目配對正解；解析可留白，匯入後請核對答案。</span
+            >匯入最多 2,000 題、20 批，每批最多 200 題。可匯入結構化 JSON／HTML，或 CCSA 題目 HTML。若題目和解答分成兩個 HTML，按住 Ctrl 一次選兩份，系統會依題目配對正解；解析可留白，匯入後請核對答案。若題目含有下載的本機圖片，請先選取題目 HTML 同名的「_files」資料夾，再匯入兩份 HTML；不含圖片可略過。</span
           >
         </div>
+        <p id="importImageStatus" class="muted" role="status" aria-live="polite">尚未選取題圖資料夾；沒有本機圖片時可直接匯入。</p>
       </section>
       <form id="questionForm" class="panel">
         <h2 id="editorHeading">新增一題</h2>
@@ -256,7 +264,7 @@
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/contributions-submit.js?v=l9-blanks-restored-20261029"
+      src="assets/contributions-submit.js?v=html-image-import-20261029"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
   </body>

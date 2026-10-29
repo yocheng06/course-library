@@ -142,7 +142,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
   render();
   if(queue.some(group=>group.htmlImport&&!group.result))updateAnswerStatus();
   return {
-    async importFiles(files){
+    async importFiles(files, imageFiles=[]){
       if(busy)throw new Error('請等待分組投稿完成。');
       const selected=Array.from(files||[]);
       if(!selected.length)return;
@@ -151,7 +151,9 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
       if(selected.reduce((sum,file)=>sum+file.size,0)>16*1024*1024)throw new Error('兩個匯入檔案合計最多 16 MB。');
       const names=selected.map(file=>file.name);
       const contents=await Promise.all(selected.map(file=>file.text()));
-      const parsed=selected.length===1?parseImport(contents[0],names[0]):parseImport(contents,names);
+      const parsed=selected.length===1
+        ? await parseImport(contents[0],names[0],imageFiles)
+        : await parseImport(contents,names,imageFiles);
       const restored=parsed?.version===1 && Array.isArray(parsed.groups) && parsed.groups.every(g=>g.payload && g.requestId);
       const htmlImport=parsed?.__htmlQuestionImport===true;
       const groups=restored?parsed.groups.map(g=>({...g,payload:normalizeBatch(g.payload,{allowMissingAnswers:g.htmlImport===true})})):groupImport(parsed,metadata(),names.join(' + '),{allowMissingAnswers:htmlImport});
