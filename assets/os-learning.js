@@ -108,11 +108,21 @@ function answerMarkup(q) {
 function languageOf(value) {
   return /[\u3400-\u9fff]/u.test(String(value ?? '')) ? 'zh-Hant' : 'en';
 }
+function orderedBilingualText(primary, translation) {
+  const first = String(primary ?? ''), second = String(translation ?? '');
+  if (!second || languageOf(first) === languageOf(second)) return {top:first,bottom:second};
+  return languageOf(second) === 'zh-Hant' ? {top:second,bottom:first} : {top:first,bottom:second};
+}
 function optionMarkup(q, option, index) {
   const text = String(option ?? ''), match = text.match(/^([A-H][.、．:：])(\s*)([\s\S]*)$/);
-  const content = match ? `<span class="option-label">${highlighted(match[1])}</span>${esc(match[2])}${highlighted(match[3])}` : `<span class="option-label">${String.fromCharCode(65 + index)}.</span> ${highlighted(text)}`;
-  const translation = q.optionTranslations?.[index];
-  return `<span class="option-content">${content}${translation ? `<span class="option-translation" lang="${languageOf(translation)}">${highlighted(translation)}</span>` : ''}</span>`;
+  const label = match?.[1] || `${String.fromCharCode(65 + index)}.`, letter = label[0].toUpperCase();
+  const primary = match ? match[3] : text;
+  const rawTranslation = String(q.optionTranslations?.[index] ?? '');
+  const translationMatch = rawTranslation.match(/^([A-H])[.、．:：]\s*([\s\S]*)$/u);
+  const translation = translationMatch?.[1].toUpperCase() === letter ? translationMatch[2] : rawTranslation;
+  const ordered = orderedBilingualText(primary, translation);
+  const content = `<span class="option-label">${highlighted(label)}</span>${esc(match?.[2] || ' ')}${highlighted(ordered.top)}`;
+  return `<span class="option-content">${content}${ordered.bottom ? `<span class="option-translation" lang="${languageOf(ordered.bottom)}">${highlighted(ordered.bottom)}</span>` : ''}</span>`;
 }
 function expectedOptionKeys(q, options) {
   if (!window.courseQuestionTools.hasProvidedAnswer(q)) return new Set();
@@ -135,7 +145,8 @@ function cardMarkup({q, unit, unitIndex, i}) {
   const pending = window.courseQuestionTools.qualityReasons(q, 'os').length > 0;
   const hasResponse=chosen.length>0||Boolean(drafts.get(q.id)?.trim());
   const buttonText=practice?'檢查答案':open?'收起答案':'查看答案與解析';
-  return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">UNIT ${unitNumber(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${window.courseQuestionTools.incompleteReasons(q).length?'<span class="badge gold">資料不完整</span>':''}${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(i+1).padStart(3,'0')}</span></div><h3 class="question" tabindex="-1">${highlighted(q.stem)}</h3>${q.translation?`<p class="translation" lang="${languageOf(q.translation)}">${highlighted(q.translation)}</p>`:''}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.incompleteMarkup(q)}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${entry}${practice?`<div class="practice-actions"><button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}">${buttonText}</button><button type="button" class="plain" data-clear-response="${q.id}" ${hasResponse?'':'disabled'}>清除作答</button><button type="button" class="plain" data-show-answer="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${open?'收起答案與解析':'顯示答案與解析'}</button></div>`:!$('showAnswers').checked?`<button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${buttonText}</button>`:''}${practice&&result?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
+  const prompt = orderedBilingualText(q.stem, q.translation);
+  return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">UNIT ${unitNumber(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${window.courseQuestionTools.incompleteReasons(q).length?'<span class="badge gold">資料不完整</span>':''}${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(i+1).padStart(3,'0')}</span></div><h3 class="question" tabindex="-1">${highlighted(prompt.top)}</h3>${prompt.bottom?`<p class="translation" lang="${languageOf(prompt.bottom)}">${highlighted(prompt.bottom)}</p>`:''}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.incompleteMarkup(q)}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${entry}${practice?`<div class="practice-actions"><button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}">${buttonText}</button><button type="button" class="plain" data-clear-response="${q.id}" ${hasResponse?'':'disabled'}>清除作答</button><button type="button" class="plain" data-show-answer="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${open?'收起答案與解析':'顯示答案與解析'}</button></div>`:!$('showAnswers').checked?`<button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${buttonText}</button>`:''}${practice&&result?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
 }
 function render(preserveCards = false) {
   const filtered=practiceSequence.apply(matches(),mode==='practice'&&$('practiceOrder').value==='random',entry=>entry.q.id), entries=scopedEntries(), pages=Math.max(1,Math.ceil(filtered.length/pageSize)); page=Math.min(page,pages); totalPages=pages;
