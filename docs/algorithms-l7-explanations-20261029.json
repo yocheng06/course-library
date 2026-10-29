@@ -1,0 +1,33 @@
+{
+  "questions": 60,
+  "explanations": 60,
+  "preservedQuestionAnswerOptionsAndOrder": true,
+  "references": [
+    {
+      "title": "Yale — MedianFinding",
+      "url": "https://www.cs.yale.edu/homes/aspnes/pinewiki/MedianFinding.html"
+    },
+    {
+      "title": "UMass CS311 — Honors discussion",
+      "url": "https://people.cs.umass.edu/~barring/cs311f03/honors/"
+    },
+    {
+      "title": "MIT 6.046J — Median finding lecture",
+      "url": "https://ocw.mit.edu/courses/6-046j-design-and-analysis-of-algorithms-spring-2015/461c3f2a75384eaaffce53f66f153a50_EzeYI7p9MjU.pdf"
+    }
+  ],
+  "sourceCaveats": [
+    "2472",
+    "2491",
+    "2493",
+    "2497",
+    "2505",
+    "2511",
+    "2515",
+    "2516",
+    "2517",
+    "2519",
+    "2522",
+    "2525"
+  ]
+}

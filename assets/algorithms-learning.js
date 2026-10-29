@@ -15,7 +15,7 @@ const meta={
  L4:{title:'堆積、堆積排序與優先佇列',short:'Heap 與 Heapsort',en:'HEAP & PRIORITY QUEUE',sub:'Heap 性質 · Max-Heapify · Heapsort · Priority Queue',guide:'把 Max-Heap 想成「優先處理最高分任務」的排列：父節點不小於子節點，最大值在根部，但整個陣列未必已排序。索引從 1 開始時，左子是 2i、右子是 2i+1、父節點是 floor(i/2)。'},
  L5:{title:'快速排序',short:'快速排序',en:'QUICK SORT',sub:'Pivot · Partition · 遞迴與複雜度',guide:'把陣列想成一列卡片：先選一張作為 pivot，再用 Partition 把較小與較大的值分到兩側，讓 pivot 到達正確位置，接著遞迴處理兩邊。分割大致平均時，時間通常是 Θ(n log n)；每次都極端不平衡時，可能退化到 Θ(n²)。'},
  L6:{title:'排序演算法',short:'排序演算法',en:'SORTING ALGORITHMS',sub:'Radix Sort · Bucket Sort · 比較排序下界 · Counting Sort',guide:'計數排序利用有限範圍的鍵值統計次數；桶排序把資料分配到區間；基數排序逐位整理，並需要穩定的子排序。先確認輸入條件，再比較時間與空間成本；決策樹可說明比較排序的下界。'},
- L7:{title:'中位數與順序統計量',short:'中位數與順序統計量',en:'MEDIANS & ORDER STATISTICS',sub:'選擇問題 · 最小與最大值 · Partition · Randomized-Select · Median of Medians',guide:'先確認目標是第幾小的元素，再看分割後要繼續處理哪一側。相同主題的題目依單選、多選、填空排列；本章答案沿用同學分享的題庫，未提供的解析留白。'}
+ L7:{title:'中位數與順序統計量',short:'中位數與順序統計量',en:'MEDIANS & ORDER STATISTICS',sub:'選擇問題 · 最小與最大值 · Partition · Randomized-Select · Median of Medians',guide:'先確認目標是第幾小的元素，再看分割後要繼續處理哪一側。相同主題的題目依單選、多選、填空排列；本章 60 題已補上解析；答案沿用分享題庫，定義差異、缺少條件或來源答案疑義會在解析中說明。'}
 };
 let lesson='L2',chapter='全部',type='全部',page=1,totalPages=1,mode='study';
 const PAGE_SIZE=10, drafts=new Map(), revealed=new Set(), selections=new Map(), feedback=new Map();
