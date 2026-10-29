@@ -273,7 +273,6 @@ async function saveBuiltin(request, env, course, id, { publicEdit = false } = {}
       storedAction = "reset";
     } else raw = normalizeBuiltinEdit(base, previous, target);
   } else raw = normalizeBuiltinEdit(base, previous, body.question);
-  if (publicEdit) await limit(request, env);
   const result = await env.DB.prepare(
     "INSERT INTO builtin_question_edits (id,course,question_id,revision,data,previous_data,base_hash,action,note,actor,created_at) SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ?=COALESCE((SELECT MAX(revision) FROM builtin_question_edits WHERE course=? AND question_id=?),0)",
   )

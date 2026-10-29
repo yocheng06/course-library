@@ -661,7 +661,7 @@ test("pending images require a reviewer session; only retained images become pub
   assert.equal(approved.response.status, 200);
   assert.equal((await call(env, imagePath)).response.status, 200);
 });
-test("anonymous posts have bounded rate, allowed origins and immediate public results", async () => {
+test("anonymous posts allow more than 20 operations while checking origins and publishing immediately", async () => {
   const env = await setup();
   assert.equal(
     (
@@ -673,26 +673,14 @@ test("anonymous posts have bounded rate, allowed origins and immediate public re
     ).response.status,
     403,
   );
-  for (let i = 0; i < 20; i++) {
+  // One shared IP can import more than twenty batches in the same hour.
+  for (let i = 0; i < 25; i++) {
     const p = payload();
     p.questions[0].stem += " " + i;
-    assert.equal(
-      (await call(env, "/api/submissions", { method: "POST", body: p }))
-        .response.status,
-      201,
-    );
+    assert.equal((await call(env, "/api/submissions", {method:"POST",body:p})).response.status,201);
   }
-  const p = payload();
-  p.questions[0].stem += " sixth";
-  assert.equal(
-    (await call(env, "/api/submissions", { method: "POST", body: p })).response
-      .status,
-    429,
-  );
-  assert.equal(
-    (await call(env, "/api/questions?course=os")).data.questions.length,
-    20,
-  );
+  assert.equal((await call(env,"/api/questions?course=os")).data.questions.length,25);
+  assert.equal(env.sql.prepare("SELECT count(*) AS n FROM rate_windows").get().n,0);
   assert.equal((await call(env, "/api/review", { reviewer: true })).data.items.length, 0);
   const cors = await call(env, "/api/questions?course=os", {
     siteOrigin: "https://yocheng06.github.io",
@@ -2328,4 +2316,22 @@ test("reported queue deletion permits replacement and conflict indices retain or
  assert.equal(batch.response.status,409,JSON.stringify(batch.data));assert.equal(batch.data.possibleDuplicates[0].index,2);
  const imported=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'process',questions:[parent,queue]}});
  assert.equal(imported.response.status,201,JSON.stringify(imported.data));assert.equal(imported.data.acceptedCount,1);assert.equal(imported.data.skippedCount,1);
+});
+
+
+test("one shared IP can repeatedly edit community questions beyond the old hourly quota",async()=>{
+ const env=await setup(), original=payload();
+ const sent=await call(env,"/api/submissions",{method:"POST",body:original});
+ assert.equal(sent.response.status,201);
+ const id=`community-${sent.data.id}-1`, path=`/api/community/questions/${id}`;
+ for(let i=0;i<25;i++){
+  const revised={...original,questions:[{...original.questions[0],explanation:`第 ${i+1} 次修正解析。`}]};
+  const saved=await call(env,path,{method:"POST",body:{action:"update",revision:i+1,payload:revised,note:"修正解析"}});
+  assert.equal(saved.response.status,200,JSON.stringify(saved.data));
+  assert.equal(saved.data.item.revision,i+2);
+ }
+ const deleted=await call(env,path,{method:"POST",body:{action:"delete",revision:26,note:"測試可還原刪題"}});
+ assert.equal(deleted.response.status,200,JSON.stringify(deleted.data));
+ assert.equal(env.sql.prepare("SELECT count(*) AS n FROM question_history WHERE question_id=?").get(id).n,26);
+ assert.equal(env.sql.prepare("SELECT count(*) AS n FROM rate_windows").get().n,0);
 });

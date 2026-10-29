@@ -640,23 +640,6 @@ async function attachImageKeys(env, payload, original = { questions: [] }) {
       }),
     );
 }
-async function limit(request, env) {
-  if (!env.RATE_HASH_KEY) throw new HttpError(503, "投稿服務尚未完成設定。");
-  const now = Date.now(),
-    window = Math.floor(now / 3600000),
-    ip = request.headers.get("cf-connecting-ip") || "unknown",
-    key = await hash(ip + env.RATE_HASH_KEY + window);
-  const result = await env.DB.prepare(
-    "INSERT INTO rate_windows (key,count,expires_at) VALUES (?,1,?) ON CONFLICT(key) DO UPDATE SET count=count+1 WHERE count<20 RETURNING count",
-  )
-    .bind(key, (window + 2) * 3600000)
-    .first();
-  if (!result)
-    throw new HttpError(429, "這個網路在一小時內已送出 20 次，請稍後再投稿。");
-  await env.DB.prepare("DELETE FROM rate_windows WHERE expires_at<?")
-    .bind(now)
-    .run();
-}
 function decodeImage(image) {
   const match = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(
     image,
@@ -741,7 +724,6 @@ async function submit(request, env) {
   };
   if (new TextEncoder().encode(JSON.stringify(textOnly)).length > 1500000)
     throw new HttpError(413, "題目文字太多，請分批投稿。");
-  await limit(request, env);
   const id = body.clientRequestId || crypto.randomUUID();
   if(requestHash){payload.requestHash=requestHash;payload.requestResult=report;}
   const saved = [];
@@ -1519,7 +1501,6 @@ async function editPublication(request, env, id, { publicEdit = false } = {}) {
   const note = body.note ?? "";
   if (typeof note !== "string" || note.length > 2000)
     throw new HttpError(400, "修改說明格式不正確。");
-  if (publicEdit && body.action === "delete") await limit(request, env);
   let raw = JSON.parse(row.data),
     course = row.course,
     unit = row.unit,
@@ -1575,7 +1556,6 @@ async function editPublication(request, env, id, { publicEdit = false } = {}) {
     );
     await attachImageKeys(env, batch, { questions: [sourceData] });
     await checkSimilar(env, batch, body.confirmSimilar, id);
-    if (publicEdit) await limit(request, env);
     [fingerprint] = await fingerprints(batch);
     if ((await duplicates(env, [fingerprint], batch, id)).length)
       throw new HttpError(409, "修改後與既有題目完全重複，請調整內容。");
@@ -1783,7 +1763,6 @@ async function correction(request, env, url, id) {
       if (row?.course === body.course) snapshot = {course:row.course,unit:row.unit,...JSON.parse(row.data)};
     }
     if (!snapshot) throw new HttpError(404, '找不到這個公開題目，請回到題庫重新開啟回報。');
-    await limit(request, env);
     const receipt = crypto.randomUUID();
     await env.DB.prepare("INSERT INTO question_corrections (id,course,question_id,snapshot,detail,suggestion,status,note,revision,created_at) VALUES (?,?,?,?,?,?,'pending','',1,?)")
       .bind(receipt,body.course,body.questionId,JSON.stringify({...snapshot,reportedAnswer:body.answerSnapshot||''}),body.detail.trim(),(body.suggestion || '').trim(),Date.now()).run();
