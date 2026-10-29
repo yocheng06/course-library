@@ -1,11 +1,15 @@
-/* Built-in questions render first; approved submissions sync independently. */
+/* Complete public snapshots/cache render synchronously; the API remains authoritative. */
 (() => {
   'use strict';
   const config = window.courseLearning;
   if (!config?.mergeCommunityQuestions || !window.courseContributions) return;
   const linkedId = new URLSearchParams(location.search).get('question');
   const linkedSubmission = /^community-[0-9a-f-]{36}-[1-9]\d*$/.test(linkedId || '') && !config.validId(linkedId);
-  let interacted = false, syncing = false, notice;
+  let interacted = false, syncing = false, syncAgain = false, notice, source = 'builtin';
+  const cacheKey = 'course-library.questions.v1.' + config.course;
+  let snapshot = null;
+  try { snapshot = JSON.parse(document.getElementById('course-community-snapshot')?.textContent || 'null'); } catch {}
+  const curation = snapshot?.course === config.course ? snapshot.curation : null;
   const markInteraction = () => { interacted = true; };
   for (const event of ['pointerdown', 'keydown', 'wheel', 'touchstart'])
     document.addEventListener(event, markInteraction, {once:true, passive:true});
@@ -21,13 +25,12 @@
   }
   function curateRows(rows, curation) {
     if (!Array.isArray(rows)) return [];
-    const aliases = new Set((curation?.aliases || []).map(alias => alias.id));
+    const presentIds = new Set(rows.map(row=>row.question?.id));
+    const aliasTargets = new Map((curation?.aliases || []).map(alias=>[alias.id,alias.target]));
+    const aliases = new Set((curation?.aliases || []).filter(alias=>presentIds.has(alias.target)).map(alias=>alias.id));
     const ranks = new Map((curation?.order || []).map((id, index) => [id, index]));
-    const presentIds = new Set(rows.filter(row => row?.unit === 'L9' && row.question).map(row => row.question.id));
-    const fallbacks = (curation?.fallbackQuestions || [])
-      .filter(question => question?.id && !presentIds.has(question.id))
-      .map(question => ({ unit: 'L9', question }));
-    const sourceRows = rows.concat(fallbacks);
+    // Missing rows in a complete public response are hidden/merged, never fallbacks.
+    const sourceRows = rows;
     const l9 = [];
     sourceRows.forEach((row, inputIndex) => {
       if (row?.unit !== 'L9' || !row.question || aliases.has(row.question.id)) return;
@@ -39,14 +42,18 @@
         question.unitEn = curation.unit.en;
         question.unitDescription = curation.unit.description;
       }
-      const meta = curation?.questions?.[question.id];
-      if (meta && sourceSignature(original) === meta.sourceSignature) {
+      const metaId = aliasTargets.get(question.id) || question.id;
+      const meta = curation?.questions?.[metaId];
+      const reference = (curation?.fallbackQuestions || []).find(q=>q.id===metaId);
+      const republishedMatch = metaId !== question.id && reference && cleanHeading(reference.stem) === cleanHeading(original.stem) &&
+        JSON.stringify(reference.options) === JSON.stringify(original.options) && reference.answer === original.answer && (!reference.type || reference.type === original.type);
+      if (meta && (sourceSignature(original) === meta.sourceSignature || republishedMatch)) {
         question.editSource = Object.fromEntries(['category','type','stem','options','answer','explanation'].map(key => [key, original[key] ?? (key === 'options' ? [] : '')]));
         if (String(meta.stem || '').trim()) question.stem = meta.stem;
         if (!original.category || original.category === 'HTML 匯入') question.category = meta.category;
-        if (String(meta.explanation || '').trim()) question.explanation = meta.explanation;
+        if (!String(original.explanation || '').trim() && String(meta.explanation || '').trim()) question.explanation = meta.explanation;
       }
-      l9.push({ row: { ...row, question }, inputIndex, rank: ranks.get(question.id) ?? Number.MAX_SAFE_INTEGER });
+      l9.push({ row: { ...row, question }, inputIndex, rank: ranks.get(metaId) ?? Number.MAX_SAFE_INTEGER });
     });
     l9.sort((a, b) => a.rank - b.rank || a.inputIndex - b.inputIndex);
     const curatedL9Rows = l9.map(entry => entry.row);
@@ -87,7 +94,7 @@
     const anchor = [...config.list.children].find(card => { const r=card.getBoundingClientRect();return r.bottom>0 && r.top<innerHeight; });
     const anchorTop = anchor?.getBoundingClientRect().top;
     const scroll = {x:scrollX,y:scrollY}, menu = config.sidebar.querySelector('.course-menu'), menuScroll = menu?.scrollTop;
-    const result = config.mergeCommunityQuestions(entries, {openLinkedQuestion:linkedSubmission && !interacted, aliases, overrides});
+    const result = config.mergeCommunityQuestions(entries, {openLinkedQuestion:linkedSubmission && !interacted, aliases, overrides, replace:true});
     if (!result.openedLinkedQuestion) {
       if (menu) menu.scrollTop = menuScroll;
       if (!focused?.isConnected && selector) {
@@ -101,34 +108,73 @@
     }
     return result;
   }
+  function validData(data) {
+    if (!data || !['questions','aliases','overrides'].every(key => Array.isArray(data[key]))) return false;
+    const ids = new Set();
+    return data.questions.every(row => {
+      const q = row?.question, id = config.course === 'os' ? q?.id : q?.bookmarkId;
+      if (typeof row?.unit !== 'string' || !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(id || '') || ids.has(id)) return false;
+      ids.add(id);
+      return typeof (q.stem ?? q.q) === 'string' && typeof (q.answer ?? q.a) === 'string' &&
+        Array.isArray(q.options ?? q.opts) && (q.options ?? q.opts).every(option => typeof option === 'string');
+    }) && data.aliases.every(alias => typeof alias?.id === 'string' && typeof alias.target === 'string');
+  }
+  function validEnvelope(value) {
+    const time = Date.parse(value?.generatedAt);
+    return value?.schema === 1 && value.course === config.course && Number.isFinite(time) && time <= Date.now() + 300000 && validData(value.data);
+  }
+  function apply(data, name) {
+    if (!validData(data)) throw new Error('Invalid public snapshot');
+    const presentIds = new Set(data.questions.map(row=>row.question.id || row.question.bookmarkId));
+    const curatedAliases = (curation?.aliases || []).flatMap(alias=>presentIds.has(alias.target) ? [alias] : presentIds.has(alias.id) ? [{id:alias.target,target:alias.id}] : []);
+    const aliases = [...data.aliases, ...curatedAliases];
+    merge(curateRows(data.questions, curation), aliases, data.overrides);
+    source = name;
+    document.documentElement.dataset.questionSource = name;
+  }
+  function sourceLabel() {
+    return source === 'cache' ? '上次同步的題庫快取' : source === 'snapshot' ? '網站隨附的完整題庫快照' : source === 'live' ? '最近同步的題庫' : '內建題庫';
+  }
+  // No local fetch precedes this render, including on file:// and offline visits.
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem(cacheKey) || 'null'); } catch {}
+  const initial = validEnvelope(cached) && (!validEnvelope(snapshot) || Date.parse(cached.generatedAt) >= Date.parse(snapshot.generatedAt)) ? cached : validEnvelope(snapshot) ? snapshot : null;
+  if (initial) {
+    try { apply(initial.data, initial === cached ? 'cache' : 'snapshot'); } catch {
+      if (initial === cached && validEnvelope(snapshot)) { try { apply(snapshot.data, 'snapshot'); } catch {} }
+    }
+  }
   async function sync() {
-    if (syncing || location.protocol === 'file:') return;
+    if (syncing) { syncAgain = true; return; }
+    if (location.protocol === 'file:') {
+      showNotice(`目前顯示${sourceLabel()}；開啟公開網站可同步最新修改及下架狀態。`);
+      return;
+    }
     if (!navigator.onLine) {
-      if (linkedSubmission) showNotice('這是投稿題目，需要連線才能載入；原有題庫可繼續閱讀。',true);
+      showNotice(`目前離線，顯示${sourceLabel()}；連線後會同步最新修改及下架狀態。`, true);
       return;
     }
     syncing = true;
     notice?.querySelector('button')?.setAttribute('disabled','');
     try {
-      const [response, curationResponse] = await Promise.all([
-        fetch(window.courseContributions.apiOrigin + '/api/questions?course=' + config.course, {signal:AbortSignal.timeout(8000)}),
-        fetch('assets/os-l9-curation.json?v=l9-blanks-restored-20261029', {signal:AbortSignal.timeout(8000)}).catch(() => null)
-      ]);
+      const response = await fetch(window.courseContributions.apiOrigin + '/api/questions?course=' + config.course, {signal:AbortSignal.timeout(8000), cache:'no-store'});
       if (!response.ok) throw new Error('unavailable');
       const data = await response.json();
-      if (!Array.isArray(data.questions)) throw new Error('invalid');
-      let curation = null;
-      try { if (curationResponse?.ok) curation = await curationResponse.json(); } catch {}
-      const aliases = [...(Array.isArray(data.aliases) ? data.aliases : []), ...(Array.isArray(curation?.aliases) ? curation.aliases : [])];
-      merge(curateRows(data.questions, curation), aliases, data.overrides || []);
-      merge([], aliases, data.overrides || []);
+      apply(data, 'live');
+      const serverTime = Date.parse(response.headers?.get('date'));
+      const generatedAt = new Date(Number.isFinite(serverTime) ? serverTime : Date.now()).toISOString();
+      try { localStorage.setItem(cacheKey, JSON.stringify({schema:1, course:config.course, generatedAt, data})); } catch {}
       if (linkedSubmission && !config.validId(linkedId)) showNotice('這個投稿題目連結暫時沒有可用內容，已顯示原有題庫。',true);
       else { notice?.remove(); notice = null; }
     } catch {
-      showNotice('線上題庫更新暫時無法同步，目前顯示隨頁面提供的內建版本。請重新同步以取得最新修訂。',true);
-    } finally { syncing = false; }
+      showNotice(`暫時無法同步，仍可使用${sourceLabel()}；尚未確認最新修改及下架狀態。`,true);
+    } finally {
+      syncing = false;
+      if (syncAgain) { syncAgain = false; sync(); }
+    }
   }
-  if (linkedSubmission) showNotice('正在載入這道投稿題目…');
+  if (initial) showNotice(`已顯示${sourceLabel()}，正在背景同步最新變更…`);
+  else if (linkedSubmission) showNotice('正在載入這道投稿題目…');
   window.addEventListener('online',sync);
   sync();
 })();

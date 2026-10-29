@@ -100,18 +100,27 @@ if(linkedEntry)lesson=linkedEntry.unit.id;
 setupLesson();
 if(linkedEntry){page=Math.floor(linkedEntry.i/PAGE_SIZE)+1;render();window.courseQuestionTools.focusLinkedQuestion(linkedEntry.id);}
 let waitingForLinkedQuestion=!linkedEntry && /^community-/.test(linkedQuestion||'');
-function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],overrides=[]}={}){
+function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],overrides=[],replace=false}={}){
  if(!Array.isArray(overrides))throw new Error('Invalid built-in updates');
  const next=new Map();
  for(const row of overrides){const q=row?.question,id=q?.bookmarkId;
   if(!builtinOriginals.has(id)||builtinOriginals.get(id).unit!==row.unit||typeof q.q!=='string'||typeof q.a!=='string'||!Array.isArray(q.opts)||q.opts.some(v=>typeof v!=='string')||next.has(id))throw new Error('Invalid built-in update');
   next.set(id,q);
  }
+ if(replace){
+  const previous=new Map(questionEntries.filter(e=>!builtinOriginals.has(e.id)).map(e=>[e.id,e.q]));
+  entries=entries.map(row=>{const old=previous.get(row.question?.bookmarkId);return old&&JSON.stringify(old)===JSON.stringify(row.question)?{...row,question:old}:row;});
+  const retained=new Map(entries.map(row=>[row.question?.bookmarkId,row.question]));
+  for(const [id,q] of previous)if(retained.get(id)!==q){feedback.delete(id);revealed.delete(id);selections.delete(id);}
+  communityAliases.clear();questionEntries.length=0;
+  for(const unit of COURSES)unit.questions=unit.questions.filter(q=>builtinOriginals.has(q.bookmarkId));
+  COURSES.splice(0,COURSES.length,...COURSES.filter(unit=>unit.questions.length));
+  for(const unit of COURSES)unit.questions.forEach((q,i)=>questionEntries.push({q,i,id:questionId(unit,i),unit}));
+ }
  const changedIds=new Set([...builtinOverrides.keys(),...next.keys()].filter(id=>JSON.stringify(builtinOverrides.get(id))!==JSON.stringify(next.get(id))));
  builtinOverrides=next;
  for(const entry of questionEntries)if(changedIds.has(entry.id)){entry.q=next.get(entry.id)||JSON.parse(JSON.stringify(builtinOriginals.get(entry.id).q));entry.unit.questions[entry.i]=entry.q;feedback.delete(entry.id);revealed.delete(entry.id);selections.delete(entry.id);}
 
- for(const alias of Array.isArray(aliases)?aliases:[])if(/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(alias?.id)&&questionEntries.some(e=>e.id===alias.target))communityAliases.set(alias.id,alias.target);
  let added=0,updated=0;
  for(const entry of entries){
   if(!entry||typeof entry!=='object')continue;
@@ -128,13 +137,15 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],ov
   if(!unit){
    if(!/^L[1-9]\d?$/.test(unitId))continue;
    const title=String(q.unitTitle||'第 '+unitId.slice(1)+' 單元').slice(0,60);
-   meta[unitId]={title,short:title,en:'APPROVED SUBMISSIONS',sub:'同學投稿，經站主審核公開',guide:'先閱讀題目與解析，再用練習或單元測驗確認觀念。'};
-   unit={id:unitId,source:'同學投稿（站主審核）',questions:[]};COURSES.push(unit);COURSES.sort((a,b)=>Number(a.id.slice(1))-Number(b.id.slice(1)));
+   meta[unitId]={title,short:title,en:'COMMUNITY QUESTIONS',sub:'同學投稿，公開共編題庫',guide:'先閱讀題目與解析，再用練習或單元測驗確認觀念。'};
+   unit={id:unitId,source:'同學投稿',questions:[]};COURSES.push(unit);COURSES.sort((a,b)=>Number(a.id.slice(1))-Number(b.id.slice(1)));
   }
   const i=unit.questions.length;unit.questions.push(q);questionEntries.push({q,i,id:q.bookmarkId,unit});added++;
  }
+ for(const alias of Array.isArray(aliases)?aliases:[])if(/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(alias?.id)&&questionEntries.some(e=>e.id===alias.target))communityAliases.set(alias.id,alias.target);
+ if(replace&&!current())lesson=COURSES[0].id;
  window.learningUI?.refresh();
- if(!added&&!updated&&!communityAliases.size&&!changedIds.size)return {added:0,openedLinkedQuestion:false};
+ if(!replace&&!added&&!updated&&!communityAliases.size&&!changedIds.size)return {added:0,openedLinkedQuestion:false};
  refreshCourseSummary();
  const linked=waitingForLinkedQuestion&&openLinkedQuestion&&findEntry(linkedQuestion);
  if(linked){waitingForLinkedQuestion=false;lesson=linked.unit.id;setupLesson();page=Math.floor(linked.i/PAGE_SIZE)+1;render();window.courseQuestionTools.focusLinkedQuestion(linked.id);}

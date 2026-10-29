@@ -2,6 +2,7 @@
   "name": "course-library-frontend-checks",
   "private": true,
   "scripts": {
+    "snapshot:questions": "node scripts/snapshot-public-questions.mjs",
     "sync:questions": "node scripts/build-batch-library.mjs && node contribution-service/scripts/sync-library.mjs",
     "test": "node --experimental-vm-modules --test tests/*.test.mjs",
     "test:all": "npm test && npm --prefix contribution-service run build && npm --prefix contribution-service test",

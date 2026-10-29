@@ -239,13 +239,36 @@ const linkedEntry = findEntry(linkedQuestion);
 switchUnit(linkedEntry?.unitIndex ?? 0);
 if (linkedEntry) { page=Math.floor(linkedEntry.i/pageSize)+1; render(); window.courseQuestionTools.focusLinkedQuestion(linkedEntry.q.id); }
 let waitingForLinkedQuestion = !linkedEntry && /^community-/.test(linkedQuestion || '');
-function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases = [], overrides = []} = {}) {
+function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases = [], overrides = [], replace = false} = {}) {
   if(!Array.isArray(overrides))throw new Error('Invalid built-in updates');
   const next=new Map();
   for(const row of overrides){
     const q=row?.question,unitIndex=questionUnitIndex.get(q?.id);
     if(unitIndex===undefined || canonicalQuestionId.has(q.id) || UNITS[unitIndex].id!==row.unit || typeof q.stem!=='string' || typeof q.answer!=='string' || !Array.isArray(q.options) || q.options.some(v=>typeof v!=='string') || next.has(q.id))throw new Error('Invalid built-in update');
     next.set(q.id,q);
+  }
+  const activeUnitId = UNITS[active]?.id;
+  if (replace) {
+    const previous = new Map(questionEntries.filter(e=>communityQuestionIds.has(e.q.id)).map(e=>[e.q.id,e.q]));
+    for (const pending of pendingCommunityQuestions.values()) for (const q of pending) previous.set(q.id,q);
+    entries = entries.map(row => {
+      const old = previous.get(row.question?.id);
+      if (old && JSON.stringify(old) === JSON.stringify(row.question)) return {...row,question:old};
+      return row;
+    });
+    const retained = new Map(entries.map(row=>[row.question?.id,row.question]));
+    for (const [id,q] of previous) if (retained.get(id)!==q) { feedback.delete(id); revealed.delete(id); selections.delete(id); }
+    communityAliases.clear(); communityQuestionIds.clear(); communityQuestionUnit.clear(); pendingCommunityQuestions.clear();
+    for (const id of questionUnitIndex.keys()) if (/^community-/.test(id) && !knownQuestionIds.has(id)) questionUnitIndex.delete(id);
+    UNITS.splice(0,UNITS.length,...UNITS.filter(unit=>unitData.has(unit.id)));
+    loadedUnits.clear(); questionEntries.length=0;
+    UNITS.forEach((unit,unitIndex)=>{
+      unit.questionCount=unit.baseQuestionCount;
+      if (!unit.questions) return;
+      unit.questions=unit.questions.filter(q=>knownQuestionIds.has(q.id));
+      loadedUnits.add(unitIndex);
+      unit.questions.forEach((q,i)=>questionEntries.push({q,i,unit,unitIndex}));
+    });
   }
   const changedIds=new Set([...builtinOverrides.keys(),...next.keys()].filter(id=>JSON.stringify(builtinOverrides.get(id))!==JSON.stringify(next.get(id))));
   builtinOverrides=next;
@@ -257,14 +280,6 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
   }
   for(const id of changedIds){feedback.delete(id);revealed.delete(id);selections.delete(id);}
 
-  for (const alias of Array.isArray(aliases) ? aliases : []) {
-    if (!/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(alias?.id)) continue;
-    const target = canonicalId(alias.target);
-    if (!knownQuestionIds.has(target) && !communityQuestionIds.has(target)) continue;
-    communityAliases.set(alias.id,target); communityQuestionIds.add(alias.id);
-    const targetUnit = questionUnitIndex.get(target) ?? communityQuestionUnit.get(target);
-    if (targetUnit !== undefined) questionUnitIndex.set(alias.id,targetUnit);
-  }
   let added = 0, updated = 0;
   for (const entry of entries) {
     if (!entry || typeof entry!=='object') continue;
@@ -298,8 +313,17 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
     }
     added++;
   }
+  for (const alias of Array.isArray(aliases) ? aliases : []) {
+    if (!/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(alias?.id)) continue;
+    const target = canonicalId(alias.target);
+    if (!knownQuestionIds.has(target) && !communityQuestionIds.has(target)) continue;
+    communityAliases.set(alias.id,target); communityQuestionIds.add(alias.id);
+    const targetUnit = questionUnitIndex.get(target) ?? communityQuestionUnit.get(target);
+    if (targetUnit !== undefined) questionUnitIndex.set(alias.id,targetUnit);
+  }
+  if (replace) { active=Math.max(0,UNITS.findIndex(unit=>unit.id===activeUnitId)); ensureUnitLoaded(active); }
   window.learningUI?.refresh();
-  if (!added && !updated && !communityAliases.size && !changedIds.size) return {added:0, openedLinkedQuestion:false};
+  if (!replace && !added && !updated && !communityAliases.size && !changedIds.size) return {added:0, openedLinkedQuestion:false};
   document.querySelector('[data-course-total]').textContent=`${UNITS.length} 個單元 · ${totalQuestionCount()} 道題目`;
   const linkedUnit = communityQuestionUnit.get(linkedQuestion) ?? questionUnitIndex.get(canonicalId(linkedQuestion));
   if (waitingForLinkedQuestion && openLinkedQuestion && linkedUnit !== undefined) ensureUnitLoaded(linkedUnit);
