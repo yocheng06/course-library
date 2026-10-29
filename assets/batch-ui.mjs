@@ -9,6 +9,27 @@ import { parseBatchInput } from "./batch-import.mjs?v=batch-match-normalize-2026
 import { setupBatchImport } from "./batch-import-ui.mjs?v=batch-match-normalize-20261029";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
+function ensureTransferButton() {
+  let button = $("transferUnmatched");
+  if (button) return button;
+  const copyButton = $("copyAnswers");
+  if (!copyButton?.parentElement) return null;
+  const orphanText = copyButton.nextSibling;
+  if (
+    orphanText?.nodeType === 3 &&
+    orphanText.textContent.trim() === "轉入投稿草稿"
+  )
+    orphanText.remove();
+  button = document.createElement("button");
+  button.id = "transferUnmatched";
+  button.type = "button";
+  button.className = "button secondary";
+  button.disabled = true;
+  button.textContent = "轉入投稿草稿";
+  copyButton.insertAdjacentElement("afterend", button);
+  return button;
+}
+const transferButton = ensureTransferButton();
 const esc = (value) =>
   String(value ?? "").replace(
     /[&<>"']/g,
@@ -72,8 +93,10 @@ function markChanged() {
   $("switchCourse").disabled = stale || loading || !index;
   $("copyAnswers").disabled = stale || loading || !index || !results.length;
   const unmatchedCount = results.filter((r) => r.status === "unmatched").length;
-  $("transferUnmatched").disabled = stale || loading || !index || !unmatchedCount || !!courseSuggestion;
-  $("transferUnmatched").textContent = `轉入投稿草稿${unmatchedCount ? `（${unmatchedCount} 題）` : ""}`;
+  if (transferButton) {
+    transferButton.disabled = stale || loading || !index || !unmatchedCount || !!courseSuggestion;
+    transferButton.textContent = `轉入投稿草稿${unmatchedCount ? `（${unmatchedCount} 題）` : ""}`;
+  }
   $("inputCount").textContent =
     `${$("batchText").value.length.toLocaleString()} / ${MAX_TEXT.toLocaleString()} 字・最多 30 題`;
   try {
@@ -380,7 +403,7 @@ $("copyAnswers").addEventListener("click", () => {
       .join("\n");
   copy(text);
 });
-$("transferUnmatched").addEventListener("click", () => {
+transferButton?.addEventListener("click", () => {
   if (isStale() || loading || !index || courseSuggestion) return;
   try {
     stageUnmatched(results, { course: snapshotCourse, unit: snapshotUnit }, localStorage);
