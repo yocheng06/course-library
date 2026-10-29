@@ -72,12 +72,12 @@ test("inline 妖獸／Beast headings keep all 10 scheduling questions separate",
     course: "os",
   });
   // The reviewed Chinese source variant now includes 中斷式. Its reordered
-  // options must match; ambiguous duplicate fill-in stems must stay in review.
-  assert.equal(results.filter((r) => r.status === "matched").length, 8);
-  for (const result of results.slice(6, 8)) {
-    assert.equal(result.status, "review");
-    assert.equal(result.answer, "");
-    assert.match(result.reason, /多道題幹完全相同/);
+  // options must match; exact duplicate fill-in records must agree on answers.
+  assert.equal(results.filter((r) => r.status === "matched").length, 10);
+  for (const [i, result] of results.slice(6, 8).entries()) {
+    assert.equal(result.status, "matched");
+    assert.equal(result.answer, ["time quantum", "throughput"][i]);
+    assert.match(result.reason, /各筆題庫紀錄/);
     assert(result.references.length > 1);
   }
   assert.equal(results[5].answer, "A. 非搶佔式");

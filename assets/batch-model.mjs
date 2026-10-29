@@ -748,13 +748,15 @@ const references = (entries) =>
 export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   const eligible = (e) =>
     e.course === course && (unit === "all" || e.unit === unit);
-  if (question.issues.length)
+  if (question.issues.length) {
+    const candidates = matchQuestion({...question, issues: []}, index, {course, unit});
     return {
       status: "review",
       answer: "",
       reason: question.issues.join(" "),
-      references: references((index.stems.get(course + "|" + normalizeStem(question.stem)) || []).filter(eligible)),
+      references: candidates.references || [],
     };
+  }
   const normalized = normalizeStem(question.stem);
   const blankCount = question.options.length ? 0 : fillBlankCount(question.stem);
   let sameStem = (index.stems.get(course + "|" + normalized) || []).filter(
@@ -777,6 +779,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   }
   let exact = [];
   let blankMarkerMatch = false;
+  let repeatedFillStem = false;
   if (blankCount) {
     const blankless = withoutFillBlanks(question.stem);
     const candidates = index.entries.filter(
@@ -789,22 +792,29 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       ? candidates.filter((entry) => entry.preferred)
       : candidates;
     const candidateIds = new Set(candidates.map((entry) => entry.id));
-    if (candidateIds.size > 1)
-      return {
+    if (candidateIds.size > 1) {
+      // Multiple stored records are usable only when every version agrees.
+      // Do not let a preferred record conceal conflicting answers or conditions.
+      if (candidates.some(entry => fillBlankCount(entry.stem) !== blankCount) ||
+          new Set(candidates.map(entry => JSON.stringify((entry.conditions || []).map(normalizeText).sort()))).size !== 1)
+        return {
         status: "review",
         answer: "",
-        reason: "移除填空標記後仍有多道題幹完全相同的題目，請核對原題。",
+        reason: "相同題幹的題庫版本在填空數或成立條件上有差異，請核對原題。",
         references: references(candidates),
       };
-    if (candidateIds.size === 1) {
-      if (preferred.some((entry) => !answerFitsBlankCount(entry.answer, blankCount)))
+      repeatedFillStem = true;
+    }
+    if (candidateIds.size >= 1) {
+      const versions = repeatedFillStem ? candidates : preferred;
+      if (versions.some((entry) => !answerFitsBlankCount(entry.answer, blankCount)))
         return {
           status: "review",
           answer: "",
           reason: "題幹唯一符合，但答案項目數與填空數不一致，請核對原題。",
-          references: references(preferred),
+          references: references(versions),
         };
-      exact = preferred;
+      exact = versions;
       blankMarkerMatch = true;
     }
   } else {
@@ -843,7 +853,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   }
   // A changed distractor can become another correct answer. Only a complete
   // option-set match (including verified aliases) may inherit a choice answer.
-  if (exact.some((e) => e.preferred)) exact = exact.filter((e) => e.preferred);
+  if (!repeatedFillStem && exact.some((e) => e.preferred)) exact = exact.filter((e) => e.preferred);
   if (exact.length) {
     if (exact.some((e) => e.needsImage))
       return {
@@ -867,7 +877,9 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       status: "matched",
       answer: answers[0].answer,
       choiceKey: question.options.length ? answers[0].signature : null,
-      reason: blankMarkerMatch
+      reason: repeatedFillStem
+        ? "題幹與填空數精確符合，各筆題庫紀錄的答案、作答格式及成立條件一致。"
+        : blankMarkerMatch
         ? "移除填空標記後與唯一題庫題幹精確符合，答案格式與填空數已核對。"
         : missingBlank
         ? "填空標記格式不同或未貼出；其餘文字符合題庫，已核對答案一致且符合填答格式。"
