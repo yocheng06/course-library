@@ -12,8 +12,12 @@
   const curation = snapshot?.course === config.course ? snapshot.curation : null;
   let basicsCuration = null;
   try { basicsCuration = JSON.parse(document.getElementById('course-os-basics-curation')?.textContent || 'null'); } catch {}
+  let architectureCuration = null;
+  try { architectureCuration = JSON.parse(document.getElementById('course-os-architecture-curation')?.textContent || 'null'); } catch {}
   if (config.course === 'os' && basicsCuration?.unit === 'basics' && Array.isArray(basicsCuration.order))
     config.setUnitQuestionOrder?.('basics', basicsCuration.order);
+  if (config.course === 'os' && architectureCuration?.unit === 'architecture' && Array.isArray(architectureCuration.order))
+    config.setUnitQuestionOrder?.('architecture', architectureCuration.order);
   const markInteraction = () => { interacted = true; };
   for (const event of ['pointerdown', 'keydown', 'wheel', 'touchstart'])
     document.addEventListener(event, markInteraction, {once:true, passive:true});
@@ -29,7 +33,19 @@
   }
   function curateRows(rows, curation, basicsCuration) {
     if (!Array.isArray(rows)) return [];
-    const curatedBasicsRows = rows.map(row => {
+    const curatedArchitectureRows = rows.map(row => {
+      if (row?.unit !== 'architecture' || !row.question || architectureCuration?.unit !== 'architecture') return row;
+      const original = row.question;
+      const meta = architectureCuration.questions?.[original.id];
+      if (!meta || sourceSignature(original) !== meta.sourceSignature) return row;
+      const question = { ...original };
+      if (meta.category && (!original.category || ['HTML 匯入', '作業系統基礎', '作業系統架構'].includes(original.category))) question.category = meta.category;
+      if (!String(original.explanation || '').trim() && String(meta.explanation || '').trim()) question.explanation = meta.explanation;
+      if (!String(original.note || '').trim() && String(meta.note || '').trim()) question.note = meta.note;
+      if (meta.clearSubmissionReview === true) delete question.submissionReview;
+      return { ...row, question };
+    });
+    const curatedBasicsRows = curatedArchitectureRows.map(row => {
       if (row?.unit !== 'basics' || !row.question || basicsCuration?.unit !== 'basics') return row;
       const original = row.question;
       const meta = basicsCuration.questions?.[original.id];
