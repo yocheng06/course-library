@@ -32,7 +32,7 @@
   html[data-theme="dark"] :is(.topbar,.sidebar,.mobile-navigation-panel,.contribution-nav) {
     background:var(--rail)!important;color:#FFFFFF!important;border-color:var(--rail-line)!important;
   }
-  html[data-theme="dark"] :is(.card,.toolbar,.panel,.empty,.sources[open],.segmented,.lesson-tab,.course-exam,.exam-card,.exam-header,.exam-footer,.image-viewer,.correction-dialog,.image-viewer-header,.image-viewer-footer,.radio-unavailable) {
+  html[data-theme="dark"] :is(.group-preview,.card,.toolbar,.panel,.empty,.sources[open],.segmented,.lesson-tab,.course-exam,.exam-card,.exam-header,.exam-footer,.image-viewer,.correction-dialog,.image-viewer-header,.image-viewer-footer,.radio-unavailable) {
     background:#111111!important;color:#FFFFFF!important;border-color:var(--line)!important;box-shadow:none;
   }
   html[data-theme="dark"] :is(h1,h2,h3,h4,.question,.brand,.pixel-brand,.pixel-course-name h2,.pixel-hero-copy h1,.option-label) { color:#FFFFFF!important; }
@@ -106,4 +106,10 @@
 @media (prefers-reduced-motion:reduce) {
   html { scroll-behavior:auto!important; }
   *,*::before,*::after { transition:none!important;animation:none!important; }
+}
+
+/* Keep imported previews and unavailable actions readable in dark mode. */
+@media screen {
+  html[data-theme="dark"] .group-preview .draft-card { background:#151515;color:#FFFFFF;border-color:#555555; }
+  html[data-theme="dark"] .button:disabled { background:#202020!important;color:#BFBFBF!important;border-color:#555555!important;opacity:1; }
 }
