@@ -648,14 +648,54 @@ function combineCoursePracticeHtml(questionImport, resultImport) {
     }
     return candidates;
   });
+  // A candidate can be compatible with several questions. Match the whole
+  // same-stem group, then accept an answer only if every valid assignment agrees.
+  function solveGroup(rows, forced = null) {
+    const assigned = new Map();
+    if (forced) assigned.set(forced.index,forced.row);
+    function place(row,seen) {
+      for (const pair of rows[row]) {
+        if (pair.index === forced?.index || seen.has(pair.index)) continue;
+        seen.add(pair.index);
+        const previous = assigned.get(pair.index);
+        if (previous === undefined || place(previous,seen)) {
+          assigned.set(pair.index,row);
+          return true;
+        }
+      }
+      return false;
+    }
+    for (let row=0;row<rows.length;row++) {
+      if (row !== forced?.row && !place(row,new Set())) return null;
+    }
+    return assigned;
+  }
   let matchedQuestionCount = 0;
-  questionImport.questions.forEach((question,index) => {
-    const candidates = resultCandidates.flatMap(list => list.filter(pair => pair.index === index));
-    const uniquelyIdentified = resultCandidates.some(list => list.length === 1 && list[0].index === index);
-    if (!uniquelyIdentified || new Set(candidates.map(pair => pair.answer)).size !== 1) return;
-    question.answer = candidates[0].answer;
+  function assign(index,answer) {
+    questionImport.questions[index].answer = answer;
     matchedQuestionCount++;
-  });
+  }
+  for (const [stem,indices] of byStem) {
+    const rows = resultCandidates.filter((_,row) => practiceStemKey(resultImport.answers[row].stem) === stem);
+    if (indices.length === rows.length) {
+      const solution = solveGroup(rows);
+      if (!solution) continue;
+      for (const index of indices) {
+        const answer = rows[solution.get(index)].find(pair => pair.index === index).answer;
+        const alternative = rows.some((pairs,row) => pairs.some(pair =>
+          pair.index === index && pair.answer !== answer && solveGroup(rows,{row,index})));
+        if (!alternative) assign(index,answer);
+      }
+    } else {
+      // Missing or extra results cannot justify elimination. Keep only direct,
+      // uniquely identified answers whose compatible result records all agree.
+      for (const index of indices) {
+        const candidates = rows.flatMap(list => list.filter(pair => pair.index === index));
+        const identified = rows.some(list => list.length === 1 && list[0].index === index);
+        if (identified && new Set(candidates.map(pair => pair.answer)).size === 1) assign(index,candidates[0].answer);
+      }
+    }
+  }
   return {
     ...questionImport,
     source: "題目與交卷結果 HTML 已配對；解析留白，送出前請核對答案。",

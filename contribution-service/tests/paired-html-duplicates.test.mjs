@@ -24,3 +24,22 @@ test('a unique question retains letter support, rejects nonexistent options and 
  const repeated=[question(['Alpha','Beta'])];assert.equal(pair(repeated,[result(['Alpha']),result(['Alpha'])]).__answerImportSummary.matchedQuestionCount,1);
  assert.equal(pair([question(['Alpha','Beta'])],[result(['Missing'])]).__answerImportSummary.matchedQuestionCount,0);
 });
+
+test('subset answers are resolved by the complete one-to-one assignment, independent of result order',()=>{
+ for(const answers of [[result(['Alpha','Gamma']),result(['Beta','Alpha','Gamma'])],[result(['Beta','Alpha','Gamma']),result(['Alpha','Gamma'])]]){
+  const q=[question(['Alpha','Beta','Gamma','Delta']),question(['Gamma','Zeta','Alpha'])];const paired=pair(q,answers);assert.equal(paired.__answerImportSummary.matchedQuestionCount,2);assert.equal(q[0].answer,'A、B、C');assert.equal(q[1].answer,'A、C');
+ }
+});
+test('all small compatibility graphs agree with exhaustive assignment checks',()=>{
+ const words=['Alpha','Beta','Gamma'],permutations=[[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+ for(let mask=0;mask<512;mask++){
+  const q=words.map((_,index)=>question([...words.filter((_,row)=>mask&(1<<(row*3+index))),'Other'+index,'Unused'+index]));
+  const solutions=permutations.filter(p=>p.every((index,row)=>q[index].options.includes(words[row])));
+  const expected=q.map((item,index)=>{const answers=new Set(solutions.map(p=>String.fromCharCode(65+item.options.indexOf(words[p.indexOf(index)]))));return answers.size===1?[...answers][0]:'';});
+  pair(q,words.map(word=>result([word])));assert.deepEqual(q.map(q=>q.answer),expected,'compatibility graph '+mask);
+ }
+});
+test('equivalent duplicate records may supply the same answer, but missing results never justify elimination',()=>{
+ const q=[question(['Alpha','Beta']),question(['Alpha','Beta'])];assert.equal(pair(q,[result(['Alpha']),result(['Alpha'])]).__answerImportSummary.matchedQuestionCount,2);assert.ok(q.every(q=>q.answer==='A'));
+ const partial=[question(['Alpha','Beta']),question(['Alpha','Gamma'])];assert.equal(pair(partial,[result(['Beta'])]).__answerImportSummary.matchedQuestionCount,1);assert.equal(partial[0].answer,'B');assert.equal(partial[1].answer,'');
+});
