@@ -1,5 +1,5 @@
 import { api, message, downloadJSON } from './contributions-ui.js?v=integrated-management-20261029';
-import { setupLibraryManager } from './library-manager.mjs?v=pending-review-20261030';
+import { setupLibraryManager } from './library-manager.mjs?v=recent-selection-20261030';
 import { setupImportRecords } from './import-records.mjs?v=integrated-management-20261029';
 
 const $ = id => document.getElementById(id);
