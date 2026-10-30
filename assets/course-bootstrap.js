@@ -18,6 +18,8 @@
   try { processCuration = JSON.parse(document.getElementById('course-os-process-curation')?.textContent || 'null'); } catch {}
   let threadCuration = null;
   try { threadCuration = JSON.parse(document.getElementById('course-os-threads-curation')?.textContent || 'null'); } catch {}
+  let schedulingCuration = null;
+  try { schedulingCuration = JSON.parse(document.getElementById('course-os-scheduling-curation')?.textContent || 'null'); } catch {}
   if (config.course === 'os' && basicsCuration?.unit === 'basics' && Array.isArray(basicsCuration.order))
     config.setUnitQuestionOrder?.('basics', basicsCuration.order);
   if (config.course === 'os' && architectureCuration?.unit === 'architecture' && Array.isArray(architectureCuration.order))
@@ -26,6 +28,8 @@
     config.setUnitQuestionOrder?.('process', processCuration.order);
   if (config.course === 'os' && threadCuration?.unit === 'threads' && Array.isArray(threadCuration.order))
     config.setUnitQuestionOrder?.('threads', threadCuration.order);
+  if (config.course === 'os' && schedulingCuration?.unit === 'scheduling' && Array.isArray(schedulingCuration.order))
+    config.setUnitQuestionOrder?.('scheduling', schedulingCuration.order);
   const markInteraction = () => { interacted = true; };
   for (const event of ['pointerdown', 'keydown', 'wheel', 'touchstart'])
     document.addEventListener(event, markInteraction, {once:true, passive:true});
