@@ -45,6 +45,19 @@
     ).join(' ').trim();
   const searchTokens = query => [...new Set(normalize(query).trim().split(/\s+/).filter(Boolean))];
   const searchableText = new WeakMap();
+  const sequenceText = value => String(value ?? '').normalize('NFKC').replace(/、/g, ',').replace(/\s*,\s*/g, ',');
+  function sequencePattern(query) {
+    const text = sequenceText(query).trim();
+    if (!/^[+-]?\d+(?:\.\d+)?(?:,[+-]?\d+(?:\.\d+)?)+$/.test(text)) return null;
+    const literal = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Match whole numbers, never a digit inside a longer number or variable.
+    return new RegExp('(?<![\\dA-Za-z_.+-])' + literal + '(?![\\dA-Za-z_+-]|\\.\\d)', 'u');
+  }
+  function sequenceFields(question) {
+    // Old aliases may contain generic array-format examples absent from the visible question.
+    return searchFields(question).filter(field => field.label !== '修正前答案').map(field =>
+      field.label === '題幹' ? {...field,values:[question.stem ?? question.q,question.translation]} : field);
+  }
   function questionType(question) {
     return question.images?.length || question.type === '圖片題' ? '圖片題' : answerType(question);
   }
@@ -77,6 +90,8 @@
   }
 
   function matchesSearch(question, query) {
+    const sequence = sequencePattern(query);
+    if (sequence) return sequenceFields(question).some(field => field.values.some(value => sequence.test(sequenceText(value))));
     const tokens = searchTokens(query);
     if (!tokens.length) return true;
     let text = searchableText.get(question);
@@ -88,6 +103,11 @@
   }
 
   function searchMatchMarkup(question, query) {
+    const sequence = sequencePattern(query);
+    if (sequence) {
+      const labels = sequenceFields(question).filter(field => field.values.some(value => sequence.test(sequenceText(value)))).map(field => field.label);
+      return labels.length ? `<p class="search-match">命中：${labels.map(escape).join('、')}</p>` : '';
+    }
     const tokens = searchTokens(query);
     if (!tokens.length) return '';
     const labels = searchFields(question).filter(field => {
