@@ -94,12 +94,12 @@ test('manual future-unit submission retains chapter metadata through draft reloa
  ui.$('course').value='algorithms';ui.fire(ui.$('course'),'change');
  ui.$('unit').value='__new__';ui.fire(ui.$('unit'),'change');
  assert.equal(ui.$('newUnitFields').hidden,false);
- ui.$('newUnitNumber').value='7';ui.$('newUnitTitle').value='動態規劃';ui.$('batchTitle').value='第七章投稿';ui.fire(ui.$('newUnitTitle'),'input');
- const form=ui.$('questionForm');form.elements.category.value='最佳化';form.elements.type.value='填空題';form.elements.stem.value='未建立的第七章問題';form.elements.answer.value='answer';form.elements.options.value='';
+ ui.$('newUnitNumber').value='8';ui.$('newUnitTitle').value='動態規劃';ui.$('batchTitle').value='第八章投稿';ui.fire(ui.$('newUnitTitle'),'input');
+ const form=ui.$('questionForm');form.elements.category.value='最佳化';form.elements.type.value='填空題';form.elements.stem.value='未建立的第八章問題';form.elements.answer.value='answer';form.elements.options.value='';
  ui.fire(form,'submit');assert.equal(ui.$('draftCount').textContent,'1 題',ui.$('message').textContent);
- ui=await page(s);assert.equal(ui.$('newUnitNumber').value,'7');assert.equal(ui.$('newUnitTitle').value,'動態規劃');assert.equal(ui.$('draftCount').textContent,'1 題');
+ ui=await page(s);assert.equal(ui.$('newUnitNumber').value,'8');assert.equal(ui.$('newUnitTitle').value,'動態規劃');assert.equal(ui.$('draftCount').textContent,'1 題');
  ui.$('consent').checked=true;ui.fire(ui.$('consent'),'change');ui.fire(ui.$('submitBatch'),'click');await new Promise(resolve=>setImmediate(resolve));
- const post=ui.requests.find(row=>row.opts?.method==='POST');assert(post,ui.$('message').textContent);const sent=JSON.parse(post.opts.body);assert.equal(sent.unit,'L7');assert.equal(sent.unitTitle,'動態規劃');
+ const post=ui.requests.find(row=>row.opts?.method==='POST');assert(post,ui.$('message').textContent);const sent=JSON.parse(post.opts.body);assert.equal(sent.unit,'L8');assert.equal(sent.unitTitle,'動態規劃');
 });
 
 test('separate HTML pickers produce a paired preview and switching modes preserves the manual editor',async()=>{

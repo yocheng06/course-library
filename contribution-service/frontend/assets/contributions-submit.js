@@ -1,6 +1,6 @@
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 const uniqueQuestions=(course,unit,questions,onDuplicate)=>uniqueQuestionsBase(course,unit,questions,onDuplicate,{allowConflictingVersions:true});
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=pending-review-20261030';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=unit-names-20261030';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -8,7 +8,7 @@ import {
   normalizeType,
   normalizeBatch as normalizeBatchBase,
   uniqueQuestions as uniqueQuestionsBase,
-} from "./contribution-model.js?v=pending-review-20261030";
+} from "./contribution-model.js?v=unit-names-20261030";
 import {
   esc,
   api,
@@ -19,7 +19,7 @@ import {
   showSimilar,
   downloadJSON,
   copyText,
-} from "./contributions-ui.js?v=pending-review-20261030";
+} from "./contributions-ui.js?v=unit-names-20261030";
 import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=community-direct-publish-20261028";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
@@ -457,7 +457,7 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
   const action = form.getAttribute("action") || "",
     courseCode = action.match(/\/course\/([a-z0-9_-]+)\/process_practice\.php/i)?.[1];
   if (!courseCode) throw new Error("找到測驗表單，但無法辨識課程代碼；請下載題庫 JSON 匯入。");
-  const course = /^OS/i.test(courseCode) ? "os" : null;
+  const course = /^OS/i.test(courseCode) ? "os" : /^Alg(?:\d[A-Za-z0-9_-]*)?$/i.test(courseCode) ? "algorithms" : null;
   if (!course) throw new Error(`目前無法辨識課程「${courseCode}」；請先選擇網站科目並使用題庫 JSON 匯入。`);
   const realmId = /realm_id=(\d+)/i.exec(raw)?.[1],
     title = doc.title.replace(/\s+/g, " ").trim() || name.replace(/\.(?:html?)$/i, "");
@@ -465,7 +465,7 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
   try {
     unit = realmId ? normalizeUnit(course, realmId) : normalizeUnit(course, $("unit").value);
   } catch {
-    throw new Error("已辨識作業系統練習頁，但無法判斷單元；請確認頁面網址有 realm_id，或先選擇正確單元。" );
+    throw new Error("已辨識課程練習頁，但無法判斷單元；請確認頁面網址有 realm_id，或先選擇正確單元。" );
   }
   const category = COURSE_UNITS[course].units[unit]?.replace(/^.*?·\s*/, "") || "HTML 匯入";
   const hidden = (node) => {
@@ -583,7 +583,16 @@ function parseCoursePracticeResultsHtml(doc) {
     for (const paragraph of block.querySelectorAll("p")) {
       const text = staticHtmlText(paragraph).replace(/\r/g, "").trim();
       const question = text.match(/^題目\s*[：:]\s*([\s\S]*)$/u);
-      if (question) stem = clean(question[1]);
+      if (question) {
+        // HTML parsers close a paragraph before a pre/table block; retain its following stem content.
+        const parts = [question[1]];
+        for (let sibling = paragraph.nextSibling; sibling; sibling = sibling.nextSibling) {
+          const content = staticHtmlText(sibling);
+          if (/^(?:你的答案|正確答案|得分)\s*[：:]/u.test(content.trim())) break;
+          parts.push(content);
+        }
+        stem = clean(parts.join(" "));
+      }
       const answer = text.match(/^正確答案\s*[：:]\s*([\s\S]*)$/u);
       if (answer)
         correctLines = answer[1]
@@ -625,7 +634,7 @@ function combineCoursePracticeHtml(questionImport, resultImport) {
     if (matches.length !== 1 || used.has(matches[0])) continue;
     const index = matches[0],
       question = questionImport.questions[index];
-    let answer = result.correctLines.join("\n");
+    let answer = result.correctLines.join(",");
     if (question.options.length) {
       const choiceKeys = result.correctLines.map((line) =>
         globalThis.courseChoiceAnswers.expectedChoiceKey(line, question.options),
