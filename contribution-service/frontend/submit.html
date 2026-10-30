@@ -90,14 +90,14 @@
         </label>
         <div id="importWorkspace">
           <h3>題目與答案分成兩份 HTML</h3>
-          <p class="muted">依序選取檔案，再產生預覽。解析可以留白，核對後才會送出。</p>
+          <p class="muted">支援一般練習與挖寶挑戰題組。依序選取檔案，再產生預覽；共用題幹與題圖會保留，解析可以留白。</p>
           <ol class="html-import-steps">
             <li><strong>題目 HTML</strong><button class="button secondary" id="chooseQuestionHtml" type="button">選取題目檔</button><input id="questionHtmlFile" type="file" accept=".html,.htm,text/html" hidden><span id="questionHtmlName">尚未選取</span></li>
             <li><strong>答案 HTML</strong><button class="button secondary" id="chooseAnswerHtml" type="button">選取交卷結果檔</button><input id="answerHtmlFile" type="file" accept=".html,.htm,text/html" hidden><span id="answerHtmlName">尚未選取</span></li>
             <li><strong>題圖（有圖片時）</strong><button class="text-button" id="chooseImportImages" type="button">選取 HTML 題圖資料夾</button><input
               type="file" id="importImages" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
-              webkitdirectory directory multiple hidden>
-              <span id="importImageStatus" class="muted" role="status" aria-live="polite">沒有本機題圖可略過；有圖片時選取題目 HTML 同名的「_files」資料夾。</span></li>
+              webkitdirectory directory multiple hidden><button class="text-button" id="chooseImportImageFiles" type="button">選取題圖檔（可複選）</button><input type="file" id="importImageFiles" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" multiple hidden>
+              <span id="importImageStatus" class="muted" role="status" aria-live="polite">沒有本機題圖可略過；可選取「_files」資料夾，或直接複選這份題目的 PNG／JPEG／WebP 圖片。</span></li>
             <li><strong>核對結果</strong><button class="button" id="previewHtmlPair" type="button" disabled>產生題目與答案預覽</button><span id="htmlPairStatus" role="status" aria-live="polite">請先選取題目及交卷結果兩份 HTML。</span></li>
           </ol>
         <details class="import-other-formats"><summary>其他格式、單一題庫檔與備份</summary>
@@ -277,7 +277,7 @@
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/contributions-submit.js?v=treasure-unit-20261030"
+      src="assets/contributions-submit.js?v=challenge-html-20261030"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
   </body>

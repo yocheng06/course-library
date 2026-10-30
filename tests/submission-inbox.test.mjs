@@ -134,3 +134,11 @@ test('selecting treasure sends paired HTML questions to treasure instead of the 
  ui.fire(ui.$('previewHtmlPair'),'click');await new Promise(resolve=>setImmediate(resolve));await new Promise(resolve=>setImmediate(resolve));
  const draft=JSON.parse(store.getItem('course-library-grouped-submissions-v1'));assert.equal(draft.groups[0].payload.unit,'treasure');assert.equal(draft.groups[0].payload.questions[0].answer,'test');assert.match(ui.document.querySelector('.group-preview').textContent,/挖寶單元/);assert.equal(ui.requests.filter(r=>r.opts?.method==='POST').length,0);
 });
+
+test('challenge HTML and individually selected pictures create a complete treasure preview without posting',async()=>{
+ const store=storage(),ui=await page(store);const html='<html><body><form id="challenge-quiz-form" action="https://example.invalid/course/OS26B/process_challenge.php"><div class="question-block group-block"><div class="group-stem">共用條件<img src="./challenge_files/tiny.png"></div><div class="sub-question-block"><p class="question-text">1. 合成子題<input type="text" class="text-answer"></p></div></div></form></body></html>',result='<div class="question-result"><p>題目：合成子題[__1__]</p><p>正確答案：42</p></div>';
+ for(const [id,name,text] of [['questionHtmlFile','questions.html',html],['answerHtmlFile','answers.html',result]]){Object.defineProperty(ui.$(id),'files',{configurable:true,value:[{name,size:text.length,text:async()=>text}]});ui.fire(ui.$(id),'change');}
+ Object.defineProperty(ui.$('importImageFiles'),'files',{configurable:true,value:[{name:'tiny.png',type:'image/png',arrayBuffer:async()=>Uint8Array.from([137,80,78,71,13,10,26,10]).buffer}]});ui.fire(ui.$('importImageFiles'),'change');assert.match(ui.$('importImageStatus').textContent,/已選取 1 個/);
+ ui.fire(ui.$('previewHtmlPair'),'click');await new Promise(resolve=>setImmediate(resolve));await new Promise(resolve=>setImmediate(resolve));
+ const draft=JSON.parse(store.getItem('course-library-grouped-submissions-v1'));assert.equal(draft.groups[0].payload.unit,'treasure');const q=draft.groups[0].payload.questions[0];assert.equal(q.answer,'42');assert.match(q.stem,/共用條件/);assert.equal(q.images.length,1);assert.equal('__practiceAnswerStem'in q,false);assert.equal(ui.requests.filter(r=>r.opts?.method==='POST').length,0);
+});
