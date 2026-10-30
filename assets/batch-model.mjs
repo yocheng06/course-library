@@ -860,13 +860,15 @@ export function matchQuestion(question, index, { course, unit = "all", completeO
   }
   // A changed distractor can become another correct answer. Only a complete
   // option-set match (including verified aliases) may inherit a choice answer.
-  const reviewVersions=[...new Set([...sameStem,...exact])];
+  // Complete lookup compares answers only within the version actually supplied.
+  // A different distractor set or question format remains a separate version.
+  const reviewVersions=[...new Set(completeOnly ? exact : [...sameStem,...exact])];
   if(reviewVersions.some(entry=>entry.reviewGroup)){
     const answers=reviewVersions.map(entry=>remapAnswer(question,entry));
     if(reviewVersions.some(entry=>entry.needsImage)||question.options.length&&reviewVersions.some(entry=>!sameOptions(question,entry))||answers.some(answer=>!answer)||new Set(answers.map(answer=>answer?.signature)).size!==1||new Set(reviewVersions.map(entry=>JSON.stringify((entry.conditions||[]).map(normalizeText).sort()))).size!==1)
       return {status:'review',answer:'',reason:'此題有另行收錄的投稿版本，答案、選項、作答格式或成立條件仍有差異，請核對下方各版本答案。',references:references(reviewVersions.slice().sort((a,b)=>Number(b.reviewPending)-Number(a.reviewPending)).map(entry=>({...entry,showCandidateAnswer:true})))};
     exact=reviewVersions;
-    repeatedFillStem=true;
+    if (!question.options.length) repeatedFillStem=true;
   }
   if (!completeOnly && !repeatedFillStem && exact.some((e) => e.preferred)) exact = exact.filter((e) => e.preferred);
   if (exact.length) {
