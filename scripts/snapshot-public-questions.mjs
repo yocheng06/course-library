@@ -53,6 +53,10 @@ for (const snapshot of snapshots) {
       if (!html.includes('<script src="assets/course-bootstrap.js?')) throw new Error(`${filename}: missing bootstrap`);
       html = html.replace(/(?=<script src="assets\/course-bootstrap\.js\?)/, () => threadScript + '\n');
     }
+    const treasureCuration = JSON.parse(await readFile(new URL('assets/os-treasure-curation.json', root), 'utf8'));
+    const treasureScript = '<script id="course-os-treasure-curation" type="application/json">' + JSON.stringify(treasureCuration).replace(/</g, '\\u003c') + '</script>';
+    if (html.includes('id="course-os-treasure-curation"')) html = html.replace(/<script id="course-os-treasure-curation" type="application\/json">[\s\S]*?<\/script>/, () => treasureScript);
+    else html = html.replace(/(?=<script src="assets\/course-bootstrap\.js\?)/, () => treasureScript + '\n');
     const schedulingCuration = JSON.parse(await readFile(new URL('assets/os-scheduling-curation.json', root), 'utf8'));
     const schedulingScript = `<script id="course-os-scheduling-curation" type="application/json">${JSON.stringify(schedulingCuration).replace(/</g, '\\u003c')}</script>`;
     if (html.includes('id="course-os-scheduling-curation"')) html = html.replace(/<script id="course-os-scheduling-curation" type="application\/json">[\s\S]*?<\/script>/, () => schedulingScript);

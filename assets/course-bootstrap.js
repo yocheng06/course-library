@@ -30,6 +30,9 @@
     config.setUnitQuestionOrder?.('threads', threadCuration.order);
   if (config.course === 'os' && schedulingCuration?.unit === 'scheduling' && Array.isArray(schedulingCuration.order))
     config.setUnitQuestionOrder?.('scheduling', schedulingCuration.order);
+  let treasureCuration = null;
+  try { treasureCuration = JSON.parse(document.getElementById('course-os-treasure-curation')?.textContent || 'null'); } catch {}
+  if (config.course === 'os' && treasureCuration?.unit === 'treasure') config.setUnitQuestionOrder?.('treasure', treasureCuration.order);
   const markInteraction = () => { interacted = true; };
   for (const event of ['pointerdown', 'keydown', 'wheel', 'touchstart'])
     document.addEventListener(event, markInteraction, {once:true, passive:true});
@@ -93,12 +96,21 @@
       if (meta.clearSubmissionReview === true) delete question.submissionReview;
       return { ...row, question };
     });
-    const presentIds = new Set(curatedThreadRows.map(row=>row.question?.id));
+    const curatedTreasureRows = curatedThreadRows.map(row => {
+      const original = row?.question, meta = treasureCuration?.questions?.[original?.id];
+      if (row?.unit !== 'treasure' || !meta || sourceSignature(original) !== meta.sourceSignature) return row;
+      const question = { ...original };
+      if (!question.category || ['挖寶單元','HTML 匯入'].includes(question.category)) question.category = meta.category;
+      if (!String(question.explanation || '').trim()) question.explanation = meta.explanation;
+      if (meta.clearSubmissionReview) delete question.submissionReview;
+      return { ...row, question };
+    });
+    const presentIds = new Set(curatedTreasureRows.map(row=>row.question?.id));
     const aliasTargets = new Map((curation?.aliases || []).map(alias=>[alias.id,alias.target]));
     const aliases = new Set((curation?.aliases || []).filter(alias=>presentIds.has(alias.target)).map(alias=>alias.id));
     const ranks = new Map((curation?.order || []).map((id, index) => [id, index]));
     // Missing rows in a complete public response are hidden/merged, never fallbacks.
-    const sourceRows = curatedThreadRows;
+    const sourceRows = curatedTreasureRows;
     const l9 = [];
     sourceRows.forEach((row, inputIndex) => {
       if (row?.unit !== 'L9' || !row.question || aliases.has(row.question.id)) return;
