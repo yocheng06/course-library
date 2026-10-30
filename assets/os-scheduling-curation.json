@@ -313,5 +313,42 @@
     "os6-100",
     "os6-101"
   ],
-  "questions": {}
+  "questions": {
+    "community-4402f31c-8cad-4746-8071-585f8e8a29bd-1": {
+      "sourceSignature": "df294db6",
+      "explanation": "CPU 排程的核心目標是選出下一個可執行程序，讓 CPU 盡量保持忙碌並提高利用率，因此選 D。A 的程式碼複雜度是軟體設計考量；B 最大化 I/O 等待時間會讓 CPU 更常閒置；C 降低 CPU 利用率與排程目標相反。"
+    },
+    "community-541813b4-2729-4f23-875d-8dc488d5116e-1": {
+      "sourceSignature": "f882c7b1",
+      "explanation": "答案是 multilevel feedback queue（多層級回饋佇列）。它依程序的執行情形在不同優先權佇列間移動；等待較久的程序也能被提升，降低長期得不到 CPU 的機會。這是回饋佇列和通常固定程序所在佇列的多層級佇列的差別。"
+    },
+    "community-347bfabe-39d8-48b1-871e-e2da467131d4-1": {
+      "sourceSignature": "a192df7b",
+      "explanation": "答案是 C：aging（老化）。程序等待越久，系統逐步提高其優先權，避免低優先權程序一直被高優先權工作壓住。增加時間片只改變每次執行多久；把所有優先權設成相同會改變排程政策；改用 Round Robin 也不是優先權排程中的老化解法。"
+    },
+    "community-347bfabe-39d8-48b1-871e-e2da467131d4-2": {
+      "sourceSignature": "6a3e1642",
+      "explanation": "答案是 deadline（期限）。硬即時工作必須在期限前完成，錯過期限就代表系統未符合要求；它不只是盡快完成或拿到一段時間片。相較之下，軟即時系統通常容許偶發逾期，但品質會下降。"
+    },
+    "community-c57ffcbc-2e7b-48df-aa41-7ffc2512ffd0-1": {
+      "sourceSignature": "5636de2b",
+      "explanation": "依老師提供的答案選 D。多層級回饋佇列允許程序在不同佇列間移動，老化時可把等待過久的程序提升到較高優先權佇列。A 減少佇列數不會提升等待者；B 增加等待時間反而加重飢餓；C 固定時間片本身不會提高程序優先權。"
+    },
+    "community-24766c59-046f-455b-8338-93a62a5a2da1-2": {
+      "sourceSignature": "e23194b9",
+      "explanation": "依本題採用的 Windows 排程模型，A–D 都正確：系統依優先權安排執行緒，並以搶先方式讓較高優先權工作先取得 CPU；教材所述模型有 32 個優先權層級，也會在特定情況動態提升執行緒優先權以改善反應。四項分別描述佇列、搶先政策、優先權層級和動態提升，沒有需要排除的選項。"
+    },
+    "community-c915391b-9327-4547-857a-13576a2db148-1": {
+      "sourceSignature": "748a0c9e",
+      "explanation": "答案是 D。若每個程序下一段 CPU burst 的長度已知，SJF 先執行較短工作，能使給定工作集合的平均等待時間最小。A 預測 burst 長度是實作時要處理的資訊，不是 SJF 保證的優點；B SJF 不保證即時期限；C 也不容易直接實作，因為未來 burst 長度通常要估計。"
+    },
+    "community-c915391b-9327-4547-857a-13576a2db148-2": {
+      "sourceSignature": "f25acb76",
+      "explanation": "答案是 B：同一最高優先權層級的執行緒以 Round Robin 輪流使用 CPU。搶先排程描述較高優先權工作如何中斷較低優先權工作，並未說明同優先權者如何輪替；依建立時間先後或隨機選取也不是題目採用的同級服務方式。"
+    },
+    "community-c8fd251c-2f96-418c-b6ec-ce209abb0975-1": {
+      "sourceSignature": "e7adcdce",
+      "explanation": "依老師提供的答案選 A、B、C。C 是用過去 CPU burst 做指數平均；A 是它的特例，當 α=1 時公式只保留最近一次 burst。B 代表由使用者提供對下一段工作的估計，屬外部估計方式。D 固定使用同一常數，沒有根據工作或歷史資料估算長度，因此不屬於本題列出的估計方法。"
+    }
+  }
 }

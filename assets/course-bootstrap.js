@@ -96,7 +96,15 @@
       if (meta.clearSubmissionReview === true) delete question.submissionReview;
       return { ...row, question };
     });
-    const curatedTreasureRows = curatedThreadRows.map(row => {
+    const curatedSchedulingRows = curatedThreadRows.map(row => {
+      const original = row?.question, meta = schedulingCuration?.questions?.[original?.id];
+      if (row?.unit !== 'scheduling' || !meta || sourceSignature(original) !== meta.sourceSignature) return row;
+      const question = { ...original };
+      if (!String(original.explanation || '').trim() && String(meta.explanation || '').trim()) question.explanation = meta.explanation;
+      if (meta.clearSubmissionReview === true) delete question.submissionReview;
+      return { ...row, question };
+    });
+    const curatedTreasureRows = curatedSchedulingRows.map(row => {
       const original = row?.question, meta = treasureCuration?.questions?.[original?.id];
       if (row?.unit !== 'treasure' || !meta || sourceSignature(original) !== meta.sourceSignature) return row;
       const question = { ...original };
