@@ -614,12 +614,20 @@ function withoutFillBlanks(value) {
     ),
   );
 }
+function fillAnswerParts(answer, count) {
+  if (typeof answer !== "string" || !answer.trim()) return null;
+  if (count <= 1) return [answer.trim()];
+  const text = normalizeUnicode(answer).trim();
+  // Slash-separated slots can themselves contain comma-separated arrays.
+  // Never split ordinary spaces inside compound terms such as high availability.
+  for (const separator of [/\s*\/\s*/, /\s*[\r\n]+\s*/, /\s*[、，,;；]\s*/]) {
+    const parts = text.split(separator).map(part => part.trim());
+    if (parts.length === count && parts.every(Boolean)) return parts;
+  }
+  return null;
+}
 function answerFitsBlankCount(answer, count) {
-  if (typeof answer !== "string" || !answer.trim()) return false;
-  if (count <= 1) return true;
-  return answer
-    .split(answer.includes("/") ? /\s*\/\s*/ : /\s*[、，,;；]\s*/)
-    .filter(Boolean).length === count;
+  return fillAnswerParts(answer,count) !== null;
 }
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function filledBlankValues(questionStem, entryStem) {
@@ -699,7 +707,10 @@ function remapAnswer(question, entry) {
         (/不可用lg/.test(hint) && /\blg/.test(entry.answer)))
     )
       return null;
-    return { answer: entry.answer, signature: normalizeText(entry.answer) };
+    const count = fillBlankCount(question.stem);
+    const parts = count > 1 ? fillAnswerParts(entry.answer,count) : null;
+    if (count > 1 && !parts) return null;
+    return { answer: entry.answer, signature: parts ? JSON.stringify(parts.map(normalizeText)) : normalizeText(entry.answer) };
   }
   const key = entry.options.length &&
     (entry.choiceKey || choiceAnswerKey(entry.answer, entry.options));
