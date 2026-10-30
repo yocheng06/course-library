@@ -1,0 +1,496 @@
+{
+  "schema": 1,
+  "unit": "basics",
+  "unitTitle": "作業系統第二單元",
+  "topics": [
+    {
+      "name": "作業系統定義與目標",
+      "ids": [
+        "basics-1",
+        "basics-2",
+        "community-0193fc99-46c4-43ba-9be0-88c92d11d376-2",
+        "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-4",
+        "basics-3",
+        "basics-42",
+        "community-a353a3c9-59a1-4dc4-8cc3-c70d12a6738a-2"
+      ]
+    },
+    {
+      "name": "系統組成與硬體資源",
+      "ids": [
+        "basics-6",
+        "basics-4",
+        "basics-5",
+        "basics-55"
+      ]
+    },
+    {
+      "name": "開機",
+      "ids": [
+        "basics-7",
+        "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-7"
+      ]
+    },
+    {
+      "name": "中斷",
+      "ids": [
+        "basics-8",
+        "basics-9",
+        "basics-44",
+        "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-6",
+        "basics-48",
+        "basics-52"
+      ]
+    },
+    {
+      "name": "儲存與快取",
+      "ids": [
+        "basics-12",
+        "basics-60",
+        "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-6",
+        "basics-10",
+        "basics-11",
+        "basics-14",
+        "basics-15",
+        "basics-53",
+        "community-2215fba3-0142-4ff9-87fd-e7434b627f12-4",
+        "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-3",
+        "basics-13",
+        "community-0193fc99-46c4-43ba-9be0-88c92d11d376-1",
+        "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-5",
+        "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-1",
+        "basics-59",
+        "community-2215fba3-0142-4ff9-87fd-e7434b627f12-7"
+      ]
+    },
+    {
+      "name": "I/O 與裝置",
+      "ids": [
+        "basics-17",
+        "basics-18",
+        "basics-16",
+        "community-2215fba3-0142-4ff9-87fd-e7434b627f12-5",
+        "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-8"
+      ]
+    },
+    {
+      "name": "多處理器",
+      "ids": [
+        "basics-19",
+        "basics-20",
+        "basics-54",
+        "basics-63",
+        "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-1"
+      ]
+    },
+    {
+      "name": "叢集系統",
+      "ids": [
+        "basics-21",
+        "basics-56",
+        "basics-57",
+        "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-5"
+      ]
+    },
+    {
+      "name": "多程式與分時",
+      "ids": [
+        "basics-22",
+        "basics-23"
+      ]
+    },
+    {
+      "name": "程序",
+      "ids": [
+        "basics-24",
+        "basics-25",
+        "basics-50",
+        "basics-64",
+        "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-4",
+        "community-2215fba3-0142-4ff9-87fd-e7434b627f12-2",
+        "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-9"
+      ]
+    },
+    {
+      "name": "記憶體",
+      "ids": [
+        "basics-26",
+        "basics-27",
+        "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-3"
+      ]
+    },
+    {
+      "name": "保護與安全",
+      "ids": [
+        "community-2215fba3-0142-4ff9-87fd-e7434b627f12-1",
+        "basics-28",
+        "basics-49",
+        "community-2215fba3-0142-4ff9-87fd-e7434b627f12-6",
+        "basics-29",
+        "basics-30",
+        "basics-47",
+        "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-3",
+        "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-10",
+        "community-2215fba3-0142-4ff9-87fd-e7434b627f12-3"
+      ]
+    },
+    {
+      "name": "核心資料結構",
+      "ids": [
+        "basics-32",
+        "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-2",
+        "basics-46",
+        "community-a241a5bb-8b24-4bae-af12-2d896244a7bc-1",
+        "basics-31",
+        "basics-62",
+        "basics-33",
+        "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-7"
+      ]
+    },
+    {
+      "name": "分散式系統與 P2P",
+      "ids": [
+        "basics-35",
+        "basics-34"
+      ]
+    },
+    {
+      "name": "虛擬化",
+      "ids": [
+        "basics-37",
+        "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-2",
+        "basics-36",
+        "community-a353a3c9-59a1-4dc4-8cc3-c70d12a6738a-1",
+        "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-2"
+      ]
+    },
+    {
+      "name": "雲端服務",
+      "ids": [
+        "basics-39",
+        "basics-38",
+        "basics-61",
+        "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-8",
+        "basics-51",
+        "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-1"
+      ]
+    },
+    {
+      "name": "即時系統",
+      "ids": [
+        "basics-40",
+        "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-9"
+      ]
+    },
+    {
+      "name": "開放原始碼",
+      "ids": [
+        "basics-41"
+      ]
+    }
+  ],
+  "order": [
+    "basics-1",
+    "basics-2",
+    "community-0193fc99-46c4-43ba-9be0-88c92d11d376-2",
+    "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-4",
+    "basics-3",
+    "basics-42",
+    "community-a353a3c9-59a1-4dc4-8cc3-c70d12a6738a-2",
+    "basics-6",
+    "basics-4",
+    "basics-5",
+    "basics-55",
+    "basics-7",
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-7",
+    "basics-8",
+    "basics-9",
+    "basics-44",
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-6",
+    "basics-48",
+    "basics-52",
+    "basics-12",
+    "basics-60",
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-6",
+    "basics-10",
+    "basics-11",
+    "basics-14",
+    "basics-15",
+    "basics-53",
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-4",
+    "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-3",
+    "basics-13",
+    "community-0193fc99-46c4-43ba-9be0-88c92d11d376-1",
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-5",
+    "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-1",
+    "basics-59",
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-7",
+    "basics-17",
+    "basics-18",
+    "basics-16",
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-5",
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-8",
+    "basics-19",
+    "basics-20",
+    "basics-54",
+    "basics-63",
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-1",
+    "basics-21",
+    "basics-56",
+    "basics-57",
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-5",
+    "basics-22",
+    "basics-23",
+    "basics-24",
+    "basics-25",
+    "basics-50",
+    "basics-64",
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-4",
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-2",
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-9",
+    "basics-26",
+    "basics-27",
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-3",
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-1",
+    "basics-28",
+    "basics-49",
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-6",
+    "basics-29",
+    "basics-30",
+    "basics-47",
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-3",
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-10",
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-3",
+    "basics-32",
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-2",
+    "basics-46",
+    "community-a241a5bb-8b24-4bae-af12-2d896244a7bc-1",
+    "basics-31",
+    "basics-62",
+    "basics-33",
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-7",
+    "basics-35",
+    "basics-34",
+    "basics-37",
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-2",
+    "basics-36",
+    "community-a353a3c9-59a1-4dc4-8cc3-c70d12a6738a-1",
+    "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-2",
+    "basics-39",
+    "basics-38",
+    "basics-61",
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-8",
+    "basics-51",
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-1",
+    "basics-40",
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-9",
+    "basics-41"
+  ],
+  "questions": {
+    "community-0193fc99-46c4-43ba-9be0-88c92d11d376-1": {
+      "sourceSignature": "e0a7292d",
+      "category": "儲存與快取",
+      "explanation": "答案是 caching（快取）。作業系統把常用資料的副本放到較快的儲存層，讀取時若命中就能少等慢速裝置；若問的是「複製資料到較快儲存」這個機制，名稱就是 caching。它不是永久搬移資料，也不代表每次讀取都一定命中。",
+      "clearSubmissionReview": true
+    },
+    "community-0193fc99-46c4-43ba-9be0-88c92d11d376-2": {
+      "sourceSignature": "2b02c1e8",
+      "category": "作業系統定義與目標",
+      "explanation": "答案是 Kernel（核心）。核心是作業系統中持續管理處理器、記憶體和裝置的核心部分。Driver 是控制特定裝置的程式，Application 是完成使用者工作的應用程式，Shell 是接受命令並呼叫系統服務的介面；它們都不等於一直負責整體資源管理的核心。",
+      "clearSubmissionReview": true
+    },
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-1": {
+      "sourceSignature": "5c69bb6b",
+      "category": "保護與安全",
+      "explanation": "答案是「控制對系統資源的存取」。Protection（保護）會判斷哪個使用者或程序可以讀、寫或執行某項資源。建立檔案是檔案系統操作；管理網路流量屬網路或 I/O 工作；防禦外部攻擊較接近 security（安全性）。保護重點是存取權限，不是直接執行這些工作。",
+      "clearSubmissionReview": true
+    },
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-2": {
+      "sourceSignature": "9205b40e",
+      "category": "程序",
+      "explanation": "答案是 process（程序）。作業系統用程序表示一個正在執行的程式，並記錄它的執行狀態、記憶體和資源。程式檔是尚未執行的指令內容；程序則是這份程式開始執行後的活動實例，所以不能用 file、program 或 thread 取代題目指定的 process。",
+      "clearSubmissionReview": true
+    },
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-3": {
+      "sourceSignature": "707d3c9f",
+      "category": "保護與安全",
+      "explanation": "答案是 kernel mode（核心模式）。CPU 在 user mode 執行一般應用程式，在 kernel mode 執行核心程式與需要特權的操作。user mode 不能任意改動受保護的核心資料；若只回答 user mode，便是題目已給出的另一種模式。",
+      "clearSubmissionReview": true
+    },
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-4": {
+      "sourceSignature": "a98046fa",
+      "category": "儲存與快取",
+      "explanation": "答案為 B、C、D。Cache coherency 處理多份快取副本是否一致；cache size 決定能保留多少資料；replacement policy 決定空間不足時淘汰哪個項目。Interrupt handling 是處理中斷事件的工作，不是快取容量、替換或一致性管理問題。",
+      "clearSubmissionReview": true
+    },
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-5": {
+      "sourceSignature": "c49ae1f9",
+      "category": "I/O 與裝置",
+      "explanation": "答案是 DMA（Direct Memory Access，直接記憶體存取）。DMA 控制器可在裝置與記憶體之間搬運資料，CPU 不必逐筆複製；CPU 仍需設定傳輸並處理完成通知。Interrupt 是通知 CPU 有事件，cache 是暫存常用資料，兩者都不是這種資料搬運方式。",
+      "clearSubmissionReview": true
+    },
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-6": {
+      "sourceSignature": "ce9e301a",
+      "category": "保護與安全",
+      "explanation": "答案是 B：Dual-mode operation（雙模式操作），用 user mode 與 kernel mode 區分一般程式和核心操作。A Virtualization 用來抽象硬體並執行虛擬機；C Clustering 是多台節點協作；D Multiprocessing 是使用多個處理器。原匯入選項 B 的文字與「Clustering」黏在一起，解析依答案 B 中的 Dual-mode operation 判讀，選項格式仍需修正。",
+      "clearSubmissionReview": true,
+      "note": "原匯入選項 B 的文字與「Clustering」黏在一起；解析依答案 B 中的 Dual-mode operation 判讀，請保留原始題目並核對選項格式。"
+    },
+    "community-2215fba3-0142-4ff9-87fd-e7434b627f12-7": {
+      "sourceSignature": "6f153ec3",
+      "category": "儲存與快取",
+      "explanation": "答案是 cache coherency（快取一致性）。多顆 CPU 可能各有同一記憶體位置的副本；一顆 CPU 寫入後，一致性機制會更新或使其他舊副本失效，避免讀到過期值。Replacement policy 是選擇淘汰哪筆快取資料，並不負責讓副本內容一致。",
+      "clearSubmissionReview": true
+    },
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-1": {
+      "sourceSignature": "7ba90467",
+      "category": "多處理器",
+      "explanation": "答案為 asymmetric and symmetric（非對稱式與對稱式多處理）。非對稱式會為處理器分配不同角色；對稱式則讓處理器地位較平等、共同執行系統和使用者工作。這兩個名稱描述處理器如何分工，不能只填其中一種。",
+      "clearSubmissionReview": true
+    },
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-10": {
+      "sourceSignature": "cd83e59d",
+      "category": "保護與安全",
+      "explanation": "答案是 kernel（核心）。CPU 的兩種模式是 user mode 與 kernel mode；kernel mode 允許執行受保護的作業系統操作。答案不能填 user，因為題目已提供 user mode；也不是 shell 或 application，那些是軟體種類而非 CPU 模式。",
+      "clearSubmissionReview": true
+    },
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-2": {
+      "sourceSignature": "e17979ff",
+      "category": "核心資料結構",
+      "explanation": "答案是 O(lgn)，也就是 O(log n)。平衡二元搜尋樹的高度隨節點數約以 log₂n 增長；每往下一層就依比較結果排除一側，最多走樹高那麼多層。O(1) 不適用於任意鍵值搜尋；O(n²) 不是平衡樹查找的高度；O(n) 是樹嚴重歪斜時可能出現的最壞情況。",
+      "clearSubmissionReview": true
+    },
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-3": {
+      "sourceSignature": "af6185bd",
+      "category": "保護與安全",
+      "explanation": "答案是 group id（群組識別碼）。User ID 辨認單一使用者，Group ID 辨認一組使用者；系統可把檔案或資源權限授予群組，讓成員共用規則。Process ID 識別程序，Kernel ID 不是此題管理群組權限的標準答案。",
+      "clearSubmissionReview": true
+    },
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-4": {
+      "sourceSignature": "e6f50603",
+      "category": "程序",
+      "explanation": "答案為 A、C。Creating/deleting processes 建立或結束程序；deadlock handling 處理程序互相等待資源的死結，兩者都列在程序管理責任中。Disk formatting 是大量儲存裝置管理；memory management 管理記憶體配置，屬另一項作業系統功能。",
+      "clearSubmissionReview": true
+    },
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-5": {
+      "sourceSignature": "66c1ce22",
+      "category": "叢集系統",
+      "explanation": "答案是 high availability（高可用性）。叢集在節點故障時可由其他節點接手或恢復服務，目標是減少服務中斷。它不代表永不故障，也不等於每次工作都更快；題目問的是故障後仍能提供服務的能力。",
+      "clearSubmissionReview": true
+    },
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-6": {
+      "sourceSignature": "693d5d8b",
+      "category": "儲存與快取",
+      "explanation": "答案是 B：Registers（暫存器）。暫存器位於處理器內，供目前指令立即使用，存取通常比其他選項快。Cache 是下一層的高速副本，主記憶體容量較大但較慢，硬碟則是長期儲存裝置，延遲更高。",
+      "clearSubmissionReview": true
+    },
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-7": {
+      "sourceSignature": "b6cff76d",
+      "category": "核心資料結構",
+      "explanation": "答案是 O(lgn)，即 O(log n)。平衡搜尋樹的高度約為 log₂n，搜尋每一層只走一條分支，因此走訪成本與高度成正比。O(n²) 是較高次方的排序量級，非樹高；O(n) 對應可能退化成鏈狀的樹；O(1) 則不可能保證任意鍵值只看固定一個節點。",
+      "clearSubmissionReview": true
+    },
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-8": {
+      "sourceSignature": "c27f0b69",
+      "category": "雲端服務",
+      "explanation": "答案為 B、C、D：IaaS、SaaS、FaaS。IaaS 提供運算、儲存、網路等基礎設施；SaaS 直接提供可使用的應用程式；FaaS 讓程式以函式方式由事件觸發執行。A Hardware as a Service 不是本題採用的服務模型名稱。雲端分類有不同範圍，FaaS 屬擴展的無伺服器服務分類，不是 NIST 三大模型之一。",
+      "clearSubmissionReview": true
+    },
+    "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-9": {
+      "sourceSignature": "1ad51a0e",
+      "category": "程序",
+      "explanation": "答案是 process（程序）：程序是正在執行中的程式實例，帶有自己的執行狀態與資源。A program 是磁碟上的指令內容，尚未執行時仍是被動檔案；題目問作業系統為執行程式所建立的活動結構，因此填 process。",
+      "clearSubmissionReview": true
+    },
+    "community-a241a5bb-8b24-4bae-af12-2d896244a7bc-1": {
+      "sourceSignature": "96277db7",
+      "category": "核心資料結構",
+      "explanation": "答案是 Circular linked list（循環鏈結串列）。它把最後一個節點接回第一個節點，因此走完一輪後可繼續從起點輪流處理資源。Binary search tree 依鍵值搜尋；Doubly linked list 可以前後移動但不必形成循環；一般 singly linked list 會在尾端結束。",
+      "clearSubmissionReview": true
+    },
+    "community-a353a3c9-59a1-4dc4-8cc3-c70d12a6738a-1": {
+      "sourceSignature": "baf1df6c",
+      "category": "虛擬化",
+      "explanation": "答案是 VMM（Virtual Machine Monitor，虛擬機監視器，也稱 Hypervisor）。它負責建立與管理虛擬機，讓多個客體作業系統共享實體資源並維持隔離。不是 VM 本身，也不是一般裝置驅動或應用程式；VMM 管的是虛擬機執行環境。",
+      "clearSubmissionReview": true
+    },
+    "community-a353a3c9-59a1-4dc4-8cc3-c70d12a6738a-2": {
+      "sourceSignature": "432f16ec",
+      "category": "作業系統定義與目標",
+      "explanation": "答案為 A、B、C、D。作業系統要執行使用者程式、協助解決使用者需求、讓電腦方便使用，也要有效利用硬體。四項分別描述服務使用者、便利性和資源管理目標，因此本題沒有需要排除的選項。",
+      "clearSubmissionReview": true
+    },
+    "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-1": {
+      "sourceSignature": "7f430ae6",
+      "category": "儲存與快取",
+      "explanation": "答案是 file system（檔案系統）。檔案系統用目錄、檔案名稱與配置資訊，管理檔案在二級儲存體上的位置與存取方式。Device driver 負責與特定裝置溝通；process 是執行中的工作；cache 是加速存取的副本，均不能取代檔案與儲存位置的組織機制。",
+      "clearSubmissionReview": true
+    },
+    "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-2": {
+      "sourceSignature": "9c364a3e",
+      "category": "虛擬化",
+      "explanation": "答案是 VMM（虛擬機監視器）。VMM 提供虛擬 CPU、記憶體及裝置等抽象，並管理虛擬機對硬體的使用。VM 指被管理的虛擬機，Kernel 是一般作業系統核心，BIOS/韌體負責開機初始化；三者角色不同。",
+      "clearSubmissionReview": true
+    },
+    "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-3": {
+      "sourceSignature": "ed734f35",
+      "category": "儲存與快取",
+      "explanation": "答案為 A、B、C、D。儲存階層會比較容量、成本、易失性與速度：暫存器與快取小而快、每位元成本高；主記憶體較大但通常斷電失去資料；磁碟容量大且非揮發。四項都是比較不同儲存層時的重要特性。",
+      "clearSubmissionReview": true
+    },
+    "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-4": {
+      "sourceSignature": "b2f10b54",
+      "category": "作業系統定義與目標",
+      "explanation": "答案為 B：Kernel。核心是電腦開機後持續管理系統資源的作業系統核心部分。Shell 只在需要時接收命令；Driver 服務特定裝置；Application 是使用者啟動的工作，不會取代一直管理系統的核心。",
+      "clearSubmissionReview": true
+    },
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-1": {
+      "sourceSignature": "029ec427",
+      "category": "雲端服務",
+      "explanation": "答案是 iaas（Infrastructure as a Service）。IaaS 按需求提供虛擬伺服器、儲存與網路等基礎資源，使用者通常還要管理作業系統與應用程式。PaaS 提供部署應用的平台，SaaS 提供可直接使用的軟體；題幹描述的是基礎設施層。",
+      "clearSubmissionReview": true
+    },
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-2": {
+      "sourceSignature": "2e318ef1",
+      "category": "虛擬化",
+      "explanation": "答案是 A：VMM（Virtual Machine Monitor）。VMM 管理虛擬機並把實體 CPU、記憶體和裝置分配給客體。BIOS/UEFI 負責開機初始化；Kernel 是作業系統核心；OS 是整套作業系統，不是虛擬機管理程式的專稱。",
+      "clearSubmissionReview": true
+    },
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-3": {
+      "sourceSignature": "79a1a91c",
+      "category": "記憶體",
+      "explanation": "答案是 virtual memory（虛擬記憶體）。它讓程序使用虛擬位址空間，並可只把目前需要的部分載入主記憶體，因此程式不必整份同時常駐 RAM。它不是 cache，也不會讓磁碟變成與 RAM 同速；資料不在 RAM 時仍需載入而產生延遲。",
+      "clearSubmissionReview": true
+    },
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-5": {
+      "sourceSignature": "e85e7f39",
+      "category": "儲存與快取",
+      "explanation": "答案是 caching（快取）。將慢速儲存中的常用資料複製到較快的快取層，後續命中時可加快讀取。Cache 是存放副本的地方，caching 是這種複製與利用副本的機制；DMA 是裝置與記憶體傳輸方式，兩者不同。",
+      "clearSubmissionReview": true
+    },
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-6": {
+      "sourceSignature": "cf1b9045",
+      "category": "中斷",
+      "explanation": "答案為 A、B，依本題的來源分類，兩者是軟體引發的中斷／例外：A 是 trap/exception，B 是程式執行錯誤所觸發的例外。C 的網路請求與 D 的計時器到期由外部裝置或計時器通知 CPU，屬硬體中斷來源，因此在這組軟體來源選項中不選。C 原文「Networkr」有拼字錯誤，保留原文供核對。",
+      "clearSubmissionReview": true
+    },
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-7": {
+      "sourceSignature": "dfcb4d86",
+      "category": "開機",
+      "explanation": "答案是 bootstrap program（啟動程式）。電腦開機時，啟動程式先做必要初始化、找到並載入作業系統核心，再把控制權交給核心。Compiler、Assembler 和 Linker 分別負責編譯、組譯及連結程式，屬於建置流程，不負責開機載入核心。",
+      "clearSubmissionReview": true
+    },
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-8": {
+      "sourceSignature": "6a20ec91",
+      "category": "I/O 與裝置",
+      "explanation": "答案是 spooling。它先把輸入或輸出工作排進磁碟佇列，讓程式繼續執行，同時由較慢的裝置逐項處理，例如印表機列印佇列中的工作。它不是 CPU 排程本身，也不是把資料永久保存；重點是用佇列讓 I/O 與其他工作重疊。",
+      "clearSubmissionReview": true
+    },
+    "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-9": {
+      "sourceSignature": "4438c34b",
+      "category": "即時系統",
+      "explanation": "答案是 A：固定的時間限制（deadline）。即時系統除了要算出正確結果，也必須在期限內完成。圖形介面和多使用者不是即時性的定義；高效能也不保證每個工作都能準時完成，判斷重點是可預期的截止時間。",
+      "clearSubmissionReview": true
+    }
+  }
+}

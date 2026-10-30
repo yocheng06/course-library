@@ -24,6 +24,15 @@ for (const snapshot of snapshots) {
     if (!html.includes('<script src="assets/course-bootstrap.js?')) throw new Error(`${filename}: missing bootstrap`);
     html = html.replace(/(?=<script src="assets\/course-bootstrap\.js\?)/, () => script + '\n');
   }
+  if (snapshot.course === 'os') {
+    const curation = JSON.parse(await readFile(new URL('assets/os-basics-curation.json', root), 'utf8'));
+    const curationScript = `<script id="course-os-basics-curation" type="application/json">${JSON.stringify(curation).replace(/</g, '\\u003c')}</script>`;
+    if (html.includes('id="course-os-basics-curation"')) html = html.replace(/<script id="course-os-basics-curation" type="application\/json">[\s\S]*?<\/script>/, () => curationScript);
+    else {
+      if (!html.includes('<script src="assets/course-bootstrap.js?')) throw new Error(`${filename}: missing bootstrap`);
+      html = html.replace(/(?=<script src="assets\/course-bootstrap\.js\?)/, () => curationScript + '\n');
+    }
+  }
   await writeFile(new URL(`assets/course-snapshots/${snapshot.course}.json`, root), JSON.stringify(snapshot) + '\n');
   await writeFile(path, html);
   console.log(`${filename}: snapshot ${snapshot.data.questions.length} public questions, ${snapshot.data.overrides.length} built-in revisions`);

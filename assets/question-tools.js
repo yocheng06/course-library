@@ -278,7 +278,7 @@
     const id = entry => entry.id ?? entry.q.id;
     // A stable ID identifies a question, not a revision. Compare public content
     // too, replacing changed cards while leaving other responses/focus intact.
-    const versions = entries.map(entry => JSON.stringify([entry.q, entry.i, entry.unit?.id, entry.unit?.label]));
+    const versions = entries.map(entry => JSON.stringify([entry.q, entry.i, entry.unit?.id, entry.unit?.label, entry.displayNumber]));
     if (!preserveCards || entries.length !== cards.length || entries.some((entry,i) => id(entry) !== cards[i].dataset.id)) {
       list.innerHTML = entries.map(markup).join('');
     } else {

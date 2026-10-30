@@ -10,6 +10,10 @@
   let snapshot = null;
   try { snapshot = JSON.parse(document.getElementById('course-community-snapshot')?.textContent || 'null'); } catch {}
   const curation = snapshot?.course === config.course ? snapshot.curation : null;
+  let basicsCuration = null;
+  try { basicsCuration = JSON.parse(document.getElementById('course-os-basics-curation')?.textContent || 'null'); } catch {}
+  if (config.course === 'os' && basicsCuration?.unit === 'basics' && Array.isArray(basicsCuration.order))
+    config.setUnitQuestionOrder?.('basics', basicsCuration.order);
   const markInteraction = () => { interacted = true; };
   for (const event of ['pointerdown', 'keydown', 'wheel', 'touchstart'])
     document.addEventListener(event, markInteraction, {once:true, passive:true});
@@ -23,14 +27,26 @@
     for (let i = 0; i < text.length; i++) { hash ^= text.charCodeAt(i); hash = Math.imul(hash, 16777619); }
     return (hash >>> 0).toString(16).padStart(8, '0');
   }
-  function curateRows(rows, curation) {
+  function curateRows(rows, curation, basicsCuration) {
     if (!Array.isArray(rows)) return [];
-    const presentIds = new Set(rows.map(row=>row.question?.id));
+    const curatedBasicsRows = rows.map(row => {
+      if (row?.unit !== 'basics' || !row.question || basicsCuration?.unit !== 'basics') return row;
+      const original = row.question;
+      const meta = basicsCuration.questions?.[original.id];
+      if (!meta || sourceSignature(original) !== meta.sourceSignature) return row;
+      const question = { ...original };
+      if (meta.category && (!original.category || original.category === 'HTML 匯入' || original.category === '作業系統基礎')) question.category = meta.category;
+      if (!String(original.explanation || '').trim() && String(meta.explanation || '').trim()) question.explanation = meta.explanation;
+      if (!String(original.note || '').trim() && String(meta.note || '').trim()) question.note = meta.note;
+      if (meta.clearSubmissionReview === true) delete question.submissionReview;
+      return { ...row, question };
+    });
+    const presentIds = new Set(curatedBasicsRows.map(row=>row.question?.id));
     const aliasTargets = new Map((curation?.aliases || []).map(alias=>[alias.id,alias.target]));
     const aliases = new Set((curation?.aliases || []).filter(alias=>presentIds.has(alias.target)).map(alias=>alias.id));
     const ranks = new Map((curation?.order || []).map((id, index) => [id, index]));
     // Missing rows in a complete public response are hidden/merged, never fallbacks.
-    const sourceRows = rows;
+    const sourceRows = curatedBasicsRows;
     const l9 = [];
     sourceRows.forEach((row, inputIndex) => {
       if (row?.unit !== 'L9' || !row.question || aliases.has(row.question.id)) return;
@@ -128,7 +144,7 @@
     const presentIds = new Set(data.questions.map(row=>row.question.id || row.question.bookmarkId));
     const curatedAliases = (curation?.aliases || []).flatMap(alias=>presentIds.has(alias.target) ? [alias] : presentIds.has(alias.id) ? [{id:alias.target,target:alias.id}] : []);
     const aliases = [...data.aliases, ...curatedAliases];
-    merge(curateRows(data.questions, curation), aliases, data.overrides);
+    merge(curateRows(data.questions, curation, basicsCuration), aliases, data.overrides);
     source = name;
     document.documentElement.dataset.questionSource = name;
   }
