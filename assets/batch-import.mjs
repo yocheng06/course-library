@@ -1042,7 +1042,7 @@ function normalizeTranscript(raw, warnings) {
         "$1解析：",
       );
       return clean.replace(
-        /^(\s*(?:[-*+]\s*)?)([A-H])\s+[.)、:：]\s*/i,
+        /^(\s*(?:[-*+]\s*)?)([A-H])\s+(?:\.(?!\.)|[)、:：])\s*/i,
         "$1$2. ",
       );
     })

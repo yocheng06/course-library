@@ -3,7 +3,7 @@ import {
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=batch-match-normalize-20261029";
+} from "./batch-import.mjs?v=diagram-ellipsis-20261030";
 
 export function setupBatchImport({ document, onApply }) {
   const $ = (id) => document.getElementById(id);
