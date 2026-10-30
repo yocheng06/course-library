@@ -5,6 +5,7 @@ import {
   duplicateStemKey,
   normalizeType,
   COURSE_UNITS,
+  unitLabel,
 } from "./model.js";
 /* BUILD_DATA */
 const duplicateCatalogById = new Map();
@@ -1976,7 +1977,7 @@ async function route(request, env) {
     const units=new Map(Object.entries(COURSE_UNITS[course].units).map(([id,label])=>[id,{id,title:label.replace(/^L\d+ · /,'')} ]));
     for(const row of rows.results){
       if(units.has(row.unit) || !/^L[1-9]\d?$/.test(row.unit))continue;
-      const q=JSON.parse(row.data);units.set(row.unit,{id:row.unit,title:String(q.unitTitle || '第 '+row.unit.slice(1)+' 單元').slice(0,60)});
+      const q=JSON.parse(row.data);units.set(row.unit,{id:row.unit,title:unitLabel(course,row.unit,q.unitTitle).replace(/^L\d+ · /,'')});
     }
     return json({units:[...units.values()]});
   }

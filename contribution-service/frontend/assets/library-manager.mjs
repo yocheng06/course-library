@@ -1,5 +1,5 @@
-import {api, esc, downloadJSON, showSimilar} from './contributions-ui.js?v=integrated-management-20261029';
-import {COURSE_UNITS, TYPES, unitLabel} from './contribution-model.js?v=new-units-20261026';
+import {api, esc, downloadJSON, showSimilar} from './contributions-ui.js?v=treasure-unit-20261030';
+import {COURSE_UNITS, TYPES, unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
 
 const labels = {all:'全部題目',modified:'最近修改',deleted:'已移除',pending:'待核對'};
 const keyOf = row => row.key || `${row.source}:${row.course}:${row.id}`;

@@ -1,4 +1,4 @@
-import { normalizeType } from "./contribution-model.js?v=new-units-20261026";
+import { normalizeType } from "./contribution-model.js?v=treasure-unit-20261030";
 
 export const esc = (value) =>
   String(value ?? "").replace(
@@ -78,10 +78,14 @@ export function questionPreview(q, index) {
   return `<article class="draft-card"><div class="draft-meta">第 ${index + 1} 題 · ${esc(q.category)} · ${esc(normalizeType(q.type, q.images))}</div><h3>${esc(q.stem)}</h3>${q.images.map((src) => `<img src="${esc(src)}" alt="第 ${index + 1} 題的題圖" loading="lazy">`).join("")}${q.options.length ? '<ol type="A">' + q.options.map((option) => `<li>${esc(option)}</li>`).join("") + "</ol>" : ""}<p><strong>答案：</strong>${esc(q.answer)}</p>${q.explanation ? `<p><strong>解析：</strong>${esc(q.explanation)}</p>` : '<p class="muted">尚未提供解析，之後可直接補充。</p>'}`;
 }
 
-export function showSimilar(container, items) {
+export function showSimilar(container, items, { mode = "confirm" } = {}) {
   container.hidden = !items?.length;
   if (!items?.length) {
     container.replaceChildren();
+    return;
+  }
+  if (mode === "replacement") {
+    container.innerHTML = `<h3>本批尚未更新，以下題目需核對</h3><p>這些題目仍有多個候選或包含題圖，系統無法安全定位。本批在核對清單出現時尚未開始更新；先處理清單中的題目後再送出。</p><ul>${items.map((q) => `<li>第 ${Number(q.index)} 題：${esc(q.stem)}（${esc(q.reason)}；對照：${esc(q.reference)}）</li>`).join("")}</ul>`;
     return;
   }
   container.innerHTML = `<h3>請確認疑似重複題</h3><p>以下題目對到既有題目，但題型、填空數、選項或答案仍需核對。請確認是否需要保留此版本。</p><ul>${items.map((q) => `<li>第 ${Number(q.index)} 題：${esc(q.stem)}（${esc(q.reason)}；對照：${esc(q.reference)}）</li>`).join("")}</ul><label class="consent"><input type="checkbox" class="similar-consent">我已確認，這些題目仍需要保留。</label>`;

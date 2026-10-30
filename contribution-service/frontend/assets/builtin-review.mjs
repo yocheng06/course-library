@@ -3,11 +3,11 @@ import {
   esc,
   questionPreview,
   downloadJSON,
-} from "./contributions-ui.js?v=community-direct-publish-20261028";
+} from "./contributions-ui.js?v=treasure-unit-20261030";
 import {
   COURSE_UNITS,
   TYPES,
-} from "./contribution-model.js?v=new-units-20261026";
+} from "./contribution-model.js?v=treasure-unit-20261030";
 let panel,
   tab,
   allowed = false,

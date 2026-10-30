@@ -1,4 +1,4 @@
-import {unitLabel} from './contribution-model.js?v=unit-names-20261030';
+import {unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
 import {
   buildIndex,
   matchRecordedQuestions,
@@ -199,7 +199,7 @@ function rebuildLibraryIndex() {
 }
 async function getBaseLibrary() {
   if (baseLibrary) return baseLibrary;
-  if (!basePromise) basePromise = fetch("assets/batch-library.json?v=l9-blanks-restored-20261029", {signal:AbortSignal.timeout(12000)})
+  if (!basePromise) basePromise = fetch("assets/batch-library.json?v=treasure-unit-20261030", {signal:AbortSignal.timeout(12000)})
     .then(async response => {
       if (!response.ok) throw Error("library");
       const data = await response.json();

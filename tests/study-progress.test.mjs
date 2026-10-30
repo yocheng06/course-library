@@ -425,3 +425,10 @@ test('pending submitted answers mark only their own choices in study, toggle cle
   h.practice();card=h.document.querySelector('article[data-id="'+id+'"]');assert.equal(card.querySelectorAll('.submitted-answer').length,0);h.choose(card,[0,2]);h.check(card);assert.equal(card.querySelectorAll('.practice-correct').length,0);
  }
 });
+
+test('treasure is an empty inserted OS unit and imported questions support reading, practice and exam ranges',async()=>{
+ const h=await coursePage('os'),units=h.config.examUnits(),i=units.findIndex(u=>u.id==='treasure');assert.deepEqual(plain(units.slice(i-1,i+2).map(u=>u.id)),['scheduling','treasure','synchronization']);assert.equal(units[i].label,'挖寶單元');assert.equal(units.find(u=>u.id==='synchronization').number,7);
+ const button=[...h.document.querySelectorAll('[data-unit]')].find(el=>el.textContent.includes('挖寶單元'));assert.ok(button);h.fire(button,'click');assert.equal(h.config.list.querySelectorAll('article').length,0);
+ const id='community-88888888-8888-4888-8888-888888888888-1';h.config.mergeCommunityQuestions([{unit:'treasure',question:{id,stem:'挖寶測試題目？',options:['Alpha','Beta'],answer:'A',answerProvided:true,type:'單選題',category:'補充',explanation:'測試解析'}}]);
+ const card=h.document.querySelector('article[data-id="'+id+'"]');assert.ok(card);assert.equal(h.config.examEntries(['treasure']).length,1);h.practice();const practiceCard=h.document.querySelector('article[data-id="'+id+'"]');h.choose(practiceCard,[0]);h.check(practiceCard);assert.ok(practiceCard.querySelector('.practice-correct'));
+});

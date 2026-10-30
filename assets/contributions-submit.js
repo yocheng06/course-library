@@ -1,6 +1,6 @@
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 const uniqueQuestions=(course,unit,questions,onDuplicate)=>uniqueQuestionsBase(course,unit,questions,onDuplicate,{allowConflictingVersions:true});
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=unit-names-20261030';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=treasure-unit-20261030';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -8,7 +8,7 @@ import {
   normalizeType,
   normalizeBatch as normalizeBatchBase,
   uniqueQuestions as uniqueQuestionsBase,
-} from "./contribution-model.js?v=unit-names-20261030";
+} from "./contribution-model.js?v=treasure-unit-20261030";
 import {
   esc,
   api,
@@ -19,7 +19,7 @@ import {
   showSimilar,
   downloadJSON,
   copyText,
-} from "./contributions-ui.js?v=unit-names-20261030";
+} from "./contributions-ui.js?v=treasure-unit-20261030";
 import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=community-direct-publish-20261028";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),

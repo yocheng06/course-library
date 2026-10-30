@@ -2440,3 +2440,11 @@ test("one shared IP can repeatedly edit community questions beyond the old hourl
  assert.equal(env.sql.prepare("SELECT count(*) AS n FROM question_history WHERE question_id=?").get(id).n,26);
  assert.equal(env.sql.prepare("SELECT count(*) AS n FROM rate_windows").get().n,0);
 });
+
+test('treasure is available between scheduling and synchronization and accepts public submissions managed by the owner',async()=>{
+ const env=await setup(),catalog=await call(env,'/api/units?course=os'),ids=catalog.data.units.map(u=>u.id),i=ids.indexOf('treasure');assert.deepEqual(ids.slice(i-1,i+2),['scheduling','treasure','synchronization']);assert.equal(catalog.data.units[i].title,'挖寶單元');
+ const body={...payload(),unit:'treasure'};body.questions[0].stem='合成挖寶投稿測試：資源應如何處理？';
+ const posted=await call(env,'/api/submissions',{method:'POST',body});assert.equal(posted.response.status,201,JSON.stringify(posted.data));
+ const published=await call(env,'/api/questions?course=os');assert.ok(published.data.questions.some(q=>q.unit==='treasure'));
+ const managed=await call(env,'/api/manage/library?course=os&unit=treasure',{reviewer:true});assert.equal(managed.response.status,200);assert.equal(managed.data.total,1);assert.equal(managed.data.items[0].unit,'treasure');
+});

@@ -1,5 +1,5 @@
-import { COURSE_UNITS, TYPES, unitLabel, normalizeBatch } from './contribution-model.js?v=new-units-20261026';
-import { api as defaultApi, esc as defaultEsc, message as defaultMessage, questionPreview as defaultPreview, showSimilar, downloadJSON } from './contributions-ui.js?v=integrated-management-20261029';
+import { COURSE_UNITS, TYPES, unitLabel, normalizeBatch } from './contribution-model.js?v=treasure-unit-20261030';
+import { api as defaultApi, esc as defaultEsc, message as defaultMessage, questionPreview as defaultPreview, showSimilar, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
 
 const statusNames = { approved: '已公開匯入', pending: '舊版待審', rejected: '舊版已退回' };
 

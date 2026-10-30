@@ -1,4 +1,4 @@
-import { normalizeType } from "./contribution-model.js?v=new-units-20261026";
+import { normalizeType } from "./contribution-model.js?v=treasure-unit-20261030";
 
 export const esc = (value) =>
   String(value ?? "").replace(

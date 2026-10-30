@@ -1,5 +1,5 @@
-import {openBuiltinEditor} from './builtin-review.mjs?v=management-home-20261029';
-import {api,esc} from './contributions-ui.js?v=community-direct-publish-20261028';
+import {openBuiltinEditor} from './builtin-review.mjs?v=treasure-unit-20261030';
+import {api,esc} from './contributions-ui.js?v=treasure-unit-20261030';
 let panel,allowed=false,sequence=0,cursor=null;
 const entries=new Map();
 export function correctionsAccess(value) {

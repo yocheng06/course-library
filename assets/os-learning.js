@@ -10,6 +10,7 @@ const guides = {
   synchronization:'程序同步用來協調並行存取共享資料的順序。先掌握臨界區解法的互斥、進度與有限等待，再比較 Mutex、Semaphore、Monitor；生產者／消費者、讀者／寫者與哲學家進餐題要逐步追蹤資源計數及 wait／signal 的順序。',
   deadlocks:'死結表示程序彼此等待無法取得的資源或事件。先熟悉互斥、佔用與等待、不可搶佔及循環等待四個必要條件，再區分死結預防、避免、偵測與恢復；銀行家演算法用安全序列判斷是否能安全分配資源。',
   L9:'先用位址繫結理解程式位址如何映射，再連結記憶體保護、連續配置與碎片、分頁與 TLB、頁表及分段。遇到架構案例時，先確認題目指定的處理器世代。',
+  treasure:'將補充或練習題匯入這個單元，依題目、選項與答案核對，並保留自己的複習紀錄。',
   scheduling:'CPU 排程決定就緒佇列中誰先使用 CPU。先分清楚搶佔式與非搶佔式，再比較 FCFS、SJF、RR 與優先權排程；計算時注意到達時間、CPU burst、時間片，以及等待、周轉與回應時間的差別。'
 };
 let active = 0, page = 1, totalPages = 1, mode = 'study';
@@ -17,6 +18,7 @@ const pageSize = 20, drafts = new Map(), selections = new Map(), revealed = new 
 const practiceSequence = window.courseQuestionTools.createPracticeOrder();
 const kind = window.courseQuestionTools.questionType;
 const unitNumber = i => String(UNITS[i]?.number ?? i + 2).padStart(2, '0');
+const unitCaption = i => UNITS[i]?.id === 'treasure' ? '特別單元' : 'UNIT ' + unitNumber(i);
 const unitData = new Map([...document.querySelectorAll('script[data-course-unit]')].map(node => [node.dataset.courseUnit, node.textContent]));
 const courseManifest = JSON.parse(document.getElementById('course-manifest').textContent);
 const UNITS = courseManifest.map(unit => ({...unit, baseQuestionCount:unit.questionCount, questions: null}));
@@ -89,11 +91,11 @@ function matches() {
 function refreshUnitNavigation() {
   const i = active, u = UNITS[i];
   document.querySelectorAll(".community-course-link").forEach(link => { link.href = `submit.html?course=os&unit=${encodeURIComponent(u.id)}`; });
-  $('unitPicker').innerHTML = UNITS.map((v,j)=>({v,j})).sort((a,b)=>Number(unitNumber(a.j))-Number(unitNumber(b.j))).map(({v,j}) => `<option value="${j}">UNIT ${unitNumber(j)} · ${esc(v.label)} · ${v.questionCount} 題</option>`).join('');
+  $('unitPicker').innerHTML = UNITS.map((v,j)=>({v,j})).sort((a,b)=>Number(unitNumber(a.j))-Number(unitNumber(b.j))).map(({v,j}) => `<option value="${j}">${unitCaption(j)} · ${esc(v.label)} · ${v.questionCount} 題</option>`).join('');
   $('unitPicker').value = i;
   $('title').textContent=u.label; $('unitEn').textContent=u.en; $('description').textContent=u.desc; $('unitCount').textContent=u.questionCount;
   $('guideText').textContent = guides[u.id] || '先理解本單元的概念，再用題目練習，對照原答案與解析。';
-  $('units').innerHTML = UNITS.map((v,j)=>({v,j})).sort((a,b)=>Number(unitNumber(a.j))-Number(unitNumber(b.j))).map(({v,j}) => `<button class="course-nav ${j===i?'active':''}" data-unit="${j}" aria-pressed="${j===i}"><span class="course-copy"><span class="unit-number">UNIT ${unitNumber(j)}</span><span class="unit-row"><strong>${esc(v.label)}</strong><span class="unit-count">${v.questionCount} 題</span></span><small class="unit-en">${esc(v.en)}</small></span></button>`).join('');
+  $('units').innerHTML = UNITS.map((v,j)=>({v,j})).sort((a,b)=>Number(unitNumber(a.j))-Number(unitNumber(b.j))).map(({v,j}) => `<button class="course-nav ${j===i?'active':''}" data-unit="${j}" aria-pressed="${j===i}"><span class="course-copy"><span class="unit-number">${unitCaption(j)}</span><span class="unit-row"><strong>${esc(v.label)}</strong><span class="unit-count">${v.questionCount} 題</span></span><small class="unit-en">${esc(v.en)}</small></span></button>`).join('');
 }
 function switchUnit(i) {
   if (!Number.isInteger(i) || !UNITS[i]) return;
@@ -140,7 +142,7 @@ function cardMarkup({q, unit, unitIndex, i}) {
   const hasResponse=chosen.length>0||Boolean(drafts.get(q.id)?.trim());
   const buttonText=practice?'檢查答案':open?'收起答案':'查看答案與解析';
   const prompt = orderedBilingualText(q.stem, q.translation);
-  return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">UNIT ${unitNumber(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${window.courseQuestionTools.incompleteReasons(q).length?'<span class="badge gold">資料不完整</span>':''}${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(i+1).padStart(3,'0')}</span></div><h3 class="question" tabindex="-1">${highlighted(prompt.top)}</h3>${prompt.bottom?`<p class="translation" lang="${languageOf(prompt.bottom)}">${highlighted(prompt.bottom)}</p>`:''}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.incompleteMarkup(q)}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${entry}${practice?`<div class="practice-actions"><button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}">${buttonText}</button><button type="button" class="plain" data-clear-response="${q.id}" ${hasResponse?'':'disabled'}>清除作答</button><button type="button" class="plain" data-show-answer="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${open?'收起答案與解析':'顯示答案與解析'}</button></div>`:!$('showAnswers').checked?`<button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${buttonText}</button>`:''}${practice&&result?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
+  return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">${unitCaption(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${window.courseQuestionTools.incompleteReasons(q).length?'<span class="badge gold">資料不完整</span>':''}${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(i+1).padStart(3,'0')}</span></div><h3 class="question" tabindex="-1">${highlighted(prompt.top)}</h3>${prompt.bottom?`<p class="translation" lang="${languageOf(prompt.bottom)}">${highlighted(prompt.bottom)}</p>`:''}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.incompleteMarkup(q)}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${entry}${practice?`<div class="practice-actions"><button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}">${buttonText}</button><button type="button" class="plain" data-clear-response="${q.id}" ${hasResponse?'':'disabled'}>清除作答</button><button type="button" class="plain" data-show-answer="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${open?'收起答案與解析':'顯示答案與解析'}</button></div>`:!$('showAnswers').checked?`<button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${buttonText}</button>`:''}${practice&&result?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
 }
 function render(preserveCards = false) {
   const filtered=practiceSequence.apply(matches(),mode==='practice'&&$('practiceOrder').value==='random',entry=>entry.q.id), entries=scopedEntries(), pages=Math.max(1,Math.ceil(filtered.length/pageSize)); page=Math.min(page,pages); totalPages=pages;
@@ -352,7 +354,7 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
   return {added, openedLinkedQuestion:Boolean(linked)};
 }
 window.courseLearning={
-  examUnits:()=>UNITS.map((unit,index)=>({id:unit.id,label:`L${Number(unitNumber(index))} · ${unit.label}`,number:Number(unitNumber(index))})).sort((a,b)=>a.number-b.number),
+  examUnits:()=>UNITS.map((unit,index)=>({id:unit.id,label:unit.id==='treasure'?'挖寶單元':`L${Number(unitNumber(index))} · ${unit.label}`,number:Number(unitNumber(index))})).sort((a,b)=>a.number-b.number),
   examUnitId:()=>UNITS[active].id,
   examEntries:selection=>{
     const ids=Array.isArray(selection)?new Set(selection):null;

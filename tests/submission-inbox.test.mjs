@@ -126,3 +126,11 @@ test('separate HTML pickers produce a paired preview and switching modes preserv
  ui.fire(ui.$('showManualEntry'),'click');
  assert.equal(form.hidden,false);assert.equal(form.elements.stem.value,'保留手動編輯的原題 ___');
 });
+
+test('selecting treasure sends paired HTML questions to treasure instead of the original chapter',async()=>{
+ const store=storage(),ui=await page(store);ui.$('unit').value='treasure';ui.fire(ui.$('unit'),'change');
+ const html='<form id="practice-quiz-form" action="https://example.invalid/course/OS26B/process_practice.php?realm_id=6"><div class="question-block"><p class="question-text">Beast 1.</p><div class="question-text">合成挖寶題<input type="text" class="text-answer"></div></div></form>',result='<div class="question-result"><p>題目：合成挖寶題[__1__]</p><p>正確答案：test</p></div>';
+ for(const [id,name,text] of [['questionHtmlFile','questions.html',html],['answerHtmlFile','answers.html',result]]){Object.defineProperty(ui.$(id),'files',{configurable:true,value:[{name,size:text.length,text:async()=>text}]});ui.fire(ui.$(id),'change');}
+ ui.fire(ui.$('previewHtmlPair'),'click');await new Promise(resolve=>setImmediate(resolve));await new Promise(resolve=>setImmediate(resolve));
+ const draft=JSON.parse(store.getItem('course-library-grouped-submissions-v1'));assert.equal(draft.groups[0].payload.unit,'treasure');assert.equal(draft.groups[0].payload.questions[0].answer,'test');assert.match(ui.document.querySelector('.group-preview').textContent,/挖寶單元/);assert.equal(ui.requests.filter(r=>r.opts?.method==='POST').length,0);
+});

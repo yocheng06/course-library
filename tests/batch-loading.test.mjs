@@ -220,3 +220,9 @@ test('binary lookup counts, filters, copies and stages incomplete matches withou
  ui.fire('copyAnswers','click');await tick();assert.match(ui.copied[0],/2｜尚無可確認答案｜未收錄/);assert.doesNotMatch(ui.copied[0],/需確認|待核對/);
  ui.fire('transferUnmatched','click');const draft=JSON.parse(storage.get('course-library.submission-inbox.v1'));assert.equal(draft.items.length,2);assert.ok(draft.items.every(q=>q.answer===''));assert.equal(draft.items[0].optionsText,'短程排程器\n不同選項');
 });
+
+test('treasure is selectable before any import and its public questions are searchable in that scope',async()=>{
+ const local=structuredClone(base);local.courses.os.units.push({id:'treasure',name:'挖寶單元'});
+ const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>local}:response([{unit:'treasure',question:{id:'community-00000000-0000-4000-8000-000000000088-1',stem:'挖寶測試題目？',options:['Alpha','Beta'],answer:'A',answerProvided:true}}]));await tick();
+ assert.equal([...ui.$('unit').options].find(o=>o.value==='treasure').textContent,'挖寶單元');ui.$('unit').value='treasure';ui.fire('unit','change');ui.$('batchText').value='1. 挖寶測試題目？\nA. Alpha\nB. Beta';ui.fire('batchForm','submit');assert.match(ui.$('resultCount').textContent,/已收錄 1・未收錄 0/);assert.match(ui.$('resultRows').textContent,/A. Alpha/);
+});

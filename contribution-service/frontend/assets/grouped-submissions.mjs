@@ -1,16 +1,17 @@
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
-import {COURSE_UNITS,normalizeBatch as normalizeBatchBase,normalizeType,normalizeUnit,unitLabel} from './contribution-model.js?v=pending-review-20261030';
-import {api,esc,questionPreview,downloadJSON,showSimilar} from './contributions-ui.js?v=pending-review-20261030';
+import {COURSE_UNITS,normalizeBatch as normalizeBatchBase,normalizeType,normalizeUnit,unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
+import {api,esc,questionPreview,downloadJSON,showSimilar} from './contributions-ui.js?v=treasure-unit-20261030';
 
-export function groupImport(data, fallback, filename='匯入題庫', {allowMissingAnswers=false}={}) {
+export function groupImport(data, fallback, filename='匯入題庫', {allowMissingAnswers=false,targetUnit=null}={}) {
   const groups=new Map();let count=0;
   function visit(value, context) {
     if(Array.isArray(value)){value.forEach(item=>visit(item,context));return;}
     if(!value || typeof value!=='object')throw new Error('匯入資料必須是題目或單元清單。');
     const course=value.course ?? context.course;
     if(!COURSE_UNITS[course])throw new Error('科目不正確，請使用 os 或 algorithms。');
+    if(targetUnit && course!==fallback.course)throw new Error('匯入檔案的科目與所選單元不同，請先確認科目。');
     const nested=Array.isArray(value.questions) || Array.isArray(value.groups) || Array.isArray(value.units);
-    let unit=value.unit ?? (nested && value.id ? value.id : context.unit);
+    let unit=targetUnit ?? value.unit ?? (nested && value.id ? value.id : context.unit);
     if(!nested) {try{unit=normalizeUnit(course,unit);}catch{throw new Error(`找不到單元「${unit}」，請指定有效的單元編號，例如 L7。`);}}
     const next={course,unit,unitTitle:value.unitTitle ?? context.unitTitle,title:value.title || context.title,name:value.name ?? context.name,source:value.source ?? context.source};
     if(nested){visit(value.questions ?? value.groups ?? value.units,next);return;}
@@ -194,7 +195,9 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
         : await parseImport(contents,names,imageFiles);
       const restored=parsed?.version===1 && Array.isArray(parsed.groups) && parsed.groups.every(g=>g.payload && g.requestId);
       const htmlImport=parsed?.__htmlQuestionImport===true;
-      const groups=restored?parsed.groups.map(g=>({...g,payload:normalizeBatch(g.payload,{allowMissingAnswers:g.htmlImport===true})})):groupImport(parsed,metadata(),names.join(' + '),{allowMissingAnswers:htmlImport});
+      const importContext=metadata();
+      const targetUnit=importContext.course==='os' && importContext.unit==='treasure' ? 'treasure' : null;
+      const groups=restored?parsed.groups.map(g=>({...g,payload:normalizeBatch(g.payload,{allowMissingAnswers:g.htmlImport===true})})):groupImport(parsed,importContext,names.join(' + '),{allowMissingAnswers:htmlImport,targetUnit});
       if(parsed?.__answerImportSummary)groups.forEach(group=>{group.answerImportSummary=parsed.__answerImportSummary;});
       const next=groups.map(g=>({...g,requestId:g.requestId||crypto.randomUUID()}));
       if(queue.some(g=>!g.result))throw new Error('仍有未送出的分組草稿，請先完成或下載並清空分組預覽，再匯入新檔。');

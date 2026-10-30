@@ -1,6 +1,6 @@
-import { api, message, downloadJSON } from './contributions-ui.js?v=integrated-management-20261029';
-import { setupLibraryManager } from './library-manager.mjs?v=bulk-restore-20261030';
-import { setupImportRecords } from './import-records.mjs?v=integrated-management-20261029';
+import { api, message, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
+import { setupLibraryManager } from './library-manager.mjs?v=treasure-unit-20261030';
+import { setupImportRecords } from './import-records.mjs?v=treasure-unit-20261030';
 
 const $ = id => document.getElementById(id);
 const origin = window.courseContributions.apiOrigin;

@@ -78,7 +78,10 @@ async function listManagementLibrary(request, env, url) {
     !/^\d{1,6}$/.test(cursor) || unit.length > 30) throw new HttpError(400, '篩選條件不正確。');
   const catalog = await managementSummaries(env, course, q);
   const units = new Map(Object.entries(COURSE_UNITS[course].units).map(([id, label]) => [id, {id, title: label.replace(/^L\d+ · /, ''), label}]));
-  for (const row of catalog) if (!units.has(row.unit)) units.set(row.unit, {id:row.unit,title:row.unitTitle || row.unit,label:row.unit + ' · ' + (row.unitTitle || '新單元')});
+  for (const row of catalog) {
+    row.unitLabel = unitLabel(course,row.unit,row.unitTitle);
+    if (!units.has(row.unit)) units.set(row.unit, {id:row.unit,title:row.unitLabel.replace(/^L\d+ · /,''),label:row.unitLabel});
+  }
   const matching = catalog.filter((r) => (!unit || r.unit === unit) && (source === 'all' || r.source === source) && (!q || r._search.includes(q)));
   const counts = {all:matching.filter((r) => !r.deleted).length, modified:matching.filter((r) => r.hasHistory).length, deleted:matching.filter((r) => r.deleted).length, pending:matching.filter(r=>r.pendingReview&&!r.deleted).length};
   const rows = matching.filter((r) => state === 'pending' ? r.pendingReview&&!r.deleted : state === 'deleted' ? r.deleted : state === 'modified' ? r.hasHistory : !r.deleted);
