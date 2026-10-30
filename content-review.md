@@ -2,6 +2,15 @@
 
 目前規則：使用者已提供題庫答案的題目視為正常；下方待確認與暫停判分的記錄屬歷史檢視，不代表目前的題目狀態。
 
+## 2026-10-30：作業系統 L5 執行緒整理草稿
+
+- 依目前檢出的題庫快照整理 85 題：63 題內建題與 22 題投稿題。依 16 個主題分組，各主題內按單選、多選、填空／簡答、圖片題排列；題目連結與投稿 ID 保持不變。
+- 為 22 題尚無解析的投稿補上逐選項說明，原題幹、選項與答案值保留；移除這些題目的舊版本差異審核標記。解析只會在題目簽章吻合時套用，避免誤套到改過的版本。
+- 內建 `threads-018` 原標為單選，但答案為 A、B、C、D；保留答案並改為多選，原始題目版本仍在 `sourceVariants`。解釋依題庫答案採「廣義執行對應」的讀法，並區分 Two-level 額外提供指定綁定的特性。
+- 沒有刪除題目；相近的中英文或不同選項版本仍保留，依主題和題型集中排列。
+- 平台細節參照 [Linux Pthreads cancellation](https://www.man7.org/linux/man-pages/man3/pthread_cancel.3.html)、[Linux signal delivery](https://man7.org/linux/man-pages/man7/signal.7.html)、[OpenMP specifications](https://www.openmp.org/specifications/)、[Apple Dispatch](https://developer.apple.com/documentation/dispatch) 與 [Microsoft thread structures](https://learn.microsoft.com/en-us/windows-hardware/drivers/debugger/controlling-threads-and-processes)。
+- 本次僅完成本機草稿，尚未發布。
+
 ## 2026-10-16：作業系統 L7 程序同步查重
 
 - 來源為 `OS_L7_Updated (2).html` 的 13 回、390 筆題目。合併選項換序後有 217 組；再逐組核對翻譯、措辭及正確答案內容，整理為 137 題（單選 54、多選 41、填空 42）。共合併 253 筆來源紀錄。

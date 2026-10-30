@@ -1,0 +1,417 @@
+{
+  "schema": 1,
+  "unit": "threads",
+  "unitTitle": "執行緒與多執行緒",
+  "topicOrder": [
+    "基本觀念",
+    "多執行緒優點",
+    "多核心與平行程式設計",
+    "Amdahl's Law",
+    "執行緒模型",
+    "執行緒函式庫",
+    "Java Threads",
+    "OpenMP / Implicit Threading",
+    "Grand Central Dispatch",
+    "Thread Pools / Server",
+    "fork / exec",
+    "訊號 / Signals",
+    "執行緒取消",
+    "Thread-local Storage",
+    "Windows Threads",
+    "Linux Threads"
+  ],
+  "typeOrder": [
+    "單選題",
+    "多選題",
+    "填空題",
+    "圖片題"
+  ],
+  "topics": [
+    {
+      "name": "基本觀念",
+      "ids": [
+        "threads-001",
+        "threads-005",
+        "community-397ef7d1-7c02-405d-adc2-a72f0d2d3d5f-1",
+        "threads-002",
+        "threads-003",
+        "threads-004",
+        "threads-055"
+      ]
+    },
+    {
+      "name": "多執行緒優點",
+      "ids": [
+        "threads-007",
+        "threads-008",
+        "threads-009",
+        "threads-010",
+        "community-397ef7d1-7c02-405d-adc2-a72f0d2d3d5f-2",
+        "community-52b2bd1a-7b5d-4e33-ad3d-1c79791ff340-1",
+        "threads-063",
+        "threads-006",
+        "threads-012"
+      ]
+    },
+    {
+      "name": "多核心與平行程式設計",
+      "ids": [
+        "threads-039",
+        "threads-038",
+        "threads-040",
+        "threads-076"
+      ]
+    },
+    {
+      "name": "Amdahl's Law",
+      "ids": [
+        "threads-082",
+        "community-7c45c6a2-c776-4e3f-b48a-2c31f8739357-2",
+        "threads-041",
+        "threads-042"
+      ]
+    },
+    {
+      "name": "執行緒模型",
+      "ids": [
+        "threads-016",
+        "threads-020",
+        "threads-057",
+        "community-e31036c8-d1a7-4212-8818-715306385626-4",
+        "threads-018",
+        "threads-017",
+        "threads-019",
+        "threads-060",
+        "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-1",
+        "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-4",
+        "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-1",
+        "threads-013",
+        "threads-014",
+        "threads-015",
+        "community-2dbc9c78-9179-4ed1-a8f6-412e2d28d934-1",
+        "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-5"
+      ]
+    },
+    {
+      "name": "執行緒函式庫",
+      "ids": [
+        "threads-033",
+        "threads-059",
+        "threads-078",
+        "community-e31036c8-d1a7-4212-8818-715306385626-3",
+        "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-4",
+        "threads-034",
+        "threads-032"
+      ]
+    },
+    {
+      "name": "Java Threads",
+      "ids": [
+        "threads-068",
+        "threads-061"
+      ]
+    },
+    {
+      "name": "OpenMP / Implicit Threading",
+      "ids": [
+        "threads-044",
+        "threads-046",
+        "community-e31036c8-d1a7-4212-8818-715306385626-2",
+        "threads-045",
+        "threads-073",
+        "community-e31036c8-d1a7-4212-8818-715306385626-5",
+        "threads-047"
+      ]
+    },
+    {
+      "name": "Grand Central Dispatch",
+      "ids": [
+        "threads-085",
+        "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-2",
+        "threads-048"
+      ]
+    },
+    {
+      "name": "Thread Pools / Server",
+      "ids": [
+        "threads-051",
+        "threads-050",
+        "threads-052",
+        "community-397ef7d1-7c02-405d-adc2-a72f0d2d3d5f-3",
+        "threads-049"
+      ]
+    },
+    {
+      "name": "fork / exec",
+      "ids": [
+        "threads-053"
+      ]
+    },
+    {
+      "name": "訊號 / Signals",
+      "ids": [
+        "threads-086",
+        "community-e31036c8-d1a7-4212-8818-715306385626-1",
+        "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-3",
+        "threads-070"
+      ]
+    },
+    {
+      "name": "執行緒取消",
+      "ids": [
+        "threads-035",
+        "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-2",
+        "threads-037",
+        "community-2dbc9c78-9179-4ed1-a8f6-412e2d28d934-2",
+        "threads-036"
+      ]
+    },
+    {
+      "name": "Thread-local Storage",
+      "ids": [
+        "threads-030",
+        "threads-031",
+        "community-7c45c6a2-c776-4e3f-b48a-2c31f8739357-1",
+        "threads-028"
+      ]
+    },
+    {
+      "name": "Windows Threads",
+      "ids": [
+        "threads-023",
+        "threads-021",
+        "threads-022",
+        "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-3",
+        "threads-024"
+      ]
+    },
+    {
+      "name": "Linux Threads",
+      "ids": [
+        "threads-026",
+        "threads-066"
+      ]
+    }
+  ],
+  "order": [
+    "threads-001",
+    "threads-005",
+    "community-397ef7d1-7c02-405d-adc2-a72f0d2d3d5f-1",
+    "threads-002",
+    "threads-003",
+    "threads-004",
+    "threads-055",
+    "threads-007",
+    "threads-008",
+    "threads-009",
+    "threads-010",
+    "community-397ef7d1-7c02-405d-adc2-a72f0d2d3d5f-2",
+    "community-52b2bd1a-7b5d-4e33-ad3d-1c79791ff340-1",
+    "threads-063",
+    "threads-006",
+    "threads-012",
+    "threads-039",
+    "threads-038",
+    "threads-040",
+    "threads-076",
+    "threads-082",
+    "community-7c45c6a2-c776-4e3f-b48a-2c31f8739357-2",
+    "threads-041",
+    "threads-042",
+    "threads-016",
+    "threads-020",
+    "threads-057",
+    "community-e31036c8-d1a7-4212-8818-715306385626-4",
+    "threads-018",
+    "threads-017",
+    "threads-019",
+    "threads-060",
+    "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-1",
+    "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-4",
+    "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-1",
+    "threads-013",
+    "threads-014",
+    "threads-015",
+    "community-2dbc9c78-9179-4ed1-a8f6-412e2d28d934-1",
+    "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-5",
+    "threads-033",
+    "threads-059",
+    "threads-078",
+    "community-e31036c8-d1a7-4212-8818-715306385626-3",
+    "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-4",
+    "threads-034",
+    "threads-032",
+    "threads-068",
+    "threads-061",
+    "threads-044",
+    "threads-046",
+    "community-e31036c8-d1a7-4212-8818-715306385626-2",
+    "threads-045",
+    "threads-073",
+    "community-e31036c8-d1a7-4212-8818-715306385626-5",
+    "threads-047",
+    "threads-085",
+    "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-2",
+    "threads-048",
+    "threads-051",
+    "threads-050",
+    "threads-052",
+    "community-397ef7d1-7c02-405d-adc2-a72f0d2d3d5f-3",
+    "threads-049",
+    "threads-053",
+    "threads-086",
+    "community-e31036c8-d1a7-4212-8818-715306385626-1",
+    "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-3",
+    "threads-070",
+    "threads-035",
+    "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-2",
+    "threads-037",
+    "community-2dbc9c78-9179-4ed1-a8f6-412e2d28d934-2",
+    "threads-036",
+    "threads-030",
+    "threads-031",
+    "community-7c45c6a2-c776-4e3f-b48a-2c31f8739357-1",
+    "threads-028",
+    "threads-023",
+    "threads-021",
+    "threads-022",
+    "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-3",
+    "threads-024",
+    "threads-026",
+    "threads-066"
+  ],
+  "questions": {
+    "community-2dbc9c78-9179-4ed1-a8f6-412e2d28d934-1": {
+      "category": "執行緒模型",
+      "explanation": "答案 many-to-one，表示多條 user-level thread 共用一條 kernel thread。核心只看得到那一條核心執行緒，因此無法同時把多條使用者執行緒分派到不同核心；若共用的核心執行緒因阻塞呼叫停住，其他 ULT 也可能被連帶阻塞。題目要求小寫英文與連字號。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "e553e374"
+    },
+    "community-2dbc9c78-9179-4ed1-a8f6-412e2d28d934-2": {
+      "category": "執行緒取消",
+      "explanation": "選 A、B、D。延遲取消會先留下取消請求，目標執行緒在取消點或明確檢查位置才處理，能先做清理；Pthreads 新執行緒預設是 deferred 類型。C 描述 asynchronous cancellation，可能在任意時機終止，不是 deferred。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "a4d67503"
+    },
+    "community-e31036c8-d1a7-4212-8818-715306385626-1": {
+      "category": "訊號 / Signals",
+      "explanation": "選 A、B、C、D。教科書列出四種處理策略：傳給與事件相關的指定執行緒、傳給程序所有執行緒、送至某些執行緒，或指定一條專責執行緒接收。不同作業系統與 API 的實際送達規則不同；這裡是在選課本列舉的策略，不代表 Linux 預設會把每個 signal 廣播給所有執行緒。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "3cbbbddd"
+    },
+    "community-e31036c8-d1a7-4212-8818-715306385626-2": {
+      "category": "OpenMP / Implicit Threading",
+      "explanation": "答案 B。pthread_create() 由程式明確建立指定執行緒，屬於顯式管理。Thread Pools、GCD 與 OpenMP 都把工作或平行區域交給執行環境建立或安排執行緒，因此是題目所稱的隱式方式。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "4d47305c"
+    },
+    "community-e31036c8-d1a7-4212-8818-715306385626-3": {
+      "category": "執行緒函式庫",
+      "explanation": "答案 C。User-level thread library 維護使用者執行緒及其切換與映射，程式透過函式庫 API 建立和使用。Application 提出工作但不一定親自管理底層執行緒；kernel 主要管理核心執行緒，hardware 執行指令而不負責這類管理。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "6a1f2fe1"
+    },
+    "community-e31036c8-d1a7-4212-8818-715306385626-4": {
+      "category": "執行緒模型",
+      "explanation": "答案 C：Many-to-One。這種模型把多條使用者層級執行緒映射到一條核心執行緒；One-to-One 是每條使用者執行緒對一條核心執行緒，Many-to-Many 使用多條核心執行緒承載多條使用者執行緒，Two-level 則在 Many-to-Many 基礎上加入指定綁定能力。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "0f7c4fad"
+    },
+    "community-e31036c8-d1a7-4212-8818-715306385626-5": {
+      "category": "OpenMP / Implicit Threading",
+      "explanation": "選 A、B、D。Implicit threading 把執行緒建立與管理交給編譯器或執行階段，可降低手動 create／join 的負擔，並幫助處理執行緒數量增加後的正確性。C 是反向敘述：隱式方式通常減少而非增加程式設計者對個別執行緒建立流程的控制。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "13c4ea81"
+    },
+    "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-1": {
+      "category": "執行緒模型",
+      "explanation": "選 A、B、C。按題目採用的教材版本，Linux、Windows NT／XP／2000 與 Solaris 9 以後都列為 One-to-One。Solaris Green Threads 是較早期的使用者層級執行緒實作，不列在此 One-to-One 清單；Solaris 的分類要看版本。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "809aa77d"
+    },
+    "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-2": {
+      "category": "執行緒取消",
+      "explanation": "答案 B：Asynchronous cancellation。非同步取消可能在目標執行緒未到達安全檢查點時立即終止；Deferred cancellation 會等到 cancellation point。Automatic 與 Cooperative 不是本章列出的兩種正式取消模式名稱。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "ded93b25"
+    },
+    "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-3": {
+      "category": "Windows Threads",
+      "explanation": "選 A、C。KTHREAD 與 ETHREAD 是核心端管理執行緒的結構。TEB 位於使用者空間；Thread ID 是識別號，不是存放執行緒管理資料的區塊，所以 B、D 不選。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "8ac15d68"
+    },
+    "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-4": {
+      "category": "執行緒模型",
+      "explanation": "依老師題庫答案選 A、B、C、D。這裡按廣義的執行對應關係理解：One-to-One 固定一對一；Many-to-One 讓多個使用者執行緒輪流使用一條核心執行緒；Many-to-Many 由多條核心執行緒服務多條使用者執行緒；Two-level 額外允許指定綁定。四者比例與固定程度不同；題庫答案採各模型都可出現一條核心執行緒承載一條使用者執行緒的讀法。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "a45fd702"
+    },
+    "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-5": {
+      "category": "執行緒模型",
+      "explanation": "答案 many-to-one，表示多條使用者層級執行緒映射到單一核心執行緒。請保留 many-to-one 的小寫與連字號；共享一條核心執行緒也代表這些使用者執行緒不能同時分派到不同核心。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "479a0981"
+    },
+    "community-7c45c6a2-c776-4e3f-b48a-2c31f8739357-1": {
+      "category": "Thread-local Storage",
+      "explanation": "選 A、C。TLS 為每條執行緒保留自己的資料，可跨多次函式呼叫取用；一般區域變數的可見範圍通常受函式或區塊限制。B 說所有執行緒共享，與 TLS 的 per-thread 副本相反。D 的 unique 過於絕對：不同執行緒可有各自堆疊副本，但區域變數的定義不保證值在執行緒間唯一；需要跨呼叫的執行緒專屬狀態才用 TLS。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "8bb4fcf0"
+    },
+    "community-7c45c6a2-c776-4e3f-b48a-2c31f8739357-2": {
+      "category": "Amdahl's Law",
+      "explanation": "答案 A。Amdahl's Law 用來估計增加處理核心後，程式平行化可達到的加速上限。它把工作分成序列比例與可平行部分，計算核心數增加的收益；不直接計算增加記憶體、改寫程式碼或減少 I/O 的效益。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "86f7ed2e"
+    },
+    "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-1": {
+      "category": "執行緒模型",
+      "explanation": "依老師題庫答案選 A、B、C、D。這裡按廣義的執行對應關係理解：One-to-One 固定一對一；Many-to-One 讓多個使用者執行緒輪流使用一條核心執行緒；Many-to-Many 由多條核心執行緒服務多條使用者執行緒；Two-level 額外允許指定綁定。四者比例與固定程度不同；題庫答案採各模型都可出現一條核心執行緒承載一條使用者執行緒的讀法。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "bf7f2c00"
+    },
+    "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-2": {
+      "category": "Grand Central Dispatch",
+      "explanation": "答案 C：Apple。Grand Central Dispatch 是 Apple 的併行工作派送技術；Microsoft、IBM 與 Google 不是它的開發者。GCD 把工作放入 dispatch queue，再由系統安排執行緒執行。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "a85f996a"
+    },
+    "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-3": {
+      "category": "訊號 / Signals",
+      "explanation": "選 A、B、C、D。四個選項分別涵蓋把 signal 送給所有執行緒、送給與該 signal 相關的執行緒、指定一條專責執行緒處理，以及只送給某些執行緒，都是教科書列出的多執行緒 signal 處理策略。實際作業系統的 signal mask 與遞送細節會有差異；不要把清單理解成每個 signal 都同時套用所有策略。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "0f556751"
+    },
+    "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-4": {
+      "category": "執行緒函式庫",
+      "explanation": "答案 A：User-level thread library。它在使用者空間管理使用者層級執行緒並提供操作介面；核心主要排程核心執行緒，應用程式是呼叫者，硬體則不負責管理這些軟體執行緒。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "ec0bc328"
+    },
+    "community-397ef7d1-7c02-405d-adc2-a72f0d2d3d5f-1": {
+      "category": "基本觀念",
+      "explanation": "選 A、B、D。執行緒共享程序的程式碼、資料與已開啟檔案等資源；每條執行緒則需要自己的 stack、暫存器與程式計數器，才能保存不同的執行位置，因此 C 不選。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "76c26667"
+    },
+    "community-397ef7d1-7c02-405d-adc2-a72f0d2d3d5f-2": {
+      "category": "多執行緒優點",
+      "explanation": "答案 A：Responsiveness。把耗時工作放到背景執行緒後，UI thread 還能接收輸入並重繪，畫面不會只因等待工作而停住。Resource sharing、Economy 與 Scalability 也是其他多執行緒優點，但不是最直接對應使用者介面的那一項。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "20737fa2"
+    },
+    "community-397ef7d1-7c02-405d-adc2-a72f0d2d3d5f-3": {
+      "category": "Thread Pools / Server",
+      "explanation": "選 B、C、D。不同執行緒可同時處理不同 client；一條執行緒等待 I/O 時，其他執行緒仍可執行；建立執行緒通常比建立獨立程序輕量。A 描述的是複雜度成本，不是優點；實際效益仍取決於同步方式與工作負載。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "ae506c55"
+    },
+    "community-52b2bd1a-7b5d-4e33-ad3d-1c79791ff340-1": {
+      "category": "多執行緒優點",
+      "explanation": "答案 A。多執行緒可把相對獨立的工作拆開，讓處理流程更清楚；可平行的工作也可能利用多核心提升效率。B、C、D 描述成本增加、資源共享減少或程式更複雜，都是成本或反向效果。效能不保證提升，仍取決於工作能否平行及同步成本。",
+      "clearSubmissionReview": true,
+      "sourceSignature": "4b0b7f70"
+    }
+  }
+}

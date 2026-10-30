@@ -46,6 +46,13 @@ for (const snapshot of snapshots) {
       if (!html.includes('<script src="assets/course-bootstrap.js?')) throw new Error(`${filename}: missing bootstrap`);
       html = html.replace(/(?=<script src="assets\/course-bootstrap\.js\?)/, () => processScript + '\n');
     }
+    const threadCuration = JSON.parse(await readFile(new URL('assets/os-threads-curation.json', root), 'utf8'));
+    const threadScript = `<script id="course-os-threads-curation" type="application/json">${JSON.stringify(threadCuration).replace(/</g, '\\u003c')}</script>`;
+    if (html.includes('id="course-os-threads-curation"')) html = html.replace(/<script id="course-os-threads-curation" type="application\/json">[\s\S]*?<\/script>/, () => threadScript);
+    else {
+      if (!html.includes('<script src="assets/course-bootstrap.js?')) throw new Error(`${filename}: missing bootstrap`);
+      html = html.replace(/(?=<script src="assets\/course-bootstrap\.js\?)/, () => threadScript + '\n');
+    }
   }
   await writeFile(new URL(`assets/course-snapshots/${snapshot.course}.json`, root), JSON.stringify(snapshot) + '\n');
   await writeFile(path, html);
