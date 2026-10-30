@@ -793,6 +793,62 @@ function htmlQuestions(raw, doc, warnings = []) {
       ? `\n${content}\n`
       : content;
   }
+  // CCSA challenge pages place one or more questions inside a shared group
+  // block. Parse each child separately and prepend its shared stem so tables
+  // and diagrams remain part of every question used by batch lookup.
+  const challengeForm = root.querySelector("#challenge-quiz-form");
+  if (challengeForm) {
+    const topLevelBlocks = [...challengeForm.querySelectorAll(".question-block")].filter(
+      (node) => !node.parentElement?.closest(".question-block"),
+    );
+    if (topLevelBlocks.length) {
+      const imported = [];
+      for (const block of topLevelBlocks) {
+        const grouped = block.classList.contains("group-block");
+        const shared = grouped ? block.querySelector(".group-stem") : null;
+        const children = grouped
+          ? [...block.querySelectorAll(".sub-question-block")]
+          : [block];
+        if (!children.length)
+          fail("挑戰模式題組找不到小題，請確認 HTML 檔案完整。沒有匯入任何題目。");
+        const context = shared ? text(shared).replace(/\n{3,}/g, "\n\n").trim() : "";
+        for (const child of children) {
+          const promptNodes = [...child.querySelectorAll(".question-text")];
+          const prompt = promptNodes
+            .map((node) => text(node).trim())
+            .filter(Boolean)
+            .sort((a, b) => b.length - a.length)[0]
+            ?.replace(/^\s*\d+[.．、)]\s*/, "");
+          if (!prompt)
+            fail(`第 ${imported.length + 1} 題缺少題幹，沒有匯入任何題目。`);
+          const optionLabels = [...child.querySelectorAll("label")].filter((label) =>
+            label.querySelector('input[type="radio"],input[type="checkbox"]'),
+          );
+          const options = optionLabels
+            .map((label) =>
+              label.textContent
+                .replace(/\s+/g, " ")
+                .trim()
+                .replace(/^[A-H][.、．:：)）]\s*/i, ""),
+            )
+            .filter(Boolean);
+          const inputs = [...child.querySelectorAll('input[type="radio"],input[type="checkbox"],input.text-answer')];
+          const types = new Set(inputs.map((input) => input.type));
+          const inferredTextAnswer = !inputs.length && /_{3,}|\[__\d+__\]/.test(prompt);
+          if ((!inputs.length && !inferredTextAnswer) || types.size > 1)
+            fail(`第 ${imported.length + 1} 題的作答欄位無法辨識，沒有匯入任何題目。`);
+          const inputType = inferredTextAnswer ? "text" : [...types][0];
+          if (inputType !== "text" && (options.length !== inputs.length || options.length < 2 || options.length > 8))
+            fail(`第 ${imported.length + 1} 題的選項格式無法辨識，沒有匯入任何題目。`);
+          const stem = [context, prompt].filter(Boolean).join("\n\n");
+          imported.push(
+            `${imported.length + 1}. ${stem}${options.length ? `\n${options.map((option, index) => `${LETTERS[index]}. ${option}`).join("\n")}` : ""}`,
+          );
+        }
+      }
+      return parseQuestions(imported.join("\n\n"));
+    }
+  }
   const tableQuestions = [];
   for (const table of root.querySelectorAll("table")) {
     const rows = [...table.querySelectorAll("tr")].filter(
@@ -1324,3 +1380,4 @@ export async function readBatchFiles(files, options = {}) {
     ),
   };
 }
+
