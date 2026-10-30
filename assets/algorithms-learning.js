@@ -46,14 +46,14 @@ function setupLesson(preserveCards=false){document.querySelectorAll('.community-
 function renderChapters(){$('chapterSelect').value=chapter;}
 function answerMarkup(q,id){return `<div class="answer" id="answer-${id}"><div><strong>${window.courseQuestionTools.answerLabel(q)}</strong><br><span class="answer-value">${window.courseQuestionTools.answerValueMarkup(q,highlighted)}</span></div><div class="explain"><strong>解析</strong><div class="explanation-text">${window.courseQuestionTools.explanationMarkup(q, highlighted)}</div></div>${q.note?`<div class="warning"><strong>觀念提醒：</strong>${highlighted(q.note)}</div>`:q.warn?'<div class="warning">原資料已標記此題需要核對；請搭配原題、完整選項或老師的說明確認。</div>':''}${window.courseQuestionTools.reviewMarkup(q)}</div>`;}
 function questionImagesMarkup(q){return window.courseQuestionTools.questionImagesMarkup(q);}
-function expectedOptionKeys(q,options){if(!window.courseQuestionTools.hasProvidedAnswer(q))return new Set();const expected=q.choiceKey||window.coursePractice?.expectedChoiceKey(q.a,options);return new Set(String(expected||''));}
+function expectedOptionKeys(q,options){return window.courseQuestionTools.optionAnswerKeys(q,options);}
 function optionContent(value,index){const text=String(value??''),match=text.match(/^\s*([A-H][.、．:：)）])(\s*)([\s\S]*)$/i);const label=match?.[1]||`${String.fromCharCode(65+index)}.`;return `<span class="option-label">${highlighted(label)}</span>${esc(match?.[2]||' ')}${highlighted(match?match[3]:text)}`;}
 function cardMarkup({q,id,i,unit}){
  const isPractice=mode==='practice',open=isPractice?revealed.has(id):$('showAnswers').checked||revealed.has(id),opts=q.opts||[],chosen=selections.get(id)||[],f=feedback.get(id),correctKeys=!isPractice&&open?expectedOptionKeys(q,opts):new Set();
  let options='';
  if(opts.length)options=`<div class="options">${opts.map((o,k)=>{
-  const mark=window.coursePractice.optionMark(f,k);
-  return isPractice?`<label class="option ${chosen.includes(k)?'chosen':''} ${mark.className}"><input type="${window.courseQuestionTools.answerType(q)==='多選題'?'checkbox':'radio'}" name="choice-${id}" data-choice="${id}" data-index="${k}" ${chosen.includes(k)?'checked':''} ${mark.className==='practice-incorrect'?'aria-invalid="true"':''}><span>${optionContent(o,k)}</span>${mark.icon}</label>`:`<div class="option ${correctKeys.has(String.fromCharCode(65+k))?'correct':''}">${optionContent(o,k)}</div>`;
+  const mark=window.coursePractice.optionMark(f,k),studyMark=window.courseQuestionTools.studyOptionMark(q,correctKeys.has(String.fromCharCode(65+k)));
+  return isPractice?`<label class="option ${chosen.includes(k)?'chosen':''} ${mark.className}"><input type="${window.courseQuestionTools.answerType(q)==='多選題'?'checkbox':'radio'}" name="choice-${id}" data-choice="${id}" data-index="${k}" ${chosen.includes(k)?'checked':''} ${mark.className==='practice-incorrect'?'aria-invalid="true"':''}><span>${optionContent(o,k)}</span>${mark.icon}</label>`:`<div class="option ${studyMark.className}">${optionContent(o,k)}${studyMark.label}</div>`;
  }).join('')}</div>`;
  const pending=window.courseQuestionTools.qualityReasons(q,'algorithms').length>0,textMark=window.coursePractice.textMark(f);
  const entry=isPractice&&!opts.length?window.coursePractice.entryMarkup(q,id,drafts.get(id),textMark):'';
@@ -77,7 +77,7 @@ function toggleAnswer(id,button) {
  }
  const open=panel.hidden;panel.hidden=!open;
  const q=findEntry(id).q,correctKeys=open?expectedOptionKeys(q,q.opts||[]):new Set();
- card.querySelectorAll('.option').forEach((option,index)=>option.classList.toggle('correct',correctKeys.has(String.fromCharCode(65+index))));
+ window.courseQuestionTools.updateStudyOptionMarks(card,q,correctKeys);
  if(open)revealed.add(id);else revealed.delete(id);button.setAttribute('aria-expanded',String(open));button.textContent=open?'收起答案':'查看答案與解析';
 }
 function togglePracticeAnswer(id,button){const card=button.closest('.card'),panel=card.querySelector('[data-answer]'),open=panel.hidden;panel.hidden=!open;if(open)revealed.add(id);else revealed.delete(id);button.setAttribute('aria-expanded',String(open));button.textContent=open?'收起答案與解析':'顯示答案與解析';}

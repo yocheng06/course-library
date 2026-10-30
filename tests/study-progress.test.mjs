@@ -407,3 +407,21 @@ test('new L6 practice imports preserve distinct counting checkpoints and support
  assert.equal(lib.entries.find(e=>e.id==='L6-047').answer,h.question('L6-047').a);
  assert.equal(lib.courses.algorithms.count,300);
 });
+
+test('pending submitted answers mark only their own choices in study, toggle cleanly and remain unverified for practice',async()=>{
+ for(const course of ['os','algorithms']){
+  const id='community-99999999-9999-4999-8999-999999999999-1',unit=course==='os'?'basics':'L2';
+  const h=await coursePage(course,{search:'?question='+id});
+  const raw={id,bookmarkId:id,stem:'投稿答案標記測試',q:'投稿答案標記測試',options:['比較次數','桶的數量','總位數','處理的位數區段長度'],opts:['比較次數','桶的數量','總位數','處理的位數區段長度'],answer:'D',a:'D',answerProvided:true,type:'單選題',category:'測試',images:[],submissionReview:{status:'pending',reason:'選項版本不同'}};
+  h.config.mergeCommunityQuestions([{unit,question:raw}]);
+  h.document.getElementById('searchScopeSelect').value='all';h.fire(h.document.getElementById('searchScopeSelect'),'change');h.document.getElementById('search').value='投稿答案標記測試';h.fire(h.document.getElementById('search'),'input');
+  h.document.getElementById('showAnswers').checked=false;h.config.render();
+  let card=h.document.querySelector('article[data-id="'+id+'"]');assert.ok(card);assert.equal(card.querySelectorAll('.submitted-answer').length,0);
+  h.fire(card.querySelector('[data-reveal]'),'click');assert.equal(card.querySelectorAll('.submitted-answer').length,1);assert.equal(card.querySelectorAll('.option')[3].classList.contains('submitted-answer'),true);assert.equal(card.querySelectorAll('.option.correct').length,0);assert.equal(card.querySelector('.submitted-answer-label').textContent,'投稿答案（待核對）');
+  h.fire(card.querySelector('[data-reveal]'),'click');assert.equal(card.querySelectorAll('.submitted-answer').length,0);assert.equal(card.querySelectorAll('.submitted-answer-label').length,0);
+  h.document.getElementById('showAnswers').checked=true;h.config.render();card=h.document.querySelector('article[data-id="'+id+'"]');assert.equal(card.querySelectorAll('.submitted-answer').length,1);
+  const updated={...raw,answer:'A、C',a:'A、C',type:'多選題'};h.config.mergeCommunityQuestions([{unit,question:updated}]);card=h.document.querySelector('article[data-id="'+id+'"]');assert.equal(card.querySelectorAll('.submitted-answer').length,2);assert.equal(card.querySelectorAll('.submitted-answer-label').length,2);
+  assert.equal(h.window.courseQuestionTools.hasProvidedAnswer(h.question(id)),false);
+  h.practice();card=h.document.querySelector('article[data-id="'+id+'"]');assert.equal(card.querySelectorAll('.submitted-answer').length,0);h.choose(card,[0,2]);h.check(card);assert.equal(card.querySelectorAll('.practice-correct').length,0);
+ }
+});

@@ -3,6 +3,32 @@
   'use strict';
   const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
   const hasProvidedAnswer = question => question.submissionReview?.status !== 'pending' && question.answerProvided === true && Boolean(String(question.answer ?? question.a ?? '').trim());
+  // Reading may show a submitted answer without treating it as verified for grading.
+  function optionAnswerKeys(question, options) {
+    const verified = hasProvidedAnswer(question), pending = question.submissionReview?.status === 'pending';
+    if ((!verified && !(pending && question.answerProvided === true)) || !options?.length) return new Set();
+    const answer = question.answer ?? question.a ?? '';
+    const expected = verified && question.choiceKey || window.courseChoiceAnswers?.expectedChoiceKey(answer, options);
+    return new Set(String(expected || ''));
+  }
+  function studyOptionMark(question, selected) {
+    if (!selected) return {className:'',label:''};
+    return question.submissionReview?.status === 'pending'
+      ? {className:'submitted-answer',label:'<small class="submitted-answer-label">投稿答案（待核對）</small>'}
+      : {className:'correct',label:''};
+  }
+  function updateStudyOptionMarks(card, question, keys) {
+    card.querySelectorAll('.option').forEach((option,index) => {
+      const mark = studyOptionMark(question,keys.has(String.fromCharCode(65+index)));
+      option.classList.toggle('correct',mark.className === 'correct');
+      option.classList.toggle('submitted-answer',mark.className === 'submitted-answer');
+      let label = option.querySelector('.submitted-answer-label');
+      if (mark.label && !label) {
+        label = option.ownerDocument.createElement('small');label.className = 'submitted-answer-label';
+        label.textContent = '投稿答案（待核對）';option.append(label);
+      } else if (!mark.label) label?.remove();
+    });
+  }
   const missingSource = question => !hasProvidedAnswer(question) && (Boolean(question.missingContext) || /追蹤/.test(question.type || '') || /樹中的「\?」|第6行與第10行|第 5 行/.test(question.q || ''));
 
   // Keep the original question text; normalize presentation only for lookup.
@@ -246,5 +272,5 @@
     [...list.children].forEach((card,i) => renderedCardVersions.set(card, versions[i]));
   }
 
-  window.courseQuestionTools = { questionType, answerType, questionImagesMarkup, hasProvidedAnswer, matchesSearch, searchMatchMarkup, createPracticeOrder, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
+  window.courseQuestionTools = { questionType, answerType, questionImagesMarkup, hasProvidedAnswer, optionAnswerKeys, studyOptionMark, updateStudyOptionMarks, matchesSearch, searchMatchMarkup, createPracticeOrder, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
 })();

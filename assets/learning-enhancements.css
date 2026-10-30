@@ -26,3 +26,9 @@
 .import-other-formats summary {cursor:pointer;min-height:44px;display:flex;align-items:center}
 .contribution-nav a[aria-current="page"] {font-weight:750;text-decoration:underline;text-underline-offset:5px}
 @media(max-width:600px){.html-import-steps li{align-items:flex-start}.html-import-steps li span{flex-basis:100%}}
+
+.option.submitted-answer {border:2px dashed #9b6b24;background:#fff5df;}
+.option.submitted-answer .option-label {color:#765018;font-weight:700;}
+.submitted-answer-label {display:inline-block;margin-inline-start:12px;color:#765018;font-size:12px;font-weight:600;}
+html[data-theme="dark"] .option.submitted-answer {background:#292929!important;border:2px dashed #b5b5b5!important;}
+html[data-theme="dark"] .option.submitted-answer :is(.option-label,.submitted-answer-label) {color:#fff!important;}

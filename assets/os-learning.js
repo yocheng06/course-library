@@ -124,22 +124,16 @@ function optionMarkup(q, option, index) {
   const content = `<span class="option-label">${highlighted(label)}</span>${esc(match?.[2] || ' ')}${highlighted(ordered.top)}`;
   return `<span class="option-content">${content}${ordered.bottom ? `<span class="option-translation" lang="${languageOf(ordered.bottom)}">${highlighted(ordered.bottom)}</span>` : ''}</span>`;
 }
-function expectedOptionKeys(q, options) {
-  if (!window.courseQuestionTools.hasProvidedAnswer(q)) return new Set();
-  const expected = q.choiceKey || window.coursePractice?.expectedChoiceKey(q.answer, options);
-  return new Set(String(expected || ''));
-}
-function updateCorrectOptions(card, q, visible) {
-  const correctKeys = visible && mode === 'study' && q?.options?.length ? expectedOptionKeys(q, q.options) : new Set();
-  card.querySelectorAll('.option').forEach((option, index) => {
-    option.classList.toggle('correct', correctKeys.has(String.fromCharCode(65 + index)));
-  });
+function expectedOptionKeys(q,options) {return window.courseQuestionTools.optionAnswerKeys(q,options);}
+function updateCorrectOptions(card,q,visible) {
+  const keys = visible && mode === 'study' && q?.options?.length ? expectedOptionKeys(q,q.options) : new Set();
+  window.courseQuestionTools.updateStudyOptionMarks(card,q,keys);
 }
 function cardMarkup({q, unit, unitIndex, i}) {
   const practice = mode === 'practice', open = revealed.has(q.id) || (!practice && $('showAnswers').checked), chosen = selections.get(q.id) || [];
   const result = feedback.get(q.id);
   const correctKeys = !practice && open ? expectedOptionKeys(q, q.options || []) : new Set();
-  const options = q.options?.length ? `<div class="options">${q.options.map((o,k)=>{const mark=window.coursePractice.optionMark(result,k);return practice?`<label class="option ${chosen.includes(k)?'chosen':''} ${mark.className}"><input type="${window.courseQuestionTools.answerType(q)==='多選題'?'checkbox':'radio'}" name="choice-${q.id}" data-choice="${q.id}" data-index="${k}" ${chosen.includes(k)?'checked':''} ${mark.className==='practice-incorrect'?'aria-invalid="true"':''}>${optionMarkup(q,o,k)}${mark.icon}</label>`:`<div class="option ${correctKeys.has(String.fromCharCode(65+k))?'correct':''}">${optionMarkup(q,o,k)}</div>`}).join('')}</div>` : '';
+  const options = q.options?.length ? `<div class="options">${q.options.map((o,k)=>{const mark=window.coursePractice.optionMark(result,k),studyMark=window.courseQuestionTools.studyOptionMark(q,correctKeys.has(String.fromCharCode(65+k)));return practice?`<label class="option ${chosen.includes(k)?'chosen':''} ${mark.className}"><input type="${window.courseQuestionTools.answerType(q)==='多選題'?'checkbox':'radio'}" name="choice-${q.id}" data-choice="${q.id}" data-index="${k}" ${chosen.includes(k)?'checked':''} ${mark.className==='practice-incorrect'?'aria-invalid="true"':''}>${optionMarkup(q,o,k)}${mark.icon}</label>`:`<div class="option ${studyMark.className}">${optionMarkup(q,o,k)}${studyMark.label}</div>`}).join('')}</div>` : '';
   const textMark=window.coursePractice.textMark(result);
   const entry=practice&&!q.options?.length?window.coursePractice.entryMarkup(q,q.id,drafts.get(q.id),textMark):'';
   const pending = window.courseQuestionTools.qualityReasons(q, 'os').length > 0;

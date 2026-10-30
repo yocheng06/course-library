@@ -29,4 +29,10 @@ test('pending labels remain visible in course cards and pending answers never au
   const feedback=context.window.coursePractice.evaluate('A',raw.options,[0],pending);
   assert.equal(feedback.correct,null);
   assert.equal(tools.hasProvidedAnswer(raw),true);
+  assert.deepEqual([...tools.optionAnswerKeys(pending,raw.options)],['A']);
+  assert.equal(tools.studyOptionMark(pending,true).className,'submitted-answer');
+  assert.equal(tools.studyOptionMark(raw,true).className,'correct');
+  assert.equal(tools.optionAnswerKeys({...pending,answerProvided:false,choiceKey:'A'},raw.options).size,0);
+  assert.equal(tools.optionAnswerKeys({...pending,answer:'',choiceKey:'A'},raw.options).size,0);
+  assert.equal(tools.optionAnswerKeys({...pending,answer:'not an option'},raw.options).size,0);
 });
