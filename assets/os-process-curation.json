@@ -1,0 +1,367 @@
+{
+  "schema": 1,
+  "unit": "process",
+  "unitTitle": "程序與 IPC",
+  "topicOrder": [
+    "Process 基礎",
+    "PCB / Context Switch",
+    "Process State",
+    "Scheduler / Queue",
+    "CPU / I/O Bound",
+    "Process Creation / Termination",
+    "Cooperating Process",
+    "IPC 基礎",
+    "Direct / Indirect Communication",
+    "Message Passing",
+    "Pipe / Socket",
+    "RPC",
+    "Mach / Windows IPC",
+    "Mobile / Browser"
+  ],
+  "typeOrder": [
+    "單選題",
+    "多選題",
+    "填空題",
+    "圖片題"
+  ],
+  "topics": [
+    {
+      "name": "Process 基礎",
+      "ids": [
+        "process-2",
+        "process-3",
+        "process-4",
+        "process-6",
+        "process-98",
+        "community-540e5f34-482c-4c48-b683-67f59fc316ae-4",
+        "process-1",
+        "process-8",
+        "community-e9945852-7bb0-4512-a4ed-d4bd8fa5e297-2"
+      ]
+    },
+    {
+      "name": "PCB / Context Switch",
+      "ids": [
+        "process-9",
+        "process-105",
+        "process-10",
+        "process-11",
+        "process-13",
+        "process-106"
+      ]
+    },
+    {
+      "name": "Process State",
+      "ids": [
+        "process-17",
+        "process-108",
+        "community-3edc10a9-7d14-4af1-b6bf-3a86179c58b3-1",
+        "process-15",
+        "process-16",
+        "process-18"
+      ]
+    },
+    {
+      "name": "Scheduler / Queue",
+      "ids": [
+        "process-22",
+        "process-23",
+        "process-25",
+        "process-21",
+        "community-437af013-08d8-467d-a384-0478521bc21a-1",
+        "process-19",
+        "process-20",
+        "process-24",
+        "process-26",
+        "process-27"
+      ]
+    },
+    {
+      "name": "CPU / I/O Bound",
+      "ids": [
+        "process-28",
+        "process-33",
+        "process-34",
+        "process-30"
+      ]
+    },
+    {
+      "name": "Process Creation / Termination",
+      "ids": [
+        "process-35",
+        "process-40",
+        "process-48",
+        "community-3edc10a9-7d14-4af1-b6bf-3a86179c58b3-3",
+        "process-43",
+        "process-44",
+        "process-46",
+        "process-96",
+        "community-afcb95e7-391c-4c90-a3a1-1f4aa170454c-2",
+        "process-36",
+        "process-39",
+        "process-41",
+        "process-42",
+        "process-45",
+        "process-47",
+        "process-49"
+      ]
+    },
+    {
+      "name": "Cooperating Process",
+      "ids": [
+        "process-51",
+        "process-52",
+        "process-54"
+      ]
+    },
+    {
+      "name": "IPC 基礎",
+      "ids": [
+        "community-c7e19d49-a009-45f2-ac72-242b51b2b914-2",
+        "process-55",
+        "process-59",
+        "process-61",
+        "process-62",
+        "process-102",
+        "community-540e5f34-482c-4c48-b683-67f59fc316ae-5",
+        "process-56",
+        "process-57",
+        "process-58",
+        "process-60"
+      ]
+    },
+    {
+      "name": "Direct / Indirect Communication",
+      "ids": [
+        "process-64",
+        "process-103",
+        "process-66",
+        "process-63",
+        "process-65"
+      ]
+    },
+    {
+      "name": "Message Passing",
+      "ids": [
+        "process-67",
+        "process-69",
+        "process-107",
+        "process-70",
+        "process-71"
+      ]
+    },
+    {
+      "name": "Pipe / Socket",
+      "ids": [
+        "process-77",
+        "process-79",
+        "process-73",
+        "process-75",
+        "process-76",
+        "process-78",
+        "process-80",
+        "process-82"
+      ]
+    },
+    {
+      "name": "RPC",
+      "ids": [
+        "community-afcb95e7-391c-4c90-a3a1-1f4aa170454c-1",
+        "process-84",
+        "process-85",
+        "process-86",
+        "process-87",
+        "community-c7e19d49-a009-45f2-ac72-242b51b2b914-1"
+      ]
+    },
+    {
+      "name": "Mach / Windows IPC",
+      "ids": [
+        "community-3edc10a9-7d14-4af1-b6bf-3a86179c58b3-4",
+        "process-88",
+        "process-89"
+      ]
+    },
+    {
+      "name": "Mobile / Browser",
+      "ids": [
+        "process-92",
+        "process-93",
+        "community-540e5f34-482c-4c48-b683-67f59fc316ae-2",
+        "process-91"
+      ]
+    }
+  ],
+  "order": [
+    "process-2",
+    "process-3",
+    "process-4",
+    "process-6",
+    "process-98",
+    "community-540e5f34-482c-4c48-b683-67f59fc316ae-4",
+    "process-1",
+    "process-8",
+    "community-e9945852-7bb0-4512-a4ed-d4bd8fa5e297-2",
+    "process-9",
+    "process-105",
+    "process-10",
+    "process-11",
+    "process-13",
+    "process-106",
+    "process-17",
+    "process-108",
+    "community-3edc10a9-7d14-4af1-b6bf-3a86179c58b3-1",
+    "process-15",
+    "process-16",
+    "process-18",
+    "process-22",
+    "process-23",
+    "process-25",
+    "process-21",
+    "community-437af013-08d8-467d-a384-0478521bc21a-1",
+    "process-19",
+    "process-20",
+    "process-24",
+    "process-26",
+    "process-27",
+    "process-28",
+    "process-33",
+    "process-34",
+    "process-30",
+    "process-35",
+    "process-40",
+    "process-48",
+    "community-3edc10a9-7d14-4af1-b6bf-3a86179c58b3-3",
+    "process-43",
+    "process-44",
+    "process-46",
+    "process-96",
+    "community-afcb95e7-391c-4c90-a3a1-1f4aa170454c-2",
+    "process-36",
+    "process-39",
+    "process-41",
+    "process-42",
+    "process-45",
+    "process-47",
+    "process-49",
+    "process-51",
+    "process-52",
+    "process-54",
+    "community-c7e19d49-a009-45f2-ac72-242b51b2b914-2",
+    "process-55",
+    "process-59",
+    "process-61",
+    "process-62",
+    "process-102",
+    "community-540e5f34-482c-4c48-b683-67f59fc316ae-5",
+    "process-56",
+    "process-57",
+    "process-58",
+    "process-60",
+    "process-64",
+    "process-103",
+    "process-66",
+    "process-63",
+    "process-65",
+    "process-67",
+    "process-69",
+    "process-107",
+    "process-70",
+    "process-71",
+    "process-77",
+    "process-79",
+    "process-73",
+    "process-75",
+    "process-76",
+    "process-78",
+    "process-80",
+    "process-82",
+    "community-afcb95e7-391c-4c90-a3a1-1f4aa170454c-1",
+    "process-84",
+    "process-85",
+    "process-86",
+    "process-87",
+    "community-c7e19d49-a009-45f2-ac72-242b51b2b914-1",
+    "community-3edc10a9-7d14-4af1-b6bf-3a86179c58b3-4",
+    "process-88",
+    "process-89",
+    "process-92",
+    "process-93",
+    "community-540e5f34-482c-4c48-b683-67f59fc316ae-2",
+    "process-91"
+  ],
+  "questions": {
+    "community-437af013-08d8-467d-a384-0478521bc21a-1": {
+      "sourceSignature": "f06e4937",
+      "category": "Scheduler / Queue",
+      "explanation": "本題採課本的基本佇列圖，選 A、C、D：job queue 收集系統中的程序；ready queue 放已在記憶體、正等待 CPU 的程序；device queue 放等待特定 I/O 裝置的程序。B「交換佇列」可能出現在換出程序的實作流程中，但不是這裡列出的三種基本程序佇列。",
+      "clearSubmissionReview": true
+    },
+    "community-c7e19d49-a009-45f2-ac72-242b51b2b914-1": {
+      "sourceSignature": "c02a87d4",
+      "category": "RPC",
+      "explanation": "答案是 remote procedure call（RPC，遠端程序呼叫）。它讓一個程序以類似呼叫函式的方式請遠端程序執行工作，並由 stub、參數封送與訊息傳送處理網路細節；它不是一般同一程序內的本機函式呼叫。",
+      "clearSubmissionReview": true
+    },
+    "community-c7e19d49-a009-45f2-ac72-242b51b2b914-2": {
+      "sourceSignature": "7b50c42b",
+      "category": "IPC 基礎",
+      "explanation": "選 B，synchronization（同步）。共享記憶體讓多個程序直接讀寫同一區域，因此必須協調存取順序，避免同時修改造成資料錯亂。A「尋找伺服器」較像 RPC 的連線工作；C「訊息傳遞」是另一種 IPC 模型；D「訊息容量」是訊息佇列的設計問題。",
+      "clearSubmissionReview": true
+    },
+    "community-e9945852-7bb0-4512-a4ed-d4bd8fa5e297-2": {
+      "sourceSignature": "6fc45790",
+      "category": "Process 基礎",
+      "explanation": "依老師提供的題庫答案保留 PCB。PCB 保存程序的管理與執行狀態，例如程序狀態、程式計數器和 CPU 暫存器。不過題幹列出的函式參數、回傳位址及區域變數，通常是程序記憶體中的 stack（堆疊）內容；這與內建同題答案 stack 相符。此處保留教師答案，但題幹線索與答案有差異，請以課程指定答案為準。",
+      "clearSubmissionReview": true
+    },
+    "community-3edc10a9-7d14-4af1-b6bf-3a86179c58b3-1": {
+      "sourceSignature": "cda349ac",
+      "category": "Process State",
+      "explanation": "選 D，scheduler dispatch（排程器分派）。Ready 表示程序已具備執行條件、只是在等 CPU；排程器選中它後，分派器把 CPU 控制權交給它。A「等待事件」會使執行中程序轉為 waiting；B「中斷」通常打斷目前正在執行的程序；C「I/O 完成」會讓等待中的程序回到 ready，而不保證立即取得 CPU。",
+      "clearSubmissionReview": true
+    },
+    "community-3edc10a9-7d14-4af1-b6bf-3a86179c58b3-3": {
+      "sourceSignature": "a3ff73f7",
+      "category": "Process Creation / Termination",
+      "explanation": "選 A，exec() 會以新程式映像取代目前程序的記憶體內容並開始執行。它本身不建立新程序；fork() 才建立子程序，exit() 結束程序，wait() 則讓父程序等待子程序狀態。",
+      "clearSubmissionReview": true
+    },
+    "community-3edc10a9-7d14-4af1-b6bf-3a86179c58b3-4": {
+      "sourceSignature": "a4c69f19",
+      "category": "Mach / Windows IPC",
+      "explanation": "選 A、B：Windows LPC 是本機程序間的訊息式通訊機制，Mach IPC 以訊息與 port 傳遞資料。D POSIX shared memory 讓程序映射並共用記憶體區域，屬共享記憶體模型；C Java RMI 是較高層的遠端方法呼叫框架，雖可在底層傳送訊息，但不是本章列舉的兩個作業系統 IPC 訊息傳遞系統。",
+      "clearSubmissionReview": true
+    },
+    "community-540e5f34-482c-4c48-b683-67f59fc316ae-2": {
+      "sourceSignature": "c6725382",
+      "category": "Mobile / Browser",
+      "explanation": "依本章採用的 iOS 多工模型，選 A、C：同一時間只有一個前景程序與使用者互動，但系統可允許多個背景程序在受限條件下執行。B 說背景完全不受限制，忽略了系統對時間、用途與資源的管理；D 說可同時有多個前景程序，與題目採用的單一前景模型不符。",
+      "clearSubmissionReview": true
+    },
+    "community-540e5f34-482c-4c48-b683-67f59fc316ae-4": {
+      "sourceSignature": "ed2a765d",
+      "category": "Process 基礎",
+      "explanation": "選 C，job（工作）。在作業系統教材與排程情境中，job 有時用來指稱一項待執行或正在執行的工作，因而與 process 近似使用。A thread 是程序內的執行路徑；B file 是儲存的資料；D memory block 是記憶體區域，三者都不是 process 的常見同義詞。",
+      "clearSubmissionReview": true
+    },
+    "community-540e5f34-482c-4c48-b683-67f59fc316ae-5": {
+      "sourceSignature": "000a17c8",
+      "category": "IPC 基礎",
+      "explanation": "選 B、C：message passing（訊息傳遞）與 shared memory（共享記憶體）是程序間通訊的兩種基本模型。A pipe（管道）和 D mailbox（信箱）是可用來實作或組織通訊的機制，不是與前兩者同一層級的基本模型。",
+      "clearSubmissionReview": true
+    },
+    "community-afcb95e7-391c-4c90-a3a1-1f4aa170454c-1": {
+      "sourceSignature": "637ab3d9",
+      "category": "RPC",
+      "explanation": "選 A、B、D。RPC 透過 stub 定位服務並封送參數，讓程式以程序呼叫的形式使用網路服務；本章的 ONC／Sun RPC 範例使用 XDR 統一資料表示。C「必須有父子關係」不成立，客戶端與伺服器可以是互不相關的程序。XDR 是教材此實作的特徵，不代表所有 RPC 系統都必須使用 XDR。",
+      "clearSubmissionReview": true
+    },
+    "community-afcb95e7-391c-4c90-a3a1-1f4aa170454c-2": {
+      "sourceSignature": "48c9bbec",
+      "category": "Process Creation / Termination",
+      "explanation": "選 A、B。建立子程序後，父與子可以同時執行，也可以由父程序等待子程序終止。C 描述父程序結束時是否連帶終止子程序的生命週期政策；D 描述建立時的狀態或資源繼承，兩者都不是父子程序的執行選項。",
+      "clearSubmissionReview": true
+    }
+  }
+}

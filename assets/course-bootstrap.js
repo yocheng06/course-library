@@ -14,10 +14,14 @@
   try { basicsCuration = JSON.parse(document.getElementById('course-os-basics-curation')?.textContent || 'null'); } catch {}
   let architectureCuration = null;
   try { architectureCuration = JSON.parse(document.getElementById('course-os-architecture-curation')?.textContent || 'null'); } catch {}
+  let processCuration = null;
+  try { processCuration = JSON.parse(document.getElementById('course-os-process-curation')?.textContent || 'null'); } catch {}
   if (config.course === 'os' && basicsCuration?.unit === 'basics' && Array.isArray(basicsCuration.order))
     config.setUnitQuestionOrder?.('basics', basicsCuration.order);
   if (config.course === 'os' && architectureCuration?.unit === 'architecture' && Array.isArray(architectureCuration.order))
     config.setUnitQuestionOrder?.('architecture', architectureCuration.order);
+  if (config.course === 'os' && processCuration?.unit === 'process' && Array.isArray(processCuration.order))
+    config.setUnitQuestionOrder?.('process', processCuration.order);
   const markInteraction = () => { interacted = true; };
   for (const event of ['pointerdown', 'keydown', 'wheel', 'touchstart'])
     document.addEventListener(event, markInteraction, {once:true, passive:true});
@@ -57,12 +61,24 @@
       if (meta.clearSubmissionReview === true) delete question.submissionReview;
       return { ...row, question };
     });
-    const presentIds = new Set(curatedBasicsRows.map(row=>row.question?.id));
+    const curatedProcessRows = curatedBasicsRows.map(row => {
+      if (row?.unit !== 'process' || !row.question || processCuration?.unit !== 'process') return row;
+      const original = row.question;
+      const meta = processCuration.questions?.[original.id];
+      if (!meta || sourceSignature(original) !== meta.sourceSignature) return row;
+      const question = { ...original };
+      if (meta.category && (!original.category || ['HTML 匯入', '程序與 IPC'].includes(original.category))) question.category = meta.category;
+      if (!String(original.explanation || '').trim() && String(meta.explanation || '').trim()) question.explanation = meta.explanation;
+      if (!String(original.note || '').trim() && String(meta.note || '').trim()) question.note = meta.note;
+      if (meta.clearSubmissionReview === true) delete question.submissionReview;
+      return { ...row, question };
+    });
+    const presentIds = new Set(curatedProcessRows.map(row=>row.question?.id));
     const aliasTargets = new Map((curation?.aliases || []).map(alias=>[alias.id,alias.target]));
     const aliases = new Set((curation?.aliases || []).filter(alias=>presentIds.has(alias.target)).map(alias=>alias.id));
     const ranks = new Map((curation?.order || []).map((id, index) => [id, index]));
     // Missing rows in a complete public response are hidden/merged, never fallbacks.
-    const sourceRows = curatedBasicsRows;
+    const sourceRows = curatedProcessRows;
     const l9 = [];
     sourceRows.forEach((row, inputIndex) => {
       if (row?.unit !== 'L9' || !row.question || aliases.has(row.question.id)) return;
