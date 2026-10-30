@@ -618,7 +618,7 @@ function answerFitsBlankCount(answer, count) {
   if (typeof answer !== "string" || !answer.trim()) return false;
   if (count <= 1) return true;
   return answer
-    .split(/\s*(?:\/|[、，,;；])\s*/)
+    .split(answer.includes("/") ? /\s*\/\s*/ : /\s*[、，,;；]\s*/)
     .filter(Boolean).length === count;
 }
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -748,11 +748,12 @@ const references = (entries) =>
       }]),
     ).values(),
   ].slice(0, 3);
-export function matchQuestion(question, index, { course, unit = "all" } = {}) {
+const completeStem = value => normalizeStem(value).replace(/(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/gu,"___").replace(/\s*___\s*/g,"___");
+export function matchQuestion(question, index, { course, unit = "all", completeOnly = false } = {}) {
   const eligible = (e) =>
     e.course === course && (unit === "all" || e.unit === unit);
   if (question.issues.length) {
-    const candidates = matchQuestion({...question, issues: []}, index, {course, unit});
+    const candidates = matchQuestion({...question, issues: []}, index, {course, unit, completeOnly});
     return {
       status: "review",
       answer: "",
@@ -767,6 +768,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   );
   let missingBlank = false;
   if (
+    !completeOnly &&
     !blankCount &&
     !sameStem.some(e => !e.options.length) &&
     !question.options.length &&
@@ -789,9 +791,10 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       (entry) =>
         eligible(entry) &&
         !entry.options.length &&
-        withoutFillBlanks(entry.stem) === blankless,
+        withoutFillBlanks(entry.stem) === blankless &&
+        (!completeOnly || completeStem(entry.stem) === completeStem(question.stem)),
     );
-    const preferred = candidates.some((entry) => entry.preferred)
+    const preferred = !completeOnly && candidates.some((entry) => entry.preferred)
       ? candidates.filter((entry) => entry.preferred)
       : candidates;
     const candidateIds = new Set(candidates.map((entry) => entry.id));
@@ -825,7 +828,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   }
   let filledAnswerMatch = false;
   let correctedFilledTypo = false;
-  if (!exact.length && !question.options.length) {
+  if (!completeOnly && !exact.length && !question.options.length) {
     const filled = index.entries
       .filter(eligible)
       .map((entry) => ({
@@ -846,6 +849,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   // A text-answer question can be transcribed as MCQ. Accept only an exact
   // stem, an unambiguous literal answer, and no competing choice/image version.
   if (
+    !completeOnly &&
     !exact.length &&
     question.options.length &&
     sameStem.length &&
@@ -864,7 +868,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     exact=reviewVersions;
     repeatedFillStem=true;
   }
-  if (!repeatedFillStem && exact.some((e) => e.preferred)) exact = exact.filter((e) => e.preferred);
+  if (!completeOnly && !repeatedFillStem && exact.some((e) => e.preferred)) exact = exact.filter((e) => e.preferred);
   if (exact.length) {
     if (exact.some((e) => e.needsImage))
       return {
@@ -875,6 +879,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       };
     const answers = exact.map((e) => remapAnswer(question, e));
     if (
+      (completeOnly && new Set(exact.map(e => JSON.stringify((e.conditions || []).map(normalizeText).sort()))).size !== 1) ||
       answers.some((a) => !a) ||
       new Set(answers.map((a) => a.signature)).size !== 1
     )
@@ -911,7 +916,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     };
   }
   if (unit !== "all") {
-    const elsewhere = matchQuestion(question, index, { course, unit: "all" });
+    const elsewhere = matchQuestion(question, index, { course, unit: "all", completeOnly });
     if (elsewhere.status === "matched")
       return {
         ...elsewhere,
@@ -987,6 +992,14 @@ export function matchQuestions(questions, index, scope) {
     question,
     ...matchQuestion(question, index, scope),
   }));
+}
+
+// Public batch lookup has exactly two outcomes; internal candidate matching stays reusable.
+export function matchRecordedQuestions(questions, index, scope) {
+  return matchQuestions(questions,index,{...scope,completeOnly:true}).map(row => {
+    if (row.status === 'matched') return row;
+    return {...row,status:'unmatched',answer:'',choiceKey:null,conditions:[],outsideScope:false};
+  });
 }
 
 export function formatQuestions(questions) {

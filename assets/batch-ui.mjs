@@ -1,11 +1,11 @@
 import {unitLabel} from './contribution-model.js?v=unit-names-20261030';
 import {
   buildIndex,
-  matchQuestions,
+  matchRecordedQuestions,
   expandLibraryQuestion,
   applyBuiltinOverrides,
   MAX_TEXT,
-} from "./batch-model.mjs?v=pending-review-20261030";
+} from "./batch-model.mjs?v=binary-results-20261030";
 import { parseBatchInput } from "./batch-import.mjs?v=pending-review-20261030";
 import { setupBatchImport } from "./batch-import-ui.mjs?v=batch-match-normalize-20261029";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
@@ -40,7 +40,7 @@ const esc = (value) =>
       ],
   );
 const names = { os: "作業系統", algorithms: "演算法" };
-const labels = { matched: "已收錄", unmatched: "未收錄", review: "需確認" };
+const labels = { matched: "已收錄", unmatched: "未收錄" };
 const draftKey = "course-library.batch-draft.v1";
 let library,
   index,
@@ -107,15 +107,7 @@ function markChanged() {
     );
   } catch {}
 }
-function statusLabel(row) {
-  if (row.status === "unmatched" && courseSuggestion) return "此科目未找到";
-  if (row.outsideScope) return "其他單元已收錄";
-  return row.status === "unmatched" && !snapshotCoverage
-    ? "未找到"
-    : row.status === "unmatched" && snapshotUnit !== "all"
-      ? "此範圍未找到"
-      : labels[row.status];
-}
+function statusLabel(row) { return labels[row.status]; }
 let snapshotCoverage = false;
 let snapshotUnit = "all";
 let restoreUnit = null;
@@ -302,7 +294,7 @@ function renderResults() {
   $("resultRows").innerHTML = shown
     .map(
       (row) =>
-        `<tr><th scope="row">${esc(row.question.number)}</th><td class="answer-text">${esc(row.answer || "尚無可確認答案")}${row.conditions?.length ? `<p class="answer-condition"><strong>成立條件</strong><br>${row.conditions.map(esc).join("<br>")}</p>` : ""}${row.outsideScope ? `<p class="source-unit">收錄單元：${esc(unitNames(row))}</p>` : ""}</td><td><span class="result-badge ${row.status}">${esc(statusLabel(row)+(row.pendingReview?" · 待核對":""))}</span></td><td><details class="question-detail"><summary>${esc(row.question.stem.slice(0, 90) || "缺少題幹")}</summary><p>${esc(row.question.stem)}</p>${row.question.options.length ? "<ul>" + row.question.options.map((o) => `<li>${esc(o.label)}. ${esc(o.text)}</li>`).join("") + "</ul>" : ""}<p>${esc(row.reason)}</p>${row.references.length ? '<ul class="source-links">' + row.references.map((ref) => `<li><a href="${sourceURL(ref.id)}" target="_blank" rel="noopener">${esc(ref.id)}・開啟${row.status === "matched" ? "收錄" : "候選"}原題 ↗</a>${ref.candidateAnswer!==undefined?`<p>此版本答案：${esc(ref.candidateAnswer||"尚未提供")}</p>`:""}</li>`).join("") + "</ul>" : ""}</details></td></tr>`,
+        `<tr><th scope="row">${esc(row.question.number)}</th><td class="answer-text">${esc(row.answer || "尚無可確認答案")}${row.conditions?.length ? `<p class="answer-condition"><strong>成立條件</strong><br>${row.conditions.map(esc).join("<br>")}</p>` : ""}${row.outsideScope ? `<p class="source-unit">收錄單元：${esc(unitNames(row))}</p>` : ""}</td><td><span class="result-badge ${row.status}">${esc(statusLabel(row))}</span></td><td><details class="question-detail"><summary>${esc(row.question.stem.slice(0, 90) || "缺少題幹")}</summary><p>${esc(row.question.stem)}</p>${row.question.options.length ? "<ul>" + row.question.options.map((o) => `<li>${esc(o.label)}. ${esc(o.text)}</li>`).join("") + "</ul>" : ""}<p>${esc(row.reason)}</p>${row.references.length ? '<ul class="source-links">' + row.references.map((ref) => `<li><a href="${sourceURL(ref.id)}" target="_blank" rel="noopener">${esc(ref.id)}・開啟${row.status === "matched" ? "收錄" : "候選"}原題 ↗</a>${ref.candidateAnswer!==undefined?`<p>此版本答案：${esc(ref.candidateAnswer||"尚未提供")}</p>`:""}</li>`).join("") + "</ul>" : ""}</details></td></tr>`,
     )
     .join("");
   $("emptyResults").hidden = shown.length > 0;
@@ -314,7 +306,7 @@ $("batchForm").addEventListener("submit", (event) => {
     const { questions: parsed, warnings } = parseBatchInput(
       $("batchText").value,
     );
-    results = matchQuestions(parsed, index, scope());
+    results = matchRecordedQuestions(parsed, index, scope());
     snapshot = currentSnapshot();
     snapshotGeneration = libraryGeneration;
     snapshotCourse = $("course").value;
@@ -322,7 +314,7 @@ $("batchForm").addEventListener("submit", (event) => {
     snapshotCoverage = coverage[snapshotCourse];
     const count = (status) => results.filter((r) => r.status === status).length;
     const otherCourse = snapshotCourse === "os" ? "algorithms" : "os";
-    const otherMatches = matchQuestions(parsed, index, {
+    const otherMatches = matchRecordedQuestions(parsed, index, {
       course: otherCourse,
     }).filter((r) => r.status === "matched").length;
     courseSuggestion =
@@ -334,19 +326,13 @@ $("batchForm").addEventListener("submit", (event) => {
       : "請展開有疑義的項目，核對題幹與選項是否完整。";
     $("courseMismatchText").textContent = courseSuggestion ? scopeHint : "";
     $("switchCourse").textContent = `改用${names[otherCourse]}比對`;
-    const unmatchedLabel = courseSuggestion
-      ? "此科目未找到"
-      : !snapshotCoverage
-        ? "未找到"
-        : snapshotUnit === "all"
-          ? "未收錄"
-          : "此範圍未找到";
+    const unmatchedLabel = "未收錄";
     $("resultCount").textContent =
-      `共 ${results.length} 題・${names[snapshotCourse]}・已收錄 ${count("matched")}・${unmatchedLabel} ${count("unmatched")}・需確認 ${count("review")}`;
+      `共 ${results.length} 題・${names[snapshotCourse]}・已收錄 ${count("matched")}・${unmatchedLabel} ${count("unmatched")}`;
     $("expandScope").hidden = !results.some((r) => r.outsideScope);
     $("coverageNotice").hidden = snapshotCoverage;
     $("coverageNotice").textContent =
-      "公開投稿題庫尚未同步。本次結果只涵蓋內建題庫，「未找到」不代表網站一定未收錄，請重新同步後核對。";
+      "公開投稿題庫尚未同步。本次結果只涵蓋內建題庫，「未收錄」僅代表本次尚未找到完整符合的版本，請重新同步後核對。";
     $("resultFilter").querySelector('[value="unmatched"]').textContent =
       unmatchedLabel;
     $("staleNotice").textContent =
@@ -394,7 +380,7 @@ $("copyAnswers").addEventListener("click", () => {
     results
       .map(
         (r) =>
-          `${r.question.number}｜${r.answer || "尚無可確認答案"}｜${statusLabel(r)}${r.pendingReview?' · 待核對':''}` +
+          `${r.question.number}｜${r.answer || "尚無可確認答案"}｜${statusLabel(r)}` +
           (r.references.some(ref=>ref.candidateAnswer!==undefined)?'\n  候選版本：'+r.references.map(ref=>ref.id+'：'+(ref.candidateAnswer||'尚未提供')).join('；'):'') +
           (r.outsideScope ? `（${unitNames(r)}）` : "") +
           (r.conditions?.length

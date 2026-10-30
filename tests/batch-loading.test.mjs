@@ -172,7 +172,7 @@ test('an incorporated community question uses its built-in edit instead of an ol
  const localBase=structuredClone(base);localBase.entries=[toLibraryQuestion('os','scheduling',old,true)];
  const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>localBase}:{ok:true,json:async()=>({questions:String(url).endsWith('course=os')?[{unit:'scheduling',question:old}]:[],overrides:String(url).endsWith('course=os')?[{unit:'scheduling',question:builtin}]:[]})});
  ui.$('batchText').value=`1. ${stem}\nA. 短程排程器\nB. 長程排程器`;ui.fire('batchForm','submit');
- assert.ok(ui.$('resultRows').textContent.includes('B. 長程排程器'));assert.match(ui.$('resultCount').textContent,/需確認 0/);
+ assert.ok(ui.$('resultRows').textContent.includes('B. 長程排程器'));assert.match(ui.$('resultCount').textContent,/已收錄 1・未收錄 0/);
 });
 
 test('course sync is lazy, revisiting a fresh course reuses data, and a 304 keeps verified results usable',async()=>{
@@ -209,4 +209,14 @@ for(const source of ['static','public','cache'])test('L9 uses the shared memory-
  await tick();
  const option=[...ui.$('unit').options].find(o=>o.value==='L9');
  assert.ok(option);assert.equal(option.textContent,'L9 · 記憶體管理');
+});
+
+test('binary lookup counts, filters, copies and stages incomplete matches without carrying a guessed answer',async()=>{
+ const storage=new Map();const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>structuredClone(base)}:response([]),{storage});await tick();
+ ui.$('batchText').value='1. '+stem+'\nA. 短程排程器\nB. 長程排程器\n\n2. '+stem+'\nA. 短程排程器\nB. 不同選項\n\n3. 未知測試題目？\nA. 第一選項\nB. 第二選項';
+ ui.fire('batchForm','submit');assert.match(ui.$('resultCount').textContent,/已收錄 1・未收錄 2/);assert.doesNotMatch(ui.$('resultCount').textContent,/需確認|待核對/);
+ assert.deepEqual([...ui.$('resultFilter').options].map(o=>o.value),['all','matched','unmatched']);
+ ui.$('resultFilter').value='unmatched';ui.fire('resultFilter','change');assert.equal(ui.$('resultRows').querySelectorAll('tr').length,2);assert.match(ui.$('resultRows').textContent,/選項不同/);assert.equal(ui.$('resultRows').querySelectorAll('.source-links a').length,1);
+ ui.fire('copyAnswers','click');await tick();assert.match(ui.copied[0],/2｜尚無可確認答案｜未收錄/);assert.doesNotMatch(ui.copied[0],/需確認|待核對/);
+ ui.fire('transferUnmatched','click');const draft=JSON.parse(storage.get('course-library.submission-inbox.v1'));assert.equal(draft.items.length,2);assert.ok(draft.items.every(q=>q.answer===''));assert.equal(draft.items[0].optionsText,'短程排程器\n不同選項');
 });

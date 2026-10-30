@@ -149,7 +149,7 @@
             </select>
           </label>
           <p class="muted">
-            保留題號與選項順序；題號衝突時，新增題目會接續編號。含圖片但未轉錄的內容會標為需確認。
+            保留題號與選項順序；題號衝突時，新增題目會接續編號。含圖片但未轉錄的內容會列為未收錄，展開可查看原因。
           </p>
           <div class="actions">
             <button id="applyImport" class="button secondary" type="button">
@@ -225,7 +225,7 @@
             A.、(A)、全形選項及常見 LaTeX 數學寫法。
             填空題可省略選項；「題目：／選項：」標籤、粗體、星號、空行和分隔線可直接保留。
             「請用數字／小寫英文回答」等填答提示可保留。中英文選項會依已核對的對照比對；
-            有填答提示但漏掉一條填空線時，會核對其餘完整文字及答案。條件或選項內容不同仍列為需確認。
+            只有完整題幹、選項或填空數符合且答案無衝突，才顯示已收錄。條件、選項或填空數不同，以及題圖不完整時，會列為未收錄並保留原因。
           </p>
           <pre id="exampleText">
 1. CPU 排程器是哪一種類型的排程器？
@@ -278,7 +278,6 @@ D. 巨集排程器
               <option value="all">全部結果</option>
               <option value="matched">已收錄</option>
               <option value="unmatched">未收錄</option>
-              <option value="review">需確認</option>
             </select></label
           >
           <div class="actions">
@@ -290,7 +289,7 @@ D. 巨集排程器
           </div>
         </div>
         <p class="muted result-help">
-          未收錄題目可轉入投稿草稿，補上答案與解析後直接投稿；已收錄與需確認題目不會轉入。
+          未收錄表示本次沒有可直接使用的完整版本，可能已有相似題；展開可查看差異。未收錄題目可轉入投稿草稿，補上答案後投稿，解析可留白；已收錄題目不會轉入。
           選項代號依你貼上的版本對應；其他單元已收錄會另外標示。重要成立條件會隨答案顯示並一起複製，展開每題可核對原題。
         </p>
         <div
@@ -332,7 +331,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=unit-names-20261030"
+      src="assets/batch-ui.mjs?v=binary-results-20261030"
     ></script>
   </body>
 </html>
