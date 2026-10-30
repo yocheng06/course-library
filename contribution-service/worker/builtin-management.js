@@ -237,7 +237,7 @@ async function saveBuiltin(request, env, course, id, { publicEdit = false } = {}
     body = await readBody(request, 100000);
   if (
     !body ||
-    !(publicEdit ? ["update", "delete"] : ["update", "reset", "rollback"]).includes(body.action) ||
+    !(publicEdit ? ["update", "delete"] : ["update", "delete", "reset", "rollback"]).includes(body.action) ||
     !Number.isInteger(body.revision) ||
     body.revision < 0 ||
     (body.note !== undefined && typeof body.note !== "string") ||

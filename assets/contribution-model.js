@@ -135,6 +135,7 @@ export function uniqueQuestions(
   unit,
   questions,
   onDuplicate = () => {},
+  {allowConflictingVersions = false} = {},
 ) {
   const keys = new Set(), identities = new Map();
   return questions.filter((question, index) => {
@@ -143,7 +144,7 @@ export function uniqueQuestions(
     const letters=options.length && globalThis.courseChoiceAnswers.expectedChoiceKey(question.answer,options);
     const answerIdentity=letters ? [...letters].map(letter=>cleanKey(String(options[letter.charCodeAt(0)-65]).replace(/^[A-H][.、．:：]\s*/i,''))).sort() : cleanKey(question.answer);
     const signature = JSON.stringify([normalizeType(question.type, question.images), answerIdentity]);
-    if (identities.has(identity) && identities.get(identity) !== signature) throw new Error(`第 ${index + 1} 題與同批題目相同，但答案或題型不同，請核對後再匯入。`);
+    if (!allowConflictingVersions && identities.has(identity) && identities.get(identity) !== signature) throw new Error(`第 ${index + 1} 題與同批題目相同，但答案或題型不同，請核對後再匯入。`);
     identities.set(identity, signature);
     const key = JSON.stringify([identity, signature]);
     if (keys.has(key)) {
@@ -168,7 +169,7 @@ function text(value, label, max, required = false) {
 }
 export function normalizeBatch(
   input,
-  { allowImages = true, allowMissingAnswers = false, onDuplicate = () => {} } = {},
+  { allowImages = true, allowMissingAnswers = false, onDuplicate = () => {}, allowConflictingVersions = false } = {},
 ) {
   if (!input || typeof input !== "object" || Array.isArray(input))
     throw new Error("投稿資料格式不正確。");
@@ -249,6 +250,6 @@ export function normalizeBatch(
     title: text(input.title, "題庫名稱", 100, true),
     name: text(input.name, "投稿者稱呼", 60),
     source: text(input.source, "來源說明", 2000),
-    questions: uniqueQuestions(course, unit, questions, onDuplicate),
+    questions: uniqueQuestions(course, unit, questions, onDuplicate, {allowConflictingVersions}),
   };
 }

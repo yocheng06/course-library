@@ -475,6 +475,7 @@ export function toLibraryQuestion(
       : null,
     needsImage: Boolean(raw.images?.length || raw.missingContext),
     preferred,
+    ...(raw.submissionReview?{reviewGroup:true,reviewPending:raw.submissionReview.status==='pending'}:{}),
     ...(raw.answerProvided === false ? {reviewReason:raw.note || "原題答案尚未確認，請開啟原題核對。"} : {}),
     ...(choiceAliases(options, raw.optionTranslations)
       ? { optionAliases: choiceAliases(options, raw.optionTranslations) }
@@ -742,7 +743,9 @@ function dice(a, b) {
 const references = (entries) =>
   [
     ...new Map(
-      entries.map((e) => [e.id, { id: e.id, unit: e.unit, stem: e.stem }]),
+      entries.map((e) => [e.id, { id: e.id, unit: e.unit, stem: e.stem,
+        ...(e.showCandidateAnswer?{candidateAnswer:e.options.length&&choiceAnswerKey(e.answer,e.options)?[...choiceAnswerKey(e.answer,e.options)].map(letter=>e.options[letter.charCodeAt(0)-65]).join('；'):e.answer}:{}),
+      }]),
     ).values(),
   ].slice(0, 3);
 export function matchQuestion(question, index, { course, unit = "all" } = {}) {
@@ -853,6 +856,14 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   }
   // A changed distractor can become another correct answer. Only a complete
   // option-set match (including verified aliases) may inherit a choice answer.
+  const reviewVersions=[...new Set([...sameStem,...exact])];
+  if(reviewVersions.some(entry=>entry.reviewGroup)){
+    const answers=reviewVersions.map(entry=>remapAnswer(question,entry));
+    if(reviewVersions.some(entry=>entry.needsImage)||question.options.length&&reviewVersions.some(entry=>!sameOptions(question,entry))||answers.some(answer=>!answer)||new Set(answers.map(answer=>answer?.signature)).size!==1||new Set(reviewVersions.map(entry=>JSON.stringify((entry.conditions||[]).map(normalizeText).sort()))).size!==1)
+      return {status:'review',answer:'',reason:'此題有另行收錄的投稿版本，答案、選項、作答格式或成立條件仍有差異，請核對下方各版本答案。',references:references(reviewVersions.slice().sort((a,b)=>Number(b.reviewPending)-Number(a.reviewPending)).map(entry=>({...entry,showCandidateAnswer:true})))};
+    exact=reviewVersions;
+    repeatedFillStem=true;
+  }
   if (!repeatedFillStem && exact.some((e) => e.preferred)) exact = exact.filter((e) => e.preferred);
   if (exact.length) {
     if (exact.some((e) => e.needsImage))
@@ -876,6 +887,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     return {
       status: "matched",
       answer: answers[0].answer,
+      ...(exact.some(entry=>entry.reviewPending)?{pendingReview:true}:{}),
       choiceKey: question.options.length ? answers[0].signature : null,
       reason: repeatedFillStem
         ? "題幹與填空數精確符合，各筆題庫紀錄的答案、作答格式及成立條件一致。"

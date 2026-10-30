@@ -1,12 +1,14 @@
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=import-conflicts-20261029';
+const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
+const uniqueQuestions=(course,unit,questions,onDuplicate)=>uniqueQuestionsBase(course,unit,questions,onDuplicate,{allowConflictingVersions:true});
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=pending-review-20261030';
 import {
   COURSE_UNITS,
   normalizeUnit,
   unitLabel,
   normalizeType,
-  normalizeBatch,
-  uniqueQuestions,
-} from "./contribution-model.js?v=import-dedup-20261029";
+  normalizeBatch as normalizeBatchBase,
+  uniqueQuestions as uniqueQuestionsBase,
+} from "./contribution-model.js?v=pending-review-20261030";
 import {
   esc,
   api,
@@ -17,7 +19,7 @@ import {
   showSimilar,
   downloadJSON,
   copyText,
-} from "./contributions-ui.js?v=import-dedup-20261029";
+} from "./contributions-ui.js?v=pending-review-20261030";
 import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=community-direct-publish-20261028";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
@@ -904,7 +906,7 @@ $("submitBatch").addEventListener("click", async () => {
     render();
     save();
     message(
-      `已將 ${result.acceptedCount ?? payload.questions.length} 題加入公開題庫${result.skippedCount ? `；自動略過 ${result.skippedCount} 題重複題目` : ""}。投稿編號：${result.id}${receiptSaveFailed ? "。這台裝置無法保存收據，請下載投稿收據備份。" : ""}`,
+      `已將 ${result.acceptedCount ?? payload.questions.length} 題加入公開題庫${result.pendingReviewCount ? `；其中 ${result.pendingReviewCount} 題已標示待核對` : ""}${result.skippedCount ? `；自動略過 ${result.skippedCount} 題重複題目` : ""}。投稿編號：${result.id}${receiptSaveFailed ? "。這台裝置無法保存收據，請下載投稿收據備份。" : ""}`,
     );
   } catch (error) {
     if (error.details?.code === "similar_questions")

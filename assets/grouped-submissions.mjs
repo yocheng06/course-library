@@ -1,5 +1,6 @@
-import {COURSE_UNITS,normalizeBatch,normalizeType,normalizeUnit,unitLabel} from './contribution-model.js?v=import-dedup-20261029';
-import {api,esc,questionPreview,downloadJSON,showSimilar} from './contributions-ui.js?v=import-dedup-20261029';
+const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
+import {COURSE_UNITS,normalizeBatch as normalizeBatchBase,normalizeType,normalizeUnit,unitLabel} from './contribution-model.js?v=pending-review-20261030';
+import {api,esc,questionPreview,downloadJSON,showSimilar} from './contributions-ui.js?v=pending-review-20261030';
 
 export function groupImport(data, fallback, filename='匯入題庫', {allowMissingAnswers=false}={}) {
   const groups=new Map();let count=0;
@@ -41,25 +42,33 @@ export function groupImportCounts(group) {
   const localDuplicates=countValue(group.skippedCount);
   const pending=group.payload.questions.length;
   const result=group.result;
-  if(!result)return {total:pending+localDuplicates,added:0,duplicates:localDuplicates,pending,completed:0};
+  if(!result)return {total:pending+localDuplicates,added:0,review:0,replaced:0,duplicates:localDuplicates,pending,completed:0};
   const received=countValue(result.receivedCount,pending);
-  const added=countValue(result.acceptedCount,result.status==='duplicates_only'?0:Math.max(0,received-countValue(result.skippedCount)));
-  const duplicates=countValue(result.skippedCount,Math.max(0,received-added));
-  return {total:received+localDuplicates,added,duplicates:duplicates+localDuplicates,pending:0,completed:1};
+  const accepted=countValue(result.acceptedCount,['duplicates_only','replaced_only'].includes(result.status)?0:Math.max(0,received-countValue(result.skippedCount)-countValue(result.replacedCount)));
+  const review=countValue(result.pendingReviewCount);
+  const added=countValue(result.addedCount,Math.max(0,accepted-review));
+  const replaced=countValue(result.replacedCount);
+  const duplicates=countValue(result.skippedCount,Math.max(0,received-accepted-replaced));
+  return {total:received+localDuplicates,added,review,replaced,duplicates:duplicates+localDuplicates,pending:0,completed:1};
 }
 export function groupedImportSummary(groups) {
-  const totals=groups.map(groupImportCounts).reduce((sum,counts)=>Object.fromEntries(Object.keys(sum).map(key=>[key,sum[key]+counts[key]])),{total:0,added:0,duplicates:0,pending:0,completed:0});
+  const totals=groups.map(groupImportCounts).reduce((sum,counts)=>Object.fromEntries(Object.keys(sum).map(key=>[key,sum[key]+counts[key]])),{total:0,added:0,review:0,replaced:0,duplicates:0,pending:0,completed:0});
   return {...totals,batches:groups.length};
 }
 export function groupedImportSummaryText(groups) {
   const n=groupedImportSummary(groups);
-  return `本次共 ${n.total} 題 · 已新增 ${n.added} 題 · 重複略過 ${n.duplicates} 題 · 已完成 ${n.completed}／${n.batches} 批${n.pending?` · 尚有 ${n.pending} 題待處理`:''}`;
+  return `本次共 ${n.total} 題 · 已新增 ${n.added} 題 · 待核對 ${n.review} 題 · 重複略過 ${n.duplicates} 題 · 已完成 ${n.completed}／${n.batches} 批${n.pending?` · 尚有 ${n.pending} 題待處理`:''}`;
+}
+function replacedQuestionSummary(result) {
+  const items=Array.isArray(result?.replaced)?result.replaced:[];
+  if(!items.length)return '';
+  return `<p>更新對照：${items.map(item=>`本批第 ${Number(item.index)} 題 → 題庫 ${esc(item.targetId)}`).join('；')}。修改前版本可在題庫管理中還原。</p>`;
 }
 
 export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}) {
   const key='course-library-grouped-submissions-v1';let queue=[],busy=false;
   const panel=document.createElement('section');panel.className='group-preview';
-  panel.innerHTML='<h2>匯入分組預覽</h2><p>依科目與單元分組，每批最多 200 題。可同時選取 CCSA 題目 HTML 和交卷結果 HTML，自動配對正解；解析可留白。確認每組內容與答案後再送出；下方手動編輯中的原草稿會保留。已送出的批次會保留收據，重試只處理未完成批次。沒有配對到的正解需先補上。</p><p class="notice" data-import-summary role="status" aria-live="polite" hidden></p><div data-groups></div><label class="consent"><input type="checkbox" data-consent>我已預覽各組題目，確認題目與答案正確並了解送出後會立即公開。</label><div class="actions"><button type="button" class="button" data-send>確認分組並逐批加入題庫</button><button type="button" class="button secondary" data-download>下載分組草稿與收據</button><button type="button" class="text-button" data-clear>清空分組預覽</button></div><p data-import-status role="status" aria-live="polite"></p>';
+  panel.innerHTML='<h2>匯入分組預覽</h2><p>依科目與單元分組，每批最多 200 題。可同時選取 CCSA 題目 HTML 和交卷結果 HTML，自動配對正解；解析可留白。確認每組內容與答案後再送出；下方手動編輯中的原草稿會保留。已送出的批次會保留收據，重試只處理未完成批次。沒有配對到的正解需先補上。</p><p class="notice" data-import-summary role="status" aria-live="polite" hidden></p><div data-groups></div><label class="consent"><input type="checkbox" data-consent>我已預覽各組題目並確認題目與答案正確。完全重複會略過；疑似重複或版本不同會另行收錄並標示待核對，既有題目會保留。送出後會立即公開。</label><div class="actions"><button type="button" class="button" data-send>確認分組並逐批加入題庫</button><button type="button" class="button secondary" data-download>下載分組草稿與收據</button><button type="button" class="text-button" data-clear>清空分組預覽</button></div><p data-import-status role="status" aria-live="polite"></p>';
   document.getElementById('draftHeading').closest('section').before(panel);
   const list=panel.querySelector('[data-groups]'),status=panel.querySelector('[data-import-status]'),consent=panel.querySelector('[data-consent]');
   function updateSummary(){
@@ -104,7 +113,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
     panel.hidden=!queue.length;
     list.innerHTML=queue.map((group,index)=>{
       const missing=missingAnswerCount(group),counts=groupImportCounts(group);
-      return `<details data-group-index="${index}"><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} 題 · 重複 ${counts.duplicates} 題`:'待送出'}${group.htmlImport?` <span data-answer-count>（待補正解 ${missing} 題）</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary>${group.payload.questions.map((q,i)=>group.htmlImport?importedPreview(q,index,i):questionPreview(q,i)+'</article>').join('')}${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，重複略過 ${counts.duplicates} 題。收據：${esc(group.result.id || '全部已收錄，未新增投稿')}</p>`:''}<div data-similar></div><p data-error role="status"></p></details>`;
+      return `<details data-group-index="${index}"><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`:'待送出'}${group.htmlImport?` <span data-answer-count>（待補正解 ${missing} 題）</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary>${group.payload.questions.map((q,i)=>group.htmlImport?importedPreview(q,index,i):questionPreview(q,i)+'</article>').join('')}${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+esc(group.result.id):group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，未新增投稿。'}</p>${replacedQuestionSummary(group.result)}`:''}<div data-similar></div><p data-error role="status"></p></details>`;
     }).join('');
     updateSummary();refreshSendButton();
   }
@@ -116,7 +125,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
         const htmlImport=group.htmlImport===true;
         const summary=group.answerImportSummary;
         const answerImportSummary=summary&&Number.isSafeInteger(summary.matchedQuestionCount)&&summary.matchedQuestionCount>=0&&Number.isSafeInteger(summary.totalQuestionCount)&&summary.totalQuestionCount>=0?{matchedQuestionCount:summary.matchedQuestionCount,totalQuestionCount:summary.totalQuestionCount}:null;
-        return {payload:normalizeBatch(group.payload,{allowMissingAnswers:htmlImport}),requestId:group.requestId,result:group.result?.id || group.result?.status==='duplicates_only'?group.result:null,skippedCount:Number(group.skippedCount)||0,...(htmlImport?{htmlImport:true}:{}),...(answerImportSummary?{answerImportSummary}:{})};
+        return {payload:normalizeBatch(group.payload,{allowMissingAnswers:htmlImport}),requestId:group.requestId,result:group.result?.id || ['duplicates_only','replaced_only'].includes(group.result?.status)?group.result:null,skippedCount:Number(group.skippedCount)||0,...(htmlImport?{htmlImport:true}:{}),...(answerImportSummary?{answerImportSummary}:{})};
       });
     }
   }catch(error){message('分組草稿無法讀取，原始資料未刪除。請先下載備份後重新匯入。',true);}
@@ -142,7 +151,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
     if(busy || !consent.checked)return;
     if(queue.some(group=>!group.result&&missingAnswerCount(group)>0)){updateAnswerStatus();return;}
     busy=true;updateSummary();panel.querySelector('[data-send]').disabled=true;
-    // Snapshot consent per group; a similar-question warning needs its own explicit consent.
+    // The group-level consent also authorizes updating a uniquely matched existing version.
     try{
       for(let index=0;index<queue.length;index++){
         const group=queue[index];if(group.result)continue;
@@ -150,17 +159,17 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
         status.textContent=`正在送出第 ${index+1}／${queue.length} 批…`;
         try{
           const payload=normalizeBatch(group.payload);
-          group.result=await api('/api/submissions',{method:'POST',body:JSON.stringify({...payload,clientRequestId:group.requestId,website:document.getElementById('website').value,confirmSimilar:node.querySelector('.similar-consent')?.checked===true})});
+          group.result=await api('/api/submissions',{method:'POST',body:JSON.stringify({...payload,clientRequestId:group.requestId,website:document.getElementById('website').value,replaceSimilar:true})});
           // Persist each completion before starting the next request.
           save();updateSummary();if(group.result.id)onReceipt(group.result,payload);
           const counts=groupImportCounts(group);
-          node.querySelector('summary').textContent=`${COURSE_UNITS[group.payload.course].name}／${unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle)} · ${counts.total} 題 · 已完成 · 新增 ${counts.added} 題 · 重複 ${counts.duplicates} 題`;
-          node.querySelector('[data-error]').textContent=`本批共 ${counts.total} 題，已新增 ${counts.added} 題，重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+group.result.id:'全部已收錄，沒有新增題目。'}`;
+          node.querySelector('summary').textContent=`${COURSE_UNITS[group.payload.course].name}／${unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle)} · ${counts.total} 題 · 已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`;
+          node.querySelector('[data-error]').textContent=`本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+group.result.id:group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，沒有新增投稿。'}`;
         }catch(error){
-          if(error.details?.code==='similar_questions')showSimilar(node.querySelector('[data-similar]'),error.details.possibleDuplicates);
+          if(error.details?.code==='similar_questions')showSimilar(node.querySelector('[data-similar]'),error.details.possibleDuplicates,{mode:'replacement'});
           node.open=true;node.querySelector('[data-error]').textContent=error.message;
           const conflicts=error.details?.possibleDuplicates;
-          const reason=conflicts?.length?`原始第 ${conflicts.map(q=>q.index).join('、')} 題需要核對，詳見本批疑似重複清單`:error.message.replace(/[。.!！]+$/u,'');
+          const reason=conflicts?.length?`本批第 ${conflicts.map(q=>q.index).join('、')} 題需要核對，詳見下方清單`:error.message.replace(/[。.!！]+$/u,'');
           throw new Error(`第 ${index+1} 批未完成：${reason}。已完成的批次不會重送，草稿與結果仍保留。`);
         }
       }

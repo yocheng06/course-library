@@ -8,7 +8,7 @@ function managementKey(source, course, id) { return source + ':' + course + ':' 
 function managementQuestion(raw) {
   return { ...canonicalQuestion(raw), translation: raw.translation || '',
     optionTranslations: Array.isArray(raw.optionTranslations) ? raw.optionTranslations : [],
-    note: raw.note || '', answerProvided: raw.answerProvided !== false };
+    note: raw.note || '', answerProvided: raw.answerProvided !== false, submissionReview:raw.submissionReview || null };
 }
 async function managementSummaries(env, course, query = '') {
   const edits = await env.DB.prepare(`SELECT e.question_id,e.revision,e.action,e.created_at,
@@ -48,6 +48,7 @@ async function managementSummaries(env, course, query = '') {
     json_extract(p.data,'$.category') AS category,json_extract(p.data,'$.type') AS type,
     COALESCE(json_extract(p.data,'$.answer'),json_extract(p.data,'$.a'),'') AS answer,
     json_extract(p.data,'$.unitTitle') AS unit_title,json_extract(p.data,'$.mergedInto') AS merged_into,
+    json_extract(p.data,'$.submissionReview.status') AS review_status,
     EXISTS(SELECT 1 FROM question_history h WHERE h.question_id=p.id) AS has_history,
     COALESCE((SELECT (h.course=p.course AND h.unit=p.unit AND ${originalContentComparison}) FROM question_history h WHERE h.question_id=p.id ORDER BY h.revision ASC,h.created_at ASC,id ASC LIMIT 1),1) AS original_content
     ${query ? ',p.data AS search_text' : ''}
@@ -59,7 +60,7 @@ async function managementSummaries(env, course, query = '') {
       id: r.id, unit: r.unit, unitTitle: r.unit_title || '', stem: r.stem,
       category: r.category, type: r.type, answer: String(r.answer || '').slice(0, 200),
       revision: r.revision, published: !deleted, deleted, status: deleted ? 'deleted' : 'published',
-      hasHistory: Boolean(r.has_history), currentOriginal: Boolean(r.original_content),
+      hasHistory: Boolean(r.has_history), currentOriginal: Boolean(r.original_content), pendingReview:r.review_status==='pending',
       updatedAt: r.updated_at || r.created_at,
       _search: query ? (r.id + ' ' + r.search_text).toLocaleLowerCase() : '' });
   }
@@ -72,15 +73,15 @@ async function listManagementLibrary(request, env, url) {
     state = url.searchParams.get('state') || 'all', source = url.searchParams.get('source') || 'all',
     sort = url.searchParams.get('sort') || 'updated', q = (url.searchParams.get('q') || '').trim().toLocaleLowerCase(),
     cursor = url.searchParams.get('cursor') || '0';
-  if (!Object.hasOwn(COURSE_UNITS, course) || !['all','modified','deleted'].includes(state) ||
+  if (!Object.hasOwn(COURSE_UNITS, course) || !['all','modified','deleted','pending'].includes(state) ||
     !['all','builtin','community'].includes(source) || !['updated','id'].includes(sort) || q.length > 100 ||
     !/^\d{1,6}$/.test(cursor) || unit.length > 30) throw new HttpError(400, '篩選條件不正確。');
   const catalog = await managementSummaries(env, course, q);
   const units = new Map(Object.entries(COURSE_UNITS[course].units).map(([id, label]) => [id, {id, title: label.replace(/^L\d+ · /, ''), label}]));
   for (const row of catalog) if (!units.has(row.unit)) units.set(row.unit, {id:row.unit,title:row.unitTitle || row.unit,label:row.unit + ' · ' + (row.unitTitle || '新單元')});
   const matching = catalog.filter((r) => (!unit || r.unit === unit) && (source === 'all' || r.source === source) && (!q || r._search.includes(q)));
-  const counts = {all:matching.filter((r) => !r.deleted).length, modified:matching.filter((r) => r.hasHistory).length, deleted:matching.filter((r) => r.deleted).length};
-  const rows = matching.filter((r) => state === 'deleted' ? r.deleted : state === 'modified' ? r.hasHistory : !r.deleted);
+  const counts = {all:matching.filter((r) => !r.deleted).length, modified:matching.filter((r) => r.hasHistory).length, deleted:matching.filter((r) => r.deleted).length, pending:matching.filter(r=>r.pendingReview&&!r.deleted).length};
+  const rows = matching.filter((r) => state === 'pending' ? r.pendingReview&&!r.deleted : state === 'deleted' ? r.deleted : state === 'modified' ? r.hasHistory : !r.deleted);
   rows.sort((a,b) => (sort === 'updated' ? (b.updatedAt || 0) - (a.updatedAt || 0) : 0) || a.key.localeCompare(b.key));
   const offset = Number(cursor);
   return json({items:rows.slice(offset,offset+25).map(({_search,...row}) => row), counts, units:[...units.values()], total:rows.length,

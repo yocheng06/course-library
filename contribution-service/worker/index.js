@@ -3,6 +3,7 @@ import {
   questionKey,
   possibleMatches,
   duplicateStemKey,
+  normalizeType,
   COURSE_UNITS,
 } from "./model.js";
 /* BUILD_DATA */
@@ -40,35 +41,34 @@ function json(value, status = 200) {
     },
   });
 }
+function submissionVersion(payload,q){
+  const options=(q.options||[]).map(text=>builtinSearch.normalizeText(text.replace(/^[A-H][.、．:：]\s*/i,'')));
+  const choice=options.length&&globalThis.courseChoiceAnswers.expectedChoiceKey(q.answer,q.options);
+  const answer=choice?[...choice].map(letter=>options[letter.charCodeAt(0)-65]).sort():builtinSearch.normalizeText(q.answer);
+  return JSON.stringify([questionKey(payload.course,payload.unit,q),normalizeType(q.type,q.images||[]),answer]);
+}
+async function pendingFingerprint(payload,q){return '__variant__:'+await hash(submissionVersion(payload,q));}
 async function removePublished(env, payload, skipped, input) {
   await releaseLegacyHiddenFingerprints(env);
   const keys = await fingerprints(payload);
   const duplicateIndexes = new Set(await duplicates(env, keys, payload));
   const sourceIndexes = new Map();
   input.questions.forEach((q, i) => {
-    const key = questionKey(payload.course, payload.unit, {
-      stem: q.stem ?? q.q,
-      options: q.options ?? q.opts ?? [],
-      images: q.images || [],
-    });
+    const normalized=normalizeBatch({...input,questions:[q]},{allowConflictingVersions:true}).questions[0];
+    const key=submissionVersion(payload,normalized);
     if (!sourceIndexes.has(key)) sourceIndexes.set(key, i + 1);
   });
   const keptKeys = [], originalIndexes = [];
   const questions = payload.questions.filter((q, i) => {
     if (duplicateIndexes.has(i + 1)) {
       skipped.push({
-        index: sourceIndexes.get(
-          questionKey(payload.course, payload.unit, {
-            ...q,
-            imageKeys: undefined,
-          }),
-        ),
+        index: sourceIndexes.get(submissionVersion(payload,{...q,imageKeys:undefined})),
         stem: q.stem.slice(0, 200),
         reason: "published",
       });
       return false;
     }
-    originalIndexes.push(sourceIndexes.get(questionKey(payload.course,payload.unit,{...q,imageKeys:undefined})) || i+1);
+    originalIndexes.push(sourceIndexes.get(submissionVersion(payload,{...q,imageKeys:undefined})) || i+1);
     keptKeys.push(keys[i]);
     return true;
   });
@@ -81,6 +81,8 @@ function duplicateReport(input, payload, skipped) {
     acceptedCount: payload.questions.length,
     skippedCount: skipped.length,
     skipped,
+    replacedCount: 0,
+    replaced: [],
   };
 }
 function publicationRows(payload, keys, submissionId, createdAt = Date.now()) {
@@ -120,6 +122,7 @@ function publicationRows(payload, keys, submissionId, createdAt = Date.now()) {
             exact: false,
           };
     if (payload.unitTitle) raw.unitTitle = payload.unitTitle;
+    if(q.submissionReview)raw.submissionReview=q.submissionReview;
     return {
       id,
       fingerprint: keys[i],
@@ -577,14 +580,19 @@ async function duplicateDecisions(env, payload, excludeId = null) {
     let candidates = (groups.get(duplicateStemKey(stem,true)) || []).filter(entry=>JSON.stringify(entry.imageKeys||[])===JSON.stringify(imageKeys));
     if (imageKeys.length) candidates=candidates.map(entry=>({...entry,needsImage:false}));
     if (!candidates.length) return null;
+    const exactCandidate=candidates.find(entry=>
+      (!entry.needsImage||imageKeys.length) &&
+      duplicateStemKey(entry.stem)===duplicateStemKey(stem) &&
+      submissionVersion(payload,{...entry,images:imageKeys,imageKeys})===submissionVersion(payload,{...q,stem,images:imageKeys,imageKeys}));
+    if(exactCandidate)return {status:'duplicate',reference:exactCandidate.id};
+    const sameType=candidates.filter(entry=>!entry.type || normalizeType(entry.type,entry.imageKeys||[])===normalizeType(q.type,imageKeys));
+    if(sameType.length)candidates=sameType;
     const ids = new Set(candidates.map(entry=>entry.id));
     const reference = [...ids].slice(0,3).join('、');
-    const review = reason => ({status:'review',reference,reason});
+    const review = reason => ({status:'review',reference,reason,targetId:ids.size===1?[...ids][0]:null,hasImages:Boolean(imageKeys.length||candidates.some(entry=>(entry.imageKeys||[]).length))});
     if (ids.size !== 1) return review('題幹對到多道既有題目，請確認應保留的版本');
-    const count = stem => (duplicateStemKey(stem).match(/___/g)||[]).length;
-    const sameType=candidates.filter(entry=>!entry.type || entry.type===q.type);
     if (!sameType.length) return review('題幹相同，但題型不同');
-    candidates=sameType;
+    const count = stem => (duplicateStemKey(stem).match(/___/g)||[]).length;
     if (!q.options.length) {
       const sameCount=candidates.filter(entry=>count(entry.stem)===count(stem));
       if (!sameCount.length) return review('題幹相同，但填空數不同');
@@ -597,8 +605,8 @@ async function duplicateDecisions(env, payload, excludeId = null) {
     const answerKey = value => q.options.length ? globalThis.courseChoiceAnswers.expectedChoiceKey(value,q.options) : normalize(value);
     const actual = answerKey(q.answer), expected = q.options.length ? match.choiceKey : normalize(match.answer);
     if (!actual || actual !== expected) return review('題幹相同，但答案不同，請核對正解');
-    const type = candidates.find(entry=>entry.type)?.type || (imageKeys.length ? '圖片題' : q.options.length ? (actual.length>1?'多選題':'單選題') : '填空題');
-    if (q.type !== type || candidates.some(entry=>Boolean(entry.options.length)!==Boolean(q.options.length)))
+    const type = normalizeType(candidates.find(entry=>entry.type)?.type || (imageKeys.length ? '圖片題' : q.options.length ? (actual.length>1?'多選題':'單選題') : '填空題'),imageKeys);
+    if (normalizeType(q.type,imageKeys) !== type || candidates.some(entry=>Boolean(entry.options.length)!==Boolean(q.options.length)))
       return review('題幹相同，但題型不同');
     return {status:'duplicate',reference};
   });
@@ -672,14 +680,15 @@ function decodeImage(image) {
     throw new HttpError(400, "題圖檔案格式與內容不符。");
   return { bytes, contentType: "image/" + match[1] };
 }
-async function submit(request, env) {
+async function submit(request, env, attempt=0) {
   requireOrigin(request);
   const body = await readBody(request);
   if (body.website) throw new HttpError(400, "投稿未送出，請重新整理後再試。");
+  const id = body.clientRequestId || crypto.randomUUID();
   let payload;
   const skipped = [];
   try {
-    payload = normalizeBatch(body, { onDuplicate: (q) => skipped.push(q) });
+    payload = normalizeBatch(body, { allowConflictingVersions:true, onDuplicate: (q) => skipped.push(q) });
   } catch (error) {
     throw new HttpError(400, error.message);
   }
@@ -697,10 +706,26 @@ async function submit(request, env) {
   await attachImageKeys(env, payload);
   let keys, originalIndexes;
   ({ payload, keys, originalIndexes } = await removePublished(env, payload, skipped, body));
+  const pendingReviews=[];
+  const decisions=payload.questions.length?await duplicateDecisions(env,payload):[];
+  const groups=new Map();
+  payload.questions.forEach((q,i)=>{const key=duplicateStemKey(q.stem,true);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(i);});
+  for(const [i,q] of payload.questions.entries()){
+    const decision=decisions[i];
+    const peers=groups.get(duplicateStemKey(q.stem,true))||[];
+    const differs=peers.some(j=>j!==i && submissionVersion(payload,payload.questions[j])!==submissionVersion(payload,q));
+    if(decision?.status!=='review'&&!differs)continue;
+    const references=[...(decision?.reference||'').split('、').filter(Boolean),...peers.filter(j=>j!==i).map(j=>`community-${id}-${j+1}`)];
+    q.submissionReview={status:'pending',reason:decision?.reason||'同批有相同題幹的不同版本',references:[...new Set(references)],createdAt:Date.now()};
+    keys[i]=await pendingFingerprint(payload,q);
+    pendingReviews.push({index:originalIndexes[i],stem:q.stem.slice(0,200),...q.submissionReview});
+  }
   const report = duplicateReport(body, payload, skipped);
-  await checkSimilar(env, payload, body.confirmSimilar, null, originalIndexes);
+  report.pendingReviewCount=pendingReviews.length;
+  report.addedCount=payload.questions.length-pendingReviews.length;
+  report.pendingReviews=pendingReviews;
   if (!payload.questions.length)
-    return json({ id: null, status: "duplicates_only", ...report });
+    return json({ id: null, status:'duplicates_only', ...report });
   const uploads = [];
   let imageBytes = 0;
   for (const [i, q] of payload.questions.entries())
@@ -724,7 +749,6 @@ async function submit(request, env) {
   };
   if (new TextEncoder().encode(JSON.stringify(textOnly)).length > 1500000)
     throw new HttpError(413, "題目文字太多，請分批投稿。");
-  const id = body.clientRequestId || crypto.randomUUID();
   if(requestHash){payload.requestHash=requestHash;payload.requestResult=report;}
   const saved = [];
   try {
@@ -762,8 +786,8 @@ async function submit(request, env) {
       if(stored?.requestHash===requestHash)return json({id,status:previous.status,...stored.requestResult});
     }
     await Promise.allSettled(saved.map((key) => env.BUCKET.delete(key)));
-    if (String(error).includes("UNIQUE constraint failed: public_questions.fingerprint"))
-      throw new HttpError(409, "題庫剛加入相同題目，請重新檢查重複清單後再送出。");
+    if (String(error).includes("UNIQUE constraint failed: public_questions.fingerprint") && attempt<2)
+      return submit(new Request(request.url,{method:'POST',headers:request.headers,body:JSON.stringify(body)}),env,attempt+1);
     throw error;
   }
   return json({ id, status: "approved", ...report }, 201);
@@ -1376,6 +1400,7 @@ function historyStatement(env, row, actor, action, note, now) {
 }
 function canonicalQuestion(data) {
   return {
+    ...(data.submissionReview?{submissionReview:data.submissionReview}:{}),
     category: data.category,
     type:
       data.type ||
@@ -1495,7 +1520,7 @@ async function editPublication(request, env, id, { publicEdit = false } = {}) {
   if (
     publicEdit
       ? !["update", "delete"].includes(body.action)
-      : !["update", "hide", "restore", "restoreVersion", "rollback", "resetOriginal"].includes(body.action)
+      : !["update", "hide", "restore", "restoreVersion", "rollback", "resetOriginal", "resolveReview", "mergeReview"].includes(body.action)
   )
     throw new HttpError(400, "操作不正確。");
   const note = body.note ?? "";
@@ -1507,6 +1532,16 @@ async function editPublication(request, env, id, { publicEdit = false } = {}) {
     fingerprint = row.fingerprint;
   let sourcePayload = body.payload,
     sourceData = raw;
+  if(['resolveReview','mergeReview'].includes(body.action)){
+    if(!row.is_published||raw.submissionReview?.status!=='pending')throw new HttpError(409,'此題已處理或已移除，請重新同步。');
+    if(body.action==='mergeReview'){
+      if(typeof body.targetId!=='string'||body.targetId===id||!raw.submissionReview.references.includes(body.targetId))throw new HttpError(400,'請選擇清單中的既有題目。');
+      const base=builtinReference(course,body.targetId);
+      if(base){if(base.unit!==row.unit||(await latestBuiltinEdits(env,course)).get(base.id)?.action==='delete')throw new HttpError(409,'目標題目已移除或單元不同。');}
+      else{const target=await env.DB.prepare('SELECT course,unit,is_published,data FROM public_questions WHERE id=?').bind(body.targetId).first();if(!target||!target.is_published||target.course!==course||target.unit!==unit||JSON.parse(target.data).mergedInto)throw new HttpError(409,'目標題目已變更，請重新核對。');}
+    }
+    raw.submissionReview={...raw.submissionReview,status:body.action==='mergeReview'?'merged':'resolved',resolvedAt:Date.now(),...(body.action==='mergeReview'?{targetId:body.targetId}:{})};
+  }
   const restoringContent = ["restoreVersion", "rollback", "resetOriginal"].includes(body.action);
   if (restoringContent) {
     if (body.action === "restoreVersion" && (typeof body.historyId !== "string" || !uuid.test(body.historyId)))
@@ -1555,7 +1590,7 @@ async function editPublication(request, env, id, { publicEdit = false } = {}) {
       row.submission_id,
     );
     await attachImageKeys(env, batch, { questions: [sourceData] });
-    await checkSimilar(env, batch, body.confirmSimilar, id);
+    if(!raw.submissionReview)await checkSimilar(env, batch, body.confirmSimilar, id);
     [fingerprint] = await fingerprints(batch);
     if ((await duplicates(env, [fingerprint], batch, id)).length)
       throw new HttpError(409, "修改後與既有題目完全重複，請調整內容。");
@@ -1610,9 +1645,15 @@ async function editPublication(request, env, id, { publicEdit = false } = {}) {
     if(editorQuestion.optionTranslations !== undefined)raw.optionTranslations=editorQuestion.optionTranslations.map((value)=>value.trim());
     if(editorQuestion.note !== undefined)raw.note=editorQuestion.note.trim();
     if(editorQuestion.answerProvided !== undefined)raw.answerProvided=editorQuestion.answerProvided;
+    if(sourceData.submissionReview&&!raw.submissionReview)raw.submissionReview={...sourceData.submissionReview,references:[],reason:'題目位置已變更，請重新核對投稿版本'};
+    if(raw.submissionReview){
+      // Editing content does not silently remove the owner's pending-review flag.
+      if(!restoringContent)raw.submissionReview={...raw.submissionReview,status:'pending'};
+      fingerprint=await pendingFingerprint(batch,{...canonicalQuestion(raw),imageKeys:q.imageKeys});
+    }
   }
   const published =
-      body.action === "hide" || body.action === "delete"
+      body.action === "hide" || body.action === "delete" || body.action === 'mergeReview'
         ? 0
         : body.action === "restore"
           ? 1
@@ -1626,6 +1667,7 @@ async function editPublication(request, env, id, { publicEdit = false } = {}) {
     };
     await attachImageKeys(env, restored, { questions: [raw] });
     [fingerprint] = await fingerprints(restored);
+    if(raw.submissionReview){raw.submissionReview={...raw.submissionReview,status:'pending'};fingerprint=await pendingFingerprint(restored,restored.questions[0]);}
     if ((await duplicates(env, [fingerprint], restored, id)).length)
       throw new HttpError(
         409,
@@ -1958,10 +2000,10 @@ async function route(request, env) {
     const response = json({
       revision: etag.slice(1,-1),
       aliases: archived.results
-        .filter((row) => JSON.parse(row.data).mergedInto)
+        .filter((row) => {const q=JSON.parse(row.data);return q.mergedInto||q.submissionReview?.status==='merged';})
         .map((row) => ({
           id: row.id,
-          target: JSON.parse(row.data).mergedInto,
+          target: JSON.parse(row.data).mergedInto||JSON.parse(row.data).submissionReview.targetId,
         })),
       overrides: await publicBuiltinOverrides(env,course),
       questions: result.results.map((row) => ({

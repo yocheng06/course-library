@@ -11,7 +11,7 @@
   const expectedChoiceKey = window.courseChoiceAnswers.expectedChoiceKey;
 
   function unavailable(question) {
-    return (
+    return question.submissionReview?.status==='pending' || (
       !window.courseQuestionTools.hasProvidedAnswer(question) &&
       (question.reviewIssue || question.missingContext)
     );

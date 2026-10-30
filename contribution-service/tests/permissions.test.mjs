@@ -1519,8 +1519,9 @@ test("L7 reordered valid choices deduplicate and conflicting answers are reviewe
  const key=globalThis.courseChoiceAnswers.expectedChoiceKey(original.answer,original.options);
  const bad={...original,answer:key==='A'?'B':'A'};
  const conflict=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:source.unit,questions:[bad]}});
- assert.equal(conflict.response.status,409,JSON.stringify(conflict.data));
- assert.equal(env.sql.prepare('SELECT COUNT(*) n FROM public_questions').get().n,0);
+ assert.equal(conflict.response.status,201,JSON.stringify(conflict.data));
+ assert.equal(conflict.data.pendingReviewCount,1);
+ assert.equal(env.sql.prepare('SELECT COUNT(*) n FROM public_questions').get().n,1);
 });
 
 test("different diagrams stay separate; identical image bytes deduplicate after upload and legacy fingerprints are recomputed", async () => {
@@ -1901,7 +1902,8 @@ test("reviewed L7 aliases and reordered mixed-language choices deduplicate, whil
     })),
   };
   const differentType=await call(env,"/api/submissions",{method:"POST",body:{...batch,questions:[batch.questions[2]]}});
-  assert.equal(differentType.response.status,409,JSON.stringify(differentType.data));
+  assert.equal(differentType.response.status,201,JSON.stringify(differentType.data));
+  assert.equal(differentType.data.pendingReviewCount,1);
   assert.match(JSON.stringify(differentType.data),/題型不同/);
   batch.questions=batch.questions.slice(0,2);
   const duplicate = await call(env, "/api/submissions", { method: "POST", body: batch });
@@ -1918,10 +1920,11 @@ test("reviewed L7 aliases and reordered mixed-language choices deduplicate, whil
     }],
   };
   const newVersion = await call(env, "/api/submissions", { method: "POST", body: changed });
-  assert.equal(newVersion.response.status,409,JSON.stringify(newVersion.data));
+  assert.equal(newVersion.response.status,201,JSON.stringify(newVersion.data));
+  assert.equal(newVersion.data.pendingReviewCount,1);
   const confirmed=await call(env,"/api/submissions",{method:"POST",body:{...changed,confirmSimilar:true}});
-  assert.equal(confirmed.response.status,201,JSON.stringify(confirmed.data));
-  assert.equal(confirmed.data.acceptedCount,1);
+  assert.equal(confirmed.response.status,200,JSON.stringify(confirmed.data));
+  assert.equal(confirmed.data.status,"duplicates_only");
 });
 
 test('anonymous corrections validate real questions, protect review and retain status without changing answers',async()=>{
@@ -2138,7 +2141,7 @@ test('submission fingerprints recognize the reported blankless bilingual deadloc
  for(const [n,answer] of [[3,'recovery'],[5,'circular wait'],[6,'deadlock'],[9,'C'],[12,'starvation'],[13,'mutual exclusion'],[21,'wait-for'],[23,'hold and wait'],[24,'dining-philosophers'],[26,'unsafe']]){
   const q=incoming[n-1],questions=[{category:'死結回報重現',type:q.options.length?'單選題':'填空題',stem:q.stem,options:q.options.map(o=>o.label+'. '+o.text),answer,images:[]}];
   const result=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'deadlocks',questions}});
-  if(n===26){assert.equal(result.response.status,409,JSON.stringify(result.data));assert.match(JSON.stringify(result.data),/多道既有題目/);}else{assert.equal(result.response.status,200,`question ${n}: ${JSON.stringify(result.data)}`);assert.equal(result.data.status,'duplicates_only',`question ${n}`);}
+  assert.equal(result.response.status,200,`question ${n}: ${JSON.stringify(result.data)}`);assert.equal(result.data.status,'duplicates_only',`question ${n}`);
  }
 });
 
@@ -2266,12 +2269,114 @@ test("HTML fill imports skip known Chinese and English variants with format hint
   assert.equal(env.sql.prepare("SELECT COUNT(*) n FROM public_questions").get().n,0);
 });
 
-test("same-stem answer conflicts require correction even after similar confirmation", async () => {
+test('pending-review submissions preserve existing answers, deduplicate retries and support owner resolution',async()=>{
   const env=await setup();
-  const body={...payload(),unit:"process",confirmSimilar:true,questions:[{category:"匯入",type:"填空題",stem:"A ____________ is defined as an endpoint for communication, a combination of an IP address and a port.(Please answer in lowercase English)",options:[],answer:"pipe",images:[],explanation:""}]};
-  const result=await call(env,"/api/submissions",{method:"POST",body});
-  assert.equal(result.response.status,409,JSON.stringify(result.data));
-  assert.match(JSON.stringify(result.data),/答案不同/);
+  const original=(await call(env,'/api/community/builtin-questions/os/basics-1')).data.item;
+  const q={...original.question,answer:'B'};
+  const body={...payload(),clientRequestId:crypto.randomUUID(),replaceSimilar:true,questions:[q]};
+  const result=await call(env,'/api/submissions',{method:'POST',body});
+  assert.equal(result.response.status,201,JSON.stringify(result.data));
+  assert.equal(result.data.pendingReviewCount,1);assert.equal(result.data.addedCount,0);
+  assert.equal(result.data.replacedCount,0);
+  const id=`community-${result.data.id}-1`,path='/api/manage/questions/'+id;
+  const published=(await call(env,'/api/questions?course=os')).data.questions.find(row=>row.question.id===id).question;
+  assert.equal(published.submissionReview.status,'pending');assert.ok(published.submissionReview.references.includes('basics-1'));
+  assert.equal((await call(env,'/api/community/builtin-questions/os/basics-1')).data.item.question.answer,original.question.answer);
+  assert.deepEqual((await call(env,'/api/submissions',{method:'POST',body})).data,result.data);
+  const duplicate=await call(env,'/api/submissions',{method:'POST',body:{...body,clientRequestId:crypto.randomUUID()}});
+  assert.equal(duplicate.data.status,'duplicates_only',JSON.stringify(duplicate.data));
+  const pending=(await call(env,'/api/manage/library?course=os&state=pending',{reviewer:true})).data;
+  assert.equal(pending.counts.pending,1);assert.equal(pending.items[0].id,id);
+  const resolve={action:'resolveReview',revision:1,note:'核對後保留'};
+  assert.equal((await call(env,path,{method:'POST',body:resolve})).response.status,401);
+  assert.equal((await call(env,'/api/community/questions/'+id,{method:'POST',body:resolve})).response.status,400);
+  const kept=await call(env,path,{method:'POST',reviewer:true,body:resolve});
+  assert.equal(kept.response.status,200,JSON.stringify(kept.data));assert.equal(kept.data.item.question.submissionReview.status,'resolved');
+  assert.equal((await call(env,'/api/manage/library?course=os&state=pending',{reviewer:true})).data.total,0);
+  assert.equal((await call(env,path+'/history',{reviewer:true})).data.items[0].action,'resolveReview');
+});
+
+test('different versions within one submission both publish as pending without fingerprint collisions',async()=>{
+  const env=await setup(),q=payload().questions[0];
+  const body={...payload(),questions:[q,{...q,answer:'B'}]};
+  const sent=await call(env,'/api/submissions',{method:'POST',body});
+  assert.equal(sent.response.status,201,JSON.stringify(sent.data));assert.equal(sent.data.pendingReviewCount,2);
+  assert.deepEqual(sent.data.pendingReviews.map(item=>item.index),[1,2]);
+  assert.equal(env.sql.prepare('SELECT count(*) n FROM public_questions').get().n,2);
+  const first=JSON.parse(env.sql.prepare('SELECT data FROM public_questions WHERE id=?').get(`community-${sent.data.id}-1`).data);
+  assert.ok(first.submissionReview.references.includes(`community-${sent.data.id}-2`));
+  const again=await call(env,'/api/submissions',{method:'POST',body});
+  assert.equal(again.data.status,'duplicates_only',JSON.stringify(again.data));assert.equal(again.data.skippedCount,2);
+});
+
+test('concurrent publication of the same pending version retries as a duplicate without orphan submissions',async()=>{
+  const env=await setup();
+  const original=(await call(env,'/api/community/builtin-questions/os/basics-1')).data.item.question;
+  const body={...payload(),clientRequestId:crypto.randomUUID(),questions:[{...original,answer:'B'}]};
+  const prepare=env.DB.prepare.bind(env.DB),batch=env.DB.batch.bind(env.DB);let raced=false;
+  env.DB.prepare=sql=>Object.assign(prepare(sql),{testSQL:sql});
+  env.DB.batch=async statements=>{
+    if(!raced&&statements.some(s=>s.testSQL?.startsWith('INSERT INTO submissions '))){raced=true;const competitor=await call(env,'/api/submissions',{method:'POST',body:{...body,clientRequestId:crypto.randomUUID()}});assert.equal(competitor.response.status,201);}
+    return batch(statements);
+  };
+  const result=await call(env,'/api/submissions',{method:'POST',body});
+  assert.equal(result.response.status,200,JSON.stringify(result.data));assert.equal(result.data.status,'duplicates_only');assert.equal(raced,true);
+  assert.equal(env.sql.prepare('SELECT count(*) n FROM public_questions').get().n,1);
+  assert.equal(env.sql.prepare('SELECT count(*) n FROM submissions WHERE id=?').get(body.clientRequestId).n,0);
+});
+
+test('merge of a pending version archives only that version and remains recoverable with full history',async()=>{
+  const env=await setup();
+  const original=(await call(env,'/api/community/builtin-questions/os/basics-1')).data.item.question;
+  const sent=await call(env,'/api/submissions',{method:'POST',body:{...payload(),questions:[{...original,answer:'B'}]}});
+  const id=`community-${sent.data.id}-1`,path='/api/manage/questions/'+id;
+  const invalid=await call(env,path,{method:'POST',reviewer:true,body:{action:'mergeReview',revision:1,targetId:'basics-2',note:'錯誤目標'}});
+  assert.equal(invalid.response.status,400);
+  const merged=await call(env,path,{method:'POST',reviewer:true,body:{action:'mergeReview',revision:1,targetId:'basics-1',note:'合併到既有題目'}});
+  assert.equal(merged.response.status,200,JSON.stringify(merged.data));assert.equal(merged.data.item.published,false);
+  const publicData=(await call(env,'/api/questions?course=os')).data;
+  assert.ok(!publicData.questions.some(row=>row.question.id===id));assert.ok(publicData.aliases.some(row=>row.id===id&&row.target==='basics-1'));
+  const recovered=await call(env,path,{method:'POST',reviewer:true,body:{action:'restore',revision:2,note:'還原誤合併'}});
+  assert.equal(recovered.response.status,200,JSON.stringify(recovered.data));assert.equal(recovered.data.item.question.submissionReview.status,'pending');
+  assert.equal((await call(env,path+'/history',{reviewer:true})).data.items.length,2);
+});
+
+test('owner removal of built-in questions preserves history and supports recovery',async()=>{
+  const env=await setup(),path='/api/manage/builtin-questions/os/basics-1';
+  const original=(await call(env,'/api/community/builtin-questions/os/basics-1')).data.item;
+  const body={action:'delete',revision:original.revision,sourceHash:original.sourceHash,note:'站主批次移除題目（可還原）'};
+  assert.equal((await call(env,path,{method:'POST',body})).response.status,401);
+  const removed=await call(env,path,{method:'POST',reviewer:true,body});
+  assert.equal(removed.response.status,200,JSON.stringify(removed.data));
+  assert.equal(removed.data.item.deleted,true);
+  const list=(await call(env,'/api/manage/library?course=os&state=deleted',{reviewer:true})).data;
+  assert.ok(list.items.some(row=>row.id==='basics-1'));
+  const history=(await call(env,path+'/history',{reviewer:true})).data.items;
+  assert.equal(history[0].action,'delete');assert.deepEqual(history[0].before,history[0].after);
+  const restored=await call(env,path,{method:'POST',reviewer:true,body:{...body,revision:removed.data.item.revision,action:'rollback',note:'還原誤刪'}});
+  assert.equal(restored.response.status,200,JSON.stringify(restored.data));assert.equal(restored.data.item.deleted,false);
+  assert.deepEqual(restored.data.item.question,original.question);
+});
+
+for (const mode of [{},{confirmSimilar:true},{replaceSimilar:true}]) test(`SJF grouped import keeps the original and adds a flagged version (${JSON.stringify(mode)})`, async()=>{
+  const env=await setup(),path='/api/community/builtin-questions/os/os6-032';
+  const before=(await call(env,path)).data.item;
+  const question={category:'CPU 排程',type:'多選題',stem:'短工作優先（SJF）排程的優點包含哪些？',options:['易於實現','適合即時系統','給定程序集的最小平均等待時間','可以預測下一個 CPU burst 的長度'],answer:'C',explanation:'',images:[]};
+  const body={...payload(),unit:'scheduling',clientRequestId:crypto.randomUUID(),...mode,questions:[question]};
+  const sent=await call(env,'/api/submissions',{method:'POST',body});
+  assert.equal(sent.response.status,201,JSON.stringify(sent.data));assert.equal(sent.data.pendingReviewCount,1);assert.equal(sent.data.replacedCount,0);
+  assert.deepEqual((await call(env,path)).data.item,before);
+  assert.equal(env.sql.prepare('SELECT count(*) n FROM public_questions').get().n,1);
+  assert.deepEqual((await call(env,'/api/submissions',{method:'POST',body})).data,sent.data);
+  const retry=await call(env,'/api/submissions',{method:'POST',body:{...body,clientRequestId:crypto.randomUUID()}});
+  assert.equal(retry.data.status,'duplicates_only',JSON.stringify(retry.data));assert.equal(retry.data.skippedCount,1);
+});
+
+test("same-stem answer conflicts are published as pending even without similar confirmation",async()=>{
+  const env=await setup();
+  const body={...payload(),unit:'process',questions:[{category:'匯入',type:'填空題',stem:'A ____________ is defined as an endpoint for communication, a combination of an IP address and a port.(Please answer in lowercase English)',options:[],answer:'pipe',images:[],explanation:''}]};
+  const result=await call(env,'/api/submissions',{method:'POST',body});
+  assert.equal(result.response.status,201,JSON.stringify(result.data));assert.equal(result.data.pendingReviewCount,1);assert.match(result.data.pendingReviews[0].reason,/答案不同/);
 });
 
 test("known formatting cleanup retains original text and semantic parenthetical conditions", async () => {
@@ -2310,10 +2415,10 @@ test("reported queue deletion permits replacement and conflict indices retain or
  const parent={category:'程序與 IPC',type:'多選題',stem:'以下哪些原因可能導致父程序終止子程序？',options:['分配給子程序的任務不再需要','子程序陷入無限迴圈','父程序正在退出，且作業系統不允許子程序繼續','子程序超出分配的資源'],answer:'A、C、D',images:[]};
  const wrong={...parent,answer:'A、B、C、D'};
  const conflict=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'process',questions:[parent,wrong]}});
- assert.equal(conflict.response.status,400); // same-batch conflicting versions are rejected before publication
+ assert.equal(conflict.response.status,201,JSON.stringify(conflict.data));assert.equal(conflict.data.pendingReviewCount,1);assert.equal(conflict.data.pendingReviews[0].index,2);
  const socket={category:'程序與 IPC',type:'填空題',stem:'A ____________ is defined as an endpoint for communication, a combination of an IP address and a port.(Please answer in lowercase English)',options:[],answer:'socket',images:[]};
  const batch=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'process',questions:[socket,wrong]}});
- assert.equal(batch.response.status,409,JSON.stringify(batch.data));assert.equal(batch.data.possibleDuplicates[0].index,2);
+ assert.equal(batch.response.status,200,JSON.stringify(batch.data));assert.equal(batch.data.status,'duplicates_only');assert.equal(batch.data.skippedCount,2);
  const imported=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'process',questions:[parent,queue]}});
  assert.equal(imported.response.status,201,JSON.stringify(imported.data));assert.equal(imported.data.acceptedCount,1);assert.equal(imported.data.skippedCount,1);
 });

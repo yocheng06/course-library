@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
-  const hasProvidedAnswer = question => question.answerProvided === true && Boolean(String(question.answer ?? question.a ?? '').trim());
+  const hasProvidedAnswer = question => question.submissionReview?.status !== 'pending' && question.answerProvided === true && Boolean(String(question.answer ?? question.a ?? '').trim());
   const missingSource = question => !hasProvidedAnswer(question) && (Boolean(question.missingContext) || /追蹤/.test(question.type || '') || /樹中的「\?」|第6行與第10行|第 5 行/.test(question.q || ''));
 
   // Keep the original question text; normalize presentation only for lookup.
@@ -121,6 +121,7 @@
     }).join('');
   }
   function qualityReasons(question, course) {
+    if(question.submissionReview?.status==='pending')return ['投稿版本待核對'];
     if (hasProvidedAnswer(question)) return [];
     const reasons = [];
     const note = question.note || '';
@@ -137,6 +138,7 @@
   }
 
   function qualityMarkup(question, course) {
+    if(question.submissionReview?.status==='pending')return `<aside class="quality-note"><strong>待核對：疑似重複或版本差異</strong><br>${escape(question.submissionReview.reason || '')} 本題已收錄；投稿答案供參考，尚未由站主確認。</aside>`;
     const reasons = qualityReasons(question, course);
     if (!reasons.length) return '';
     const details = [question.reviewIssue, question.missingContext].filter(Boolean).join(' ');
@@ -144,6 +146,7 @@
   }
 
   function answerLabel(question) {
+    if(question.submissionReview?.status==='pending')return '投稿答案（待核對）';
     const label = question.originalAnswer ? '修正後答案' : '題庫答案';
     return !hasProvidedAnswer(question) && (question.reviewIssue || question.missingContext) ? `${label}（待確認）` : label;
   }
