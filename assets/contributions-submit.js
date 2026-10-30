@@ -640,6 +640,10 @@ function practiceStemKey(value) {
     .replace(/[\s\p{P}\p{S}]+/gu, "");
 }
 
+function practiceAnswerLayoutKey(value) {
+  return practiceStemKey(String(value ?? "").replace(/\[\s*__\s*\d+\s*__\s*\]|_{2,}/gu, " answerblankmarker "));
+}
+
 function combineCoursePracticeHtml(questionImport, resultImport) {
   const byStem = new Map();
   questionImport.questions.forEach((question, index) => {
@@ -651,7 +655,17 @@ function combineCoursePracticeHtml(questionImport, resultImport) {
   });
   // Resolve repeated stems using answer content, never result order.
   const resultCandidates = resultImport.answers.map(result => {
-    const matches = byStem.get(practiceStemKey(result.stem)) || [];
+    let matches = byStem.get(practiceStemKey(result.stem)) || [];
+    // Repeated local prompts can belong to different challenge groups. The
+    // saved answer's blank position distinguishes layouts without using row order.
+    if (matches.length > 1) {
+      const layout = practiceAnswerLayoutKey(result.stem);
+      const exactLayout = matches.filter(index => {
+        const q = questionImport.questions[index];
+        return practiceAnswerLayoutKey(q.__practiceAnswerStem || q.stem) === layout;
+      });
+      if (exactLayout.length) matches = exactLayout;
+    }
     const candidates = [];
     for (const index of matches) {
       const question = questionImport.questions[index];
