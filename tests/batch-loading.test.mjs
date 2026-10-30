@@ -198,3 +198,15 @@ test('course sync is lazy, revisiting a fresh course reuses data, and a 304 keep
   ui.$('course').value='os'; ui.fire('course','change'); await tick();
   assert.equal(osReads,2);
 });
+
+for(const source of ['static','public','cache'])test('L9 uses the shared memory-management name from '+source,async()=>{
+ const localBase=structuredClone(base);
+ if(source==='static')localBase.courses.os.units.push({id:'L9',name:'L9 · 第 9 單元'});
+ const questions=[{unit:'L9',question:{id:'community-00000000-0000-4000-8000-000000000099-1',unitTitle:'第 9 單元',stem:'記憶體測試題',options:[],answer:'test'}}];
+ const storage=new Map();
+ if(source==='cache')storage.set('course-library.questions.v1.os',JSON.stringify({schema:1,course:'os',generatedAt:new Date().toISOString(),data:{questions,overrides:[]}}));
+ const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>localBase}:source==='cache'?new Promise(()=>{}):response(source==='public'?questions:[]),{storage});
+ await tick();
+ const option=[...ui.$('unit').options].find(o=>o.value==='L9');
+ assert.ok(option);assert.equal(option.textContent,'L9 · 記憶體管理');
+});

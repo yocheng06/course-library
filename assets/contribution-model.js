@@ -35,9 +35,11 @@ export function normalizeUnit(course, value) {
   const numbered = 'L' + Number(match[1]);
   return Object.keys(units).find(id => units[id].startsWith(numbered + ' · ')) || numbered;
 }
+// Display names are independent of unit IDs and submission metadata.
+const UNIT_DISPLAY_TITLES = {os: {L9: '記憶體管理'}};
 export function unitLabel(course, unit, title = '') {
   const id = normalizeUnit(course, unit);
-  return COURSE_UNITS[course].units[id] || `${id} · ${String(title || '第 ' + id.slice(1) + ' 單元').slice(0,60)}`;
+  return COURSE_UNITS[course].units[id] || `${id} · ${String(UNIT_DISPLAY_TITLES[course]?.[id] || title || '第 ' + id.slice(1) + ' 單元').slice(0,60)}`;
 }
 export function normalizeType(type, images = []) {
   if (images.length || type === "圖片題") return "圖片題";

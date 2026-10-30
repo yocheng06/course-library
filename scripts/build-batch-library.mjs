@@ -5,7 +5,7 @@ import {
   normalizeStem,
   optionKey,
 } from "../assets/batch-model.mjs";
-import { COURSE_UNITS } from "../assets/contribution-model.js";
+import { unitLabel } from "../assets/contribution-model.js";
 import { parseOSCourseHTML } from "./course-data.mjs";
 const root = resolve(import.meta.dirname, ".."),
   entries = [];
@@ -24,7 +24,7 @@ for (const [course, file] of [
   courses[course] = {
     units: units.map((u) => ({
       id: u.id,
-      name: COURSE_UNITS[course].units[u.id] || u.label || u.title || u.id,
+      name: unitLabel(course,u.id,String(u.label || u.title || '').replace(/^L\d+ · /,'')),
     })),
     count: units.reduce((sum, u) => sum + u.questions.length, 0),
   };

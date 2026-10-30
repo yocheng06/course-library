@@ -1,3 +1,4 @@
+import {unitLabel} from './contribution-model.js?v=unit-names-20261030';
 import {
   buildIndex,
   matchQuestions,
@@ -172,7 +173,7 @@ function restorePublicCache(course) {
 }
 function rebuildLibraryIndex() {
   if (!baseLibrary) return;
-  library = { ...baseLibrary, courses: Object.fromEntries(Object.entries(baseLibrary.courses).map(([course, data]) => [course, {...data, units:data.units.slice()}])) };
+  library = { ...baseLibrary, courses: Object.fromEntries(Object.entries(baseLibrary.courses).map(([course, data]) => [course, {...data, units:data.units.map(u=>({...u,name:unitLabel(course,u.id,String(u.name || '').replace(/^L\d+ · /,''))}))}])) };
   let entries = baseLibrary.entries.slice();
   const curatedAliasIds = new Set(baseLibrary.curatedAliasIds || []);
   for (const [course, data] of publicData) {
@@ -183,7 +184,7 @@ function rebuildLibraryIndex() {
         if ((!library.courses[course].units.some(u => u.id === row?.unit) && !/^L[1-9]\d?$/.test(row?.unit)) ||
             !validPublicQuestion(raw) || !/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(questionId || "")) throw Error("public-data");
         if (curatedAliasIds.has(questionId) || baseLibrary.entries.some(e => e.course === course && e.id === questionId)) continue;
-        if (!library.courses[course].units.some(u => u.id === row.unit)) newUnits.set(row.unit, {id:row.unit,name:row.unit+" · "+String(raw.unitTitle || "新單元").slice(0,60)});
+        if (!library.courses[course].units.some(u => u.id === row.unit)) newUnits.set(row.unit, {id:row.unit,name:unitLabel(course,row.unit,raw.unitTitle)});
         const expanded = expandLibraryQuestion(course,row.unit,raw);
         if (!expanded.length) throw Error("public-data");
         additions.push(...expanded);
