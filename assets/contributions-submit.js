@@ -627,31 +627,35 @@ function combineCoursePracticeHtml(questionImport, resultImport) {
     matches.push(index);
     byStem.set(key, matches);
   });
-  const used = new Set();
-  let matchedQuestionCount = 0;
-  for (const result of resultImport.answers) {
+  // Resolve repeated stems using answer content, never result order.
+  const resultCandidates = resultImport.answers.map(result => {
     const matches = byStem.get(practiceStemKey(result.stem)) || [];
-    if (matches.length !== 1 || used.has(matches[0])) continue;
-    const index = matches[0],
-      question = questionImport.questions[index];
-    let answer = result.correctLines.join(",");
-    if (question.options.length) {
-      const choiceKeys = result.correctLines.map((line) =>
-        globalThis.courseChoiceAnswers.expectedChoiceKey(line, question.options),
-      );
-      const letters = choiceKeys.flatMap((key) => key?.split("") || []);
-      if (
-        choiceKeys.some((key) => !key) ||
-        new Set(letters).size !== letters.length
-      )
-        continue;
-      answer = letters.sort().join("、");
+    const candidates = [];
+    for (const index of matches) {
+      const question = questionImport.questions[index];
+      let answer = result.correctLines.join(",");
+      if (question.options.length) {
+        // Bare letters cannot identify one of several same-stem option versions.
+        if (matches.length > 1 && result.correctLines.some(line => /^[A-H](?:\s*[,、，/＋+&]\s*[A-H])*[.．、)]?$/i.test(line.trim()))) continue;
+        const choiceKeys = result.correctLines.map(line =>
+          globalThis.courseChoiceAnswers.expectedChoiceKey(line,question.options));
+        const letters = choiceKeys.flatMap(key => key?.split("") || []);
+        if (choiceKeys.some(key => !key) || new Set(letters).size !== letters.length ||
+            (question.type === "單選題" && letters.length !== 1)) continue;
+        answer = letters.sort().join("、");
+      }
+      if (answer.trim()) candidates.push({index,answer});
     }
-    if (!answer.trim()) continue;
-    question.answer = answer;
-    used.add(index);
+    return candidates;
+  });
+  let matchedQuestionCount = 0;
+  questionImport.questions.forEach((question,index) => {
+    const candidates = resultCandidates.flatMap(list => list.filter(pair => pair.index === index));
+    const uniquelyIdentified = resultCandidates.some(list => list.length === 1 && list[0].index === index);
+    if (!uniquelyIdentified || new Set(candidates.map(pair => pair.answer)).size !== 1) return;
+    question.answer = candidates[0].answer;
     matchedQuestionCount++;
-  }
+  });
   return {
     ...questionImport,
     source: "題目與交卷結果 HTML 已配對；解析留白，送出前請核對答案。",
