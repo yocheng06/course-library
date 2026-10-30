@@ -18,12 +18,19 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
   try { drafts=JSON.parse(localStorage.getItem(draftKey)||'{}'); if(!drafts||Array.isArray(drafts))drafts={}; } catch {}
   panel.innerHTML=`<div class="library-heading"><div><h2 id="libraryTitle">最近修改</h2><p id="libraryHint" class="muted">包含已退回原始內容的修改紀錄。</p></div><button type="button" class="button secondary" id="refreshLibrary">重新同步</button></div>
     <form id="librarySearch" class="library-filters"><label>科目<select id="libraryCourse" name="course">${Object.entries(COURSE_UNITS).map(([id,c])=>`<option value="${id}">${esc(c.name)}</option>`).join('')}</select></label><label>單元<select id="libraryUnit" name="unit"><option value="">全部單元</option></select></label><label>來源<select id="librarySource" name="source"><option value="all">所有來源</option><option value="builtin">內建題目</option><option value="community">同學投稿</option></select></label><label>排序<select id="librarySort" name="sort"><option value="updated">最近異動</option><option value="id">題目順序</option></select></label><label class="library-query">搜尋題目<input id="libraryQuery" name="q" type="search" maxlength="100" placeholder="題號、題幹、答案或解析"></label><button type="submit" class="button">搜尋</button></form>
-    <p id="libraryStatus" class="muted" role="status" aria-live="polite"></p><div id="libraryError" class="notice error" role="alert" hidden></div><div id="libraryBulk" class="library-bulk" hidden><span id="librarySelectedCount"></span><button id="libraryRemoveSelected" type="button" class="button danger">移除選取題目</button><button id="libraryClearSelected" type="button" class="button secondary">取消選取</button></div><div class="library-table-wrap"><table class="library-table"><caption class="sr-only">題目管理清單</caption><thead><tr><th scope="col"><label class="library-check"><input id="librarySelectVisible" type="checkbox" aria-label="勾選目前顯示的題目">全選</label></th><th scope="col">題目</th><th scope="col">單元／來源</th><th scope="col">狀態／最近異動</th><th scope="col">操作</th></tr></thead><tbody id="libraryRows"></tbody></table></div><button id="libraryMore" type="button" class="button secondary" hidden>載入更多題目</button>`;
+    <p id="libraryStatus" class="muted" role="status" aria-live="polite"></p><div id="libraryError" class="notice error" role="alert" hidden></div><div id="libraryBulk" class="library-bulk" hidden><span id="librarySelectedCount"></span><button id="libraryRemoveSelected" type="button" class="button danger">移除選取題目</button><button id="libraryRestoreSelected" type="button" class="button secondary">還原選取題目</button><button id="libraryClearSelected" type="button" class="button secondary">取消選取</button></div><div class="library-table-wrap"><table class="library-table"><caption class="sr-only">題目管理清單</caption><thead><tr><th scope="col"><label class="library-check"><input id="librarySelectVisible" type="checkbox" aria-label="勾選目前顯示的題目">全選</label></th><th scope="col">題目</th><th scope="col">單元／來源</th><th scope="col">狀態／最近異動</th><th scope="col">操作</th></tr></thead><tbody id="libraryRows"></tbody></table></div><button id="libraryMore" type="button" class="button secondary" hidden>載入更多題目</button>`;
   function query() { const p=new URLSearchParams(); for(const id of ['Course','Unit','Source','Sort','Query'])p.set({Course:'course',Unit:'unit',Source:'source',Sort:'sort',Query:'q'}[id],$('library'+id).value.trim());p.set('state',view);return p; }
   function say(text,error=false) { $('libraryStatus').textContent=text; $('libraryError').hidden=!error;$('libraryError').textContent=error?text:''; }
   function badge(row) {return row.deleted?'已移除':row.pendingReview?'待核對':row.currentOriginal?(row.hasHistory?'原始內容 · 曾修改':'原始內容'):row.hasHistory?'已修改':'公開中';}
-  function rowMarkup(row) { const key=esc(keyOf(row)); return `<tr data-row="${key}"><td><input type="checkbox" data-select="${key}" aria-label="選取題目 ${esc(row.id)}" ${selected.has(keyOf(row))?'checked':''} ${row.deleted||!['all','modified','pending'].includes(view)?'disabled':''}></td><td><button type="button" class="question-title" data-open="${key}">${esc(row.stem)}</button><span class="question-id">${esc(row.id)} · ${esc(row.type)}</span></td><td>${esc(row.unitLabel||unitLabel(row.course,row.unit,row.unitTitle))}<span class="source-badge">${row.source==='builtin'?'內建題目':'同學投稿'}</span></td><td><span class="state-badge ${row.deleted?'removed':''}">${esc(badge(row))}</span><span class="question-id">${esc(dateText(row.updatedAt))} · 版本 ${row.revision}</span></td><td><div class="row-actions"><button type="button" class="text-button" data-open="${key}">${row.deleted?'查看':'編輯'}</button><button type="button" class="text-button" data-history="${key}">${row.hasHistory?'修改歷史':'版本紀錄'}</button>${row.deleted?`<button type="button" class="text-button" data-recover="${key}">還原題目</button>`:''}</div></td></tr>`; }
-  function selectionStatus(){const boxes=[...$('libraryRows').querySelectorAll('[data-select]:not(:disabled)')];$('libraryBulk').hidden=!selected.size;$('librarySelectedCount').textContent=`已選 ${selected.size} 題（全選只包含目前載入的題目）`;$('librarySelectVisible').disabled=!['all','modified','pending'].includes(view)||!boxes.length||busy;$('librarySelectVisible').checked=boxes.length>0&&boxes.every(box=>box.checked);$('librarySelectVisible').indeterminate=boxes.some(box=>box.checked)&&!$('librarySelectVisible').checked;$('libraryRemoveSelected').disabled=busy;$('libraryClearSelected').disabled=busy;}
+  function rowMarkup(row) { const key=esc(keyOf(row)); return `<tr data-row="${key}"><td><input type="checkbox" data-select="${key}" aria-label="選取題目 ${esc(row.id)}" ${selected.has(keyOf(row))?'checked':''} ${busy?'disabled':''}></td><td><button type="button" class="question-title" data-open="${key}">${esc(row.stem)}</button><span class="question-id">${esc(row.id)} · ${esc(row.type)}</span></td><td>${esc(row.unitLabel||unitLabel(row.course,row.unit,row.unitTitle))}<span class="source-badge">${row.source==='builtin'?'內建題目':'同學投稿'}</span></td><td><span class="state-badge ${row.deleted?'removed':''}">${esc(badge(row))}</span><span class="question-id">${esc(dateText(row.updatedAt))} · 版本 ${row.revision}</span></td><td><div class="row-actions"><button type="button" class="text-button" data-open="${key}">${row.deleted?'查看':'編輯'}</button><button type="button" class="text-button" data-history="${key}">${row.hasHistory?'修改歷史':'版本紀錄'}</button>${row.deleted?`<button type="button" class="text-button" data-recover="${key}">還原題目</button>`:''}</div></td></tr>`; }
+  function selectionStatus(){
+    const boxes=[...$('libraryRows').querySelectorAll('[data-select]')];boxes.forEach(box=>box.disabled=busy);
+    const removable=[...selected.values()].filter(row=>!row.deleted).length,restorable=selected.size-removable;
+    $('libraryBulk').hidden=!selected.size;$('librarySelectedCount').textContent=`已選 ${selected.size} 題（可移除 ${removable} 題、可還原 ${restorable} 題；全選只包含目前載入的題目）`;
+    $('librarySelectVisible').disabled=!boxes.length||busy;$('librarySelectVisible').checked=boxes.length>0&&boxes.every(box=>box.checked);$('librarySelectVisible').indeterminate=boxes.some(box=>box.checked)&&!$('librarySelectVisible').checked;
+    $('libraryRemoveSelected').textContent=`移除選取題目（${removable}）`;$('libraryRemoveSelected').disabled=busy||!removable;
+    $('libraryRestoreSelected').textContent=`還原選取題目（${restorable}）`;$('libraryRestoreSelected').disabled=busy||!restorable;$('libraryClearSelected').disabled=busy;
+  }
   function render(record) { $('libraryRows').innerHTML=record.items.length?record.items.map(rowMarkup).join(''):'<tr><td colspan="5" class="empty-state">目前沒有符合條件的題目。試試其他單元或搜尋文字。</td></tr>';$('libraryMore').hidden=!record.nextCursor;say(`符合 ${record.total} 題，已顯示 ${record.items.length} 題。`);selectionStatus(); }
   function setCounts(next) {counts=next||counts;if(!counts)return;for(const name of Object.keys(labels)){const node=document.querySelector(`[data-count="${name}"]`);if(node)node.textContent=counts[name]??0;} }
   function units(list) {const selected=$('libraryUnit').value;$('libraryUnit').innerHTML='<option value="">全部單元</option>'+list.map(u=>`<option value="${esc(u.id)}">${esc(u.label||unitLabel($('libraryCourse').value,u.id,u.title))}</option>`).join('');if(list.some(u=>u.id===selected))$('libraryUnit').value=selected;}
@@ -44,7 +51,7 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
   function summaryFrom(item){return {...item,pendingReview:item.question?.submissionReview?.status==='pending',key:keyOf(item),stem:item.question.stem,answer:item.question.answer,category:item.question.category,type:item.question.type,deleted:!!item.deleted||item.published===false,hasHistory:item.hasHistory??item.revision>0};}
   function updateRow(item,old) {
     const summary=summaryFrom(item),key=keyOf(summary);
-    if(summary.deleted)selected.delete(key);
+    selected.delete(key);
     if(counts&&old){const delta=(condition)=>Number(condition(summary))-Number(condition(old));counts={all:counts.all+delta(r=>!r.deleted),modified:counts.modified+delta(r=>r.hasHistory),deleted:counts.deleted+delta(r=>r.deleted),pending:(counts.pending||0)+delta(r=>r.pendingReview&&!r.deleted)};setCounts(counts);}
     for(const [queryKey,record] of cache){const p=new URLSearchParams(queryKey),index=record.items.findIndex(r=>keyOf(r)===key);record.at=0;record.counts=counts; if(index<0)continue;
       const fits=(p.get('state')!=='pending'||summary.pendingReview&&!summary.deleted)&&(p.get('state')!=='deleted'||summary.deleted)&&(p.get('state')!=='all'||!summary.deleted)&&(!p.get('unit')||p.get('unit')===summary.unit)&&(p.get('state')!=='modified'||summary.hasHistory)&&(!p.get('q')||JSON.stringify(summary).toLocaleLowerCase().includes(p.get('q').toLocaleLowerCase()));
@@ -123,37 +130,39 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
       dialogStatus(error.message+' 編輯內容與草稿仍保留。',true);
       if(error.details?.code==='similar_questions'&&$('managedQuestionForm'))showSimilar($('managedQuestionForm').querySelector('.similar-warning'),error.details.possibleDuplicates);
     }finally{
-      actionPending=false;busy=false;dialog.removeAttribute('aria-busy');for(const n of dialog.querySelectorAll('button'))n.disabled=false;
+      actionPending=false;busy=false;dialog.removeAttribute('aria-busy');for(const n of dialog.querySelectorAll('button'))n.disabled=false;selectionStatus();
     }
   }
-  async function removeSelected(){
+  async function changeSelected(restoring=false){
     if(busy||actionPending||!selected.size)return;
-    const rows=[...selected.values()];
-    if(!confirm(`確定移除選取的 ${rows.length} 題？\n\n${rows.slice(0,3).map(row=>row.id+'：'+row.stem.slice(0,70)).join('\n')}${rows.length>3?'\n…另有 '+(rows.length-3)+' 題':''}\n\n移除後會停止公開，題目內容與修改歷史會保留，可到「已移除」還原。`))return;
+    const rows=[...selected.values()].filter(row=>Boolean(row.deleted)===restoring);if(!rows.length)return;
+    const verb=restoring?'還原':'移除',untouched=selected.size-rows.length;
+    if(!confirm(`確定${verb}選取的 ${rows.length} 題？\n\n${rows.slice(0,3).map(row=>row.id+'：'+row.stem.slice(0,70)).join('\n')}${rows.length>3?'\n…另有 '+(rows.length-3)+' 題':''}\n\n${restoring?'還原後會重新公開；若與既有題目重複，會保留原狀並列出原因。':'移除後會停止公開，可到「已移除」還原。'}內容與修改歷史會保留。${untouched?'\n另有 '+untouched+' 題不適用此動作，將維持原狀。':''}`))return;
     busy=true;let done=0;const failures=[];
     panel.querySelectorAll('input,select,button').forEach(node=>node.disabled=true);
     try{
       for(const [i,row] of rows.entries()){
-        say(`正在移除 ${i+1}／${rows.length} 題，已完成 ${done} 題…`);
+        say(`正在${verb} ${i+1}／${rows.length} 題，已完成 ${done} 題…`);
         try{
           const item=await fetchItem(row,true,null);
-          if(item.revision!==row.revision||item.deleted)throw new Error('題目狀態已變更，請重新核對後再選取。');
+          if(item.revision!==row.revision||Boolean(item.deleted)!==restoring)throw new Error('題目狀態已變更，請重新核對後再選取。');
           const path=item.source==='builtin'?`/api/manage/builtin-questions/${item.course}/${encodeURIComponent(item.id)}`:`/api/manage/questions/${encodeURIComponent(item.id)}`;
-          await api(path,{method:'POST',body:JSON.stringify({action:item.source==='builtin'?'delete':'hide',revision:item.revision,...(item.source==='builtin'?{sourceHash:item.sourceHash}:{}),note:'站主批次移除題目（可還原）'})});
+          await api(path,{method:'POST',body:JSON.stringify({action:restoring?(item.source==='builtin'?'rollback':'restore'):(item.source==='builtin'?'delete':'hide'),revision:item.revision,...(item.source==='builtin'?{sourceHash:item.sourceHash}:{}),note:`站主批次${verb}題目（保留歷史）`})});
           done++;selected.delete(keyOf(row));details.delete(keyOf(row));
         }catch(error){failures.push(`${row.id}：${error.message}`);}
       }
     }finally{
       panel.querySelectorAll('input,select,button').forEach(node=>node.disabled=false);cache.clear();
       await load({refresh:true});busy=false;selectionStatus();
-      say(`已移除 ${done} 題，可到「已移除」還原。${failures.length?' 尚有 '+failures.length+' 題未完成，仍保留勾選。\n'+failures.join('\n'):''}`,failures.length>0);
+      say(`已${verb} ${done} 題。${restoring?'還原後已重新公開。':'可到「已移除」還原。'}${failures.length?' 尚有 '+failures.length+' 題未完成，仍保留勾選。\n'+failures.join('\n'):''}`,failures.length>0);
       if(done)onChanged();
     }
   }
   $('libraryRows').addEventListener('change',event=>{const box=event.target.closest('[data-select]');if(!box||busy)return;const row=cache.get(activeKey)?.items.find(row=>keyOf(row)===box.dataset.select);if(!row)return;if(box.checked)selected.set(keyOf(row),{...row});else selected.delete(keyOf(row));selectionStatus();});
-  $('librarySelectVisible').addEventListener('change',event=>{if(busy)return;const checked=event.target.checked;for(const row of cache.get(activeKey)?.items||[]){if(row.deleted||!['all','modified','pending'].includes(view))continue;if(checked)selected.set(keyOf(row),{...row});else selected.delete(keyOf(row));}const record=cache.get(activeKey);if(record)render(record);});
+  $('librarySelectVisible').addEventListener('change',event=>{if(busy)return;const checked=event.target.checked;for(const row of cache.get(activeKey)?.items||[]){if(checked)selected.set(keyOf(row),{...row});else selected.delete(keyOf(row));}const record=cache.get(activeKey);if(record)render(record);});
   $('libraryClearSelected').addEventListener('click',()=>{if(busy)return;selected.clear();const record=cache.get(activeKey);if(record)render(record);});
-  $('libraryRemoveSelected').addEventListener('click',removeSelected);
+  $('libraryRemoveSelected').addEventListener('click',()=>changeSelected(false));
+  $('libraryRestoreSelected').addEventListener('click',()=>changeSelected(true));
   $('librarySearch').addEventListener('submit',event=>{event.preventDefault();if(!busy)load({refresh:true});});
   for(const id of ['libraryCourse','libraryUnit','librarySource','librarySort'])$(id).addEventListener('change',()=>{if(id==='libraryCourse')$('libraryUnit').value='';load();});
   $('refreshLibrary').addEventListener('click',()=>load({refresh:true}));$('libraryMore').addEventListener('click',()=>load({append:true}));
