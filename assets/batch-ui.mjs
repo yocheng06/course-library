@@ -1,4 +1,4 @@
-import {fingerprintLibraryImages, inheritQuestionImages, validImageHashes} from "./batch-images.mjs?v=image-identity-20261031";
+import {fingerprintLibraryImages, inheritQuestionImages, validImageHashes} from "./batch-images.mjs?v=image-bank-retry-20261031";
 import {unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
 import {
   buildIndex,
@@ -6,9 +6,9 @@ import {
   expandLibraryQuestion,
   applyBuiltinOverrides,
   MAX_TEXT,
-} from "./batch-model.mjs?v=image-identity-20261031";
-import { parseBatchInput } from "./batch-import.mjs?v=image-identity-20261031";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=image-identity-20261031";
+} from "./batch-model.mjs?v=image-bank-retry-20261031";
+import { parseBatchInput } from "./batch-import.mjs?v=image-bank-retry-20261031";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=image-bank-retry-20261031";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 function ensureTransferButton() {
@@ -133,6 +133,8 @@ function libraryStatus() {
       : publicData.has(course)
         ? "暫時無法確認最新變更，目前使用上次題庫快取；請重新同步後核對。"
       : "線上題庫暫時無法同步，目前僅比對隨站內建版本。可按「重新同步題庫」重試。");
+  const missingImages=new Set((index?.entries || []).filter(e=>e.course===course && e.imageUnavailable).map(e=>e.id)).size;
+  if(missingImages && !publicFlights.has(course)) $("libraryStatus").textContent += ' 有 '+missingImages+' 題的題庫圖片暫時無法讀取，請重新同步；這不代表題目未收錄。';
 }
 function validPublicQuestion(raw, sourceVariant = false) {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return false;

@@ -68,10 +68,10 @@ test('untrusted remote image origins are never fetched',async()=>{
 
 test('stored public images are downloaded without credentials and unavailable images can retry',async()=>{
   const original=globalThis.fetch;const origin='https://images.example.invalid';let calls=0;
-  globalThis.fetch=async(url,options)=>{calls++;assert.equal(options.credentials,'omit');assert.equal(options.redirect,'error');if(calls===1)throw Error('offline');return {ok:true,headers:{get:()=> 'image/png'},arrayBuffer:async()=>Uint8Array.from(bytes).buffer};};
+  globalThis.fetch=async(url,options)=>{calls++;assert.equal(options.credentials,'omit');assert.equal(options.redirect,'error');assert.equal(options.mode,'cors');assert.equal(options.cache,'reload');if(calls===1)throw Error('offline');return {ok:true,headers:{get:()=> 'image/png'},arrayBuffer:async()=>Uint8Array.from(bytes).buffer};};
   try{
     const envelope={questions:[{question:{images:[{src:origin+'/api/image/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/0-0'}]}}]};
-    await fingerprintLibraryImages(envelope,{apiOrigin:origin});assert.equal(envelope.questions[0].question.imageHashes,undefined);
+    await fingerprintLibraryImages(envelope,{apiOrigin:origin});assert.equal(envelope.questions[0].question.imageHashes[0],await imageDigest(bytes));
     await fingerprintLibraryImages(envelope,{apiOrigin:origin});assert.equal(envelope.questions[0].question.imageHashes[0],await imageDigest(bytes));assert.equal(calls,2);
   }finally{globalThis.fetch=original;}
 });
@@ -81,4 +81,11 @@ test('ordinary numbered HTML question blocks also retain image references and in
   const imported=await readBatchFiles([file('ordinary.html',Buffer.from(raw))],{document,imageFiles:[file('chart.png')]});
   assert.equal(imported.questions[0].imageHashes[0],await imageDigest(bytes));
   assert.equal(lookup(imported.questions,await bank())[0].status,'matched');
+});
+
+test('an exact text record with an unavailable bank image reports download failure instead of suggesting different questions',async()=>{
+  const q=(await imported([file('chart.png')])).questions[0];const envelope=await bank();
+  const unavailable={...envelope.entries[0],imageUnavailable:true};delete unavailable.imageHashes;
+  const rows=lookup([q],buildIndex([unavailable]));
+  assert.equal(rows[0].status,'unmatched');assert.match(rows[0].reason,/題庫端題圖尚未讀取成功/);assert.equal(rows[0].answer,'');
 });

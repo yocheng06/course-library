@@ -1,11 +1,11 @@
-import {resolveQuestionImages, inheritQuestionImages} from "./batch-images.mjs?v=image-identity-20261031";
+import {resolveQuestionImages, inheritQuestionImages} from "./batch-images.mjs?v=image-bank-retry-20261031";
 import {
   parseQuestions,
   formatQuestions,
   normalizeText,
   MAX_TEXT,
   MAX_QUESTIONS,
-} from "./batch-model.mjs?v=image-identity-20261031";
+} from "./batch-model.mjs?v=image-bank-retry-20261031";
 import JSON5 from "./vendor/json5.mjs?v=2.2.3";
 
 export const MAX_FILE_BYTES = 2 * 1024 * 1024;

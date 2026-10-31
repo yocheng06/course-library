@@ -1,10 +1,10 @@
-import {validImageHashes} from "./batch-images.mjs?v=image-identity-20261031";
+import {validImageHashes} from "./batch-images.mjs?v=image-bank-retry-20261031";
 import {
   parseBatchInput,
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=image-identity-20261031";
+} from "./batch-import.mjs?v=image-bank-retry-20261031";
 
 export function setupBatchImport({ document, onApply, getImageQuestions = () => [] }) {
   const $ = (id) => document.getElementById(id);

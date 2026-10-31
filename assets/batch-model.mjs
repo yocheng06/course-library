@@ -474,6 +474,7 @@ export function toLibraryQuestion(
         : choiceAnswerKey(answer, options)
       : null,
     needsImage: Boolean(raw.images?.length || raw.missingContext),
+    ...(raw.imageFingerprintFailed === true ? {imageUnavailable:true} : {}),
     ...(Array.isArray(raw.images) && raw.images.length && !raw.missingContext && imageHashKey(raw.imageHashes) && raw.imageHashes.length === raw.images.length ? {imageHashes:raw.imageHashes,imageType:imageQuestionType(raw.type,options,suppliedValid ? supplied : options.length ? choiceAnswerKey(answer,options) : null)} : {}),
     preferred,
     ...(raw.submissionReview?{reviewGroup:true,reviewPending:raw.submissionReview.status==='pending'}:{}),
@@ -974,6 +975,10 @@ export function matchQuestion(question, index, { course, unit = "all", completeO
         : "找到同題幹的選擇題，請補齊選項後再比對。",
       references: references(sameStem),
     };
+  if (imageKey) {
+    const waitingImages=index.entries.filter(entry=>entry.course===course && (unit==='all'||entry.unit===unit) && entry.imageUnavailable && completeStem(entry.stem)===completeStem(question.stem) && sameOptions(question,entry));
+    if(waitingImages.length)return {status:'review',answer:'',reason:'已找到相同原題，但題庫端題圖尚未讀取成功。請按「重新同步題庫」後再比對；本機題圖已保留。',references:references(waitingImages)};
+  }
   const firstLine = normalizeStem(question.stem.split("\n")[0]);
   if (firstLine !== normalizeStem(question.stem) && firstLine.length >= 10) {
     const withContext = (

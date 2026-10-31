@@ -30,10 +30,17 @@ async function libraryDigest(src, apiOrigin) {
   try { url = new URL(src); } catch { return null; }
   if (!apiOrigin || url.origin !== apiOrigin || url.protocol !== 'https:' || url.username || url.password || !/^\/api\/image\/[a-f0-9-]+\/\d+-\d+$/.test(url.pathname) || url.search || url.hash) return null;
   if (!cache.has(src)) cache.set(src,imageSlot(async()=>{
-    const response=await fetch(src,{credentials:'omit',redirect:'error',signal:AbortSignal.timeout(5000)});
-    if(!response.ok || !/^image\/(?:png|jpeg|webp)(?:;|$)/i.test(response.headers.get('content-type') || '')) return null;
-    return imageDigest(await response.arrayBuffer());
-  }).catch(()=>null));
+    for(let attempt=0;attempt<2;attempt++) {
+      try {
+        // Earlier img loads may have cached a no-CORS response for this URL.
+        const response=await fetch(src,{mode:'cors',cache:'reload',credentials:'omit',redirect:'error',signal:AbortSignal.timeout(10000)});
+        if(!response.ok){if(response.status>=400 && response.status<500 && response.status!==408 && response.status!==429)return null;continue;}
+        if(!/^image\/(?:png|jpeg|webp)(?:;|$)/i.test(response.headers.get('content-type') || '')) return null;
+        return await imageDigest(await response.arrayBuffer());
+      } catch { /* Retry one transient failure; never guess an image hash. */ }
+    }
+    return null;
+  }));
   const hash=await cache.get(src);
   if (!hash) cache.delete(src);
   return hash;
@@ -42,9 +49,11 @@ export async function fingerprintLibraryImages(data, {apiOrigin=globalThis.windo
   async function visit(q) {
     if (!q || typeof q !== 'object') return;
     delete q.imageHashes;
+    delete q.imageFingerprintFailed;
     if (Array.isArray(q.images) && q.images.length && q.images.length <= 8 && !q.missingContext) {
       const hashes = await Promise.all(q.images.map(image => libraryDigest(typeof image === 'string' ? image : image?.src || '', apiOrigin)));
       if (validImageHashes(hashes)) q.imageHashes = hashes;
+      else q.imageFingerprintFailed = true;
     }
     for (const variant of q.sourceVariants || []) await visit(variant);
   }

@@ -1,3 +1,5 @@
+import {webcrypto} from 'node:crypto';
+import {imageDigest} from '../assets/batch-images.mjs';
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
@@ -34,7 +36,7 @@ async function page(fetch, {storage = new Map()} = {}) {
     location: { href: "https://example.invalid/batch.html" },
     localStorage: { getItem: key => storage.get(key), setItem(key,value) { storage.set(key,value); } }, fetch,
     navigator: { clipboard: { writeText: async (text) => copied.push(text) } },
-    URL, AbortSignal, TextDecoder, Uint8Array, console, Event: window.Event,
+    URL, AbortSignal, TextDecoder, Uint8Array, crypto:webcrypto, atob, console, Event: window.Event,
   });
   const modules = new Map();
   async function load(source) {
@@ -52,6 +54,25 @@ async function page(fetch, {storage = new Map()} = {}) {
   const fire = (id, event) => $(id).dispatchEvent(new window.Event(event, { bubbles: true, cancelable: true }));
   return { $, fire, copied, context };
 }
+
+test('a transient bank-image failure retries a fresh CORS download and restored image drafts match',async()=>{
+  const bytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jG3sAAAAASUVORK5CYII=','base64');
+  const q={number:'1',stem:'[題圖已載入] 表格的平均時間是多少 ____________',type:'填空題',options:[],imageHashes:[await imageDigest(bytes)]};
+  const storage=new Map([['course-library.batch-draft.v1',JSON.stringify({course:'os',unit:'scheduling',text:'1. 【填空題】'+q.stem,imageQuestions:[q]})]]);
+  let attempts=0;
+  const ui=await page(async(url,options)=>{
+    if(String(url).startsWith('assets/'))return {ok:true,json:async()=>structuredClone(base)};
+    if(String(url).includes('/api/image/')){
+      attempts++;assert.equal(options.mode,'cors');assert.equal(options.cache,'reload');
+      if(attempts===1)throw new TypeError('cached image lacks CORS permission');
+      return {ok:true,headers:{get:()=> 'image/png'},arrayBuffer:async()=>Uint8Array.from(bytes).buffer};
+    }
+    return response([{unit:'scheduling',question:{id:'community-00000000-0000-4000-8000-000000000077-1',type:'填空題',stem:'表格的平均時間是多少 ____________',options:[],answer:'8.2',images:[{src:'https://example.invalid/api/image/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/0-0'}]}}]);
+  },{storage});
+  for(let i=0;i<100&&!storage.has('course-library.questions.v1.os');i++)await tick();
+  await tick();ui.fire('batchForm','submit');
+  assert.equal(attempts,2);assert.match(ui.$('resultCount').textContent,/已收錄 1・未收錄 0/);assert.match(ui.$('resultRows').textContent,/8.2/);
+});
 
 test("built-in lookup and copying work while public sync waits, then new data invalidates old results", async () => {
   const pending = [];
