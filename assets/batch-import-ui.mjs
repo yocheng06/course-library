@@ -4,7 +4,7 @@ import {
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=formula-fill-slots-20261031";
+} from "./batch-import.mjs?v=heap-prompt-context-20261031";
 
 export function setupBatchImport({ document, onApply, getImageQuestions = () => [] }) {
   const $ = (id) => document.getElementById(id);

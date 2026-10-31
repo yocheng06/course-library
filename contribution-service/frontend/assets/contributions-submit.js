@@ -517,12 +517,26 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
         throw new Error(`第 ${questionNumber} 題的題圖「${source.split("/").at(-1) || "未命名"}」不在 HTML 內；請先選取下載時產生的「${name.replace(/\.html?$/i, "")}_files」資料夾，或複選對應的題圖檔，再重新匯入。沒有匯入任何題目。`);
       questionImages.push(await imageFileDataUrl(match.file, questionNumber));
     }
-    const stemNodes = [...block.querySelectorAll(".question-text")]
-      .map((node) => cleanText(staticHtmlText(node)))
-      .filter(Boolean)
-      .sort((a, b) => b.length - a.length);
-    if (!stemNodes.length) throw new Error(`第 ${questions.length + 1} 題缺少題幹，沒有匯入任何題目。`);
-    const localStem = challenge ? cleanQuestionStem(stemNodes[0]).replace(/^\d+[.．、]\s+/u,'') : cleanQuestionStem(stemNodes[0]);
+    // Invalid <p><pre> nesting is repaired by browsers: the diagram becomes a
+    // sibling of .question-text. Read the complete prompt, excluding choices.
+    const promptCopy = block.cloneNode(true);
+    for (const node of promptCopy.querySelectorAll('.options')) {
+      if (node.querySelector('input[type="radio"],input[type="checkbox"]')) node.remove();
+    }
+    for (const node of promptCopy.querySelectorAll('label,script,style,template,noscript,button,[hidden],[aria-hidden="true"]')) node.remove();
+    for (const node of promptCopy.querySelectorAll('.question-text')) {
+      if (/^(?:(?:妖獸|Beast)\s*)?\d+[.．、)]\s*$/iu.test(cleanText(staticHtmlText(node)))) node.remove();
+    }
+    const preformatted = [];
+    for (const node of promptCopy.querySelectorAll('pre')) {
+      const marker = '\uE000course-pre-' + preformatted.length + '\uE001';
+      preformatted.push(staticHtmlText(node).replace(/\r\n?/g,'\n').replace(/^\n+|\n+$/g,''));
+      node.replaceWith(doc.createTextNode(' ' + marker + ' '));
+    }
+    let localStem = cleanQuestionStem(staticHtmlText(promptCopy));
+    if (challenge) localStem = localStem.replace(/^\d+[.．、]\s+/u,'');
+    localStem = localStem.replace(/\uE000course-pre-(\d+)\uE001/g,(_,index) => '\n\n' + preformatted[Number(index)] + '\n\n').trim();
+    if (!localStem) throw new Error(`第 ${questions.length + 1} 題缺少題幹，沒有匯入任何題目。`);
     const sharedCopy = shared?.cloneNode(true);
     for (const table of sharedCopy?.querySelectorAll('table') || []) {
       const rows = [...table.querySelectorAll('tr')].map(row => [...row.children]

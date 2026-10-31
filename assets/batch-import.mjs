@@ -800,13 +800,19 @@ function htmlQuestions(raw, doc, warnings = []) {
       ? `\n${content}\n`
       : content;
   }
-  // CCSA challenge pages place one or more questions inside a shared group
-  // block. Parse each child separately and prepend its shared stem so tables
-  // and diagrams remain part of every question used by batch lookup.
-  const challengeForm = root.querySelector("#challenge-quiz-form");
-  if (challengeForm) {
-    const topLevelBlocks = [...challengeForm.querySelectorAll(".question-block")].filter(
-      (node) => !node.parentElement?.closest(".question-block"),
+  // Saved practice/challenge forms provide explicit question boundaries.
+  // Keep prompt diagrams/code with their question rather than interpreting
+  // their node indices or code line numbers as more questions.
+  const quizForm = root.querySelector("#challenge-quiz-form,#practice-quiz-form");
+  if (quizForm) {
+    const hidden = node => {
+      for (let current=node;current&&current!==quizForm;current=current.parentElement) {
+        if (/display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0|left\s*:\s*-\d+px/i.test(current.getAttribute('style')||'')) return true;
+      }
+      return false;
+    };
+    const topLevelBlocks = [...quizForm.querySelectorAll(".question-block")].filter(
+      (node) => !node.parentElement?.closest(".question-block") && !hidden(node) && !node.querySelector('input[name="v_user_answer"]'),
     );
     if (topLevelBlocks.length) {
       const imported = [], imageSources = [];
@@ -820,12 +826,13 @@ function htmlQuestions(raw, doc, warnings = []) {
           fail("挑戰模式題組找不到小題，請確認 HTML 檔案完整。沒有匯入任何題目。");
         const context = shared ? text(shared).replace(/\n{3,}/g, "\n\n").trim() : "";
         for (const child of children) {
-          const promptNodes = [...child.querySelectorAll(".question-text")];
-          const prompt = promptNodes
-            .map((node) => text(node).replace(/\s+/g, " ").trim())
-            .filter(Boolean)
-            .sort((a, b) => b.length - a.length)[0]
-            ?.replace(/^\s*\d+[.．、)]\s*/, "");
+          const promptCopy = child.cloneNode(true);
+          for (const node of promptCopy.querySelectorAll('.options')) {
+            if (node.querySelector('input[type="radio"],input[type="checkbox"]')) node.remove();
+          }
+          for (const node of promptCopy.querySelectorAll('label,script,style,template,noscript,button')) node.remove();
+          const prompt = text(promptCopy).replace(/\s+/g,' ').trim()
+            .replace(/^\s*(?:(?:妖獸|Beast)\s*)?\d+[.．、)]\s*/iu,'');
           if (!prompt)
             fail(`第 ${imported.length + 1} 題缺少題幹，沒有匯入任何題目。`);
           const optionLabels = [...child.querySelectorAll("label")].filter((label) =>
@@ -849,8 +856,11 @@ function htmlQuestions(raw, doc, warnings = []) {
             fail(`第 ${imported.length + 1} 題的選項格式無法辨識，沒有匯入任何題目。`);
           imageSources.push([...(shared?.querySelectorAll("img") || []),...child.querySelectorAll("img")].map(image=>image.getAttribute("src") || ""));
           const stem = [context, prompt].filter(Boolean).join("\n\n");
+          const number = quizForm.id === 'practice-quiz-form'
+            ? text(child.querySelector('.question-text') || child).trim().match(/^(?:(?:妖獸|Beast)\s*)?(\d+)[.．、)]/iu)?.[1] || String(imported.length+1)
+            : String(imported.length+1);
           imported.push(
-            `${imported.length + 1}. 【${inputType === "radio" ? "單選題" : inputType === "checkbox" ? "多選題" : "填空題"}】${stem}${options.length ? `\n${options.map((option, index) => `${LETTERS[index]}. ${option}`).join("\n")}` : ""}`,
+            `${number}. 【${inputType === "radio" ? "單選題" : inputType === "checkbox" ? "多選題" : "填空題"}】${stem}${options.length ? `\n${options.map((option, index) => `${LETTERS[index]}. ${option}`).join("\n")}` : ""}`,
           );
         }
       }
