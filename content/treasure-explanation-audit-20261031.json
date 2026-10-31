@@ -1,0 +1,770 @@
+[
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-1",
+    "answer": "B",
+    "consistent": true,
+    "expected": "B",
+    "detail": "本題結論：選 B。",
+    "data": "fifo",
+    "mode": "fcfs",
+    "ask": "waiting"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-10",
+    "answer": "(100-110)",
+    "consistent": true,
+    "expected": "100-110",
+    "detail": "本題結論：100-110。",
+    "data": "rt3",
+    "mode": "rm",
+    "ask": "jobRange"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-11",
+    "answer": "(P3_1),(P1_1),(P2_1),(P3_2),(P2_1),(P1_2),(P3_3)",
+    "consistent": true,
+    "expected": [
+      "P3_1",
+      "P1_1",
+      "P2_1",
+      "P3_2",
+      "P2_1",
+      "P1_2",
+      "P3_3"
+    ],
+    "detail": "本題結論：P3_1 → P1_1 → P2_1 → P3_2 → P2_1 → P1_2 → P3_3。",
+    "data": "rt3",
+    "mode": "rm",
+    "ask": "sequence"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-12",
+    "answer": "A、B、C",
+    "consistent": true,
+    "expected": "A、B、C",
+    "detail": "本題結論：選 A、B、C。",
+    "data": "rt3",
+    "mode": "rm",
+    "ask": "intervalOptions"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-13",
+    "answer": "(70-90)",
+    "consistent": true,
+    "expected": "70-90",
+    "detail": "本題結論：70-90。",
+    "data": "rt3",
+    "mode": "rm",
+    "ask": "jobRange"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-14",
+    "answer": "(7.8)",
+    "consistent": true,
+    "expected": "7.8",
+    "detail": "本題結論：7.8。",
+    "data": "rrba",
+    "mode": "rr",
+    "ask": "waiting"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-15",
+    "answer": "(P2->P5->P1->P3->P4)",
+    "consistent": true,
+    "expected": [
+      "P2",
+      "P5",
+      "P1",
+      "P3",
+      "P4"
+    ],
+    "detail": "本題結論：P2 → P5 → P1 → P3 → P4。",
+    "data": "priority",
+    "mode": "priority",
+    "ask": "sequence"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-16",
+    "answer": "(6.0)",
+    "consistent": true,
+    "expected": "6",
+    "detail": "本題結論：6。",
+    "data": "abc",
+    "mode": "srtf",
+    "ask": "turnaround"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-17",
+    "answer": "B、C、D",
+    "consistent": false,
+    "expected": "A",
+    "detail": "題庫提供的答案保留為 B、C、D。依上面明列的條件推得 A，與題庫答案有落差。這裡把可重算的過程寫出來，不以缺少的條件硬湊答案。",
+    "data": "rt2",
+    "mode": "edf",
+    "ask": "jobWindows"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-18",
+    "answer": "(P2_1),(P1_2),(P2_2),(P1_3),(P2_2),(P3_1)",
+    "consistent": false,
+    "expected": [
+      "P2_1",
+      "P1_2",
+      "P1_3",
+      "P2_2"
+    ],
+    "detail": "題庫提供的答案保留為 (P2_1),(P1_2),(P2_2),(P1_3),(P2_2),(P3_1)。依上面明列的條件推得 P2_1 → P1_2 → P1_3 → P2_2，與題庫答案有落差。這裡把可重算的過程寫出來，不以缺少的條件硬湊答案。",
+    "data": "rt2",
+    "mode": "edf",
+    "ask": "sequence"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-19",
+    "answer": "(210-220)",
+    "consistent": true,
+    "expected": "210-220",
+    "detail": "本題結論：210-220。",
+    "data": "rt3",
+    "mode": "edf",
+    "ask": "jobRange"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-2",
+    "answer": "A、C",
+    "consistent": true,
+    "expected": "A、C",
+    "detail": "本題結論：選 A、C。",
+    "data": "fifo",
+    "mode": "fcfs",
+    "ask": "waitOptions"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-20",
+    "answer": "(70-90)",
+    "consistent": true,
+    "expected": "70-90",
+    "detail": "本題結論：70-90。",
+    "data": "rt3",
+    "mode": "edf",
+    "ask": "jobRange"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-21",
+    "answer": "(P3_1),(P1_1),(P2_1),(P3_2),(P1_2),(P3_3)",
+    "consistent": true,
+    "expected": [
+      "P3_1",
+      "P1_1",
+      "P2_1",
+      "P3_2",
+      "P1_2",
+      "P3_3"
+    ],
+    "detail": "本題結論：P3_1 → P1_1 → P2_1 → P3_2 → P1_2 → P3_3。",
+    "data": "rt3",
+    "mode": "edf",
+    "ask": "sequence"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-22",
+    "answer": "A、B、C、D",
+    "consistent": true,
+    "expected": "A、B、C、D",
+    "detail": "本題結論：選 A、B、C、D。",
+    "data": "rt3",
+    "mode": "edf",
+    "ask": "uninterrupted"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-23",
+    "answer": "(4)",
+    "consistent": true,
+    "expected": "4",
+    "detail": "本題結論：4。",
+    "data": "abc",
+    "mode": "fcfs",
+    "ask": "switches"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-24",
+    "answer": "(6.4)",
+    "consistent": true,
+    "expected": "6.4",
+    "detail": "本題結論：6.4。",
+    "data": "abc",
+    "mode": "sjf",
+    "ask": "turnaround"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-25",
+    "answer": "(3.4)",
+    "consistent": true,
+    "expected": "3.4",
+    "detail": "本題結論：3.4。",
+    "data": "abc",
+    "mode": "sjf",
+    "ask": "waiting"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-26",
+    "answer": "(P1_P2_P4_P1_P3)",
+    "consistent": true,
+    "expected": [
+      "P1",
+      "P2",
+      "P4",
+      "P1",
+      "P3"
+    ],
+    "detail": "本題結論：P1 → P2 → P4 → P1 → P3。",
+    "data": "p9",
+    "mode": "srtf",
+    "ask": "sequence"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-3",
+    "answer": "B、D",
+    "consistent": false,
+    "expected": "C、D",
+    "detail": "題庫提供的答案保留為 B、D。依上面明列的條件推得 C、D，與題庫答案有落差。這裡把可重算的過程寫出來，不以缺少的條件硬湊答案。",
+    "data": "rt1",
+    "mode": "rm",
+    "ask": "interrupted"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-4",
+    "answer": "C",
+    "consistent": false,
+    "expected": "A",
+    "detail": "題庫提供的答案保留為 C。依上面明列的條件推得 A，與題庫答案有落差。這裡把可重算的過程寫出來，不以缺少的條件硬湊答案。",
+    "data": "rt1",
+    "mode": "rm",
+    "ask": "pair"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-5",
+    "answer": "(ABCDEC)",
+    "consistent": true,
+    "expected": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "C"
+    ],
+    "detail": "本題結論：A → B → C → D → E → C。",
+    "data": "rrabc",
+    "mode": "rr",
+    "ask": "sequence"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-6",
+    "answer": "(4)",
+    "consistent": true,
+    "expected": "4",
+    "detail": "本題結論：4。",
+    "data": "rrabc",
+    "mode": "rr",
+    "ask": "waiting"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-7",
+    "answer": "A",
+    "consistent": true,
+    "expected": "A",
+    "detail": "本題結論：選 A。",
+    "data": "p6",
+    "mode": "srtf",
+    "ask": "waiting"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-8",
+    "answer": "A",
+    "consistent": true,
+    "expected": "A",
+    "detail": "本題結論：選 A。",
+    "data": "p6",
+    "mode": "srtf",
+    "ask": "response"
+  },
+  {
+    "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-9",
+    "answer": "A、C",
+    "consistent": true,
+    "expected": "A、C",
+    "detail": "本題結論：選 A、C。",
+    "data": "rt3",
+    "mode": "rm",
+    "ask": "interrupted"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-1",
+    "answer": "(P3_4),(P1_3),(P3_5),(P2_3)",
+    "consistent": true,
+    "expected": [
+      "P3_4",
+      "P1_3",
+      "P3_5",
+      "P2_3"
+    ],
+    "detail": "本題結論：P3_4 → P1_3 → P3_5 → P2_3。",
+    "data": "rt3",
+    "mode": "rm",
+    "ask": "sequence"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-10",
+    "answer": "(1),(1),(1),(1)",
+    "consistent": true,
+    "expected": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "detail": "本題結論：1、1、1、1。",
+    "data": "fcfs4",
+    "mode": "fcfs",
+    "ask": "blocks"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-11",
+    "answer": "A、B、C",
+    "consistent": true,
+    "expected": "A、B、C",
+    "detail": "本題結論：選 A、B、C。",
+    "data": "rt3",
+    "mode": "edf",
+    "ask": "intervalOptions"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-12",
+    "answer": "A、C",
+    "consistent": true,
+    "expected": "A、C",
+    "detail": "本題結論：選 A、C。",
+    "data": "rt3",
+    "mode": "edf",
+    "ask": "intervalOptions"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-13",
+    "answer": "A",
+    "consistent": true,
+    "expected": "A",
+    "detail": "本題結論：選 A。",
+    "data": "p6",
+    "mode": "srtf",
+    "ask": "turnaround"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-14",
+    "answer": "(P1->P2->P1->P3->P4->P2->P5->P1->P3->P5->P1)",
+    "consistent": true,
+    "expected": [
+      "P1",
+      "P2",
+      "P1",
+      "P3",
+      "P4",
+      "P2",
+      "P5",
+      "P1",
+      "P3",
+      "P5",
+      "P1"
+    ],
+    "detail": "本題結論：P1 → P2 → P1 → P3 → P4 → P2 → P5 → P1 → P3 → P5 → P1。",
+    "data": "rr5",
+    "mode": "rr",
+    "ask": "sequence"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-15",
+    "answer": "(4)",
+    "consistent": true,
+    "expected": "4",
+    "detail": "本題結論：4。",
+    "data": "rr5",
+    "mode": "rr",
+    "ask": "response"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-16",
+    "answer": "A、C",
+    "consistent": true,
+    "expected": "A、C",
+    "detail": "本題結論：選 A、C。",
+    "data": "rt1",
+    "mode": "rm",
+    "ask": "feasible"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-17",
+    "answer": "(P2)",
+    "consistent": true,
+    "expected": "P2",
+    "detail": "本題結論：P2。",
+    "data": "rt2",
+    "mode": "edf",
+    "ask": "atTime"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-2",
+    "answer": "(8.2)",
+    "consistent": true,
+    "expected": "8.2",
+    "detail": "本題結論：8.2。",
+    "data": "efirst",
+    "mode": "sjf",
+    "ask": "turnaround"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-3",
+    "answer": "(7.8)",
+    "consistent": true,
+    "expected": "7.8",
+    "detail": "本題結論：7.8。",
+    "data": "abc",
+    "mode": "fcfs",
+    "ask": "turnaround"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-4",
+    "answer": "(4.8)",
+    "consistent": true,
+    "expected": "4.8",
+    "detail": "本題結論：4.8。",
+    "data": "abc",
+    "mode": "fcfs",
+    "ask": "waiting"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-5",
+    "answer": "(5)",
+    "consistent": true,
+    "expected": "5",
+    "detail": "本題結論：5。",
+    "data": "abc",
+    "mode": "srtf",
+    "ask": "switches"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-6",
+    "answer": "A",
+    "consistent": true,
+    "expected": "A",
+    "detail": "本題結論：選 A。",
+    "data": "abc",
+    "mode": "srtf",
+    "ask": "splitOptions"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-7",
+    "answer": "(P1_P2_P3_P4)",
+    "consistent": true,
+    "expected": [
+      "P1",
+      "P2",
+      "P3",
+      "P4"
+    ],
+    "detail": "本題結論：P1 → P2 → P3 → P4。",
+    "data": "p9",
+    "mode": "fcfs",
+    "ask": "sequence"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-8",
+    "answer": "(6->11->19->20)",
+    "consistent": true,
+    "expected": [
+      6,
+      11,
+      19,
+      20
+    ],
+    "detail": "本題結論：6、11、19、20。",
+    "data": "fcfs4",
+    "mode": "fcfs",
+    "ask": "completion"
+  },
+  {
+    "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-9",
+    "answer": "B",
+    "consistent": true,
+    "expected": "B",
+    "detail": "本題結論：選 B。",
+    "data": "fcfs4",
+    "mode": "fcfs",
+    "ask": "turnaround"
+  },
+  {
+    "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-1",
+    "answer": "(6.5)",
+    "consistent": true,
+    "expected": "6.5",
+    "detail": "本題結論：6.5。",
+    "data": "p9",
+    "mode": "srtf",
+    "ask": "waiting"
+  },
+  {
+    "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-10",
+    "answer": "C",
+    "consistent": true,
+    "expected": "C",
+    "detail": "本題結論：選 C。",
+    "data": "fcfs4",
+    "mode": "fcfs",
+    "ask": "response"
+  },
+  {
+    "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-11",
+    "answer": "(P1->P2->P3->P4)",
+    "consistent": true,
+    "expected": [
+      "P1",
+      "P2",
+      "P3",
+      "P4"
+    ],
+    "detail": "本題結論：P1 → P2 → P3 → P4。",
+    "data": "fcfs4",
+    "mode": "fcfs",
+    "ask": "sequence"
+  },
+  {
+    "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-2",
+    "answer": "B",
+    "consistent": true,
+    "expected": "B",
+    "detail": "本題結論：選 B。",
+    "data": "priority",
+    "mode": "priority",
+    "ask": "waiting"
+  },
+  {
+    "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-3",
+    "answer": "(8.2)",
+    "consistent": false,
+    "expected": "6.8",
+    "detail": "題庫提供的答案保留為 (8.2)。依上面明列的條件推得 6.8，與題庫答案有落差。這組資料的平均 CPU 時間是（2＋3＋2＋4＋6）÷5＝3.4；平均等待也是 3.4，因此平均迴轉必為 3.4＋3.4＝6.8。8.2 是這組資料在不可搶先 SJF 下的平均迴轉時間。這裡把可重算的過程寫出來，不以缺少的條件硬湊答案。",
+    "data": "efirst",
+    "mode": "srtf",
+    "ask": "turnaround"
+  },
+  {
+    "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-4",
+    "answer": "(3.4)",
+    "consistent": true,
+    "expected": "3.4",
+    "detail": "本題結論：3.4。",
+    "data": "efirst",
+    "mode": "srtf",
+    "ask": "waiting"
+  },
+  {
+    "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-5",
+    "answer": "(4)",
+    "consistent": true,
+    "expected": "4",
+    "detail": "本題結論：4。",
+    "data": "abc",
+    "mode": "sjf",
+    "ask": "switches"
+  },
+  {
+    "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-6",
+    "answer": "(17)",
+    "consistent": true,
+    "expected": "17",
+    "detail": "本題結論：17。",
+    "data": "fifo",
+    "mode": "fcfs",
+    "ask": "response"
+  },
+  {
+    "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-7",
+    "answer": "A",
+    "consistent": true,
+    "expected": "A",
+    "detail": "本題結論：選 A。",
+    "data": "fifo",
+    "mode": "fcfs",
+    "ask": "turnaround"
+  },
+  {
+    "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-8",
+    "answer": "(80)",
+    "consistent": true,
+    "expected": "80",
+    "detail": "本題結論：80。真正完工時刻是 75 ms。老師答案 80 可解讀為「以 10 ms 刻度向後找最近的標記」：75＜80；若未指定刻度，不能把 80 當作實際完工時刻。",
+    "data": "rt1",
+    "mode": "rm",
+    "ask": "finishBefore"
+  },
+  {
+    "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-9",
+    "answer": "(18.2)",
+    "consistent": true,
+    "expected": "18.2",
+    "detail": "本題結論：18.2。",
+    "data": "rr5",
+    "mode": "rr",
+    "ask": "turnaround"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-1",
+    "answer": "A",
+    "consistent": true,
+    "expected": "A",
+    "detail": "本題結論：選 A。",
+    "data": "fcfs4",
+    "mode": "fcfs",
+    "ask": "waiting"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-10",
+    "answer": "(16->1->18->19->6)",
+    "consistent": true,
+    "expected": [
+      16,
+      1,
+      18,
+      19,
+      6
+    ],
+    "detail": "本題結論：16、1、18、19、6。",
+    "data": "priority",
+    "mode": "priority",
+    "ask": "completion"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-11",
+    "answer": "A、B",
+    "consistent": true,
+    "expected": "A、B",
+    "detail": "本題結論：選 A、B。",
+    "data": "rt2",
+    "mode": "edf",
+    "ask": "compare"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-12",
+    "answer": "B",
+    "consistent": true,
+    "expected": "B",
+    "detail": "本題結論：選 B。",
+    "data": "rt2",
+    "mode": "edf",
+    "ask": "chooseFalse"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-13",
+    "answer": "A、B、C、D",
+    "consistent": false,
+    "expected": "B、C、D",
+    "detail": "題庫提供的答案保留為 A、B、C、D。依上面明列的條件推得 B、C、D，與題庫答案有落差。這裡把可重算的過程寫出來，不以缺少的條件硬湊答案。",
+    "data": "rt2",
+    "mode": "edf",
+    "ask": "jobWindows"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-2",
+    "answer": "(ECABD)",
+    "consistent": true,
+    "expected": [
+      "E",
+      "C",
+      "A",
+      "B",
+      "D"
+    ],
+    "detail": "本題結論：E → C → A → B → D。",
+    "data": "efirst",
+    "mode": "sjf",
+    "ask": "sequence"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-3",
+    "answer": "(9.4)",
+    "consistent": true,
+    "expected": "9.4",
+    "detail": "本題結論：9.4。",
+    "data": "efirst",
+    "mode": "fcfs",
+    "ask": "turnaround"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-4",
+    "answer": "A",
+    "consistent": false,
+    "expected": "條件不足",
+    "detail": "題庫提供的答案保留為 A。本題文字缺少足以唯一排程的條件。這裡把可重算的過程寫出來，不以缺少的條件硬湊答案。",
+    "data": "rrMissing",
+    "mode": "rr",
+    "ask": "incomplete"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-5",
+    "answer": "(3.0)",
+    "consistent": true,
+    "expected": "3",
+    "detail": "本題結論：3。",
+    "data": "abc",
+    "mode": "srtf",
+    "ask": "waiting"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-6",
+    "answer": "A、C、D",
+    "consistent": true,
+    "expected": "A、C、D",
+    "detail": "本題結論：選 A、C、D。",
+    "data": "rt3",
+    "mode": "rm",
+    "ask": "intervalOptions"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-7",
+    "answer": "(P1->P2->P4->P3->P1)",
+    "consistent": true,
+    "expected": [
+      "P1",
+      "P2",
+      "P4",
+      "P3",
+      "P1"
+    ],
+    "detail": "本題結論：P1 → P2 → P4 → P3 → P1。",
+    "data": "p6",
+    "mode": "srtf",
+    "ask": "sequence"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-8",
+    "answer": "A、B、C、D",
+    "consistent": true,
+    "expected": "A、B、C、D",
+    "detail": "本題結論：選 A、B、C、D。",
+    "data": "rt1",
+    "mode": "edf",
+    "ask": "uninterrupted"
+  },
+  {
+    "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-9",
+    "answer": "(P1_1),(P2_1),(P1_2)",
+    "consistent": true,
+    "expected": [
+      "P1_1",
+      "P2_1",
+      "P1_2"
+    ],
+    "detail": "本題結論：P1_1 → P2_1 → P1_2。",
+    "data": "rt1",
+    "mode": "edf",
+    "ask": "sequence"
+  }
+]

@@ -1,0 +1,1561 @@
+{
+  "fetchedAt": "2026-10-31T09:45:45.290Z",
+  "rows": [
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-1",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "下圖為使用 FIFO CPU 排程演算法的排程結果\n\n請回答以下問題\n\n請問平均等待時間(waiting time)是多少",
+        "options": [
+          "24",
+          "17",
+          "27"
+        ],
+        "answer": "B",
+        "explanation": "",
+        "choiceKey": "B",
+        "imageKeys": [
+          "sha256:22bb3cb2a6ea05e8ec0480f4eef9c5d49c7ac39bc6fa1fbb43e25d6abe374c32"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/0-0",
+            "alt": "下圖為使用 FIFO CPU 排程演算法的排程結果\n\n請回答以下問題\n\n請問平均等待時間(waiting time)是多少"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-10",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10ms 40\nP2 60 20ms 50\nP3 30 10ms 30\n\n若採用 Rate Monotonic 排程法 P1的第3塊資料會由哪一個時間點 排到哪一個時間點 ____________ 格式: 20-55",
+        "options": [],
+        "answer": "(100-110)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-11",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10ms 40\nP2 60 20ms 50\nP3 30 10ms 30\n\n若採用 Rate Monotonic 排程法 由時間0ms到 70ms 行程排入的順序是甚麼(每一個連續區塊寫一次如 P1的第一塊資料 寫 P1_1，P3的第二塊資料 寫 P3_2) ____________ 格式: P1_1,P2_1,P3_1,P2_1,P2_3,P3_1",
+        "options": [],
+        "answer": "(P3_1),(P1_1),(P2_1),(P3_2),(P2_1),(P1_2),(P3_3)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-12",
+        "category": "挖寶單元",
+        "type": "多選題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10ms 40\nP2 60 20ms 50\nP3 30 10ms 30\n\n若採用 Rate Monotonic 排程法 由時間0ms到 180ms 以下哪些正確",
+        "options": [
+          "110-120沒有排工作",
+          "90-100排工作P3",
+          "170-180沒有排工作",
+          "40-50排工作P1"
+        ],
+        "answer": "A、B、C",
+        "explanation": "",
+        "choiceKey": "ABC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-13",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10ms 40\nP2 60 20ms 50\nP3 30 10ms 30\n\n若採用 Rate Monotonic 排程法 P2的第二塊資料會由哪一個時間點 排到哪一個時間點 ____________ 格式: 20-55",
+        "options": [],
+        "answer": "(70-90)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-14",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "Suppose there are process A~E. Its CPU BURST time is as follows:\n\nProcess Burst Time Arrival Time\n\nA 4 1\nB 6 0\nC 2 6\nD 4 3\nE 2 9\n\nIf TQ = 3 when using RR scheduling method, what is the average waiting time? ____________",
+        "options": [],
+        "answer": "(7.8)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-15",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "Suppose there are process P1~P5. Its CPU Burst Time & Priority as follows:\n\nProcess Burst Time Priority\n\nP1 10 3\nP2 1 1\nP3 2 4\nP4 1 5\nP5 5 2\n\n請寫出全部的行程排程順序 *答案格式範例:P1->P2->P3->P2->P5->P9 格式錯誤不給分 ____________",
+        "options": [],
+        "answer": "(P2->P5->P1->P3->P4)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-16",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "假設有行程 A~E。其CPU時間、到達時間如下\n\n若可搶先(preemptive)使用SJF排程法時，平均迴轉(turnaround)時間為 ____________ ms (格式為浮點入如 1.0)",
+        "options": [],
+        "answer": "(6.0)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:8adc650e182b1d1402086882781f6ed7db43df36cc6b80c52d748370a18a5568"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/15-0",
+            "alt": "假設有行程 A~E。其CPU時間、到達時間如下\n\n若可搶先(preemptive)使用SJF排程法時，平均迴轉(turnaround)時間為 ____________ ms (格式為浮點入如 1.0)"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-17",
+        "category": "挖寶單元",
+        "type": "多選題",
+        "stem": "已知有兩個行程 P1 P2 要進行即時排程 分別需要的 CPU 、deladline 時間如下\n\nPeriod Deadline CPU\nP1 50 50 25\nP2 100 80 35\n\n選出 Early deadline first 排 P2 第四塊 資料的位置",
+        "options": [
+          "325-335",
+          "240-250",
+          "280-290",
+          "290-300"
+        ],
+        "answer": "B、C、D",
+        "explanation": "",
+        "choiceKey": "BCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-18",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "已知有兩個行程 P1 P2 要進行即時排程 分別需要的 CPU 、deladline 時間如下\n\nPeriod Deadline CPU\nP1 50 50 25\nP2 100 80 35\n\n若採用 Early deadline first 排程法 由時間50ms到 150ms 行程排入的順序是甚麼(每一個連續區塊寫一次如 P1的第一塊資料 寫 P1_1，P3的第二塊資料 寫 P3_2) ____________ 格式: P1_1,P2_1,P3_1,P2_1,P2_3,P3_1",
+        "options": [],
+        "answer": "(P2_1),(P1_2),(P2_2),(P1_3),(P2_2),(P3_1)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-19",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10 40\nP2 60 20 50\nP3 30 10 30\n\n若採用 Early deadline first 排程法 P1的第5塊資料會由哪一個時間點 排到哪一個時間點 ____________ 格式: 20-55",
+        "options": [],
+        "answer": "(210-220)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-2",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "下圖為使用 FIFO CPU 排程演算法的排程結果\n\n請回答以下問題\n\n關於每一個行程的等待時間 選出正確的",
+        "options": [
+          "P1 = 0",
+          "P1 = 2",
+          "P2 = 24",
+          "P2 = 27"
+        ],
+        "answer": "A、C",
+        "explanation": "",
+        "choiceKey": "AC",
+        "imageKeys": [
+          "sha256:22bb3cb2a6ea05e8ec0480f4eef9c5d49c7ac39bc6fa1fbb43e25d6abe374c32"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/1-0",
+            "alt": "下圖為使用 FIFO CPU 排程演算法的排程結果\n\n請回答以下問題\n\n關於每一個行程的等待時間 選出正確的"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-20",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10 40\nP2 60 20 50\nP3 30 10 30\n\n若採用 Early deadline first 排程法 P2的第二塊資料會由哪一個時間點 排到哪一個時間點 ____________ 格式: 20-55",
+        "options": [],
+        "answer": "(70-90)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-21",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10 40\nP2 60 20 50\nP3 30 10 30\n\n若採用 Early deadline first 排程法 由時間0ms到 70ms 行程排入的順序是甚麼(每一個連續區塊寫一次如 P1的第一塊資料 寫 P1_1，P3的第二塊資料 寫 P3_2) ____________ 格式: P1_1,P2_1,P3_1,P2_1,P2_3,P3_1",
+        "options": [],
+        "answer": "(P3_1),(P1_1),(P2_1),(P3_2),(P1_2),(P3_3)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-22",
+        "category": "挖寶單元",
+        "type": "多選題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10 40\nP2 60 20 50\nP3 30 10 30\n\n若採用 Early deadline first 排程法 以下哪一個資料會排入CPU之後 *沒有* 被插斷",
+        "options": [
+          "P2 第一塊資料",
+          "P2 第三塊資料",
+          "P2 第四塊資料",
+          "P1 第三塊資料"
+        ],
+        "answer": "A、B、C、D",
+        "explanation": "",
+        "choiceKey": "ABCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-23",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下的行程 與其CPU時間 與 到達時間\n\n在不可搶先(nonpreemptive)的情況下使用FCFS，在第一個行程載入之後，OS共執行了幾次 context switch? ____________",
+        "options": [],
+        "answer": "(4)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:8adc650e182b1d1402086882781f6ed7db43df36cc6b80c52d748370a18a5568"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/22-0",
+            "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n在不可搶先(nonpreemptive)的情況下使用FCFS，在第一個行程載入之後，OS共執行了幾次 context switch? ____________"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-24",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，SJF 的平均迴轉(turnaround)時間 是多少ms ____________ (請用浮點數表示 如 1.2)",
+        "options": [],
+        "answer": "(6.4)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:8adc650e182b1d1402086882781f6ed7db43df36cc6b80c52d748370a18a5568"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/23-0",
+            "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，SJF 的平均迴轉(turnaround)時間 是多少ms ____________ (請用浮點數表示 如 1.2)"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-25",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，SJF 的平均等待(waiting)時間 是多少ms ____________ (請用浮點數表示 如 1.2)",
+        "options": [],
+        "answer": "(3.4)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:8adc650e182b1d1402086882781f6ed7db43df36cc6b80c52d748370a18a5568"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/24-0",
+            "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，SJF 的平均等待(waiting)時間 是多少ms ____________ (請用浮點數表示 如 1.2)"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-26",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下的四個行程 還有他們的到達時間與 cpu 運算需求\n\n若採用SJF 可搶先(preemptive) 請問行程安排的順序是? ____________ 格式 : P2_P3_P1_P4",
+        "options": [],
+        "answer": "(P1_P2_P4_P1_P3)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:19dbd3095c04de9120cc07a819d7c155be73e9057c3b7fcb01dc898d6d8925cc"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/25-0",
+            "alt": "已知有以下的四個行程 還有他們的到達時間與 cpu 運算需求\n\n若採用SJF 可搶先(preemptive) 請問行程安排的順序是? ____________ 格式 : P2_P3_P1_P4"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-3",
+        "category": "挖寶單元",
+        "type": "多選題",
+        "stem": "即時排程 問題\n\n已知有兩個行程 P1 P2 分別需要的 CPU 、deladline 時間如下\n\nPeriod Deadline CPU\nP1 50 50 20\nP2 100 100 35\n\n若採用 Rate Monotonic 排程法 以下哪一個資料會排入CPU之後有被插斷",
+        "options": [
+          "P1 第一塊資料",
+          "P1 第二塊資料",
+          "P2 第一塊資料",
+          "P2 第二塊資料"
+        ],
+        "answer": "B、D",
+        "explanation": "",
+        "choiceKey": "BD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-4",
+        "category": "挖寶單元",
+        "type": "單選題",
+        "stem": "即時排程 問題\n\n已知有兩個行程 P1 P2 分別需要的 CPU 、deladline 時間如下\n\nPeriod Deadline CPU\nP1 50 50 20\nP2 100 100 35\n\n若使用 Rate Monotonic 方式 在 55-60 與 70-75 分別排入的行程是哪一個",
+        "options": [
+          "P1, P2",
+          "P1, P1",
+          "P2, P1",
+          "P2, P2"
+        ],
+        "answer": "C",
+        "explanation": "",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-5",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "已知有以下五個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\nA 0 3\nB 1 2\nC 3 4\nD 3 3\nE 5 2\n\n若使用RR（TQ = 3）排程法時 又行程的執行順序為何 格式 : ABCDE ____________",
+        "options": [],
+        "answer": "(ABCDEC)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-6",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "已知有以下五個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\nA 0 3\nB 1 2\nC 3 4\nD 3 3\nE 5 2\n\n若使用RR（TQ = 3）排程法時 平均等待時間為何 格式 : 直接填數字 ____________",
+        "options": [],
+        "answer": "(4)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-7",
+        "category": "挖寶單元",
+        "type": "單選題",
+        "stem": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\nP1 0 8\nP2 1 4\nP3 2 6\nP4 3 5\n\n使用Preemptive Shortest-Job-First (SJF) Scheduling\n\n請問其Average waiting time 為多少?(ms)",
+        "options": [
+          "6.25",
+          "6.5",
+          "6.0",
+          "6.75"
+        ],
+        "answer": "A",
+        "explanation": "",
+        "choiceKey": "A",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-8",
+        "category": "挖寶單元",
+        "type": "單選題",
+        "stem": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\nP1 0 8\nP2 1 4\nP3 2 6\nP4 3 5\n\n使用Preemptive Shortest-Job-First (SJF) Scheduling\n\n請問其Average Response time 為多少?(ms)",
+        "options": [
+          "2.5",
+          "2.6",
+          "2.0",
+          "2.75"
+        ],
+        "answer": "A",
+        "explanation": "",
+        "choiceKey": "A",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-9",
+        "category": "挖寶單元",
+        "type": "多選題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10ms 40\nP2 60 20ms 50\nP3 30 10ms 30\n\n若採用 Rate Monotonic 排程法 以下哪一個資料會排入CPU之後又被插斷",
+        "options": [
+          "P2 第一塊資料",
+          "P2 第三塊資料",
+          "P2 第四塊資料",
+          "P1 第三塊資料"
+        ],
+        "answer": "A、C",
+        "explanation": "",
+        "choiceKey": "AC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-1",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10ms 40\nP2 60 20ms 50\nP3 30 10ms 30\n\n若採用 Rate Monotonic 排程法 由時間90ms到 150ms 行程排入的順序是甚麼(每一個連續區塊寫一次如 P1的第一塊資料 寫 P1_1，P3的第二塊資料 寫 P3_2) ____________ 格式: P1_1,P2_1,P3_1,P2_1,P2_3,P3_1",
+        "options": [],
+        "answer": "(P3_4),(P1_3),(P3_5),(P2_3)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-10",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\nP1 P2 P3 P4 排完之後 每個行程產生的不連續處理區塊數量分別是多少？ ____________ *答案格式範例:1,2,3,4 格式錯誤不給分",
+        "options": [],
+        "answer": "(1),(1),(1),(1)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:4a4a45a0f24321eb82b5e0e9981794f9ccbc04dc122c2129a6e9b2b83a64bf55"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/9-0",
+            "alt": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\nP1 P2 P3 P4 排完之後 每個行程產生的不連續處理區塊數量分別是多少？ ____________ *答案格式範例:1,2,3,4 格式錯誤不給分"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-11",
+        "category": "挖寶單元",
+        "type": "多選題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10 40\nP2 60 20 50\nP3 30 10 30\n\n若採用 Early deadline first 排程法 由時間180ms到 240ms 以下哪些正確",
+        "options": [
+          "230-240沒有排工作",
+          "190-210排工作P2",
+          "180-190排工作P3",
+          "210-220排工作P3"
+        ],
+        "answer": "A、B、C",
+        "explanation": "",
+        "choiceKey": "ABC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-12",
+        "category": "挖寶單元",
+        "type": "多選題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10 40\nP2 60 20 50\nP3 30 10 30\n\n若採用 Early deadline first 排程法 由時間0ms到 150ms 以下哪些正確",
+        "options": [
+          "110-120沒有排工作",
+          "90-100沒有排工作",
+          "100-110排工作P1",
+          "40-50排工作P2"
+        ],
+        "answer": "A、C",
+        "explanation": "",
+        "choiceKey": "AC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-13",
+        "category": "挖寶單元",
+        "type": "單選題",
+        "stem": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\nP1 0 8\nP2 1 4\nP3 2 6\nP4 3 5\n\n使用Preemptive Shortest-Job-First (SJF) Scheduling\n\n請問其Average turnaround time 為多少?(ms)",
+        "options": [
+          "12",
+          "13",
+          "11",
+          "10"
+        ],
+        "answer": "A",
+        "explanation": "",
+        "choiceKey": "A",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-14",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "採用 RR（Round Robin）排程\n\nProcess Arrival Time Burst Time\nP1 0 10\nP2 2 4\nP3 4 6\nP4 6 3\nP5 8 5\n\nTime Quantum = 3 ms 請寫出全部的行程排程順序 ____________ *答案格式範例:P1->P2->P3->P2->P5->P9 格式錯誤不給分",
+        "options": [],
+        "answer": "(P1->P2->P1->P3->P4->P2->P5->P1->P3->P5->P1)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-15",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "採用 RR（Round Robin）排程\n\nProcess Arrival Time Burst Time\nP1 0 10\nP2 2 4\nP3 4 6\nP4 6 3\nP5 8 5\n\nTime Quantum = 3 ms Average Response Time = ? ____________",
+        "options": [],
+        "answer": "(4)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-16",
+        "category": "挖寶單元",
+        "type": "多選題",
+        "stem": "即時排程 問題\n\n已知有兩個行程 P1 P2 分別需要的 CPU 、deladline 時間如下\n\nPeriod Deadline CPU\nP1 50 50 20\nP2 100 100 35\n\n以下哪些正確",
+        "options": [
+          "採用 Rate Monotonic 排程法可以排成功",
+          "採用 Rate Monotonic 排程法不能排成功",
+          "採用 Early deadline first 排程法可以排成功",
+          "採用 Early deadline first 排程法不能排成功"
+        ],
+        "answer": "A、C",
+        "explanation": "",
+        "choiceKey": "AC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-17",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "已知有兩個行程 P1 P2 要進行即時排程 分別需要的 CPU 、deladline 時間如下\n\nPeriod Deadline CPU\nP1 50 50 25\nP2 100 80 35\n\nEarly deadline first 在 時間 140-145 排的是哪一個行程 ____________",
+        "options": [],
+        "answer": "(P2)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-2",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若使用 SJF排程法時，且不可搶先(non-preemptive)，平均迴轉時間為何? ____________ 格式: 1.0",
+        "options": [],
+        "answer": "(8.2)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:a80dbe4a672f09382ef17c27df12809336dabeb8e57b6b01759aa2d8e00bd8f4"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/1-0",
+            "alt": "行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若使用 SJF排程法時，且不可搶先(non-preemptive)，平均迴轉時間為何? ____________ 格式: 1.0"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-3",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，FCFS 的平均迴轉(turnaround)時間 是多少ms ____________ (請用浮點數表示 如 1.2)",
+        "options": [],
+        "answer": "(7.8)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:8adc650e182b1d1402086882781f6ed7db43df36cc6b80c52d748370a18a5568"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/2-0",
+            "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，FCFS 的平均迴轉(turnaround)時間 是多少ms ____________ (請用浮點數表示 如 1.2)"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-4",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，FCFS 的平均等待(waiting)時間 是多少ms ____________ (請用浮點數表示 如 1.2)",
+        "options": [],
+        "answer": "(4.8)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:8adc650e182b1d1402086882781f6ed7db43df36cc6b80c52d748370a18a5568"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/3-0",
+            "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，FCFS 的平均等待(waiting)時間 是多少ms ____________ (請用浮點數表示 如 1.2)"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-5",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "假設有行程 A~E。其CPU時間、到達時間如下\n\n若可搶先(preemptive)使用SJF排程法時，第一個行程載入之後，OS進行了幾次內文切換(context switch) ____________",
+        "options": [],
+        "answer": "(5)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:8adc650e182b1d1402086882781f6ed7db43df36cc6b80c52d748370a18a5568"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/4-0",
+            "alt": "假設有行程 A~E。其CPU時間、到達時間如下\n\n若可搶先(preemptive)使用SJF排程法時，第一個行程載入之後，OS進行了幾次內文切換(context switch) ____________"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-6",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "假設有行程 A~E。其CPU時間、到達時間如下\n\n若可搶先(preemptive)使用SJF排程法時，哪一個行程被分成了兩次執行?",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "answer": "A",
+        "explanation": "",
+        "choiceKey": "A",
+        "imageKeys": [
+          "sha256:8adc650e182b1d1402086882781f6ed7db43df36cc6b80c52d748370a18a5568"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/5-0",
+            "alt": "假設有行程 A~E。其CPU時間、到達時間如下\n\n若可搶先(preemptive)使用SJF排程法時，哪一個行程被分成了兩次執行?"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-7",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下的四個行程 還有他們的到達時間與 cpu 運算需求\n\n若採用FCFS 可搶先(preemptive) 請問行程安排的順序是? ____________ 格式 : P2_P3_P1_P4",
+        "options": [],
+        "answer": "(P1_P2_P3_P4)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:19dbd3095c04de9120cc07a819d7c155be73e9057c3b7fcb01dc898d6d8925cc"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/6-0",
+            "alt": "已知有以下的四個行程 還有他們的到達時間與 cpu 運算需求\n\n若採用FCFS 可搶先(preemptive) 請問行程安排的順序是? ____________ 格式 : P2_P3_P1_P4"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-8",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n列出P1,P2,P3,P4, 每一個PROCESS最後完成的時間 ____________ *答案格式範例:5->12->18->20->30 格式錯誤不給分",
+        "options": [],
+        "answer": "(6->11->19->20)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:4a4a45a0f24321eb82b5e0e9981794f9ccbc04dc122c2129a6e9b2b83a64bf55"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/7-0",
+            "alt": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n列出P1,P2,P3,P4, 每一個PROCESS最後完成的時間 ____________ *答案格式範例:5->12->18->20->30 格式錯誤不給分"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-31668494-b954-40b4-b0ee-614fffc0d46c-9",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n請問其Average turnaround time 為多少(ms)",
+        "options": [
+          "12",
+          "12.5",
+          "13",
+          "13.5"
+        ],
+        "answer": "B",
+        "explanation": "",
+        "choiceKey": "B",
+        "imageKeys": [
+          "sha256:4a4a45a0f24321eb82b5e0e9981794f9ccbc04dc122c2129a6e9b2b83a64bf55"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/8-0",
+            "alt": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n請問其Average turnaround time 為多少(ms)"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-1",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下的四個行程 還有他們的到達時間與 cpu 運算需求\n\n若採用SJF 可搶先(preemptive) 請問 平均等待時間是多少 ____________",
+        "options": [],
+        "answer": "(6.5)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:19dbd3095c04de9120cc07a819d7c155be73e9057c3b7fcb01dc898d6d8925cc"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/0-0",
+            "alt": "已知有以下的四個行程 還有他們的到達時間與 cpu 運算需求\n\n若採用SJF 可搶先(preemptive) 請問 平均等待時間是多少 ____________"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-10",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n請問其Average Response time 為多少?(ms)",
+        "options": [
+          "7.25",
+          "8.0",
+          "7.5",
+          "8.25"
+        ],
+        "answer": "C",
+        "explanation": "",
+        "choiceKey": "C",
+        "imageKeys": [
+          "sha256:4a4a45a0f24321eb82b5e0e9981794f9ccbc04dc122c2129a6e9b2b83a64bf55"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/9-0",
+            "alt": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n請問其Average Response time 為多少?(ms)"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-11",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n請寫出全部的行程排程順序 ____________ *答案格式範例:P1->P2->P3->P2->P5->P9 格式錯誤不給分",
+        "options": [],
+        "answer": "(P1->P2->P3->P4)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:4a4a45a0f24321eb82b5e0e9981794f9ccbc04dc122c2129a6e9b2b83a64bf55"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/10-0",
+            "alt": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n請寫出全部的行程排程順序 ____________ *答案格式範例:P1->P2->P3->P2->P5->P9 格式錯誤不給分"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-2",
+        "category": "挖寶單元",
+        "type": "單選題",
+        "stem": "Suppose there are process P1~P5. Its CPU Burst Time & Priority as follows:\n\nProcess Burst Time Priority\n\nP1 10 3\nP2 1 1\nP3 2 4\nP4 1 5\nP5 5 2\n\n請問其Average waiting time 為多少？",
+        "options": [
+          "7.8",
+          "8.2",
+          "8.0",
+          "8.4"
+        ],
+        "answer": "B",
+        "explanation": "",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-3",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "假設有行程 A~E。其CPU BURST 與到達時間如：\n\n行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若可搶先(preemptive)使用SJF排程法時，平均迴轉時間為何? ____________ 格式 : 1.0",
+        "options": [],
+        "answer": "(8.2)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:a80dbe4a672f09382ef17c27df12809336dabeb8e57b6b01759aa2d8e00bd8f4"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/2-0",
+            "alt": "假設有行程 A~E。其CPU BURST 與到達時間如：\n\n行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若可搶先(preemptive)使用SJF排程法時，平均迴轉時間為何? ____________ 格式 : 1.0"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-4",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "假設有行程 A~E。其CPU BURST 與到達時間如：\n\n行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若可搶先(preemptive)使用SJF排程法時，平均等待時間為何? ____________ 格式 : 1.0",
+        "options": [],
+        "answer": "(3.4)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:a80dbe4a672f09382ef17c27df12809336dabeb8e57b6b01759aa2d8e00bd8f4"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/3-0",
+            "alt": "假設有行程 A~E。其CPU BURST 與到達時間如：\n\n行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若可搶先(preemptive)使用SJF排程法時，平均等待時間為何? ____________ 格式 : 1.0"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-5",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下的行程 與其CPU時間 與 到達時間\n\n在不可搶先(nonpreemptive)的情況下使用SJF，在第一個行程載入之後，OS共執行了幾次 context switch? ____________",
+        "options": [],
+        "answer": "(4)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:8adc650e182b1d1402086882781f6ed7db43df36cc6b80c52d748370a18a5568"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/4-0",
+            "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n在不可搶先(nonpreemptive)的情況下使用SJF，在第一個行程載入之後，OS共執行了幾次 context switch? ____________"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-6",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "下圖為使用 FIFO CPU 排程演算法的排程結果\n\n請回答以下問題\n\n請問平均回應時間(response time)是多少 ____________ (請填數字)",
+        "options": [],
+        "answer": "(17)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:22bb3cb2a6ea05e8ec0480f4eef9c5d49c7ac39bc6fa1fbb43e25d6abe374c32"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/5-0",
+            "alt": "下圖為使用 FIFO CPU 排程演算法的排程結果\n\n請回答以下問題\n\n請問平均回應時間(response time)是多少 ____________ (請填數字)"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-7",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "下圖為使用 FIFO CPU 排程演算法的排程結果\n\n請回答以下問題\n\n請問平均迴轉時間(turnaround time)是多少",
+        "options": [
+          "27",
+          "24",
+          "30"
+        ],
+        "answer": "A",
+        "explanation": "",
+        "choiceKey": "A",
+        "imageKeys": [
+          "sha256:22bb3cb2a6ea05e8ec0480f4eef9c5d49c7ac39bc6fa1fbb43e25d6abe374c32"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/6-0",
+            "alt": "下圖為使用 FIFO CPU 排程演算法的排程結果\n\n請回答以下問題\n\n請問平均迴轉時間(turnaround time)是多少"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-8",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "即時排程 問題\n\n已知有兩個行程 P1 P2 分別需要的 CPU 、deladline 時間如下\n\nPeriod Deadline CPU\nP1 50 50 20\nP2 100 100 35\n\n若使用 Rate Monotonic 方式 P2 的第一塊資料 最後完成的位置 在哪一個時間點 ____________ 之前 (請給最接見的時間 數字)",
+        "options": [],
+        "answer": "(80)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-9",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "採用 RR（Round Robin）排程\n\nProcess Arrival Time Burst Time\nP1 0 10\nP2 2 4\nP3 4 6\nP4 6 3\nP5 8 5\n\nTime Quantum = 3 ms Average Turnaround Time =? ____________",
+        "options": [],
+        "answer": "(18.2)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-1",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n請問其Average waiting time 為多少?(ms)",
+        "options": [
+          "7.5",
+          "7.25",
+          "8.0",
+          "8.25"
+        ],
+        "answer": "A",
+        "explanation": "",
+        "choiceKey": "A",
+        "imageKeys": [
+          "sha256:4a4a45a0f24321eb82b5e0e9981794f9ccbc04dc122c2129a6e9b2b83a64bf55"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a/0-0",
+            "alt": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n請問其Average waiting time 為多少?(ms)"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-10",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "Suppose there are process P1~P5. Its CPU Burst Time & Priority as follows:\n\nProcess Burst Time Priority\n\nP1 10 3\nP2 1 1\nP3 2 4\nP4 1 5\nP5 5 2\n\n列出P1,P2,P3,P4,P5 每一個PROCESS最後完成的時間 ____________ *答案格式範例:5->12->18->20->30 格式錯誤不給分",
+        "options": [],
+        "answer": "(16->1->18->19->6)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-11",
+        "category": "挖寶單元",
+        "type": "多選題",
+        "stem": "已知有兩個行程 P1 P2 要進行即時排程 分別需要的 CPU 、deladline 時間如下\n\nPeriod Deadline CPU\nP1 50 50 25\nP2 100 80 35\n\n選出對的",
+        "options": [
+          "Rate Monotonic 的方法不能排成功是因為第一塊資料完成時間在85",
+          "Early deadline first的方法 P2第一塊資料完成時間在60",
+          "Rate Monotonic 的方法不能排成功是因為第一塊資料完成時間在80",
+          "Early deadline first的方法P2第二塊資料被切成兩段"
+        ],
+        "answer": "A、B",
+        "explanation": "",
+        "choiceKey": "AB",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-12",
+        "category": "挖寶單元",
+        "type": "單選題",
+        "stem": "已知有兩個行程 P1 P2 要進行即時排程 分別需要的 CPU 、deladline 時間如下\n\nPeriod Deadline CPU\nP1 50 50 25\nP2 100 80 35\n\n選出錯的",
+        "options": [
+          "Rate Monotonic 的方法不能排成功",
+          "Early deadline first 的方法不能排成功",
+          "Rate Monotonic 的方法先排P1",
+          "Early deadline first 的方法先排P1"
+        ],
+        "answer": "B",
+        "explanation": "",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-13",
+        "category": "挖寶單元",
+        "type": "多選題",
+        "stem": "已知有兩個行程 P1 P2 要進行即時排程 分別需要的 CPU 、deladline 時間如下\n\nPeriod Deadline CPU\nP1 50 50 25\nP2 100 80 35\n\n選出 Early deadline first 排 P2 第二塊 資料的位置",
+        "options": [
+          "85-100",
+          "125-130",
+          "140-145",
+          "130-140"
+        ],
+        "answer": "A、B、C、D",
+        "explanation": "",
+        "choiceKey": "ABCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-2",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若使用 SJF排程法時，且不可搶先(non-preemptive)，行程執行的順序為何? ____________ 格式 : ABCDE",
+        "options": [],
+        "answer": "(ECABD)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:a80dbe4a672f09382ef17c27df12809336dabeb8e57b6b01759aa2d8e00bd8f4"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a/1-0",
+            "alt": "行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若使用 SJF排程法時，且不可搶先(non-preemptive)，行程執行的順序為何? ____________ 格式 : ABCDE"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-3",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若使用 FCFS排程法時，且不可搶先(non-preemptive)，平均迴轉時間為何? ____________ 格式: 1.0",
+        "options": [],
+        "answer": "(9.4)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:a80dbe4a672f09382ef17c27df12809336dabeb8e57b6b01759aa2d8e00bd8f4"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a/2-0",
+            "alt": "行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若使用 FCFS排程法時，且不可搶先(non-preemptive)，平均迴轉時間為何? ____________ 格式: 1.0"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-4",
+        "category": "挖寶單元",
+        "type": "單選題",
+        "stem": "使用 Round Robin (RR) 進行排程\n\nProcess Burst Time\n\nP1 20\n\nP2 3\n\nP3 7\n\n請問其Average waiting time 為多少?",
+        "options": [
+          "6.25",
+          "6",
+          "7",
+          "6.75"
+        ],
+        "answer": "A",
+        "explanation": "",
+        "choiceKey": "A",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-5",
+        "category": "挖寶單元",
+        "type": "圖片題",
+        "stem": "假設有行程 A~E。其CPU時間、到達時間如下\n\n若可搶先(preemptive)使用SJF排程法時，平均等待(waiting)時間為 ____________ ms (格式為浮點入如 1.0)",
+        "options": [],
+        "answer": "(3.0)",
+        "explanation": "",
+        "imageKeys": [
+          "sha256:8adc650e182b1d1402086882781f6ed7db43df36cc6b80c52d748370a18a5568"
+        ],
+        "answerProvided": true,
+        "images": [
+          {
+            "src": "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a/4-0",
+            "alt": "假設有行程 A~E。其CPU時間、到達時間如下\n\n若可搶先(preemptive)使用SJF排程法時，平均等待(waiting)時間為 ____________ ms (格式為浮點入如 1.0)"
+          }
+        ],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-6",
+        "category": "挖寶單元",
+        "type": "多選題",
+        "stem": "已知有三個行程 進行即時排程\n\nPeriod CPU Deadline\nP1 50 10ms 40\nP2 60 20ms 50\nP3 30 10ms 30\n\n若採用 Rate Monotonic 排程法 由時間0ms到 150ms 以下哪些正確",
+        "options": [
+          "110-120沒有排工作",
+          "90-100沒有排工作",
+          "100-110排工作P1",
+          "40-50排工作P2"
+        ],
+        "answer": "A、C、D",
+        "explanation": "",
+        "choiceKey": "ACD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-7",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\nP1 0 8\nP2 1 4\nP3 2 6\nP4 3 5\n\n使用Preemptive Shortest-Job-First (SJF) Scheduling\n\n請寫出全部的行程排程順序 ____________ *答案格式範例:P1->P2->P3->P2->P5->P9 格式錯誤不給分",
+        "options": [],
+        "answer": "(P1->P2->P4->P3->P1)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-8",
+        "category": "挖寶單元",
+        "type": "多選題",
+        "stem": "即時排程 問題\n\n已知有兩個行程 P1 P2 分別需要的 CPU 、deladline 時間如下\n\nPeriod Deadline CPU\nP1 50 50 20\nP2 100 100 35\n\n若採用 Early deadline first 排程法 以下哪一個資料會排入CPU之後 *沒有* 被插斷",
+        "options": [
+          "P1 第一塊資料",
+          "P1 第二塊資料",
+          "P2 第一塊資料",
+          "P2 第二塊資料"
+        ],
+        "answer": "A、B、C、D",
+        "explanation": "",
+        "choiceKey": "ABCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    },
+    {
+      "unit": "treasure",
+      "question": {
+        "id": "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-9",
+        "category": "挖寶單元",
+        "type": "填空題",
+        "stem": "即時排程 問題\n\n已知有兩個行程 P1 P2 分別需要的 CPU 、deladline 時間如下\n\nPeriod Deadline CPU\nP1 50 50 20\nP2 100 100 35\n\n若採用 Early deadline first 排程法 由時間0ms到 80ms 行程排入的順序是甚麼(每一個連續區塊寫一次如 P1的第一塊資料 寫 P1_1，P3的第二塊資料 寫 P3_2) ____________ 格式: P1_1,P2_1,P3_1,P2_1,P2_3,P3_1",
+        "options": [],
+        "answer": "(P1_1),(P2_1),(P1_2)",
+        "explanation": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "translation": "",
+        "terms": [],
+        "note": ""
+      }
+    }
+  ]
+}

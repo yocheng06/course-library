@@ -107,9 +107,13 @@
     const curatedTreasureRows = curatedSchedulingRows.map(row => {
       const original = row?.question, meta = treasureCuration?.questions?.[original?.id];
       if (row?.unit !== 'treasure' || !meta || sourceSignature(original) !== meta.sourceSignature) return row;
+      if (Array.isArray(meta.imageSources) && JSON.stringify((original.images || []).map(i => typeof i === 'string' ? i : i.src || i.url || '')) !== JSON.stringify(meta.imageSources)) return row;
       const question = { ...original };
       if (!question.category || ['挖寶單元','HTML 匯入'].includes(question.category)) question.category = meta.category;
-      if (!String(question.explanation || '').trim()) question.explanation = meta.explanation;
+      if (!String(question.explanation || '').trim()) {
+        question.explanation = meta.explanation;
+        if (meta.workedSolution) question.workedSolution = meta.workedSolution;
+      }
       if (meta.clearSubmissionReview) delete question.submissionReview;
       return { ...row, question };
     });
