@@ -322,13 +322,36 @@ test("multi-file reading validates every file and aggregate size before allowing
   );
   await assert.rejects(
     readBatchFiles([{ ...file("huge.txt", "x"), size: MAX_FILE_BYTES + 1 }]),
-    /2 MB/,
+    /20 MB/,
   );
   await assert.rejects(
     readBatchFiles([file("photo.png", "image")]),
     /PDF、Word 和圖片/,
   );
 });
+test("saved HTML larger than 2 MB imports only questions while keeping extracted limits", async () => {
+  const saved = '<!doctype html><!--'+'saved page metadata '.repeat(140000)+'--><script id="question-data" type="application/json">'+JSON.stringify([q])+'</script><script>throw Error("must stay inert")</script>';
+  const before=document.body.innerHTML;
+  assert(Buffer.byteLength(saved)>2*1024*1024);
+  assert(Buffer.byteLength(saved)<MAX_FILE_BYTES);
+  const parsed=await readBatchFiles([file('saved-exam.html',saved)],{document});
+  assert.equal(parsed.questions.length,1);
+  assert.equal(parsed.questions[0].stem,stem.replace('？','?'));
+  assert.equal(parsed.questions[0].options.length,2);
+  assert.equal(document.body.innerHTML,before);
+  assert.throws(()=>input(saved.replace(JSON.stringify([q]),JSON.stringify(Array.from({length:31},()=>q))),'saved-exam.html'),/30 題/);
+});
+
+test("20 MB aggregate limit rejects before reading and pasted text uses UTF-8 bytes", async () => {
+  let reads=0;
+  const large=()=>({name:'exam.html',size:MAX_FILE_BYTES/2+1,arrayBuffer:async()=>{reads++;throw Error('should not read');}});
+  await assert.rejects(readBatchFiles([large(),large()],{document}),/合計最多 20 MB/);
+  assert.equal(reads,0);
+  const chinese='字'.repeat(Math.floor(MAX_FILE_BYTES/3)+1);
+  assert(chinese.length<MAX_FILE_BYTES);
+  assert.throws(()=>input(chinese),/單次最多 20 MB/);
+});
+
 test("UTF-8 BOM and UTF-16 BOM are decoded without silently replacing unreadable bytes", () => {
   assert.equal(decodeFile(new TextEncoder().encode("\uFEFF題目")), "題目");
   assert.equal(

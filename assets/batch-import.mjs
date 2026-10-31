@@ -8,7 +8,9 @@ import {
 } from "./batch-model.mjs?v=image-bank-retry-20261031";
 import JSON5 from "./vendor/json5.mjs?v=2.2.3";
 
-export const MAX_FILE_BYTES = 2 * 1024 * 1024;
+// Saved exam HTML includes page assets/markup well beyond the question text.
+// This bounds source files; extracted questions still have their own limits.
+export const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const LETTERS = "ABCDEFGH";
 const stemKeys = [
   "stem",
@@ -1127,8 +1129,8 @@ export function parseBatchInput(
     fail("請先貼上題目或選擇題目檔案。");
   const warnings = [];
   raw = raw.replace(/^[\uFEFF\u200B\u2060]+/, "").trim();
-  if (raw.length > MAX_FILE_BYTES)
-    fail("檔案文字過長，請分批匯入（單次最多 2 MB）。");
+  if (raw.length > MAX_FILE_BYTES || new TextEncoder().encode(raw).byteLength > MAX_FILE_BYTES)
+    fail("檔案文字過長，請分批匯入（單次最多 20 MB）。");
   // Accept complete fenced JSON/CSV/HTML pasted from AI without stripping
   // arbitrary code fences from ordinary questions.
   const fenced = raw.match(
@@ -1340,7 +1342,7 @@ export async function readBatchFiles(files, options = {}) {
   if (list.length > MAX_QUESTIONS)
     fail("單次最多選擇 30 個檔案，合計最多 30 題。");
   if (list.reduce((size, file) => size + file.size, 0) > MAX_FILE_BYTES)
-    fail("單次匯入的檔案合計最多 2 MB，請分批匯入。");
+    fail("單次匯入的檔案合計最多 20 MB，請分批匯入。");
   // All files must parse successfully before the draft can be changed.
   const outcomes = await Promise.allSettled(
     list.map(async (file) => {

@@ -7,8 +7,8 @@ import {
   applyBuiltinOverrides,
   MAX_TEXT,
 } from "./batch-model.mjs?v=image-bank-retry-20261031";
-import { parseBatchInput } from "./batch-import.mjs?v=image-bank-retry-20261031";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=image-bank-retry-20261031";
+import { parseBatchInput } from "./batch-import.mjs?v=large-html-import-20261031";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=large-html-import-20261031";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 function ensureTransferButton() {

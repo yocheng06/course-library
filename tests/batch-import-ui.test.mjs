@@ -52,6 +52,20 @@ function dom() {
   return { document, window, $, fire, choose, focused: () => focused };
 }
 
+test('large saved HTML previews without changing text, and an oversized retry retains the draft',async()=>{
+  const ui=dom();
+  setupBatchImport({document:ui.document,onApply:()=>{}});
+  ui.$('batchText').value='1. 原本的題目 ______';
+  const raw='<!--'+'x'.repeat(2200000)+'--><script id="question-data" type="application/json">'+JSON.stringify([rawQuestion])+'</script>';
+  await ui.choose([file('large-exam.html',raw)]);
+  assert.equal(ui.$('importPreview').hidden,false);
+  assert.equal(ui.$('batchText').value,'1. 原本的題目 ______');
+  await ui.choose([{...file('too-large.html',''),size:21*1024*1024}]);
+  assert.match(ui.$('importStatus').textContent,/20 MB/);
+  assert.equal(ui.$('batchText').value,'1. 原本的題目 ______');
+  assert.equal(ui.$('importPreview').hidden,true);
+});
+
 test('image-folder selection passes verified image identity through preview, apply and append', async () => {
   const ui=dom();let saved=[];
   setupBatchImport({document:ui.document,getImageQuestions:()=>saved,onApply:result=>{saved=result.questions;}});
@@ -265,6 +279,7 @@ test("full page: imported/pasted structured questions use bank answers, update d
     URL,
     AbortSignal,
     TextDecoder,
+    TextEncoder,
     Uint8Array,
     console,
     Event: ui.window.Event,

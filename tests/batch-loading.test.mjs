@@ -36,7 +36,7 @@ async function page(fetch, {storage = new Map()} = {}) {
     location: { href: "https://example.invalid/batch.html" },
     localStorage: { getItem: key => storage.get(key), setItem(key,value) { storage.set(key,value); } }, fetch,
     navigator: { clipboard: { writeText: async (text) => copied.push(text) } },
-    URL, AbortSignal, TextDecoder, Uint8Array, crypto:webcrypto, atob, console, Event: window.Event,
+    URL, AbortSignal, TextDecoder, TextEncoder, Uint8Array, crypto:webcrypto, atob, console, Event: window.Event,
   });
   const modules = new Map();
   async function load(source) {
