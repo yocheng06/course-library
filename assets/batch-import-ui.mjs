@@ -3,7 +3,7 @@ import {
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=diagram-ellipsis-20261030";
+} from "./batch-import.mjs?v=challenge-batch-20261031";
 
 export function setupBatchImport({ document, onApply }) {
   const $ = (id) => document.getElementById(id);
