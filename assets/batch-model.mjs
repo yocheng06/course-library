@@ -616,15 +616,36 @@ function withoutFillBlanks(value) {
     ),
   );
 }
+function splitTopLevelAnswer(text, separator) {
+  const stack = [], parts = [];
+  const closing = { ")": "(", "]": "[", "}": "{" };
+  let start = 0;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (['(', '[', '{'].includes(char)) stack.push(char);
+    else if (Object.hasOwn(closing, char)) {
+      if (stack.pop() !== closing[char]) return null;
+    } else if (!stack.length && separator.test(char)) {
+      parts.push(text.slice(start, i).trim());
+      // CRLF and blank lines form one separator, not extra answer slots.
+      if (/\r|\n/.test(char)) while (i + 1 < text.length && /\s/.test(text[i + 1])) i++;
+      start = i + 1;
+    }
+  }
+  if (stack.length) return null;
+  parts.push(text.slice(start).trim());
+  return parts;
+}
 function fillAnswerParts(answer, count) {
   if (typeof answer !== "string" || !answer.trim()) return null;
   if (count <= 1) return [answer.trim()];
   const text = normalizeUnicode(answer).trim();
-  // Slash-separated slots can themselves contain comma-separated arrays.
-  // Never split ordinary spaces inside compound terms such as high availability.
-  for (const separator of [/\s*\/\s*/, /\s*[\r\n]+\s*/, /\s*[、，,;；]\s*/]) {
-    const parts = text.split(separator).map(part => part.trim());
-    if (parts.length === count && parts.every(Boolean)) return parts;
+  // Split answer slots only outside balanced parentheses/brackets/braces.
+  // T(7n/10+6)/O(n) has two slots; the division inside T(...) belongs to the formula.
+  // Slash-separated slots may themselves contain comma-separated arrays.
+  for (const separator of [/\//, /[\r\n]/, /[、，,;；]/]) {
+    const parts = splitTopLevelAnswer(text, separator);
+    if (parts?.length === count && parts.every(Boolean)) return parts;
   }
   return null;
 }
