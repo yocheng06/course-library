@@ -1,10 +1,11 @@
+import {resolveQuestionImages, inheritQuestionImages} from "./batch-images.mjs?v=image-identity-20261031";
 import {
   parseQuestions,
   formatQuestions,
   normalizeText,
   MAX_TEXT,
   MAX_QUESTIONS,
-} from "./batch-model.mjs?v=pending-review-20261030";
+} from "./batch-model.mjs?v=image-identity-20261031";
 import JSON5 from "./vendor/json5.mjs?v=2.2.3";
 
 export const MAX_FILE_BYTES = 2 * 1024 * 1024;
@@ -806,7 +807,7 @@ function htmlQuestions(raw, doc, warnings = []) {
       (node) => !node.parentElement?.closest(".question-block"),
     );
     if (topLevelBlocks.length) {
-      const imported = [];
+      const imported = [], imageSources = [];
       for (const block of topLevelBlocks) {
         const grouped = block.classList.contains("group-block");
         const shared = grouped ? block.querySelector(".group-stem") : null;
@@ -844,13 +845,14 @@ function htmlQuestions(raw, doc, warnings = []) {
           const inputType = inferredTextAnswer ? "text" : [...types][0];
           if (inputType !== "text" && (options.length !== inputs.length || options.length < 2 || options.length > 8))
             fail(`第 ${imported.length + 1} 題的選項格式無法辨識，沒有匯入任何題目。`);
+          imageSources.push([...(shared?.querySelectorAll("img") || []),...child.querySelectorAll("img")].map(image=>image.getAttribute("src") || ""));
           const stem = [context, prompt].filter(Boolean).join("\n\n");
           imported.push(
-            `${imported.length + 1}. ${stem}${options.length ? `\n${options.map((option, index) => `${LETTERS[index]}. ${option}`).join("\n")}` : ""}`,
+            `${imported.length + 1}. 【${inputType === "radio" ? "單選題" : inputType === "checkbox" ? "多選題" : "填空題"}】${stem}${options.length ? `\n${options.map((option, index) => `${LETTERS[index]}. ${option}`).join("\n")}` : ""}`,
           );
         }
       }
-      return parseQuestions(imported.join("\n\n"));
+      return parseQuestions(imported.join("\n\n")).map((q,i)=>({...q,imageSources:imageSources[i]}));
     }
   }
   const tableQuestions = [];
@@ -910,7 +912,13 @@ function htmlQuestions(raw, doc, warnings = []) {
         (sibling?.matches(".options,.choices,[data-options]")
           ? text(sibling)
           : "");
-      return parseQuestions(content);
+      const questions=parseQuestions(content);
+      if(questions.length===1){
+        questions[0].imageSources=[...node.querySelectorAll('img'),...(sibling?.matches('.options,.choices,[data-options]') ? sibling.querySelectorAll('img') : [])].map(image=>image.getAttribute('src') || '');
+        if(!questions[0].type && node.querySelector('input[type="checkbox"]')) questions[0].type='多選題';
+        else if(!questions[0].type && node.querySelector('input[type="radio"]')) questions[0].type='單選題';
+      }
+      return questions;
     });
     return bounded([...tableQuestions, ...parsed]);
   }
@@ -1207,7 +1215,7 @@ export function parseBatchInput(
   // when explicitly applying the import, with a visible count of changed numbers.
   const text = questionsToText(questions);
   return {
-    questions: parseQuestions(text),
+    questions: parseQuestions(text).map((q,i)=>({...q,...(questions[i]?.imageSources?.length ? {imageSources:questions[i].imageSources} : {})})),
     text,
     format,
     warnings: [...new Set(warnings)],
@@ -1222,9 +1230,9 @@ export function prepareImport(
   if (!["append", "replace"].includes(mode)) fail("請選擇加入或取代目前文字。");
   const before =
     mode === "append" && existing.trim()
-      ? parseBatchInput(existing, options).questions
+      ? inheritQuestionImages(parseBatchInput(existing, options).questions, options.imageQuestions)
       : [];
-  const questions = bounded([...before, ...imported.map((q) => ({ ...q }))]);
+  const questions = bounded([...before, ...inheritQuestionImages(imported,options.imageQuestions).map((q) => ({ ...q }))]);
   const used = new Set(before.map((q) => q.number));
   let next = Math.max(0, ...questions.map((q) => Number(q.number))) + 1;
   let renumbered = 0;
@@ -1239,7 +1247,7 @@ export function prepareImport(
   const text = questionsToText(questions);
   return {
     text,
-    questions: parseQuestions(text),
+    questions: parseQuestions(text).map((q,i)=>({...q,...(questions[i]?.imageHashes ? {imageHashes:questions[i].imageHashes} : {})})),
     added: imported.length,
     renumbered,
   };
@@ -1344,6 +1352,7 @@ export async function readBatchFiles(files, options = {}) {
         );
         return {
           ...parsed,
+          questions:await resolveQuestionImages(parsed.questions, options.imageFiles),
           warnings: [...new Set([...warnings, ...parsed.warnings])],
           name: file.name,
         };

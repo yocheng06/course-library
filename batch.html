@@ -69,6 +69,9 @@
             aria-label="選擇題目檔案"
             hidden
           />
+          <button id="chooseBatchImageFolder" class="button secondary" type="button">選取題圖資料夾（選填）</button>
+          <input id="batchImageFolder" type="file" webkitdirectory multiple hidden aria-label="選取 HTML 附帶的圖片資料夾">
+          <p class="muted">有題圖時，先選取下載時附帶的 _files 資料夾，再匯入 HTML。圖片內容完全相同且題幹與選項符合才帶入答案；圖片只在這台裝置讀取，每張限 1 MB。</p>
           <p id="importHelp" class="muted">
             支援 TXT／Markdown、JSON、CSV／TSV、HTML，可一次選多個檔案。合計最多
             30 題、2 MB；檔案在這台裝置讀取。
@@ -149,7 +152,7 @@
             </select>
           </label>
           <p class="muted">
-            保留題號與選項順序；題號衝突時，新增題目會接續編號。含圖片但未轉錄的內容會列為未收錄，展開可查看原因。
+            保留題號與選項順序；題號衝突時，新增題目會接續編號。有題圖時請先選取對應資料夾；圖片或文字未完全符合的題目會列為未收錄，展開可查看原因。
           </p>
           <div class="actions">
             <button id="applyImport" class="button secondary" type="button">
@@ -331,7 +334,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=challenge-batch-20261031"
+      src="assets/batch-ui.mjs?v=image-identity-20261031"
     ></script>
   </body>
 </html>

@@ -474,6 +474,7 @@ export function toLibraryQuestion(
         : choiceAnswerKey(answer, options)
       : null,
     needsImage: Boolean(raw.images?.length || raw.missingContext),
+    ...(Array.isArray(raw.images) && raw.images.length && !raw.missingContext && imageHashKey(raw.imageHashes) && raw.imageHashes.length === raw.images.length ? {imageHashes:raw.imageHashes,imageType:imageQuestionType(raw.type,options,suppliedValid ? supplied : options.length ? choiceAnswerKey(answer,options) : null)} : {}),
     preferred,
     ...(raw.submissionReview?{reviewGroup:true,reviewPending:raw.submissionReview.status==='pending'}:{}),
     ...(raw.answerProvided === false ? {reviewReason:raw.note || "原題答案尚未確認，請開啟原題核對。"} : {}),
@@ -760,9 +761,25 @@ const references = (entries) =>
     ).values(),
   ].slice(0, 3);
 const completeStem = value => normalizeStem(value).replace(/(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/gu,"___").replace(/\s*___\s*/g,"___");
+function imageQuestionType(type, options, answerKey) {
+  if (!options.length) return 'fill';
+  if (/多選|multiple/i.test(type || '')) return 'multi';
+  if (/單選|single/i.test(type || '')) return 'single';
+  return answerKey ? answerKey.length>1 ? 'multi' : 'single' : null;
+}
+function imageHashKey(hashes) {
+  return Array.isArray(hashes) && hashes.length>0 && hashes.length<=8 && hashes.every(h=>/^[a-f0-9]{64}$/.test(h)) ? JSON.stringify(hashes) : null;
+}
 export function matchQuestion(question, index, { course, unit = "all", completeOnly = false } = {}) {
+  const imageKey = imageHashKey(question.imageHashes);
+  const imageMatches = entry => Boolean(imageKey && imageHashKey(entry.imageHashes) === imageKey && entry.imageType && entry.imageType === imageQuestionType(question.type,question.options,null));
+  if (imageKey) {
+    const stem=question.stem.replace(/\[題圖(?:未轉錄|已載入)\]/g,' ');
+    const unresolved=/\[(?:看不清楚|無法辨識|圖片|題圖)[^\]]*\]/.test(stem+question.options.map(o=>o.text).join(''));
+    question={...question,stem,issues:unresolved ? question.issues : question.issues.filter(issue=>issue!=="題目含未提供的圖片或無法辨識的文字。")};
+  }
   const eligible = (e) =>
-    e.course === course && (unit === "all" || e.unit === unit);
+    e.course === course && (unit === "all" || e.unit === unit) && (!imageKey || (e.needsImage && imageMatches(e)));
   if (question.issues.length) {
     const candidates = matchQuestion({...question, issues: []}, index, {course, unit, completeOnly});
     return {
@@ -876,14 +893,14 @@ export function matchQuestion(question, index, { course, unit = "all", completeO
   const reviewVersions=[...new Set(completeOnly ? exact : [...sameStem,...exact])];
   if(reviewVersions.some(entry=>entry.reviewGroup)){
     const answers=reviewVersions.map(entry=>remapAnswer(question,entry));
-    if(reviewVersions.some(entry=>entry.needsImage)||question.options.length&&reviewVersions.some(entry=>!sameOptions(question,entry))||answers.some(answer=>!answer)||new Set(answers.map(answer=>answer?.signature)).size!==1||new Set(reviewVersions.map(entry=>JSON.stringify((entry.conditions||[]).map(normalizeText).sort()))).size!==1)
+    if(reviewVersions.some(entry=>entry.needsImage && !imageMatches(entry))||question.options.length&&reviewVersions.some(entry=>!sameOptions(question,entry))||answers.some(answer=>!answer)||new Set(answers.map(answer=>answer?.signature)).size!==1||new Set(reviewVersions.map(entry=>JSON.stringify((entry.conditions||[]).map(normalizeText).sort()))).size!==1)
       return {status:'review',answer:'',reason:'此題有另行收錄的投稿版本，答案、選項、作答格式或成立條件仍有差異，請核對下方各版本答案。',references:references(reviewVersions.slice().sort((a,b)=>Number(b.reviewPending)-Number(a.reviewPending)).map(entry=>({...entry,showCandidateAnswer:true})))};
     exact=reviewVersions;
     if (!question.options.length) repeatedFillStem=true;
   }
   if (!completeOnly && !repeatedFillStem && exact.some((e) => e.preferred)) exact = exact.filter((e) => e.preferred);
   if (exact.length) {
-    if (exact.some((e) => e.needsImage))
+    if (exact.some((e) => e.needsImage && !imageMatches(e)))
       return {
         status: "review",
         answer: "",
@@ -907,7 +924,7 @@ export function matchQuestion(question, index, { course, unit = "all", completeO
       answer: answers[0].answer,
       ...(exact.some(entry=>entry.reviewPending)?{pendingReview:true}:{}),
       choiceKey: question.options.length ? answers[0].signature : null,
-      reason: repeatedFillStem
+      reason: imageKey ? "題圖內容完全相同，題幹、題型與選項符合題庫，答案已依本次選項對應。" : repeatedFillStem
         ? "題幹與填空數精確符合，各筆題庫紀錄的答案、作答格式及成立條件一致。"
         : blankMarkerMatch
         ? "移除填空標記後與唯一題庫題幹精確符合，答案格式與填空數已核對。"

@@ -1,3 +1,4 @@
+import {fingerprintLibraryImages, inheritQuestionImages, validImageHashes} from "./batch-images.mjs?v=image-identity-20261031";
 import {unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
 import {
   buildIndex,
@@ -5,9 +6,9 @@ import {
   expandLibraryQuestion,
   applyBuiltinOverrides,
   MAX_TEXT,
-} from "./batch-model.mjs?v=fill-separators-20261030";
-import { parseBatchInput } from "./batch-import.mjs?v=challenge-batch-20261031";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=challenge-batch-20261031";
+} from "./batch-model.mjs?v=image-identity-20261031";
+import { parseBatchInput } from "./batch-import.mjs?v=image-identity-20261031";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=image-identity-20261031";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 function ensureTransferButton() {
@@ -42,6 +43,7 @@ const esc = (value) =>
 const names = { os: "作業系統", algorithms: "演算法" };
 const labels = { matched: "已收錄", unmatched: "未收錄" };
 const draftKey = "course-library.batch-draft.v1";
+let imageQuestions = [];
 let library,
   index,
   coverage = { os: false, algorithms: false },
@@ -64,7 +66,7 @@ function scope() {
   return { course: $("course").value, unit: $("unit").value };
 }
 function currentSnapshot() {
-  return JSON.stringify({ ...scope(), text: $("batchText").value });
+  return JSON.stringify({ ...scope(), text: $("batchText").value, imageQuestions });
 }
 function units() {
   const previous = $("unit").value;
@@ -103,7 +105,7 @@ function markChanged() {
   try {
     localStorage.setItem(
       draftKey,
-      JSON.stringify({ ...scope(), text: $("batchText").value }),
+      JSON.stringify({ ...scope(), text: $("batchText").value, imageQuestions }),
     );
   } catch {}
 }
@@ -232,6 +234,7 @@ async function loadLibrary() {
     }).then(value => ({value}), error => ({error}));
     try {
       await getBaseLibrary();
+      if (publicData.has(course)) await fingerprintLibraryImages(publicData.get(course));
       if (!index) rebuildLibraryIndex();
       loading = false;
       $("compare").disabled = false;
@@ -240,6 +243,7 @@ async function loadLibrary() {
       const result = await publicRequest;
       if (result.error) throw result.error;
       const {data,etag} = result.value;
+      await fingerprintLibraryImages(data);
       const changed = JSON.stringify(publicData.get(course)) !== JSON.stringify(data);
       publicData.set(course,data);
       if (etag) publicEtags.set(course,etag); else publicEtags.delete(course);
@@ -303,9 +307,11 @@ $("batchForm").addEventListener("submit", (event) => {
   event.preventDefault();
   if (!index || loading) return;
   try {
-    const { questions: parsed, warnings } = parseBatchInput(
+    const { questions: rawParsed, warnings } = parseBatchInput(
       $("batchText").value,
     );
+    const parsed = inheritQuestionImages(rawParsed,imageQuestions);
+    if (parsed.some(q=>validImageHashes(q.imageHashes)) && publicFlights.has($("course").value)) throw new Error("題庫圖片仍在同步，請等同步完成後再比對；題目與圖片資料已保留。");
     results = matchRecordedQuestions(parsed, index, scope());
     snapshot = currentSnapshot();
     snapshotGeneration = libraryGeneration;
@@ -436,6 +442,7 @@ $("course").addEventListener("change", () => {
 $("unit").addEventListener("change", markChanged);
 $("reloadLibrary").addEventListener("click", loadLibrary);
 $("clearInput").addEventListener("click", () => {
+  imageQuestions = [];
   $("batchText").value = "";
   markChanged();
   $("batchText").focus();
@@ -449,6 +456,7 @@ try {
     draft.text.length <= MAX_TEXT
   ) {
     $("batchText").value = draft.text;
+    imageQuestions = Array.isArray(draft.imageQuestions) ? draft.imageQuestions.filter(q=>validImageHashes(q.imageHashes)).slice(0,30) : [];
     if (!names[selectedCourse] && names[draft.course])
       $("course").value = draft.course;
     if (
@@ -459,6 +467,6 @@ try {
   }
 } catch {}
 units();
-const importUI = setupBatchImport({ document, onApply: markChanged });
+const importUI = setupBatchImport({ document, getImageQuestions:()=>imageQuestions, onApply:result=>{imageQuestions=result.questions.filter(q=>validImageHashes(q.imageHashes));markChanged();} });
 markChanged();
 loadLibrary();

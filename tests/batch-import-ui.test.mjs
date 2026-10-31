@@ -52,6 +52,25 @@ function dom() {
   return { document, window, $, fire, choose, focused: () => focused };
 }
 
+test('image-folder selection passes verified image identity through preview, apply and append', async () => {
+  const ui=dom();let saved=[];
+  setupBatchImport({document:ui.document,getImageQuestions:()=>saved,onApply:result=>{saved=result.questions;}});
+  const data=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jG3sAAAAASUVORK5CYII=','base64');
+  ui.$('batchImageFolder').files=[{name:'chart.png',size:data.length,arrayBuffer:async()=>Uint8Array.from(data).buffer}];
+  ui.fire('batchImageFolder','change');
+  assert.match(ui.$('importStatus').textContent,/已選取 1 個圖片檔/);
+  const raw='<form id="challenge-quiz-form"><div class="question-block group-block"><div class="group-stem"><img src="quiz_files/chart.png"></div><div class="sub-question-block"><p class="question-text">1. 計算結果<input type="text" class="text-answer"></p></div></div></form>';
+  await ui.choose([file('quiz.html',raw)]);
+  for(let i=0;i<50 && ui.$('importPreview').hidden;i++)await tick();
+  assert.equal(ui.$('importPreview').hidden,false);
+  assert.match(ui.$('importList').textContent,/已讀取題圖 1 張/);
+  ui.fire('applyImport','click');
+  assert.equal(saved[0].imageHashes[0].length,64);
+  await ui.choose([file('second.txt','2. 另一題 ______')]);
+  ui.fire('applyImport','click');
+  assert.equal(saved.length,2);assert.equal(saved[0].imageHashes[0].length,64);
+});
+
 test("file preview does not change the draft; applying saves and cancelling preserves it", async () => {
   const ui = dom();
   let changes = 0;

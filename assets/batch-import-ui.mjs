@@ -1,11 +1,12 @@
+import {validImageHashes} from "./batch-images.mjs?v=image-identity-20261031";
 import {
   parseBatchInput,
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=challenge-batch-20261031";
+} from "./batch-import.mjs?v=image-identity-20261031";
 
-export function setupBatchImport({ document, onApply }) {
+export function setupBatchImport({ document, onApply, getImageQuestions = () => [] }) {
   const $ = (id) => document.getElementById(id);
   const formats = {
     text: "文字／Markdown",
@@ -16,6 +17,7 @@ export function setupBatchImport({ document, onApply }) {
     html: "HTML",
   };
   let pending = null;
+  let imageFiles = [];
   let generation = 0;
   let mapping = null;
   function status(text, error = false) {
@@ -49,6 +51,7 @@ export function setupBatchImport({ document, onApply }) {
       const content = document.createElement("p");
       content.textContent = `原題號：${q.number}${q.type ? `・${q.type}` : ""}\n${q.stem}`;
       item.append(summary, content);
+      if(validImageHashes(q.imageHashes)){const note=document.createElement("p");note.textContent="已讀取題圖 "+q.imageHashes.length+" 張，將與題庫圖片及文字一起比對。";item.append(note);}
       if (q.options.length) {
         const list = document.createElement("ul");
         for (const option of q.options) {
@@ -119,6 +122,13 @@ export function setupBatchImport({ document, onApply }) {
   $("chooseBatchFiles").addEventListener("click", () =>
     $("batchFiles").click(),
   );
+  $("chooseBatchImageFolder")?.addEventListener("click",()=>$("batchImageFolder").click());
+  $("batchImageFolder")?.addEventListener("change",event=>{
+    generation++; close();
+    imageFiles=[...event.target.files].filter(file=>/\.(png|jpe?g|webp)$/i.test(file.name));
+    if(imageFiles.length>200){imageFiles=[];status("圖片資料夾最多 200 個圖片檔，請選取對應的 _files 資料夾。",true);return;}
+    status("已選取 "+imageFiles.length+" 個圖片檔，請接著選取題目 HTML。圖片只在這台裝置讀取。");
+  });
   $("batchFiles").addEventListener("change", async (event) => {
     const files = [...event.target.files];
     event.target.value = "";
@@ -128,7 +138,7 @@ export function setupBatchImport({ document, onApply }) {
     status("正在讀取題目檔案……");
     $("importTools").setAttribute("aria-busy", "true");
     try {
-      const batch = await readBatchFiles(files, { document });
+      const batch = await readBatchFiles(files, { document, imageFiles });
       if (generation === current) preview(batch, "files");
     } catch (error) {
       if (generation === current) {
@@ -228,11 +238,11 @@ export function setupBatchImport({ document, onApply }) {
         $("batchText").value,
         pending.questions,
         mode,
-        { document },
+        { document, imageQuestions:getImageQuestions() },
       );
       $("batchText").value = result.text;
       close();
-      onApply();
+      onApply(result);
       status(
         `已${mode === "replace" ? "取代為" : "加入"} ${result.added} 題，目前共 ${result.questions.length} 題。${result.renumbered ? `有 ${result.renumbered} 個衝突題號已接續編號。` : ""}請選擇科目與範圍，再按「比對全部題目」。`,
       );
