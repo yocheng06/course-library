@@ -1,0 +1,14 @@
+{
+  "unit":"scheduling",
+  "question":{
+    "id":"os6-125",
+    "category":"RR 時間片",
+    "type":"填空題",
+    "stem":"當 Round Robin（RR）的時間片相較於上下文切換時間非常大時，其行為會趨近於 ____________。",
+    "options":[],
+    "answer":"first-come first-served",
+    "translation":"When the time quantum (q) is very large relative to the context switch time, the Round Robin (RR) algorithm's behavior approaches ____________ .(Please answer using lowercase English letters; connect related letters with a hyphen and separate unrelated letters with a space.)",
+    "explanation":"編輯後的解析；未附 answerConditions 選填欄位。",
+    "images":[]
+  }
+}

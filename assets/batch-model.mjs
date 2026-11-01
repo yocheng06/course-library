@@ -61,7 +61,7 @@ function questionHeader(line) {
 }
 const option =
   /^(?:[-*+]\s+)?(?:\(([A-H])\)|\[([A-H])\]|([A-H])[.)、:])\s*(.*)$/i;
-const metadata = /^(?:正確答案|參考答案|答案|解答|解析|詳解|說明)\s*[:：]/;
+const metadata = /^(?:正確答案|參考答案|答案|解答|解析|詳解|說明|你的答案|您的答案|得分|Your\s+answer|Correct\s+answer|Score)\s*[:：]/i;
 const stemLabel = /^(?:題目|題幹|Question|Stem)\s*[:：]\s*/i;
 const optionsLabel = /^(?:選項|Options|Choices)\s*[:：]\s*/i;
 const typePattern =
@@ -101,6 +101,13 @@ export function normalizeText(value) {
 // The pasted text itself is kept for display/copy.
 function answerFormat(value) {
   const normalized = normalizeText(value).replace(/[?？。]+$/, "");
+  const mixedHyphenHint = normalized.match(
+    /\((Please\s+answer\s+using\s+(?:lowercase|uppercase)\s+English\s+letters;\s*connect\s+related\s+letters\s+with\s+a\s+hyphen\s+and\s+separate\s+unrelated\s+letters\s+with\s+a\s+space\.?)\)$/i,
+  );
+  if (mixedHyphenHint) return {
+    stem: normalized.slice(0,mixedHyphenHint.index).trim().replace(/[?？。.!！]+$/u,''),
+    hint: mixedHyphenHint[1],
+  };
   const quotedNumberHint = normalized.match(
     /\((Please\s+enclose\s+numbers\s+in\s+quotation\s+marks(?:,\s*e\.g\.,?\s*"\d+")?)\)$/i,
   );
@@ -726,6 +733,7 @@ function remapAnswer(question, entry) {
           !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(entry.answer.trim())) ||
         (/(?:單字間(?:請)?留-|單字間(?:請)?用-連接|字母間(?:請)?用-|以連字號連接單字|需要做字母連接的兩個文字用-|connecting\s+words\s+with\s+hyphens)/i.test(hint) && /[\s_]/.test(entry.answer)) ||
         (/one\s+space\s+between\s+letters/i.test(hint) && /\s{2,}/.test(entry.answer)) ||
+        (/connect\s+related\s+letters\s+with\s+a\s+hyphen/i.test(hint) && !/^[A-Za-z]+(?:-[A-Za-z]+)*(?: [A-Za-z]+(?:-[A-Za-z]+)*)*$/.test(entry.answer.trim())) ||
         (/中間不留空白/.test(hint) && /\s/.test(entry.answer)) ||
         (/不可用lg/.test(hint) && /\blg/.test(entry.answer)))
     )
@@ -1087,7 +1095,17 @@ export function applyBuiltinOverrides(entries,course,overrides=[]) {
     }
     if(typeof(q.stem??q.q)!=='string' || typeof(q.answer??q.a)!=='string' || !Array.isArray(q.options??q.opts) ||
        (q.options??q.opts).some(v=>typeof v!=='string'))throw new Error('Invalid built-in question');
-    const expanded=expandLibraryQuestion(course,row.unit,q);if(!expanded.length)throw new Error('Empty built-in question');
+    let effective=q;
+    // Public edits may omit optional qualifications even when the actual fill
+    // question and answer are unchanged. Retain only an unambiguous existing
+    // qualification for that exact identity, never for changed content or an
+    // explicitly supplied (including empty) condition list.
+    if(q.answerConditions===undefined && !(q.options??q.opts).length && !q.images?.length){
+      const originals=entries.filter(e=>e.course===course&&e.unit===row.unit&&e.id===id&&!e.options.length&&!e.needsImage&&normalizeStem(e.stem)===normalizeStem(q.stem??q.q)&&normalizeText(e.answer)===normalizeText(q.answer??q.a));
+      const conditionSets=new Set(originals.map(e=>JSON.stringify((e.conditions||[]).map(normalizeText).sort())));
+      if(originals.length&&conditionSets.size===1&&originals[0].conditions?.length)effective={...q,answerConditions:[...originals[0].conditions]};
+    }
+    const expanded=expandLibraryQuestion(course,row.unit,effective);if(!expanded.length)throw new Error('Empty built-in question');
     replacements.set(id,expanded);replacedIds.add(id);
     for(const alias of q.aliases || [])replacedIds.add(alias);
   }

@@ -1,0 +1,9 @@
+題目：When the time quantum (q) is very large relative to the context switch time, the Round Robin (RR) algorithm's behavior approaches [__1__].(Please answer using lowercase English letters; connect related letters with a hyphen and separate unrelated letters with a space.)
+
+你的答案：
+first-come first-served
+
+正確答案：
+first-come first-served
+
+得分：3 / 3

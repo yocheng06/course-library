@@ -5,7 +5,7 @@ import {
   normalizeText,
   MAX_TEXT,
   MAX_QUESTIONS,
-} from "./batch-model.mjs?v=formula-fill-slots-20261031";
+} from "./batch-model.mjs?v=rr-format-records-20261101";
 import JSON5 from "./vendor/json5.mjs?v=2.2.3";
 
 // Saved exam HTML includes page assets/markup well beyond the question text.

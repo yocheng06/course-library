@@ -55,6 +55,17 @@ async function page(fetch, {storage = new Map()} = {}) {
   return { $, fire, copied, context };
 }
 
+test('reported RR result transcript matches in the real page and copies the recorded answer with its condition',async()=>{
+  const realBank=JSON.parse(await readFile(new URL('../assets/batch-library.json',import.meta.url),'utf8'));
+  const transcript=await readFile(new URL('fixtures/rr-large-quantum-result-20261101.txt',import.meta.url),'utf8');
+  const edit=JSON.parse(await readFile(new URL('fixtures/rr-large-quantum-edit-20261101.json',import.meta.url),'utf8'));
+  const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>realBank}:{ok:true,json:async()=>({questions:[],overrides:[edit],aliases:[]})});
+  ui.$('batchText').value=transcript;ui.fire('batchForm','submit');
+  assert.match(ui.$('resultCount').textContent,/已收錄 1・未收錄 0/);
+  assert.match(ui.$('resultRows').textContent,/first-come first-served/);assert.match(ui.$('resultRows').textContent,/CPU burst/);
+  ui.fire('copyAnswers','click');await tick();assert.match(ui.copied.at(-1),/first-come first-served/);assert.match(ui.copied.at(-1),/CPU burst/);
+});
+
 test('a transient bank-image failure retries a fresh CORS download and restored image drafts match',async()=>{
   const bytes=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jG3sAAAAASUVORK5CYII=','base64');
   const q={number:'1',stem:'[題圖已載入] 表格的平均時間是多少 ____________',type:'填空題',options:[],imageHashes:[await imageDigest(bytes)]};

@@ -6,9 +6,9 @@ import {
   expandLibraryQuestion,
   applyBuiltinOverrides,
   MAX_TEXT,
-} from "./batch-model.mjs?v=formula-fill-slots-20261031";
-import { parseBatchInput } from "./batch-import.mjs?v=heap-prompt-context-20261031";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=heap-prompt-context-20261031";
+} from "./batch-model.mjs?v=rr-format-records-20261101";
+import { parseBatchInput } from "./batch-import.mjs?v=rr-format-records-20261101";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=rr-format-records-20261101";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 function ensureTransferButton() {
@@ -203,7 +203,7 @@ function rebuildLibraryIndex() {
 }
 async function getBaseLibrary() {
   if (baseLibrary) return baseLibrary;
-  if (!basePromise) basePromise = fetch("assets/batch-library.json?v=treasure-unit-20261030", {signal:AbortSignal.timeout(12000)})
+  if (!basePromise) basePromise = fetch("assets/batch-library.json?v=rr-format-records-20261101", {signal:AbortSignal.timeout(12000)})
     .then(async response => {
       if (!response.ok) throw Error("library");
       const data = await response.json();
