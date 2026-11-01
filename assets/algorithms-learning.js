@@ -22,6 +22,7 @@ const meta={
 let lesson='L2',chapter='全部',type='全部',page=1,totalPages=1,mode='study';
 const PAGE_SIZE=10, drafts=new Map(), revealed=new Set(), selections=new Map(), feedback=new Map();
 const practiceSequence=window.courseQuestionTools.createPracticeOrder();
+const practiceOptions=window.courseQuestionTools.createOptionSession();
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const current=()=>COURSES.find(c=>c.id===lesson);
 const kind=window.courseQuestionTools.questionType;
@@ -51,6 +52,8 @@ function questionImagesMarkup(q){return window.courseQuestionTools.questionImage
 function expectedOptionKeys(q,options){return window.courseQuestionTools.optionAnswerKeys(q,options);}
 function optionContent(value,index){const text=String(value??''),match=text.match(/^\s*([A-H][.、．:：)）])(\s*)([\s\S]*)$/i);const label=match?.[1]||`${String.fromCharCode(65+index)}.`;return `<span class="option-label">${highlighted(label)}</span>${esc(match?.[2]||' ')}${highlighted(match?match[3]:text)}`;}
 function cardMarkup({q,id,i,unit}){
+ q=window.courseExplanationContent?.apply(q)||q;
+ if(mode==='practice')q=practiceOptions.get(q,id);
  const isPractice=mode==='practice',open=isPractice?revealed.has(id):$('showAnswers').checked||revealed.has(id),opts=q.opts||[],chosen=selections.get(id)||[],f=feedback.get(id),correctKeys=!isPractice&&open?expectedOptionKeys(q,opts):new Set();
  let options='';
  if(opts.length)options=`<div class="options">${opts.map((o,k)=>{
@@ -70,8 +73,8 @@ function switchMode(next){mode=next;revealed.clear();feedback.clear();render();}
 function toggleAnswer(id,button) {
  const card=button.closest('.card'),panel=card.querySelector('[data-answer]');
  if(mode==='practice'){
-  const wasRevealed=revealed.has(id),q=findEntry(id).q,response=card.querySelector('[data-draft]')?.value||'';
-  const result=window.coursePractice.evaluate(q.a,q.opts||[],selections.get(id)||[],q,response);feedback.set(id,result);window.coursePracticeProgress?.record(id,result,{choices:selections.get(id)||[],text:response});
+  const wasRevealed=revealed.has(id),q=practiceOptions.get(findEntry(id).q,id),response=card.querySelector('[data-draft]')?.value||'';
+  const result=window.coursePractice.evaluate(q.a,q.opts||[],selections.get(id)||[],q,response);feedback.set(id,result);window.coursePracticeProgress?.record(id,result,{choices:practiceOptions.sourceChoices(id,selections.get(id)||[]),text:response});
   const shouldOpen=result.correct===true||result.revealAnswer||wasRevealed;panel.hidden=!shouldOpen;
   if(shouldOpen)revealed.add(id);else revealed.delete(id);
   button.textContent='檢查答案';const answerButton=card.querySelector('[data-show-answer]');if(answerButton){answerButton.setAttribute('aria-expanded',String(shouldOpen));answerButton.textContent=shouldOpen?'收起答案與解析':'顯示答案與解析';}
@@ -178,5 +181,5 @@ window.courseLearning={
  questionDetails:id=>{const {q,unit,i}=findEntry(id);return {course:'algorithms',id,unit:meta[unit.id].short,number:i+1,question:q.q,answer:q.a};},
  questionForEdit:id=>{const q=findEntry(id)?.q;return q?{...q,stem:q.q,options:q.opts,answer:q.a,explanation:q.ex}:undefined;},
  currentPage:()=>page,pageCount:()=>totalPages,practiceMode:()=>mode==='practice',
- resetPractice:()=>{drafts.clear();selections.clear();revealed.clear();feedback.clear();practiceSequence.reset();page=1;render();}
+ resetPractice:()=>{drafts.clear();selections.clear();revealed.clear();feedback.clear();practiceSequence.reset();practiceOptions.reset();page=1;render();}
 };

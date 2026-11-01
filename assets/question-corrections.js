@@ -97,7 +97,8 @@
     form.elements.stem.value = q.stem || '';
     form.elements.options.value = (q.options || []).join('\n');
     form.elements.answer.value = q.answer || '';
-    form.elements.explanation.value = q.explanation || '';
+    const displayedMatches=shown&&String(shown.stem??shown.q??'')===String(q.stem??'')&&JSON.stringify(shown.options??shown.opts??[])===JSON.stringify(q.options??[])&&String(shown.answer??shown.a??'')===String(q.answer??'')&&String(shown.explanation??shown.ex??'')===String(q.explanation??'');
+    form.elements.explanation.value = window.courseExplanationContent?.text(displayedMatches?shown:q)??q.explanation??'';
     form.elements.note.value = '';
     form.elements.translation.value = q.translation || '';
     form.elements.optionTranslations.value = (q.optionTranslations || []).join('\n');

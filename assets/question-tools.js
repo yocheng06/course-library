@@ -83,7 +83,7 @@
       { label:'選項', values:[...(question.options || question.opts || []), ...(question.optionTranslations || [])] },
       { label:'答案', values:[question.answer ?? question.a] },
       { label:'修正前答案', values:[question.originalAnswer] },
-      { label:'解析', values:[question.explanation ?? question.ex, ...(question.terms || []).map(term => `${term.label} ${term.text}`)] },
+      { label:'解析', values:[explanationText(question), ...(question.terms || []).map(term => `${term.label} ${term.text}`)] },
       { label:'備註', values:[question.note, ...(!hasProvidedAnswer(question) ? [question.reviewIssue, question.missingContext] : [])] },
       { label:'分類', values:[question.category, questionType(question)] }
     ];
@@ -147,6 +147,51 @@
     };
   }
 
+  function createOptionSession(random = Math.random) {
+    const permutations=new Map();
+    const strip=value=>String(value??'').replace(/^\s*[A-H][.．、:：)）]\s*/i,'');
+    function key(q,options){return q.choiceKey||window.courseChoiceAnswers?.expectedChoiceKey(q.answer??q.a??'',options);}
+    function safe(q,options){
+      if(options.length<2||options.length>8||options.some(o=>typeof o!=='string')||!hasProvidedAnswer(q))return false;
+      const correct=key(q,options);if(!/^[A-H]+$/.test(correct??'')||new Set(correct).size!==correct.length||[...correct].some(c=>c.charCodeAt(0)-65>=options.length))return false;
+      const translated=q.optionTranslations??[];
+      if(translated.length&&translated.length!==options.length)return false;
+      const contents=[...options,...translated].map(strip).join('\n');
+      if(/以上|上述|下述|前述|皆是|皆非|前兩項|前三項|all of (?:the )?(?:above|these)|none of (?:the )?(?:above|these)|both of (?:the )?above|first (?:two|three) (?:options|choices)/i.test(contents))return false;
+      const references=/(?:選項|答案)\s*[A-H]|[A-H]\s*選項|\b(?:option|choice)\s*[A-H]\b|\b[A-H]\s*(?:與|及|和|或|、|and|or|&|[+＋/／,，])\s*[A-H]\b/i;
+      if(references.test(contents)||references.test(String(q.stem??q.q??''))||references.test(String(q.note??'')))return false;
+      // Later unreviewed prose with positional answer references keeps its source order.
+      const ex=explanationText(q);
+      const rewritten=window.courseExplanationContent?.rewrite(q,ex);
+      if(rewritten!==undefined&&rewritten!==ex)return false;
+      if(q.originalAnswer&&!window.courseChoiceAnswers?.expectedChoiceKey(q.originalAnswer,options))return false;
+      return true;
+    }
+    function get(original,id=original.id??original.bookmarkId){
+      const q=window.courseExplanationContent?.apply(original)||original,options=q.options??q.opts??[];
+      if(!safe(q,options)){permutations.delete(id);return q;}
+      const signature=JSON.stringify([q.type,q.stem??q.q,options,q.answer??q.a,q.choiceKey,q.optionTranslations]);
+      let state=permutations.get(id);
+      if(!state||state.signature!==signature){
+        const order=options.map((_,i)=>i);
+        for(let i=order.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
+        state={signature,order};permutations.set(id,state);
+      }
+      const {order}=state;
+      const remap=old=>order.map((source,index)=>old.includes(String.fromCharCode(65+source))?String.fromCharCode(65+index):'').join('');
+      const correct=remap(key(q,options)),shuffled=order.map((source,index)=>`${String.fromCharCode(65+index)}. ${strip(options[source])}`);
+      const result={...q,choiceKey:correct,optionOrder:[...order]};
+      if(Object.hasOwn(q,'options'))result.options=shuffled;
+      if(Object.hasOwn(q,'opts'))result.opts=shuffled;
+      if(Object.hasOwn(q,'answer'))result.answer=[...correct].join('、');
+      if(Object.hasOwn(q,'a'))result.a=[...correct].join('、');
+      if(q.optionTranslations?.length)result.optionTranslations=order.map(source=>strip(q.optionTranslations[source]));
+      if(q.originalAnswer)result.originalAnswer=[...remap(window.courseChoiceAnswers.expectedChoiceKey(q.originalAnswer,options))].join('、');
+      return result;
+    }
+    return {get,safe,reset:()=>permutations.clear(),sourceChoices:(id,choices)=>choices.map(i=>permutations.get(id)?.order[i]??i)};
+  }
+
   function mathMarkup(text, format) {
     const candidates = /[A-Za-z0-9Α-Ωα-ωΣ√][A-Za-z0-9Α-Ωα-ωΣ√²³¹ᵢⱼ\u2070-\u209f()\[\]{}^=+*×÷\/−<>≤≥→∞-]*(?:[ \t]+[A-Za-z0-9Α-Ωα-ωΣ√][A-Za-z0-9Α-Ωα-ωΣ√²³¹ᵢⱼ\u2070-\u209f()\[\]{}^=+*×÷\/−<>≤≥→∞-]*)*/gu;
     let markup = '', previous = 0;
@@ -159,8 +204,9 @@
     }
     return markup + format(text.slice(previous));
   }
+  function explanationText(question) { return window.courseExplanationContent?.text(question)??String(question.explanation??question.ex??''); }
   function explanationMarkup(question, format = escape) {
-    const text = String(question.explanation ?? question.ex ?? '');
+    const text = explanationText(question);
     return text.split(/\n\s*\n/).filter(Boolean).map(block => {
       const section = block.match(/^(核心觀念|解題步驟|判讀步驟|適用條件|選項判讀)：\s*([\s\S]*)$/);
       return section ? `<div class="explanation-section"><strong>${escape(section[1])}</strong><p>${mathMarkup(section[2], format)}</p></div>` : `<p>${mathMarkup(block, format)}</p>`;
@@ -179,7 +225,7 @@
     if (course === 'algorithms' && !question.missingContext && missingSource(question)) reasons.push('缺少題圖或虛擬碼');
     if (/單選|多選|複選/.test(question.type || '') && !(question.options || question.opts || []).length) reasons.push('原資料未附選項');
     if (!String(question.answer ?? question.a ?? '').trim()) reasons.push('缺少原答案');
-    if (!String(question.explanation ?? question.ex ?? '').trim() && !question.terms?.length) reasons.push('缺少解析');
+    if (!explanationText(question).trim() && !question.terms?.length) reasons.push('缺少解析');
     return reasons;
   }
 
@@ -292,5 +338,5 @@
     [...list.children].forEach((card,i) => renderedCardVersions.set(card, versions[i]));
   }
 
-  window.courseQuestionTools = { questionType, answerType, questionImagesMarkup, hasProvidedAnswer, optionAnswerKeys, studyOptionMark, updateStudyOptionMarks, matchesSearch, searchMatchMarkup, createPracticeOrder, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
+  window.courseQuestionTools = { questionType, answerType, questionImagesMarkup, hasProvidedAnswer, optionAnswerKeys, studyOptionMark, updateStudyOptionMarks, matchesSearch, searchMatchMarkup, createPracticeOrder, createOptionSession, explanationText, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
 })();

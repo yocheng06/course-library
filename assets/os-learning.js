@@ -16,6 +16,7 @@ const guides = {
 let active = 0, page = 1, totalPages = 1, mode = 'study';
 const pageSize = 20, drafts = new Map(), selections = new Map(), revealed = new Set(), feedback = new Map();
 const practiceSequence = window.courseQuestionTools.createPracticeOrder();
+const practiceOptions = window.courseQuestionTools.createOptionSession();
 const kind = window.courseQuestionTools.questionType;
 const unitNumber = i => String(UNITS[i]?.number ?? i + 2).padStart(2, '0');
 const unitCaption = i => UNITS[i]?.id === 'treasure' ? '特別單元' : 'UNIT ' + unitNumber(i);
@@ -154,6 +155,8 @@ function updateCorrectOptions(card,q,visible) {
   window.courseQuestionTools.updateStudyOptionMarks(card,q,keys);
 }
 function cardMarkup({q, unit, unitIndex, i, displayNumber}) {
+  q=window.courseExplanationContent?.apply(q)||q;
+  if(mode==='practice')q=practiceOptions.get(q,q.id);
   const practice = mode === 'practice', open = revealed.has(q.id) || (!practice && $('showAnswers').checked), chosen = selections.get(q.id) || [];
   const result = feedback.get(q.id);
   const correctKeys = !practice && open ? expectedOptionKeys(q, q.options || []) : new Set();
@@ -189,10 +192,10 @@ function toggleAnswer(id,button) {
   const card=button.closest('.card'), panel=card.querySelector('[data-answer]');
   if(mode==='practice') {
     const wasRevealed=revealed.has(id);
-    const q=findEntry(id).q,response=card.querySelector('[data-draft]')?.value||'';
+    const q=practiceOptions.get(findEntry(id).q,id),response=card.querySelector('[data-draft]')?.value||'';
     const result=window.coursePractice.evaluate(q.answer,q.options||[],selections.get(id)||[],q,response);
     feedback.set(id,result);
-    window.coursePracticeProgress?.record(id,result,{choices:selections.get(id)||[],text:response});
+    window.coursePracticeProgress?.record(id,result,{choices:practiceOptions.sourceChoices(id,selections.get(id)||[]),text:response});
     const shouldOpen=result.correct===true||result.revealAnswer||wasRevealed;
     panel.hidden=!shouldOpen;
     if(shouldOpen)revealed.add(id);else revealed.delete(id);
@@ -402,5 +405,5 @@ window.courseLearning={
   questionDetails:id=>{const entry=findEntry(id),{q,unit}=entry;return {course:'os',id,unit:unit.label,number:questionDisplayNumber(entry),question:q.stem,answer:q.answer};},
   questionForEdit:id=>findEntry(id)?.q,
   currentPage:()=>page, pageCount:()=>totalPages, practiceMode:()=>mode==='practice',
-  resetPractice:()=>{drafts.clear();selections.clear();revealed.clear();feedback.clear();practiceSequence.reset();page=1;render();}
+  resetPractice:()=>{drafts.clear();selections.clear();revealed.clear();feedback.clear();practiceSequence.reset();practiceOptions.reset();page=1;render();}
 };

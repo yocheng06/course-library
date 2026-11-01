@@ -31,6 +31,7 @@
   const scope = find('[data-exam-scope]'), size = find('[data-exam-size]');
   const questionList = find('[data-exam-questions]'), notice = find('[data-exam-notice]');
   let entries = [], responses = new Map(), results = [], submitted = false, confirmation = '';
+  const optionSession=tools.createOptionSession();
   let sessionLabel = '', poolLabel = '';
   let units = [];
   const range = find('[data-exam-range]'), from = find('[data-exam-from]'), to = find('[data-exam-to]');
@@ -79,17 +80,17 @@
   function questionMarkup(entry, index) {
     const q = entry.q, opts = options(q), multiple = opts.length && (key(q)?.length > 1 || tools.answerType(q) === '多選題');
     const type = opts.length ? (multiple ? '多選題' : '單選題') : '填空題';
-    const content = opts.length ? `<div class="options">${opts.map((option, i) => `<label class="option"><input type="${multiple ? 'checkbox' : 'radio'}" name="exam-${index}" data-exam-index="${index}" value="${i}"><span>${/^[A-H][.、．:：]/i.test(String(option).trim()) ? esc(option) : String.fromCharCode(65+i)+'. '+esc(option)}${q.optionTranslations?.[i] ? `<small class="option-translation">${esc(q.optionTranslations[i])}</small>` : ''}</span></label>`).join('')}</div>` : window.coursePractice.entryMarkup(q, entry.id, "", {className:"",icon:""}).replaceAll("<textarea", `<textarea data-exam-index="${index}"`);
+    const content = opts.length ? `<div class="options">${opts.map((option, i) => `<label class="option"><input type="${multiple ? 'checkbox' : 'radio'}" name="exam-${index}" data-exam-index="${index}" data-original-index="${q.optionOrder?.[i]??i}" value="${i}"><span>${/^[A-H][.、．:：]/i.test(String(option).trim()) ? esc(option) : String.fromCharCode(65+i)+'. '+esc(option)}${q.optionTranslations?.[i] ? `<small class="option-translation">${esc(q.optionTranslations[i])}</small>` : ''}</span></label>`).join('')}</div>` : window.coursePractice.entryMarkup(q, entry.id, "", {className:"",icon:""}).replaceAll("<textarea", `<textarea data-exam-index="${index}"`);
     return `<article class="exam-card" data-exam-card="${index}" data-exam-question-id="${esc(entry.id)}"><div class="exam-badges"><span>${index+1} / ${entries.length}</span><span>${esc(entry.unit)} · ${esc(q.category)}</span><span>${type}</span></div><h3 id="exam-question-${index}">${esc(q.stem ?? q.q)}</h3>${q.translation ? `<p class="exam-translation">${esc(q.translation)}</p>` : ''}${tools.questionImagesMarkup(q)}<div role="group" aria-labelledby="exam-question-${index}">${content}</div><div data-exam-review hidden></div></article>`;
   }
   function start() {
-    refreshPool(); entries = sample(pool(), Number(size.value));
+    refreshPool();optionSession.reset();entries = sample(pool(), Number(size.value)).map(entry=>({...entry,q:optionSession.get(entry.q,entry.id)}));
     if (!entries.length) return;
     sessionLabel = poolLabel; responses = new Map(); results = []; submitted = false; confirmation = '';
     find('[data-exam-setup]').hidden = true; find('[data-exam-session]').hidden = false;
     find('.exam-footer').hidden = false; find('[data-exam-results]').hidden = true;
     find('[data-exam-submit]').hidden = false; notice.textContent = '';
-    find('[data-exam-description]').textContent = `${sessionLabel} · 隨機 ${entries.length} 題`;
+    find('[data-exam-description]').textContent = `${sessionLabel} · 隨機 ${entries.length} 題；選擇題選項每場重新排列，相依選項保留原序。`;
     questionList.innerHTML = entries.map(questionMarkup).join('');
     find('.exam-body').scrollTop = 0; progress();
     questionList.querySelector('input, textarea')?.focus();

@@ -28,7 +28,7 @@ const fixture=[
 for(const course of ['os','algorithms'])test(course+' exam uses current unit or entire course independently of bank filters',()=>{
  const h=harness(course);h.click('#examMode');const bankIds=h.window.courseLearning.unitIds();
  assert.equal(h.window.courseLearning.examEntries(false).length,bankIds.length);
- assert.equal(h.window.courseLearning.examEntries(true).length,course==='os'?716:300);
+ assert.equal(h.window.courseLearning.examEntries(true).length,course==='os'?716:360);
  h.change('[data-exam-scope]','all');h.click('[data-exam-start]');
  assert.equal(h.document.querySelectorAll('.exam-card').length,20);
  assert.equal(h.document.querySelectorAll('[data-exam-review]:not([hidden])').length,0);
@@ -42,7 +42,7 @@ test('sampling excludes incomplete/unanswered questions, deduplicates IDs, and c
 });
 function answerCard(h,stem,indices,text){
  const card=[...h.document.querySelectorAll('.exam-card')].find(el=>el.querySelector('h3').textContent===stem);
- if(indices){for(const i of indices){const el=card.querySelector(`input[value="${i}"]`);el.checked=true;el.setAttribute('checked','');el.dispatchEvent(new h.window.Event('change',{bubbles:true}));}}
+ if(indices){for(const i of indices){const el=card.querySelector(`input[data-original-index="${i}"]`)||card.querySelector(`input[value="${i}"]`);el.checked=true;el.setAttribute('checked','');el.dispatchEvent(new h.window.Event('change',{bubbles:true}));}}
  else {const el=card.querySelector('textarea');el.value=text;el.dispatchEvent(new h.window.Event('input',{bubbles:true}));}
 }
 test('single, multi and fill answers are hidden until submit, then grade once and lock responses',()=>{
