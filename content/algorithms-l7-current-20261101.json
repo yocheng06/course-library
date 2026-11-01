@@ -1,0 +1,1654 @@
+[
+  {
+    "category": "順序統計量與中位數",
+    "type": "單選題",
+    "q": "一個集合的第 i 個順序統計量（ith order statistic）是指該集合中第幾個小的元素？",
+    "a": "A",
+    "opts": [
+      "A. 第 i 小的元素",
+      "B. 第 i 大的元素",
+      "C. 中位數",
+      "D. 平均數"
+    ],
+    "ex": "答案 A。將 n 個元素由小到大排列後，第 i 個元素就是第 i 順序統計量；i=1 是最小值，i=n 是最大值。這裡的 i 表示大小順位，不是元素原先在陣列中的位置。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2468",
+    "sourceId": "2468",
+    "sourceIds": [
+      "2468"
+    ],
+    "sourceNumber": 1,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "單選題",
+    "q": "選擇問題（Selection Problem）的輸入為何？",
+    "a": "A",
+    "opts": [
+      "A. 一組包含 n 個數字的集合與數字 i",
+      "B. 僅一組 n 個數字",
+      "C. 僅數字 i",
+      "D. 一個已排序陣列"
+    ],
+    "ex": "答案 A。選擇問題的輸入是 n 個數與順位 i，目標是找出第 i 小的元素，且 1≤i≤n。例如輸入五個數並指定 i=2，就是找第二小，不必輸出完整排序結果。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2471",
+    "sourceId": "2471",
+    "sourceIds": [
+      "2471"
+    ],
+    "sourceNumber": 4,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "單選題",
+    "q": "下列何者是中位數（Median）的定義？",
+    "a": "A",
+    "opts": [
+      "A. 第 n/2 個順序統計量",
+      "B. 最小值",
+      "C. 最大值",
+      "D. 總和"
+    ],
+    "ex": "答案 A 沿用題庫採用的偶數個元素、下中位數慣例。若 n 為奇數，中位數實際位於第 (n+1)/2；若 n 為偶數，可分別定義下中位數第 n/2、上中位數第 n/2+1，統計學也常取兩者平均。因此『第 n/2』需要這個定義前提，不能直接套用所有 n。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2472",
+    "sourceId": "2472",
+    "sourceIds": [
+      "2472"
+    ],
+    "sourceNumber": 5,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "單選題",
+    "q": "**********若 n=1，集合的第 1 個順序統計量即為？",
+    "a": "A",
+    "opts": [
+      "A. 唯一的元素",
+      "B. 為 0",
+      "C. 無窮大",
+      "D. 不確定"
+    ],
+    "ex": "",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2479",
+    "sourceId": "2479",
+    "sourceIds": [
+      "2479"
+    ],
+    "sourceNumber": 12,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難",
+    "aliases": [],
+    "imageKeys": [],
+    "images": [],
+    "stem": "**********若 n=1，集合的第 1 個順序統計量即為？",
+    "options": [
+      "A. 唯一的元素",
+      "B. 為 0",
+      "C. 無窮大",
+      "D. 不確定"
+    ],
+    "answer": "A",
+    "explanation": "",
+    "choiceKey": "A",
+    "translation": "",
+    "optionTranslations": [],
+    "note": ""
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "單選題",
+    "q": "**********順序統計量問題通常屬於哪類演算法應用？",
+    "a": "A",
+    "opts": [
+      "A. 選擇問題",
+      "B. 排序問題",
+      "C. 圖論",
+      "D. 字串處理"
+    ],
+    "ex": "",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2481",
+    "sourceId": "2481",
+    "sourceIds": [
+      "2481"
+    ],
+    "sourceNumber": 14,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難",
+    "aliases": [],
+    "imageKeys": [],
+    "images": [],
+    "stem": "**********順序統計量問題通常屬於哪類演算法應用？",
+    "options": [
+      "A. 選擇問題",
+      "B. 排序問題",
+      "C. 圖論",
+      "D. 字串處理"
+    ],
+    "answer": "A",
+    "explanation": "",
+    "choiceKey": "A",
+    "translation": "",
+    "optionTranslations": [],
+    "note": ""
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "單選題",
+    "q": "順序統計量演算法中，處理 n 個元素時，n 通常假設為？",
+    "a": "A",
+    "opts": [
+      "A. 大於 0 的正整數",
+      "B. 負數",
+      "C. 複數",
+      "D. 無限大"
+    ],
+    "ex": "答案 A。選擇問題的元素數量 n 必須是正整數，且要給定 1≤i≤n 的有效順位。空集合沒有第 i 小元素，負數或非整數也不能當作陣列的元素個數。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2484",
+    "sourceId": "2484",
+    "sourceIds": [
+      "2484"
+    ],
+    "sourceNumber": 17,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "單選題",
+    "q": "尋找中位數是一種？",
+    "a": "A",
+    "opts": [
+      "A. 選擇問題",
+      "B. 插值問題",
+      "C. 雜湊問題",
+      "D. 圖形掃描"
+    ],
+    "ex": "答案 A。中位數就是特定順位的順序統計量，因此尋找中位數是選擇問題的特例。奇數個元素選第 (n+1)/2；偶數個元素則依下中位數、上中位數或兩者平均的定義處理。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2485",
+    "sourceId": "2485",
+    "sourceIds": [
+      "2485"
+    ],
+    "sourceNumber": 18,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "單選題",
+    "q": "順序統計量中的 i 是指？",
+    "a": "A",
+    "opts": [
+      "A. 查詢的排名順序",
+      "B. 陣列的大小",
+      "C. pivot 的索引",
+      "D. 比較次數"
+    ],
+    "ex": "答案 A。i 是目前處理範圍中想找的第 i 小順位。分割後令 k=q−p+1：若 i=k 就回傳樞紐；i<k 往左；i>k 往右並改找第 i−k 小。i 不是陣列長度，也不是固定不變的全域索引。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2487",
+    "sourceId": "2487",
+    "sourceIds": [
+      "2487"
+    ],
+    "sourceNumber": 20,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "多選題",
+    "q": "下列何者是順序統計量相關的操作？",
+    "a": "A、B、C",
+    "opts": [
+      "A. Minimum",
+      "B. Maximum",
+      "C. Median",
+      "D. Sorting"
+    ],
+    "ex": "答案 A、B、C。最小值是第 1 順序統計量，最大值是第 n 順序統計量，中位數是中間順位。排序可以間接取得這些值，但完整排序的輸出是整個有序序列，不是單一順序統計量。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2490",
+    "sourceId": "2490",
+    "sourceIds": [
+      "2490"
+    ],
+    "sourceNumber": 23,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "多選題",
+    "q": "哪些是選擇問題的輸入條件？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 集合元素各不相同",
+      "B. 需指定 i",
+      "C. 元素個數 n >= 1",
+      "D. 需為已排序"
+    ],
+    "ex": "答案 A、B、C 依本章模型成立：輸入為 n≥1 個相異元素，並指定有效順位 i。資料不必事先排序，否則直接取對應位置即可。『相異』是課本簡化順位與分割分析的假設；處理重複值時可採三向分割，並非所有選擇演算法都禁止重複值。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2493",
+    "sourceId": "2493",
+    "sourceIds": [
+      "2493"
+    ],
+    "sourceNumber": 26,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "多選題",
+    "q": "以下哪些屬於順序統計量應用？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 排程系統中的優先級處理",
+      "B. 統計學中的四分位數計算",
+      "C. 資料集的中位數分析",
+      "D. 陣列元素的穩定排序"
+    ],
+    "ex": "答案 A、B、C。若排程需要挑出第 k 高優先的工作，可視為選擇問題；四分位數與中位數也對應特定順位。這不代表所有排程器都使用 Select，實作常採優先佇列。穩定排序要求相等鍵保留原順序，並非順序統計量演算法提供的保證。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2496",
+    "sourceId": "2496",
+    "sourceIds": [
+      "2496"
+    ],
+    "sourceNumber": 29,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "多選題",
+    "q": "在中位數問題中，對於 n 為偶數的處理？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 可定義為兩個中位數的平均",
+      "B. 選取第 n/2 個元素",
+      "C. 選取第 n/2+1 個元素",
+      "D. 不定義"
+    ],
+    "ex": "答案 A、B、C。偶數個資料有兩個中央值，第 n/2 是下中位數，第 n/2+1 是上中位數；統計學常把兩者平均稱為中位數。三種說法對應不同約定，使用選擇演算法前應先確認題目採哪一種。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2498",
+    "sourceId": "2498",
+    "sourceIds": [
+      "2498"
+    ],
+    "sourceNumber": 31,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "多選題",
+    "q": "順序統計量演算法常見複雜度？",
+    "a": "A、B、C",
+    "opts": [
+      "A. O(n)",
+      "B. O(n log n)",
+      "C. O(n²)",
+      "D. O(1)"
+    ],
+    "ex": "答案 A、B、C 分別對應不同解法或執行狀況：確定性 Select 最壞 Θ(n)、Randomized-Select 期望 Θ(n)；先用有效率的比較排序再取值通常為 Θ(n log n)；極端分割的 Quickselect 可達 Θ(n²)。未排序的一般輸入不能保證常數時間找出任意順位。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2499",
+    "sourceId": "2499",
+    "sourceIds": [
+      "2499"
+    ],
+    "sourceNumber": 32,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "多選題",
+    "q": "順序統計量與排序的關係？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 排序後的陣列可直接取得順序統計量",
+      "B. 排序時間複雜度為 O(n log n)",
+      "C. 順序統計量可透過排序間接得到",
+      "D. 兩者無任何關係"
+    ],
+    "ex": "答案 A、B、C。完整排序後可以直接讀取第 i 個位置，因此排序能間接解決選擇問題；一般比較排序需要 Θ(n log n) 的最壞時間。反過來，只求單一順位不必完整排序，使用 Select 可以達到線性時間，所以兩個問題有關聯但工作量不同。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2501",
+    "sourceId": "2501",
+    "sourceIds": [
+      "2501"
+    ],
+    "sourceNumber": 34,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "填空題",
+    "q": "中位數是第________個順序統計量",
+    "a": "n/2",
+    "opts": [],
+    "ex": "",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2511",
+    "sourceId": "2511",
+    "sourceIds": [
+      "2511"
+    ],
+    "sourceNumber": 44,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單",
+    "aliases": [],
+    "imageKeys": [],
+    "images": [],
+    "stem": "中位數是第________個順序統計量",
+    "options": [],
+    "answer": "n/2",
+    "explanation": "",
+    "translation": "",
+    "optionTranslations": [],
+    "note": ""
+  },
+  {
+    "category": "順序統計量與中位數",
+    "type": "填空題",
+    "q": "順序統計量問題中，我們假設元素是________的",
+    "a": "distinct",
+    "opts": [],
+    "ex": "",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2526",
+    "sourceId": "2526",
+    "sourceIds": [
+      "2526"
+    ],
+    "sourceNumber": 59,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單",
+    "aliases": [],
+    "imageKeys": [],
+    "images": [],
+    "stem": "順序統計量問題中，我們假設元素是________的",
+    "options": [],
+    "answer": "distinct",
+    "explanation": "",
+    "translation": "",
+    "optionTranslations": [],
+    "note": ""
+  },
+  {
+    "category": "最小值與最大值",
+    "type": "單選題",
+    "q": "尋找集合中最小值（Minimum）的基本演算法時間複雜度為？",
+    "a": "A",
+    "opts": [
+      "A. O(n)",
+      "B. O(log n)",
+      "C. O(n log n)",
+      "D. O(1)"
+    ],
+    "ex": "答案 A。先把第一個元素當作目前最小值，再逐一檢查剩下 n−1 個元素；每次比較後保留較小者。總共 n−1 次比較，因此時間為 Θ(n)。對未排序資料，沒有檢查到的元素仍可能更小，不能只查一半或固定幾個元素。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2469",
+    "sourceId": "2469",
+    "sourceIds": [
+      "2469"
+    ],
+    "sourceNumber": 2,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "最小值與最大值",
+    "type": "單選題",
+    "q": "要在一個有 n 個元素的集合中同時找到最小值與最大值，最有效率的比較次數大約為？",
+    "a": "A",
+    "opts": [
+      "A. 1.5n",
+      "B. 2n",
+      "C. n",
+      "D. n log n"
+    ],
+    "ex": "答案 A。先把元素兩兩比較，每對只讓較小者與目前最小值比較、較大者與目前最大值比較。每兩個元素約需三次比較，所以約為 1.5n；精確的最壞比較次數是 ⌈3n/2⌉−2（n≥2）。分別掃描找最小、最大則需 2n−2 次。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2470",
+    "sourceId": "2470",
+    "sourceIds": [
+      "2470"
+    ],
+    "sourceNumber": 3,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "最小值與最大值",
+    "type": "單選題",
+    "q": "若以兩兩比較的方式，尋找最小值需要進行幾次比較？",
+    "a": "A",
+    "opts": [
+      "A. n-1",
+      "B. n",
+      "C. n/2",
+      "D. 1"
+    ],
+    "ex": "答案 A。用第一個值初始化最小值，剩下每個值各比較一次，總共 n−1 次。從比較的觀點看，每個非最小元素至少要輸掉一次，才能排除它成為最小值的可能，因此這也是必要的下界。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2483",
+    "sourceId": "2483",
+    "sourceIds": [
+      "2483"
+    ],
+    "sourceNumber": 16,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "最小值與最大值",
+    "type": "多選題",
+    "q": "尋找最小值與最大值的優化方法包含？",
+    "a": "A、B",
+    "opts": [
+      "A. 配對比較法",
+      "B. 直接掃描",
+      "C. 使用堆積",
+      "D. 先排序"
+    ],
+    "ex": "答案 A、B。兩兩配對可把同時求最小與最大的比較次數降低至約 3n/2；直接掃描則提供簡單的線性時間基準。建立堆積或完整排序雖也能取得極值，但對一次性的最小、最大查詢沒有必要，完整比較排序通常還多出 log n 因子。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2488",
+    "sourceId": "2488",
+    "sourceIds": [
+      "2488"
+    ],
+    "sourceNumber": 21,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "最小值與最大值",
+    "type": "多選題",
+    "q": "比較次數分析中，同時尋找最大值與最小值的好處？",
+    "a": "A、B",
+    "opts": [
+      "A. 減少總比較次數",
+      "B. 提升效率",
+      "C. 簡化程式邏輯",
+      "D. 減少記憶體使用"
+    ],
+    "ex": "答案 A、B。配對法先比較兩個元素，再讓較小者挑戰目前最小值、較大者挑戰目前最大值，每對三次比較，比各自掃描的 2n−2 次更省。主要收益是比較次數；它不必然比兩次掃描更好寫，也不是靠減少儲存空間取得改善。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2494",
+    "sourceId": "2494",
+    "sourceIds": [
+      "2494"
+    ],
+    "sourceNumber": 27,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "最小值與最大值",
+    "type": "多選題",
+    "q": "為什麼最小/最大值演算法比較有效率？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 利用配對比較特性",
+      "B. 降低比較總數",
+      "C. 不需進行完整排序",
+      "D. 直接記憶陣列值"
+    ],
+    "ex": "答案 A、B、C。每對元素先互相比較，較小者只參與更新最小值，較大者只參與更新最大值，便能減少不必要的比較。整個流程不需要完整排序，且只要維護目前極值；利用記憶體位址或數值本身，並不是這個比較模型下的主要加速來源。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2506",
+    "sourceId": "2506",
+    "sourceIds": [
+      "2506"
+    ],
+    "sourceNumber": 39,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "最小值與最大值",
+    "type": "填空題",
+    "q": "尋找 n 個元素中的最小值需要＿＿＿次比較",
+    "a": "n-1",
+    "opts": [],
+    "ex": "填 n−1。先取第一個元素為目前最小值，剩下 n−1 個元素各比較一次即可。當 n=1 時公式得到零次比較，也符合只有一個元素時直接回傳的情況。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2510",
+    "sourceId": "2510",
+    "sourceIds": [
+      "2510"
+    ],
+    "sourceNumber": 43,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "最小值與最大值",
+    "type": "填空題",
+    "q": "同時尋找最大與最小值時，配對比較法總共需要 ____________ 次比較 (請用小寫英文與分數型態回答)",
+    "a": "3n/2",
+    "opts": [],
+    "ex": "填 3n/2，這是主要項的近似。精確計數依奇偶不同：偶數 n 先比較第一對，之後每對三次，共 3n/2−2；奇數 n 用第一個值初始化兩個極值，之後共 3(n−1)/2 次。因此 n≥2 時可統一寫成 ⌈3n/2⌉−2；n=1 時零次。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2514",
+    "sourceId": "2514",
+    "sourceIds": [
+      "2514"
+    ],
+    "sourceNumber": 47,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難",
+    "aliases": [],
+    "imageKeys": [],
+    "images": [],
+    "stem": "同時尋找最大與最小值時，配對比較法總共需要 ____________ 次比較 (請用小寫英文與分數型態回答)",
+    "options": [],
+    "answer": "3n/2",
+    "explanation": "填 3n/2，這是主要項的近似。精確計數依奇偶不同：偶數 n 先比較第一對，之後每對三次，共 3n/2−2；奇數 n 用第一個值初始化兩個極值，之後共 3(n−1)/2 次。因此 n≥2 時可統一寫成 ⌈3n/2⌉−2；n=1 時零次。",
+    "translation": "",
+    "optionTranslations": [],
+    "note": ""
+  },
+  {
+    "category": "最小值與最大值",
+    "type": "填空題",
+    "q": "同時找出陣列中的最大值（Maximum）與最小值（Minimum）\n以下的做法 會經過幾次比較 ＿＿＿\n先尋找最小值 再 尋找最大值",
+    "a": "2n-2",
+    "opts": [],
+    "ex": "填 2n−2。獨立找最小需 n−1 次比較，獨立找最大也需 n−1 次，合計 2(n−1)。若同時使用配對法，則可降到約 3n/2 次；題目問的是分別求兩個極值的基本方法。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2524",
+    "sourceId": "2524",
+    "sourceIds": [
+      "2524"
+    ],
+    "sourceNumber": 57,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "最小值與最大值",
+    "type": "填空題",
+    "q": "同時找出陣列中的最大值（Maximum）與最小值（Minimum）\n完成以下的做法使它經過(3 n/2 )次比較 得到結果\n\nGET_MIN_MAX(A)\n1 n <- A.length\n2 if n = 0\n3     then return (NIL, NIL)\n4\n5 // 步驟 1：初始化 min 與 max\n6 if n % 2 != 0          // 陣列長度為奇數\n7     then min <- A[1]\n8          max <- A[1]\n9          start_idx <- 2\n10    else                 // 陣列長度為偶數\n11         if A[1] < A[2]\n12             then min <- A[1]\n13                  max <- A[2]\n14             else min <- A[2]\n15                  max <- A[1]\n16         start_idx <- 3\n17\n18 // 步驟 2：兩兩分組進行比較\n19 for i <-  ＿＿＿  to n - 1 step 2\n20     do if A[i] <  ＿＿＿\n21            then if A[i] < min\n22                     then min <- A[i]\n23                 if A[i + 1] > max\n24                     then max <- A[i + 1]\n25            else if A[i + 1] < min\n26                     then min <- A[i + 1]\n27                 if A[i] > max\n28                     then max <- A[i]\n29\n30 return (min, max)",
+    "a": "start_idx / A[i+1]",
+    "opts": [],
+    "ex": "依序填 start_idx、A[i+1]。start_idx 指向尚未處理的第一對：奇數個元素可用 A[1] 同時初始化極值並從 2 開始，偶數個則先比較 A[1]、A[2] 再從 3 開始。迴圈每次取 A[i] 與 A[i+1]，先判斷誰小誰大，再分別更新最小與最大；索引每次增加二。每對共三次比較，因而得到約 3n/2 的比較次數。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2527",
+    "sourceId": "2527",
+    "sourceIds": [
+      "2527"
+    ],
+    "sourceNumber": 60,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "第二小元素",
+    "type": "單選題",
+    "q": "在尋找第二小元素（Second smallest）時，最壞情況下需要的比較次數為？",
+    "a": "A",
+    "opts": [
+      "A. n + ⌈log n⌉ - 2",
+      "B. n",
+      "C. 2n",
+      "D. log n"
+    ],
+    "ex": "答案 A。先用淘汰賽找最小值，需 n−1 次比較。第二小只能出現在曾經直接輸給最小值的元素中；平衡賽程下候選至多 ⌈log₂n⌉ 個，再用 ⌈log₂n⌉−1 次比較找出其中最小者，合計最壞 n+⌈log₂n⌉−2 次。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2475",
+    "sourceId": "2475",
+    "sourceIds": [
+      "2475"
+    ],
+    "sourceNumber": 8,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "第二小元素",
+    "type": "多選題",
+    "q": "尋找第二小元素的步驟？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 先找到最小值",
+      "B. 比較可能為次小的元素",
+      "C. 維護一個候選集合",
+      "D. 直接對陣列排序"
+    ],
+    "ex": "答案 A、B、C。淘汰賽先找最小值，並記錄直接輸給它的候選；第二小必定在這些候選中，再找其中最小者即可。只記錄輸給其他人的元素不夠，因為它們還有更小的非冠軍元素。完整排序也能找到第二小，但不是比較次數最省的必要步驟。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2502",
+    "sourceId": "2502",
+    "sourceIds": [
+      "2502"
+    ],
+    "sourceNumber": 35,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "第二小元素",
+    "type": "填空題",
+    "q": "尋找第二小元素在最壞情況下需要＿＿＿次比較",
+    "a": "n+logn-2",
+    "opts": [],
+    "ex": "填 n+logn−2，這裡 log 指以 2 為底，且這個不帶上取整的寫法適合 n 是 2 的冪次。一般 n 的精確最壞上界為 n+⌈log₂n⌉−2：先以 n−1 次比較找最小，再從直接輸給它的至多 ⌈log₂n⌉ 個候選中找第二小。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2519",
+    "sourceId": "2519",
+    "sourceIds": [
+      "2519"
+    ],
+    "sourceNumber": 52,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "Partition 分割操作",
+    "type": "單選題",
+    "q": "Randomized-Select 中的 Partition 操作目的是？",
+    "a": "A",
+    "opts": [
+      "A. 將元素劃分為兩部分",
+      "B. 排序陣列",
+      "C. 尋找最大值",
+      "D. 計算總和"
+    ],
+    "ex": "答案 A。Partition 依樞紐把其他元素分到較小與較大的兩側；同一側內部仍可能沒有排序。選擇演算法藉由兩側元素數量判斷目標落在哪裡，並不需要在這一步排好整個陣列。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2476",
+    "sourceId": "2476",
+    "sourceIds": [
+      "2476"
+    ],
+    "sourceNumber": 9,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "Partition 分割操作",
+    "type": "單選題",
+    "q": "在 Partition 之後，pivot 元素位於？",
+    "a": "A",
+    "opts": [
+      "A. 其正確的順序位置",
+      "B. 陣列開頭",
+      "C. 陣列結尾",
+      "D. 隨機位置"
+    ],
+    "ex": "答案 A。本章採用會把樞紐放到最終位置的 Partition 版本：分割後樞紐左邊不大於它、右邊不小於它，因此樞紐位置能確定它在目前範圍的順位。左右兩側本身仍未完成排序；不是所有 Partition 變體都回傳樞紐的最終索引。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2482",
+    "sourceId": "2482",
+    "sourceIds": [
+      "2482"
+    ],
+    "sourceNumber": 15,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "Partition 分割操作",
+    "type": "多選題",
+    "q": "Partition 操作中，哪些索引會變動？",
+    "a": "A、B",
+    "opts": [
+      "A. i",
+      "B. j",
+      "C. pivot",
+      "D. 陣列長度"
+    ],
+    "ex": "答案 A、B。在課本常見的 Lomuto Partition 中，j 掃描待分割元素，i 維護已放入較小區域的邊界；遇到適合的元素時移動 i 並交換。樞紐值與陣列長度是判斷依據，並不是這兩個移動索引。不同分割版本的索引命名可能不同。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2500",
+    "sourceId": "2500",
+    "sourceIds": [
+      "2500"
+    ],
+    "sourceNumber": 33,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "Partition 分割操作",
+    "type": "多選題",
+    "q": "Select 演算法中的 Partition 操作？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 與 Quicksort 中的類似",
+      "B. 回傳 pivot 的索引",
+      "C. 重新排列元素",
+      "D. 改變陣列大小"
+    ],
+    "ex": "答案 A、B、C。本章採用的 Partition 與 Quicksort 的分割概念相同，會重排目前範圍並回傳樞紐索引，以計算其順位。它只交換元素，不增加或刪除元素，所以不改變陣列長度。回傳樞紐最終索引是此處採用版本的性質，不能套到所有 Partition 變體。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2507",
+    "sourceId": "2507",
+    "sourceIds": [
+      "2507"
+    ],
+    "sourceNumber": 40,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "Partition 分割操作",
+    "type": "填空題",
+    "q": "Randomized-Select 演算法依賴＿＿＿函數來進行分割",
+    "a": "partition",
+    "opts": [],
+    "ex": "填 partition。這個操作依樞紐把元素分成較小與較大區域，讓演算法用樞紐順位判斷下一步只需處理哪一側。它完成的是分割，不是把兩側全部排好。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2512",
+    "sourceId": "2512",
+    "sourceIds": [
+      "2512"
+    ],
+    "sourceNumber": 45,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "Partition 分割操作",
+    "type": "填空題",
+    "q": "在 partition 操作中，pivot 最終歸位於＿＿＿",
+    "a": "q",
+    "opts": [],
+    "ex": "填 q。在此版本的 Partition 中，回傳值 q 是樞紐分割完成後的陣列索引，並可用 q−p+1 換成目前範圍的順位。q 本身是位置，不是樞紐數值；要取得值須讀 A[q]。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2521",
+    "sourceId": "2521",
+    "sourceIds": [
+      "2521"
+    ],
+    "sourceNumber": 54,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "Partition 分割操作",
+    "type": "填空題",
+    "q": "順序統計量(order statistic)演算法中，＿＿＿的作用與 Quicksort 相同",
+    "a": "partition",
+    "opts": [],
+    "ex": "填 partition。Select 使用分割來確定樞紐順位，再決定目標所在子範圍。這個步驟也出現在 Quicksort；但 Select 只往一側遞迴，因此不必為了找一個順位而排序全部資料。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2523",
+    "sourceId": "2523",
+    "sourceIds": [
+      "2523"
+    ],
+    "sourceNumber": 56,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "單選題",
+    "q": "Randomized-Select 演算法是基於哪種排序演算法的變形？",
+    "a": "A",
+    "opts": [
+      "A. Quicksort",
+      "B. Heapsort",
+      "C. Merge Sort",
+      "D. Insertion Sort"
+    ],
+    "ex": "答案 A。Randomized-Select 沿用 Quicksort 的隨機樞紐與 Partition 分割方式。差別在於 Quicksort 要遞迴處理兩邊，選擇演算法只需繼續處理包含目標順位的一邊，因而能達到期望線性時間。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2473",
+    "sourceId": "2473",
+    "sourceIds": [
+      "2473"
+    ],
+    "sourceNumber": 6,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "單選題",
+    "q": "Randomized-Select 的平均時間複雜度為？",
+    "a": "A",
+    "opts": [
+      "A. O(n)",
+      "B. O(n²)",
+      "C. O(log n)",
+      "D. O(n log n)"
+    ],
+    "ex": "答案 A。隨機選樞紐使演算法不容易反覆遇到極端分割；每層只處理目標所在的一側，其期望總工作量是 Θ(n)。這是對隨機選擇的期望保證，並不表示每一次執行都必定線性。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2474",
+    "sourceId": "2474",
+    "sourceIds": [
+      "2474"
+    ],
+    "sourceNumber": 7,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "單選題",
+    "q": "Randomized-Select 在最壞情況下的時間複雜度為？",
+    "a": "A",
+    "opts": [
+      "A. O(n²)",
+      "B. O(n)",
+      "C. O(log n)",
+      "D. O(n log n)"
+    ],
+    "ex": "答案 A。若樞紐反覆是目前範圍的極小或極大值，而且目標留在其餘 n−1 個元素中，工作量為 n+(n−1)+⋯+1=Θ(n²)。隨機化降低這種路徑發生的機率，但沒有消除它。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2477",
+    "sourceId": "2477",
+    "sourceIds": [
+      "2477"
+    ],
+    "sourceNumber": 10,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "單選題",
+    "q": "Randomized-Select 演算法中，pivot 的選擇方式是？",
+    "a": "A",
+    "opts": [
+      "A. 隨機選擇",
+      "B. 總是選擇第一個",
+      "C. 總是選擇最後一個",
+      "D. 總是選擇中間"
+    ],
+    "ex": "答案 A。Randomized-Select 在目前處理範圍中隨機抽一個元素作樞紐，再進行分割。固定選第一個、最後一個或中間索引，都不等於隨機抽選；中間索引的值也不一定是中位數。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2478",
+    "sourceId": "2478",
+    "sourceIds": [
+      "2478"
+    ],
+    "sourceNumber": 11,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "單選題",
+    "q": "Randomized-Select 若 pivot 每次都能將陣列平分，則複雜度為？",
+    "a": "A",
+    "opts": [
+      "A. O(n)",
+      "B. O(n²)",
+      "C. O(log n)",
+      "D. O(n log n)"
+    ],
+    "ex": "答案 A。若每次樞紐都能把範圍近似對半分，且只遞迴處理一側，則 T(n)=T(n/2)+Θ(n)。工作量 n+n/2+n/4+⋯<2n，所以為 Θ(n)；Quicksort 處理兩側才會得到平衡時的 Θ(n log n)。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2486",
+    "sourceId": "2486",
+    "sourceIds": [
+      "2486"
+    ],
+    "sourceNumber": 19,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "多選題",
+    "q": "Randomized-Select 與 Quicksort 的共同點為？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 皆使用 Partition",
+      "B. 皆依賴 pivot",
+      "C. 皆使用分治法",
+      "D. 皆為穩定排序"
+    ],
+    "ex": "答案 A、B、C。兩者都選樞紐、使用 Partition，並把問題縮小到子範圍。Quicksort 處理兩邊，Randomized-Select 只處理目標所在的一邊。一般就地 Partition 會交換元素，因此不能由此推論它們是穩定排序；Select 本身也不是完整排序。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2489",
+    "sourceId": "2489",
+    "sourceIds": [
+      "2489"
+    ],
+    "sourceNumber": 22,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "多選題",
+    "q": "Randomized-Select 的優勢在於？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 平均執行時間為 O(n)",
+      "B. 不需要額外儲存空間",
+      "C. 實現簡便",
+      "D. 在最壞情況下非常快速"
+    ],
+    "ex": "答案 A、B、C。Randomized-Select 具有期望 Θ(n) 時間、可用就地 Partition，且流程相對簡單。B 的『不需額外儲存』指不需另一個同樣大的資料陣列；遞迴版本仍有呼叫堆疊，不能解讀為完全零額外空間。改寫為迴圈可消除這條遞迴堆疊。最壞時間仍可能 Θ(n²)，所以 D 不成立。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2491",
+    "sourceId": "2491",
+    "sourceIds": [
+      "2491"
+    ],
+    "sourceNumber": 24,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "多選題",
+    "q": "Randomized-Select 最壞情況的發生條件？",
+    "a": "A、B",
+    "opts": [
+      "A. pivot 總選擇到最大值或最小值",
+      "B. 陣列已幾乎排序完成",
+      "C. 陣列元素全部相同",
+      "D. pivot 總選擇到中位數"
+    ],
+    "ex": "來源答案保留 A、B，但 B 需要更正觀念。真正造成 Randomized-Select 最壞 Θ(n²) 的條件，是樞紐沿目標遞迴路徑反覆落在極端位置（A）。輸入幾乎排序好（B）本身不會讓隨機樞紐必定變差；它常使固定選端點的版本退化。若允許相等元素，全部相同的資料也可能讓某些二向分割退化，但本章通常假設元素相異。樞紐一直接近中位數則會得到線性時間。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2497",
+    "sourceId": "2497",
+    "sourceIds": [
+      "2497"
+    ],
+    "sourceNumber": 30,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "多選題",
+    "q": "Randomized-Select 中，Randomized-Partition 的意義？",
+    "a": "A、D",
+    "opts": [
+      "A. 隨機選擇 pivot 以避免最壞情況",
+      "B. 強制陣列排序",
+      "C. 確保 pivot 永遠在中間",
+      "D. 加速 Partition 的執行"
+    ],
+    "ex": "來源答案保留 A、D，但兩項都要注意措辭。隨機挑選樞紐能降低固定規則反覆遇到壞分割的風險，改善整體選擇／快速排序的期望表現；它不能完全消除最壞情況，因此 A 的『避免』不能當成絕對保證。單次 Partition 仍需 Θ(n) 掃描，D 若指讓 Partition 本身漸近變快並不正確，只有寬鬆解讀為改善整體期望效率才說得通。隨機樞紐也不保證完整排序或剛好選到中位數。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2505",
+    "sourceId": "2505",
+    "sourceIds": [
+      "2505"
+    ],
+    "sourceNumber": 38,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "填空題",
+    "q": "Randomized-Select 的平均時間複雜度為 ____________ (請用英文回答，表示形式為 請用log，不可用lg替代log，上標請用^，符號請用 {big-theta, theta, big-omega, omega, O, o,})",
+    "a": "O(n)",
+    "opts": [],
+    "ex": "填 O(n)。Randomized-Select 的期望時間為 Θ(n)：分割本身線性，之後只繼續處理目標所在的一邊。隨機性使平均剩餘工作量受控制；這和最壞 Θ(n²) 是不同的保證。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2509",
+    "sourceId": "2509",
+    "sourceIds": [
+      "2509"
+    ],
+    "sourceNumber": 42,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單",
+    "aliases": [],
+    "imageKeys": [],
+    "images": [],
+    "stem": "Randomized-Select 的平均時間複雜度為 ____________ (請用英文回答，表示形式為 請用log，不可用lg替代log，上標請用^，符號請用 {big-theta, theta, big-omega, omega, O, o,})",
+    "options": [],
+    "answer": "O(n)",
+    "explanation": "填 O(n)。Randomized-Select 的期望時間為 Θ(n)：分割本身線性，之後只繼續處理目標所在的一邊。隨機性使平均剩餘工作量受控制；這和最壞 Θ(n²) 是不同的保證。",
+    "translation": "",
+    "optionTranslations": [],
+    "note": ""
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "填空題",
+    "q": "中位數選擇法（Median Order / Quickselect）\n假設我們有以下 18 個未排序的整數：\n42, 17, 89, 8, 55, 23, 71, 94, 12, 63, 31, 76, 5, 50, 82, 29, 66, 37\n當他進行第一輪分割後\n選中的基準值 (Pivot) 為何  ＿＿＿\n比基準值 (Pivot) 大的有幾個  ＿＿＿",
+    "a": "63/6",
+    "opts": [],
+    "ex": "來源依序填 63、6。若這次指定樞紐為 63，大於它的元素是 66、71、76、82、89、94，共六個；小於它的有十一個，因此樞紐是全體第十二小。要注意題目未交代如何選出這個樞紐，單憑陣列無法唯一推得 63；隨機選擇也可能抽到其他值。若依原順序每五個一組取中位數，組中位數為 42、63、50、37，也不會直接唯一得到 63。第一格需配合來源課堂指定的分割過程理解。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2515",
+    "sourceId": "2515",
+    "sourceIds": [
+      "2515"
+    ],
+    "sourceNumber": 48,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單",
+    "aliases": [],
+    "imageKeys": [],
+    "images": [],
+    "stem": "中位數選擇法（Median Order / Quickselect）\n假設我們有以下 18 個未排序的整數：\n42, 17, 89, 8, 55, 23, 71, 94, 12, 63, 31, 76, 5, 50, 82, 29, 66, 37\n當他進行第一輪分割後\n選中的基準值 (Pivot) 為何  ＿＿＿\n比基準值 (Pivot) 大的有幾個  ＿＿＿",
+    "options": [],
+    "answer": "63/6",
+    "explanation": "來源依序填 63、6。若這次指定樞紐為 63，大於它的元素是 66、71、76、82、89、94，共六個；小於它的有十一個，因此樞紐是全體第十二小。要注意題目未交代如何選出這個樞紐，單憑陣列無法唯一推得 63；隨機選擇也可能抽到其他值。若依原順序每五個一組取中位數，組中位數為 42、63、50、37，也不會直接唯一得到 63。第一格需配合來源課堂指定的分割過程理解。",
+    "translation": "",
+    "optionTranslations": [],
+    "note": "",
+    "originalAnswer": "63 / 6"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "填空題",
+    "q": "中位數選擇法（Median Order / Quickselect） 假設我們有以下 18 個未排序的整數： 42, 17, 89, 8, 55, 23, 71, 94, 12, 59, 31, 76, 5, 50, 82, 29, 66, 37 當他進行第一輪分割後 選中的基準值 (Pivot) 為何 ____________ 我們要找的目標 是在比基準值 (Pivot) 大的組裡的 第幾小的數 ____________",
+    "a": "59/2",
+    "opts": [],
+    "ex": "來源依序填 59、2。以 59 為樞紐時，左側有十一個較小值，樞紐是第十二小，右側為 66、71、76、82、89、94。若原目標是全體第十四小，往右後應改找第 14−12=2 小，也就是 71。不過題目沒有給出目標順位 i，不能只由陣列推出第二格必為 2；若要找十八個數的中位數（第九或第十），反而應往左。這兩格是附帶樞紐與目標順位前提的來源答案。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2516",
+    "sourceId": "2516",
+    "sourceIds": [
+      "2516"
+    ],
+    "sourceNumber": 49,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難",
+    "aliases": [],
+    "imageKeys": [],
+    "images": [],
+    "stem": "中位數選擇法（Median Order / Quickselect） 假設我們有以下 18 個未排序的整數： 42, 17, 89, 8, 55, 23, 71, 94, 12, 59, 31, 76, 5, 50, 82, 29, 66, 37 當他進行第一輪分割後 選中的基準值 (Pivot) 為何 ____________ 我們要找的目標 是在比基準值 (Pivot) 大的組裡的 第幾小的數 ____________",
+    "options": [],
+    "answer": "59/2",
+    "explanation": "來源依序填 59、2。以 59 為樞紐時，左側有十一個較小值，樞紐是第十二小，右側為 66、71、76、82、89、94。若原目標是全體第十四小，往右後應改找第 14−12=2 小，也就是 71。不過題目沒有給出目標順位 i，不能只由陣列推出第二格必為 2；若要找十八個數的中位數（第九或第十），反而應往左。這兩格是附帶樞紐與目標順位前提的來源答案。",
+    "translation": "",
+    "optionTranslations": [],
+    "note": "",
+    "originalAnswer": "59 / 2"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "填空題",
+    "q": "中位數選擇法（Median Order / Quickselect） 假設我們有以下 18 個未排序的整數： 42, 17, 89, 8, 55, 23, 71, 94, 12, 63, 31, 76, 5, 50, 82, 29, 66, 37 當他進行第一輪分割後 要找的目標在比選中的基準值 (Pivot) 大的組別裡面的第幾個 ____________ 比基準值 (Pivot) 小的有幾個 ____________",
+    "a": "5/11",
+    "opts": [],
+    "ex": "來源依序填 5、11。假設樞紐取 63，左側十一個、樞紐為第十二小；若原目標為全體第十七小，進入右側後應找第 17−12=5 小，即 89。因此第二格十一可由數值比較確認；第一格五還需要原目標 i=17。題目未提供 i，不能無條件推得五；若求十八個數的中位數，目標在左側而不是右側。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2517",
+    "sourceId": "2517",
+    "sourceIds": [
+      "2517"
+    ],
+    "sourceNumber": 50,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單",
+    "aliases": [],
+    "imageKeys": [],
+    "images": [],
+    "stem": "中位數選擇法（Median Order / Quickselect） 假設我們有以下 18 個未排序的整數： 42, 17, 89, 8, 55, 23, 71, 94, 12, 63, 31, 76, 5, 50, 82, 29, 66, 37 當他進行第一輪分割後 要找的目標在比選中的基準值 (Pivot) 大的組別裡面的第幾個 ____________ 比基準值 (Pivot) 小的有幾個 ____________",
+    "options": [],
+    "answer": "5/11",
+    "explanation": "來源依序填 5、11。假設樞紐取 63，左側十一個、樞紐為第十二小；若原目標為全體第十七小，進入右側後應找第 17−12=5 小，即 89。因此第二格十一可由數值比較確認；第一格五還需要原目標 i=17。題目未提供 i，不能無條件推得五；若求十八個數的中位數，目標在左側而不是右側。",
+    "translation": "",
+    "optionTranslations": [],
+    "note": "",
+    "originalAnswer": "5 / 11"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "填空題",
+    "q": "Randomized-Select 的時間複雜度在最壞情況為 O(＿＿＿)",
+    "a": "n^2",
+    "opts": [],
+    "ex": "填 n^2。題幹已經寫出 O(　)，所以空格只填 n²，不需再套一層 O。極端樞紐造成 n、n−1、n−2……的掃描，總和為 n(n+1)/2，因此最壞時間為 Θ(n²)。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2518",
+    "sourceId": "2518",
+    "sourceIds": [
+      "2518"
+    ],
+    "sourceNumber": 51,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "填空題",
+    "q": "請完成以下的虛擬碼\n\nRANDOMIZED_SELECT(A, p, r, i)\n1 if p = r\n2     then return A[p]\n3 q <- RANDOMIZED_PARTITION(A, p, r)\n4 k <- q - p + 1\n5 if i = k     > the pivot value is the answer\n6     then return A[q]\n7 elseif i < k\n8     then return RANDOMIZED_SELECT(A, p,  ＿＿＿ , i)\n9 else return RANDOMIZED_SELECT(A,  ＿＿＿ , r,  ＿＿＿ )",
+    "a": "q-1 / q+1 / i-k",
+    "opts": [],
+    "ex": "依序填 q−1、q+1、i−k。分割後 q 是樞紐位置，k=q−p+1 是樞紐在目前範圍的順位。i<k 時，目標在 p 到 q−1，順位仍為 i；i>k 時，排除左側與樞紐共 k 個元素，進入 q+1 到 r，改找第 i−k 小。兩個遞迴範圍都不再包含已確定位置的樞紐。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2520",
+    "sourceId": "2520",
+    "sourceIds": [
+      "2520"
+    ],
+    "sourceNumber": 53,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "Randomized-Select",
+    "type": "填空題",
+    "q": "Randomized-Select 演算法在＿＿＿情況下表現最快",
+    "a": "average",
+    "opts": [],
+    "ex": "填 average，對應課本強調的平均／期望線性時間。不過『在平均情況下最快』並不是嚴格的複雜度說法：最好情況也是 Θ(n)，例如一次分割後樞紐剛好命中目標；平均／期望 Θ(n)，最壞 Θ(n²)。此題應用來記住平均效率，不應把 average 當成 best case 的同義詞。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2525",
+    "sourceId": "2525",
+    "sourceIds": [
+      "2525"
+    ],
+    "sourceNumber": 58,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "確定性 Select 與中位數的中位數",
+    "type": "單選題",
+    "q": "**********Select 演算法（Deterministic-Select）的時間複雜度為？",
+    "a": "A",
+    "opts": [
+      "A. O(n)",
+      "B. O(n²)",
+      "C. O(log n)",
+      "D. O(n log n)"
+    ],
+    "ex": "答案 A。確定性 Select 用每五個元素一組的中位數，再選這些中位數的中位數作樞紐，保證一次能排除固定比例的元素。其遞迴上界 T(n)≤T(⌈n/5⌉)+T(7n/10+6)+O(n)，可證最壞時間為 Θ(n)。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2480",
+    "sourceId": "2480",
+    "sourceIds": [
+      "2480"
+    ],
+    "sourceNumber": 13,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單",
+    "aliases": [],
+    "imageKeys": [],
+    "images": [],
+    "stem": "**********Select 演算法（Deterministic-Select）的時間複雜度為？",
+    "options": [
+      "A. O(n)",
+      "B. O(n²)",
+      "C. O(log n)",
+      "D. O(n log n)"
+    ],
+    "answer": "A",
+    "explanation": "答案 A。確定性 Select 用每五個元素一組的中位數，再選這些中位數的中位數作樞紐，保證一次能排除固定比例的元素。其遞迴上界 T(n)≤T(⌈n/5⌉)+T(7n/10+6)+O(n)，可證最壞時間為 Θ(n)。",
+    "choiceKey": "A",
+    "translation": "",
+    "optionTranslations": [],
+    "note": ""
+  },
+  {
+    "category": "確定性 Select 與中位數的中位數",
+    "type": "多選題",
+    "q": "關於確定性選擇演算法（Select），正確的敘述有？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 時間複雜度為 O(n)",
+      "B. 使用中位數的中位數作為 pivot",
+      "C. 克服了最壞情況 O(n²)",
+      "D. 比隨機選擇快"
+    ],
+    "ex": "答案 A、B、C。中位數的中位數提供有品質保證的樞紐，使確定性 Select 的最壞時間維持 Θ(n)，避免隨機版本可能出現的平方時間。這個保證不代表實測一定更快；分組與挑選樞紐有額外常數成本，所以 D 不能一概成立。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2492",
+    "sourceId": "2492",
+    "sourceIds": [
+      "2492"
+    ],
+    "sourceNumber": 25,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "確定性 Select 與中位數的中位數",
+    "type": "多選題",
+    "q": "關於 Select 演算法，下列正確的是？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 使用 Partition 函數",
+      "B. 遞迴地求解",
+      "C. 確保 pivot 選擇品質",
+      "D. 直接回傳陣列"
+    ],
+    "ex": "答案 A、B、C。確定性 Select 遞迴找出中位數的中位數，以其作樞紐進行 Partition，再遞迴處理目標所在的一側。保證樞紐品質是最壞線性時間的關鍵；最後回傳的是目標元素，不是完整陣列。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2495",
+    "sourceId": "2495",
+    "sourceIds": [
+      "2495"
+    ],
+    "sourceNumber": 28,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "確定性 Select 與中位數的中位數",
+    "type": "多選題",
+    "q": "Select 演算法的優點？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 保證線性時間複雜度",
+      "B. 對輸入數據不敏感",
+      "C. 比 Randomized-Select 更穩定",
+      "D. 完全不需要 Partition"
+    ],
+    "ex": "答案 A、B、C。確定性 Select 對各種合法輸入都有最壞線性時間保證，沒有依賴隨機運氣的平方時間尾端風險。這裡『更穩定』指執行時間上界較可預期，不是穩定排序，也不表示每筆輸入的實際耗時相同。它仍然需要 Partition，所以 D 錯誤。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2503",
+    "sourceId": "2503",
+    "sourceIds": [
+      "2503"
+    ],
+    "sourceNumber": 36,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "確定性 Select 與中位數的中位數",
+    "type": "多選題",
+    "q": "在中位數計算中，何謂「中位數的中位數」？",
+    "a": "A、B、C",
+    "opts": [
+      "A. 一種 pivot 選擇策略",
+      "B. 用於確定性 Select",
+      "C. 確保分割效果",
+      "D. 一種排序方法"
+    ],
+    "ex": "答案 A、B、C。把元素每五個分組，求各組中位數，再選這些中位數的中位數作樞紐。這個樞紐不一定是全部資料的真正中位數，但能保證兩側不會過度失衡，是確定性 Select 的關鍵。它是一種選樞紐策略，不是完整排序方法。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2504",
+    "sourceId": "2504",
+    "sourceIds": [
+      "2504"
+    ],
+    "sourceNumber": 37,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  },
+  {
+    "category": "確定性 Select 與中位數的中位數",
+    "type": "填空題",
+    "q": "根據課本的例子，考慮以下的 Median of Medians 的遞迴關係式\n\nT(n) = O(1), if  n < 140\nT(n) = T(⌈n/5⌉) +  ＿＿＿  +  ＿＿＿  , if  n >= 140",
+    "a": "T(7n/10+6)/O(n)",
+    "opts": [],
+    "ex": "依序填 T(7n/10+6)、O(n)。T(⌈n/5⌉) 是遞迴選出各組中位數的中位數；Partition 後最壞保留至多約 7n/10+6 個元素，所以再加 T(7n/10+6)。每五個分組、組內排序及一次分割合計為線性工作 O(n)。兩個遞迴規模的主要比例為 1/5+7/10=9/10<1，可用代入法證明總時間 O(n)；題目指定的小規模 n<140 直接處理。答案中的斜線分隔兩個填空，不是把兩式相除。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2508",
+    "sourceId": "2508",
+    "sourceIds": [
+      "2508",
+      "t1phishb"
+    ],
+    "sourceNumber": 41,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "困難"
+  },
+  {
+    "category": "確定性 Select 與中位數的中位數",
+    "type": "填空題",
+    "q": "假定有 n 個數 (以下的 A B C D .... 都是數值) 考慮以下的 Median of Medians 問題 若根據課本的的演算法 各組已排序 且找到中位數也以排序 若以下的 M 為中間值 請問 比M大的 節點數 會大於多少 (不用 CEILING 與 FLOOR) ____________ A ... B C D ... E F ... G H I ... J K ... L_M_N ... O P ... Q R S ... T U ... V W X",
+    "a": "3n/10-6",
+    "opts": [],
+    "ex": "填 3n/10−6，表示可保證的下界，而不是每次恰好有這麼多元素。各組五個元素排序後，一個組中位數連同它上方的兩個值共有三個；大約一半的組中位數不小於 M，這些組各提供三個不小於 M 的值。排除 M 所在組與不完整組後，可得到至少 3n/10−6 的保證；較小的一側也有對稱下界。因此最多只需遞迴約 7n/10+6 個元素。相異元素假設下可使用嚴格大小關係。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2513",
+    "sourceId": "2513",
+    "sourceIds": [
+      "2513"
+    ],
+    "sourceNumber": 46,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單",
+    "aliases": [],
+    "imageKeys": [],
+    "images": [],
+    "stem": "假定有 n 個數 (以下的 A B C D .... 都是數值) 考慮以下的 Median of Medians 問題 若根據課本的的演算法 各組已排序 且找到中位數也以排序 若以下的 M 為中間值 請問 比M大的 節點數 會大於多少 (不用 CEILING 與 FLOOR) ____________ A ... B C D ... E F ... G H I ... J K ... L_M_N ... O P ... Q R S ... T U ... V W X",
+    "options": [],
+    "answer": "3n/10-6",
+    "explanation": "填 3n/10−6，表示可保證的下界，而不是每次恰好有這麼多元素。各組五個元素排序後，一個組中位數連同它上方的兩個值共有三個；大約一半的組中位數不小於 M，這些組各提供三個不小於 M 的值。排除 M 所在組與不完整組後，可得到至少 3n/10−6 的保證；較小的一側也有對稱下界。因此最多只需遞迴約 7n/10+6 個元素。相異元素假設下可使用嚴格大小關係。",
+    "translation": "",
+    "optionTranslations": [],
+    "note": ""
+  },
+  {
+    "category": "確定性 Select 與中位數的中位數",
+    "type": "填空題",
+    "q": "為了保證線性時間， median order 裡面的Select 演算法將元素分成＿＿＿組",
+    "a": "five",
+    "opts": [],
+    "ex": "填 five，應理解為『每組五個元素』，不是把所有元素固定分成五組。組數約為 ⌈n/5⌉，最後一組可以不足五個。五個一組可用常數時間找組內中位數，並提供足夠的兩側排除比例，以證明最壞線性時間。",
+    "warn": false,
+    "answerProvided": true,
+    "verified": false,
+    "bookmarkId": "L7-2522",
+    "sourceId": "2522",
+    "sourceIds": [
+      "2522"
+    ],
+    "sourceNumber": 55,
+    "sources": [
+      "algorithms-l7-peer"
+    ],
+    "sourceFile": "content/algorithms-l7-peer-20261029.json",
+    "difficulty": "簡單"
+  }
+]

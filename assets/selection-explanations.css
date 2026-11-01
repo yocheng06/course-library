@@ -1,0 +1,7 @@
+.selection-explanation p {
+  white-space: pre-line;
+  line-height: 1.95;
+  overflow-wrap: anywhere;
+  margin: 0 0 1.2em;
+}
+.selection-explanation { max-width: 80ch; }
