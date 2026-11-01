@@ -2,7 +2,7 @@
   "schema": 2,
   "unit": "treasure",
   "unitTitle": "挖寶單元",
-  "updatedAt": "2026-10-31",
+  "updatedAt": "2026-11-01",
   "topicOrder": [
     "FCFS／FIFO 計算",
     "SJF／SRTF 計算",
@@ -19,69 +19,72 @@
   ],
   "order": [
     "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-1",
-    "community-31668494-b954-40b4-b0ee-614fffc0d46c-9",
-    "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-10",
     "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-7",
+    "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-10",
     "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-1",
+    "community-31668494-b954-40b4-b0ee-614fffc0d46c-9",
     "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-2",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-23",
-    "community-31668494-b954-40b4-b0ee-614fffc0d46c-10",
-    "community-31668494-b954-40b4-b0ee-614fffc0d46c-3",
-    "community-31668494-b954-40b4-b0ee-614fffc0d46c-4",
-    "community-31668494-b954-40b4-b0ee-614fffc0d46c-7",
-    "community-31668494-b954-40b4-b0ee-614fffc0d46c-8",
-    "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-11",
     "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-6",
+    "community-31668494-b954-40b4-b0ee-614fffc0d46c-4",
+    "community-31668494-b954-40b4-b0ee-614fffc0d46c-3",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-23",
+    "community-31668494-b954-40b4-b0ee-614fffc0d46c-7",
     "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-3",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-7",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-8",
-    "community-31668494-b954-40b4-b0ee-614fffc0d46c-13",
+    "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-11",
+    "community-31668494-b954-40b4-b0ee-614fffc0d46c-8",
+    "community-31668494-b954-40b4-b0ee-614fffc0d46c-10",
     "community-31668494-b954-40b4-b0ee-614fffc0d46c-6",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-16",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-24",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-8",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-7",
+    "community-31668494-b954-40b4-b0ee-614fffc0d46c-13",
+    "community-5a83ac61-ae48-436f-9af1-8829ff5c9658-2",
     "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-25",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-26",
-    "community-31668494-b954-40b4-b0ee-614fffc0d46c-2",
-    "community-31668494-b954-40b4-b0ee-614fffc0d46c-5",
-    "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-1",
-    "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-3",
-    "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-4",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-24",
     "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-5",
-    "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-2",
     "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-5",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-16",
+    "community-31668494-b954-40b4-b0ee-614fffc0d46c-5",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-26",
+    "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-1",
     "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-7",
+    "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-2",
+    "community-31668494-b954-40b4-b0ee-614fffc0d46c-2",
+    "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-4",
+    "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-3",
     "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-4",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-14",
     "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-5",
     "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-6",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-14",
     "community-31668494-b954-40b4-b0ee-614fffc0d46c-14",
     "community-31668494-b954-40b4-b0ee-614fffc0d46c-15",
+    "community-5a83ac61-ae48-436f-9af1-8829ff5c9658-1",
     "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-9",
+    "community-5a83ac61-ae48-436f-9af1-8829ff5c9658-3",
     "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-2",
     "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-15",
     "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-10",
     "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-4",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-12",
     "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-3",
     "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-9",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-12",
     "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-6",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-10",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-11",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-13",
-    "community-31668494-b954-40b4-b0ee-614fffc0d46c-1",
     "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-8",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-11",
+    "community-31668494-b954-40b4-b0ee-614fffc0d46c-1",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-13",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-10",
+    "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-8",
+    "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-13",
     "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-17",
     "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-22",
-    "community-31668494-b954-40b4-b0ee-614fffc0d46c-11",
     "community-31668494-b954-40b4-b0ee-614fffc0d46c-12",
-    "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-13",
-    "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-8",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-18",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-19",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-20",
-    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-21",
-    "community-31668494-b954-40b4-b0ee-614fffc0d46c-17",
+    "community-31668494-b954-40b4-b0ee-614fffc0d46c-11",
     "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-9",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-18",
+    "community-31668494-b954-40b4-b0ee-614fffc0d46c-17",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-21",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-20",
+    "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-19",
     "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-12",
     "community-31668494-b954-40b4-b0ee-614fffc0d46c-16",
     "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-11"
@@ -5503,6 +5506,281 @@
             "name": "閒置",
             "start": 75,
             "end": 80
+          }
+        ]
+      },
+      "clearSubmissionReview": true
+    },
+    "community-5a83ac61-ae48-436f-9af1-8829ff5c9658-1": {
+      "sourceSignature": "e9906ce6",
+      "imageSources": [],
+      "category": "Round Robin 計算",
+      "explanation": "先認清本題在問：平均等待時間。\n\n① 先用規則決定誰能上 CPU\nRR：依就緒佇列輪流，每次最多做一個時間片；未完成的人回隊尾。 本題每輪最多 3 ms。\n這題問平均等待時間。先排完 RR 時間線，記下每個行程最後完成的時刻，再各自扣掉到達時間與真正執行 CPU 的時間。\n單一 CPU；不計切換耗時；沒有額外 I/O。 時間片＝3 ms；邊界時新到達者先入隊，再把用完時間片的工作放回隊尾；同時到達依表格順序。\n\n② 一步一步排時間線\n0–3：P1 做 3 ms，還剩 7 ms，回到隊尾；接下來的隊列是 P2 → P1。\n3–6：P2 做 3 ms，還剩 1 ms，回到隊尾；接下來的隊列是 P1 → P3 → P4 → P2。\n6–9：P1 做 3 ms，還剩 4 ms，回到隊尾；接下來的隊列是 P3 → P4 → P2 → P5 → P1。\n9–12：P3 做 3 ms，還剩 3 ms，回到隊尾；接下來的隊列是 P4 → P2 → P5 → P1 → P3。\n12–15：P4 做 3 ms，已完成，離開佇列；接下來的隊列是 P2 → P5 → P1 → P3。\n15–16：P2 做 1 ms，已完成，離開佇列；接下來的隊列是 P5 → P1 → P3。\n16–19：P5 做 3 ms，還剩 2 ms，回到隊尾；接下來的隊列是 P1 → P3 → P5。\n19–22：P1 做 3 ms，還剩 1 ms，回到隊尾；接下來的隊列是 P3 → P5 → P1。\n22–25：P3 做 3 ms，已完成，離開佇列；接下來的隊列是 P5 → P1。\n25–27：P5 做 2 ms，已完成，離開佇列；接下來的隊列是 P1。\n27–28：P1 做 1 ms，已完成，離開佇列；接下來的隊列是 空。\n\n時間線（括號內是開始–結束，單位 ms）：\nP1（0–3） → P2（3–6） → P1（6–9） → P3（9–12） → P4（12–15） → P2（15–16） → P5（16–19） → P1（19–22） → P3（22–25） → P5（25–27） → P1（27–28）\n\n③ 只計算這一題問的量\n等待＝完成－到達－CPU 時間。\nP1：28－0－10＝18 ms。\nP2：16－2－4＝10 ms。\nP3：25－4－6＝15 ms。\nP4：15－6－3＝6 ms。\nP5：27－8－5＝14 ms。\n平均＝（18＋10＋15＋6＋14）÷5＝12.6 ms。\n\n④ 對照答案\n本題結論：12.6。\n\n容易弄混的地方：P1 雖然 0 ms 就第一次上 CPU，之後仍會回隊尾等待，所以總等待不是 0。五個等待值為 18、10、15、6、14；這和平均回應時間 4 ms、平均迴轉時間 18.2 ms 是不同的量。",
+      "workedSolution": {
+        "title": "先讀資料，再沿時間線計算",
+        "rule": "RR：依就緒佇列輪流，每次最多做一個時間片；未完成的人回隊尾。",
+        "assumptions": [
+          "單一 CPU；不計切換耗時；沒有額外 I/O。",
+          "時間片＝3 ms；邊界時新到達者先入隊，再把用完時間片的工作放回隊尾；同時到達依表格順序。"
+        ],
+        "columns": [
+          "行程",
+          "到達 AT（ms）",
+          "CPU BT（ms）",
+          "等待 WT（ms）"
+        ],
+        "rows": [
+          [
+            "P1",
+            0,
+            10,
+            18
+          ],
+          [
+            "P2",
+            2,
+            4,
+            10
+          ],
+          [
+            "P3",
+            4,
+            6,
+            15
+          ],
+          [
+            "P4",
+            6,
+            3,
+            6
+          ],
+          [
+            "P5",
+            8,
+            5,
+            14
+          ]
+        ],
+        "segments": [
+          {
+            "name": "P1",
+            "start": 0,
+            "end": 3
+          },
+          {
+            "name": "P2",
+            "start": 3,
+            "end": 6
+          },
+          {
+            "name": "P1",
+            "start": 6,
+            "end": 9
+          },
+          {
+            "name": "P3",
+            "start": 9,
+            "end": 12
+          },
+          {
+            "name": "P4",
+            "start": 12,
+            "end": 15
+          },
+          {
+            "name": "P2",
+            "start": 15,
+            "end": 16
+          },
+          {
+            "name": "P5",
+            "start": 16,
+            "end": 19
+          },
+          {
+            "name": "P1",
+            "start": 19,
+            "end": 22
+          },
+          {
+            "name": "P3",
+            "start": 22,
+            "end": 25
+          },
+          {
+            "name": "P5",
+            "start": 25,
+            "end": 27
+          },
+          {
+            "name": "P1",
+            "start": 27,
+            "end": 28
+          }
+        ]
+      },
+      "clearSubmissionReview": true
+    },
+    "community-5a83ac61-ae48-436f-9af1-8829ff5c9658-2": {
+      "sourceSignature": "df1c8600",
+      "imageSources": [
+        "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/api/image/5a83ac61-ae48-436f-9af1-8829ff5c9658/1-0"
+      ],
+      "category": "SJF／SRTF 計算",
+      "explanation": "先認清本題在問：CPU 執行順序。\n\n① 先用規則決定誰能上 CPU\n不可搶先 SJF：CPU 空下來才選「已到達且 CPU 時間最短」的人；沒做完前不換人。\n題圖的（CPU 時間，到達時間）為 A（5，0）、B（4，1）、C（2，2）、D（1，3）、E（3，7）。不可搶先表示 A 即使遇到較短的新工作，也要做完才換人；同樣地，7 ms 到達的 E 不會插斷正在執行的 C。\n單一 CPU；不計切換耗時；沒有額外 I/O。 同樣長的工作採先到先做；尚未到達者不參加挑選。\n\n② 一步一步排時間線\n0 ms：目前可執行 A（需要 5 ms）。依規則選 A，所以開始執行 A。\n5 ms：目前可執行 B（需要 4 ms）、C（需要 2 ms）、D（需要 1 ms）。依規則選 D，所以開始執行 D。\n6 ms：目前可執行 B（需要 4 ms）、C（需要 2 ms）。依規則選 C，所以開始執行 C。\n8 ms：目前可執行 B（需要 4 ms）、E（需要 3 ms）。依規則選 E，所以開始執行 E。\n11 ms：目前可執行 B（需要 4 ms）。依規則選 B，所以開始執行 B。\n\n時間線（括號內是開始–結束，單位 ms）：\nA（0–5） → D（5–6） → C（6–8） → E（8–11） → B（11–15）\n\n③ 只計算這一題問的量\n沿時間線由左往右抄每個連續區塊：A → D → C → E → B。同一行程被搶先後再次回來，要再寫一次；不要把重複名稱刪掉。\n\n④ 對照答案\n本題結論：A → D → C → E → B。\n\n容易弄混的地方：不能在 0 ms 先挑全表最短的 D，因為 D 要到 3 ms 才到達。A 做完後是 D→C→E→B；依題目要求連寫成 ADCEB，不加空白或分隔號。",
+      "workedSolution": {
+        "title": "先讀資料，再沿時間線計算",
+        "rule": "不可搶先 SJF：CPU 空下來才選「已到達且 CPU 時間最短」的人；沒做完前不換人。",
+        "assumptions": [
+          "單一 CPU；不計切換耗時；沒有額外 I/O。",
+          "同樣長的工作採先到先做；尚未到達者不參加挑選。"
+        ],
+        "columns": [
+          "行程",
+          "到達 AT（ms）",
+          "CPU BT（ms）"
+        ],
+        "rows": [
+          [
+            "A",
+            0,
+            5
+          ],
+          [
+            "B",
+            1,
+            4
+          ],
+          [
+            "C",
+            2,
+            2
+          ],
+          [
+            "D",
+            3,
+            1
+          ],
+          [
+            "E",
+            7,
+            3
+          ]
+        ],
+        "segments": [
+          {
+            "name": "A",
+            "start": 0,
+            "end": 5
+          },
+          {
+            "name": "D",
+            "start": 5,
+            "end": 6
+          },
+          {
+            "name": "C",
+            "start": 6,
+            "end": 8
+          },
+          {
+            "name": "E",
+            "start": 8,
+            "end": 11
+          },
+          {
+            "name": "B",
+            "start": 11,
+            "end": 15
+          }
+        ]
+      },
+      "clearSubmissionReview": true
+    },
+    "community-5a83ac61-ae48-436f-9af1-8829ff5c9658-3": {
+      "sourceSignature": "57ea309d",
+      "imageSources": [],
+      "category": "Round Robin 計算",
+      "explanation": "先認清本題在問：每個行程的完工時刻。\n\n① 先用規則決定誰能上 CPU\nRR：依就緒佇列輪流，每次最多做一個時間片；未完成的人回隊尾。 本題每輪最多 3 ms。\ncompleted time 問的是每個行程最後完成時的時鐘讀數，不是等待時間，也不是第一次上 CPU 的時刻。3 ms 邊界到達的 P4 先入隊，再把用完時間片的 P1 放回隊尾。\n單一 CPU；不計切換耗時；沒有額外 I/O。 時間片＝3 ms；邊界時新到達者先入隊，再把用完時間片的工作放回隊尾；同時到達依表格順序。\n\n② 一步一步排時間線\n0–3：P1 做 3 ms，還剩 5 ms，回到隊尾；接下來的隊列是 P2 → P3 → P4 → P1。\n3–6：P2 做 3 ms，還剩 1 ms，回到隊尾；接下來的隊列是 P3 → P4 → P1 → P2。\n6–9：P3 做 3 ms，還剩 3 ms，回到隊尾；接下來的隊列是 P4 → P1 → P2 → P3。\n9–10：P4 做 1 ms，已完成，離開佇列；接下來的隊列是 P1 → P2 → P3。\n10–13：P1 做 3 ms，還剩 2 ms，回到隊尾；接下來的隊列是 P2 → P3 → P1。\n13–14：P2 做 1 ms，已完成，離開佇列；接下來的隊列是 P3 → P1。\n14–17：P3 做 3 ms，已完成，離開佇列；接下來的隊列是 P1。\n17–19：P1 做 2 ms，已完成，離開佇列；接下來的隊列是 空。\n\n時間線（括號內是開始–結束，單位 ms）：\nP1（0–3） → P2（3–6） → P3（6–9） → P4（9–10） → P1（10–13） → P2（13–14） → P3（14–17） → P1（17–19）\n\n③ 只計算這一題問的量\nP1 的最後一段結束在 19 ms，所以完工時刻是 19。\nP2 的最後一段結束在 14 ms，所以完工時刻是 14。\nP3 的最後一段結束在 17 ms，所以完工時刻是 17。\nP4 的最後一段結束在 10 ms，所以完工時刻是 10。\n最後依題目指定的行程名稱順序填入：19 → 14 → 17 → 10。\n\n④ 對照答案\n本題結論：19、14、17、10。\n\n容易弄混的地方：CPU 的完成先後是 P4→P2→P3→P1，但題目要求按 P1、P2、P3、P4 列答案，因此依序填 19、14、17、10；不要改成按完成先後排列。",
+      "workedSolution": {
+        "title": "先讀資料，再沿時間線計算",
+        "rule": "RR：依就緒佇列輪流，每次最多做一個時間片；未完成的人回隊尾。",
+        "assumptions": [
+          "單一 CPU；不計切換耗時；沒有額外 I/O。",
+          "時間片＝3 ms；邊界時新到達者先入隊，再把用完時間片的工作放回隊尾；同時到達依表格順序。"
+        ],
+        "columns": [
+          "行程",
+          "到達 AT（ms）",
+          "CPU BT（ms）",
+          "完工時刻（ms）"
+        ],
+        "rows": [
+          [
+            "P1",
+            0,
+            8,
+            19
+          ],
+          [
+            "P2",
+            1,
+            4,
+            14
+          ],
+          [
+            "P3",
+            2,
+            6,
+            17
+          ],
+          [
+            "P4",
+            3,
+            1,
+            10
+          ]
+        ],
+        "segments": [
+          {
+            "name": "P1",
+            "start": 0,
+            "end": 3
+          },
+          {
+            "name": "P2",
+            "start": 3,
+            "end": 6
+          },
+          {
+            "name": "P3",
+            "start": 6,
+            "end": 9
+          },
+          {
+            "name": "P4",
+            "start": 9,
+            "end": 10
+          },
+          {
+            "name": "P1",
+            "start": 10,
+            "end": 13
+          },
+          {
+            "name": "P2",
+            "start": 13,
+            "end": 14
+          },
+          {
+            "name": "P3",
+            "start": 14,
+            "end": 17
+          },
+          {
+            "name": "P1",
+            "start": 17,
+            "end": 19
           }
         ]
       },

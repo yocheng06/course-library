@@ -13,6 +13,7 @@ export const datasets={
   rrabc:processes(['A','B','C','D','E'],[0,1,3,3,5],[3,2,4,3,2]),
   rrba:processes(['A','B','C','D','E'],[1,0,6,3,9],[4,6,2,4,2]),
   rr5:processes(['P1','P2','P3','P4','P5'],[0,2,4,6,8],[10,4,6,3,5]),
+  rrShort:processes(['P1','P2','P3','P4'],[0,1,2,3],[8,4,6,1]),
   priority:processes(['P1','P2','P3','P4','P5'],[0,0,0,0,0],[10,1,2,1,5],[3,1,4,5,2]),
   rrMissing:processes(['P1','P2','P3'],[0,0,0],[20,3,7]),
 };
@@ -66,6 +67,9 @@ rt('d9','rt1','edf','sequence',{from:0,to:80});
 rt('d11','rt2','edf','compare',{from:0,to:100});
 rt('d12','rt2','edf','chooseFalse',{from:0,to:100});
 rt('d13','rt2','edf','jobWindows',{job:'P2_2',from:80,to:180});
+specs.set('community-5a83ac61-ae48-436f-9af1-8829ff5c9658-1',{kind:'normal',data:'rr5',mode:'rr',ask:'waiting',wording:'這題問平均等待時間。先排完 RR 時間線，記下每個行程最後完成的時刻，再各自扣掉到達時間與真正執行 CPU 的時間。',pitfall:'P1 雖然 0 ms 就第一次上 CPU，之後仍會回隊尾等待，所以總等待不是 0。五個等待值為 18、10、15、6、14；這和平均回應時間 4 ms、平均迴轉時間 18.2 ms 是不同的量。'});
+specs.set('community-5a83ac61-ae48-436f-9af1-8829ff5c9658-2',{kind:'normal',data:'abc',mode:'sjf',ask:'sequence',dispatchOnly:true,wording:'題圖的（CPU 時間，到達時間）為 A（5，0）、B（4，1）、C（2，2）、D（1，3）、E（3，7）。不可搶先表示 A 即使遇到較短的新工作，也要做完才換人；同樣地，7 ms 到達的 E 不會插斷正在執行的 C。',pitfall:'不能在 0 ms 先挑全表最短的 D，因為 D 要到 3 ms 才到達。A 做完後是 D→C→E→B；依題目要求連寫成 ADCEB，不加空白或分隔號。'});
+specs.set('community-5a83ac61-ae48-436f-9af1-8829ff5c9658-3',{kind:'normal',data:'rrShort',mode:'rr',ask:'completion',wording:'completed time 問的是每個行程最後完成時的時鐘讀數，不是等待時間，也不是第一次上 CPU 的時刻。3 ms 邊界到達的 P4 先入隊，再把用完時間片的 P1 放回隊尾。',pitfall:'CPU 的完成先後是 P4→P2→P3→P1，但題目要求按 P1、P2、P3、P4 列答案，因此依序填 19、14、17、10；不要改成按完成先後排列。'});
 
 const topicOrder=['FCFS／FIFO 計算','SJF／SRTF 計算','Round Robin 計算','優先權排程','Rate Monotonic 即時排程','EDF 即時排程','即時排程可行性'];
 const titles={waiting:'平均等待時間',response:'平均回應時間',turnaround:'平均迴轉時間',sequence:'CPU 執行順序',completion:'每個行程的完工時刻',switches:'內文切換次數',blocks:'各行程的連續執行區塊數',splitOptions:'被分成兩段的行程',waitOptions:'各行程等待時間'};
@@ -101,6 +105,7 @@ function normalSteps(result,mode){
 }
 function normalSolution(q,spec){
   const data=datasets[spec.data],result=simulate(data,spec.mode,{quantum:spec.quantum||3});
+  if(spec.dispatchOnly)result.trace=result.trace.filter(step=>!step.kept);
   const assumptions=['單一 CPU；不計切換耗時；沒有額外 I/O。'];
   if(spec.data==='fifo')assumptions.push('題圖只給先後順序，這組教材採三個行程皆在 0 ms 就緒。');
   if(spec.mode==='srtf')assumptions.push('剩餘時間相等時，保留目前執行者；CPU 空出後同長度者採先到先做。');
@@ -144,6 +149,7 @@ function normalSolution(q,spec){
     expected='條件不足';pitfall='題庫提供 A（6.25）。要解釋為何能得到 6.25，需要補上老師原本的時間片與到達條件；不能把別題四個行程的 6.25 計算搬過來。';
   }
   const detail=spec.data==='efirst'&&ask==='turnaround'&&spec.mode==='srtf'?'這組資料的平均 CPU 時間是（2＋3＋2＋4＋6）÷5＝3.4；平均等待也是 3.4，因此平均迴轉必為 3.4＋3.4＝6.8。8.2 是這組資料在不可搶先 SJF 下的平均迴轉時間。':'';
+  if(spec.pitfall)pitfall=spec.pitfall;
   const conclusion=verdict(q,expected,{sequence:ask==='sequence',detail,incomplete:ask==='incomplete'});
   const labels={waiting:'等待 WT',response:'回應 RT',turnaround:'迴轉 TAT',finish:'完工時刻',blocks:'連續區塊數'};
   const columns=['行程','到達 AT（ms）','CPU BT（ms）',...(spec.mode==='priority'?['優先權']:[]),...(metric?[labels[metric]+(metric==='blocks'?'':'（ms）')]:[])];
@@ -209,7 +215,7 @@ function realtimeSolution(q,spec){
   return {category:['feasible','compare','chooseFalse'].includes(spec.ask)?topicOrder[6]:spec.mode==='rm'?topicOrder[4]:topicOrder[5],explanation:`① 先讀懂資料和名稱\nPeriod 是多久來一份新工作；CPU 是每份要做多久；Deadline 是每份從到達起最多能等多久。\n例如 ${jobInfo(tasks[0].name+'_2')}。下標代表第幾期，不是被切開的第幾段。\n\n② 套用排程規則\n${rule}\n${spec.mode==='rm'?'本題固定優先順序：'+taskOrder+'。':'例如新工作雖已到達，若它的截止更晚，就不能搶走目前較急的工作。'}\n${assumptions.join(' ')}\n\n③ 一段一段看誰占 CPU\n${decisions}\n\n時間線（ms）：${timeline(segments)}\n${timelines?'\n兩種方法比較：\n'+timelines.map(x=>x.label+'：'+timeline(x.segments)).join('\n'):''}\n\n④ 回到本題／逐項核對\n${calculation}\n\n⑤ 對照答案\n${conclusion.detail}\n\n容易弄混的地方：工作「到達」不代表立即上 CPU；相對 Deadline 必須先加上到達時刻，才能用 EDF 比較。`,workedSolution:{title:'週期工作：先算到達與截止，再排時間線',rule,assumptions,columns:['工作','週期 T（ms）','每期 CPU（ms）','相對期限 D（ms）'],rows:tasks.map(t=>[t.name,t.period,t.cpu,t.deadline]),segments,...(timelines?{timelines}:{})},audit:{...conclusion,data:spec.data,mode:spec.mode,ask:spec.ask}};
 }
 
-export function buildTreasureCuration(rows){
+export function buildTreasureCuration(rows,{updatedAt='2026-11-01'}={}){
   const questions={},audit=[];
   for(const row of rows){const q=row.question,spec=specs.get(q.id);if(!spec)throw Error('Missing treasure specification: '+q.id);
     const solution=spec.kind==='normal'?normalSolution(q,spec):realtimeSolution(q,spec);
@@ -217,14 +223,22 @@ export function buildTreasureCuration(rows){
     audit.push({id:q.id,answer:q.answer,...solution.audit});
   }
   const typeRank=q=>!q.options.length?2:((q.answer.match(/[A-Z]/g)||[]).length>1?1:0);
-  const order=rows.slice().sort((a,b)=>topicOrder.indexOf(questions[a.question.id].category)-topicOrder.indexOf(questions[b.question.id].category)||typeRank(a.question)-typeRank(b.question)||a.question.id.localeCompare(b.question.id)).map(r=>r.question.id);
-  return {curation:{schema:2,unit:'treasure',unitTitle:'挖寶單元',updatedAt:'2026-10-31',topicOrder,typeOrder:['單選題','多選題','填空題'],order,questions},audit};
+  const dataOrder=[...Object.keys(datasets),...Object.keys(tasksets)];
+  const askOrder=['sequence','completion','response','waiting','turnaround','switches','blocks','splitOptions','waitOptions','jobRange','jobWindows','atTime','pair','interrupted','uninterrupted','intervalOptions','finishBefore','feasible','compare','chooseFalse','incomplete'];
+  const order=rows.slice().sort((a,b)=>{
+    const qa=a.question,qb=b.question,sa=specs.get(qa.id),sb=specs.get(qb.id);
+    return topicOrder.indexOf(questions[qa.id].category)-topicOrder.indexOf(questions[qb.id].category)||typeRank(qa)-typeRank(qb)||dataOrder.indexOf(sa.data)-dataOrder.indexOf(sb.data)||sa.mode.localeCompare(sb.mode)||askOrder.indexOf(sa.ask)-askOrder.indexOf(sb.ask)||(sa.from||0)-(sb.from||0)||qa.id.localeCompare(qb.id);
+  }).map(r=>r.question.id);
+  return {curation:{schema:2,unit:'treasure',unitTitle:'挖寶單元',updatedAt,topicOrder,typeOrder:['單選題','多選題','填空題'],order,questions},audit};
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
-  const source=JSON.parse(await readFile('content/treasure-public-review-20261031.json','utf8'));
-  const {curation,audit}=buildTreasureCuration(source.rows);
+  const sourcePath=process.argv[2]||'content/treasure-public-review-20261101.json';
+  const stamp=sourcePath.match(/(\d{8})\.json$/)?.[1];if(!stamp)throw Error('Source filename must end in YYYYMMDD.json');
+  const source=JSON.parse(await readFile(sourcePath,'utf8'));
+  const {curation,audit}=buildTreasureCuration(source.rows,{updatedAt:stamp.slice(0,4)+'-'+stamp.slice(4,6)+'-'+stamp.slice(6)});
   await writeFile('assets/os-treasure-curation.json',JSON.stringify(curation,null,2)+'\n');
-  await writeFile('content/treasure-explanation-audit-20261031.json',JSON.stringify(audit,null,2)+'\n');
-  await writeFile('content/挖寶單元_67題逐步解析_20261031.md','# 挖寶單元：67 題逐步解析\n\n保留原題與老師答案；計算使用逐題明列的條件。\n\n'+curation.order.map((id,i)=>{const q=source.rows.find(r=>r.question.id===id).question,m=curation.questions[id];return `## ${i+1}．${m.category}\n\n原題 ID：${id}\n\n${q.stem}\n\n${q.options.map((o,j)=>String.fromCharCode(65+j)+'. '+o).join('\n')}\n\n老師答案：${q.answer}\n\n|${m.workedSolution.columns.join('|')}|\n|${m.workedSolution.columns.map(()=>'---').join('|')}|\n${m.workedSolution.rows.map(r=>'|'+r.join('|')+'|').join('\n')}\n\n${m.explanation}\n`;}).join('\n'));
+  await writeFile('content/treasure-explanation-audit-'+stamp+'.json',JSON.stringify(audit,null,2)+'\n');
+  const draftPath='content/挖寶單元_'+source.rows.length+'題逐步解析_'+stamp+'.md';
+  await writeFile(draftPath,'# 挖寶單元：'+source.rows.length+' 題逐步解析\n\n保留原題與老師答案；計算使用逐題明列的條件。\n\n'+curation.order.map((id,i)=>{const q=source.rows.find(r=>r.question.id===id).question,m=curation.questions[id];return `## ${i+1}．${m.category}\n\n原題 ID：${id}\n\n${q.stem}\n\n${q.options.map((o,j)=>String.fromCharCode(65+j)+'. '+o).join('\n')}\n\n老師答案：${q.answer}\n\n|${m.workedSolution.columns.join('|')}|\n|${m.workedSolution.columns.map(()=>'---').join('|')}|\n${m.workedSolution.rows.map(r=>'|'+r.join('|')+'|').join('\n')}\n\n${m.explanation}\n`;}).join('\n'));
   console.log(JSON.stringify({questions:audit.length,discrepancies:audit.filter(a=>!a.consistent).map(a=>({id:a.id,answer:a.answer,expected:a.expected}))},null,2));
 }

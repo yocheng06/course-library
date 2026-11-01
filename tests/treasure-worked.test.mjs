@@ -6,7 +6,7 @@ import {parseHTML} from 'linkedom';
 import {simulate,periodic} from '../scripts/lib/scheduling-worked.mjs';
 import {datasets,tasksets,buildTreasureCuration} from '../scripts/curate-treasure-20261031.mjs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-const rows=JSON.parse(read('content/treasure-public-review-20261031.json')).rows;
+const rows=JSON.parse(read('content/treasure-public-review-20261101.json')).rows;
 test('independently calculated normal schedules and metrics distinguish similar figures',()=>{
   const cases=[['abc','fcfs',4.8,7.8],['abc','sjf',3.4,6.4],['abc','srtf',3,6],['p9','srtf',6.5,13],['p6','srtf',6.25,12],['efirst','sjf',4.8,8.2],['efirst','srtf',3.4,6.8],['fcfs4','fcfs',7.5,12.5],['rrabc','rr',4,6.8],['rrba','rr',7.8,11.4],['rr5','rr',12.6,18.2],['priority','priority',8.2,12]];
   for(const [data,mode,waiting,turnaround] of cases){const result=simulate(datasets[data],mode),mean=k=>result.processes.reduce((a,p)=>a+p[k],0)/result.processes.length;
@@ -24,9 +24,29 @@ test('RM and EDF compare absolute deadlines, retain jobs across preemption and h
   assert.deepEqual(three.segments.filter(s=>s.name==='P1_5'),[{name:'P1_5',start:210,end:220}]);
   for(const [data,tasks] of Object.entries(tasksets))for(const mode of ['rm','edf']){const result=periodic(tasks,mode,600);for(const j of result.jobs){const used=result.segments.filter(s=>s.name===j.name).reduce((n,s)=>n+s.end-s.start,0);assert.equal(used+j.remaining,j.cpu,data+mode+j.name);assert(used<=j.cpu);}}
 });
-test('all 67 current questions have independent explanations and preserve source questions and answers',()=>{
+test('three newly imported questions retain their answers and match independently checked timelines',()=>{
+  const prefix='community-5a83ac61-ae48-436f-9af1-8829ff5c9658-';
+  const {curation,audit}=buildTreasureCuration(rows);
+  assert.deepEqual(audit.filter(a=>a.id.startsWith(prefix)).map(a=>a.consistent),[true,true,true]);
+  const waiting=simulate(datasets.rr5,'rr');assert.deepEqual(waiting.processes.map(p=>p.waiting),[18,10,15,6,14]);assert.equal(waiting.processes.reduce((sum,p)=>sum+p.waiting,0)/5,12.6);
+  const sjf=curation.questions[prefix+'2'].workedSolution;
+  assert.deepEqual(sjf.rows.map(r=>r.slice(0,3)),[['A',0,5],['B',1,4],['C',2,2],['D',3,1],['E',7,3]]);
+  assert.deepEqual(sjf.segments,[{name:'A',start:0,end:5},{name:'D',start:5,end:6},{name:'C',start:6,end:8},{name:'E',start:8,end:11},{name:'B',start:11,end:15}]);
+  const completion=simulate(datasets.rrShort,'rr');assert.deepEqual(completion.processes.map(p=>p.finish),[19,14,17,10]);
+  assert.deepEqual(completion.segments.map(s=>[s.name,s.start,s.end]),[['P1',0,3],['P2',3,6],['P3',6,9],['P4',9,10],['P1',10,13],['P2',13,14],['P3',14,17],['P1',17,19]]);
+});
+test('same scenario stays together after topic and single/multiple/fill ordering',()=>{
+  const {curation,audit}=buildTreasureCuration(rows);
+  for(const [data,mode] of [['rr5','rr'],['abc','sjf']]){
+    const ids=audit.filter(a=>a.data===data&&a.mode===mode).map(a=>a.id),positions=ids.map(id=>curation.order.indexOf(id)).sort((a,b)=>a-b);
+    assert.equal(positions.at(-1)-positions[0]+1,ids.length,data);
+  }
+  const rr5=curation.order.filter(id=>audit.some(a=>a.id===id&&a.data==='rr5'));
+  assert.deepEqual(rr5.map(id=>audit.find(a=>a.id===id).ask),['sequence','response','waiting','turnaround']);
+});
+test('all 70 current questions have independent explanations and preserve source questions and answers',()=>{
   const before=JSON.stringify(rows),{curation,audit}=buildTreasureCuration(rows);
-  assert.equal(curation.order.length,67);assert.equal(new Set(curation.order).size,67);assert.equal(JSON.stringify(rows),before);
+  assert.equal(curation.order.length,70);assert.equal(new Set(curation.order).size,70);assert.equal(JSON.stringify(rows),before);
   assert.deepEqual(curation,JSON.parse(read('assets/os-treasure-curation.json')));
   assert.equal(audit.filter(q=>!q.consistent).length,7);
   for(const q of audit.filter(q=>!q.consistent)){assert.match(curation.questions[q.id].explanation,/題庫提供的答案保留/);}
@@ -48,7 +68,7 @@ test('page contains matching current treasure snapshot and loads walkthrough bef
   assert.deepEqual(JSON.parse(document.getElementById('course-os-treasure-curation').textContent),JSON.parse(read('assets/os-treasure-curation.json')));
   assert(html.indexOf('assets/scheduling-walkthrough.js')<html.indexOf('assets/os-learning.js'));
 });
-test('real lesson bootstrap shows all 67 explanations and respects later public edits or changed pictures',async()=>{
+test('real lesson bootstrap shows all 70 explanations and respects later public edits or changed pictures',async()=>{
   const {window,document}=parseHTML(read('os.html'));
   Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){return this.querySelector('option[selected]')?.value??this.querySelector('option')?.value??'';},set(v){for(const o of this.querySelectorAll('option'))o.toggleAttribute('selected',o.value===String(v));}});
   window.window=window;window.HTMLElement.prototype.focus=function(){};window.HTMLElement.prototype.scrollIntoView=function(){};window.scrollTo=()=>{};window.courseContributions={apiOrigin:'https://example.com'};
@@ -56,7 +76,9 @@ test('real lesson bootstrap shows all 67 explanations and respects later public 
   const context=vm.createContext({window,document,location:{search:'?question='+linked,protocol:'https:'},URLSearchParams,navigator:{onLine:true},AbortSignal,Date,console,requestAnimationFrame:f=>f(),scrollX:0,scrollY:0,innerHeight:900,CSS:{escape:String},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},fetch:()=>new Promise(r=>resolve=r)});
   for(const name of ['question-tools','choice-answers','practice-feedback','scheduling-walkthrough','os-learning','course-bootstrap'])vm.runInContext(read('assets/'+name+'.js'),context);
   const config=window.courseLearning;
-  assert.equal(config.examEntries(['treasure']).length,67);
+  assert.equal(config.examEntries(['treasure']).length,70);
+  const expectedOrder=JSON.parse(read('assets/os-treasure-curation.json')).order;
+  assert.equal(JSON.stringify(config.examEntries(['treasure']).map(e=>e.id)),JSON.stringify(expectedOrder));
   for(const row of rows){const q=config.questionForEdit(row.question.id);assert(q.workedSolution);assert(q.explanation);assert.equal(q.answer,row.question.answer);assert.equal(q.stem,row.question.stem);}
   assert(document.querySelector('.worked-solution table'));
   const revised=structuredClone(rows);revised[0].question.explanation='使用者新增的解析，應優先保留。';
