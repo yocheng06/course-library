@@ -1,0 +1,20 @@
+import {readFile,writeFile,stat} from 'node:fs/promises';
+const publicPath='content/algorithms-public-20261101.json';
+const live=JSON.parse(await readFile(publicPath,'utf8'));
+const curation=JSON.parse(await readFile('assets/algorithms-counting-curation.json','utf8'));
+const json=v=>JSON.stringify(v).replace(/</g,'\\u003c');
+let html=await readFile('algorithms.html','utf8');
+const snapshot={schema:1,course:'algorithms',generatedAt:(await stat(publicPath)).mtime.toISOString(),data:{questions:live.questions,aliases:live.aliases||[],overrides:live.overrides},curation:null};
+html=html.replace(/(<script id="course-community-snapshot" type="application\/json">)[\s\S]*?(<\/script>)/,(_,a,b)=>a+json(snapshot)+b);
+const script='<script id="course-algorithms-counting-curation" type="application/json">'+json(curation)+'</script>';
+if(html.includes('id="course-algorithms-counting-curation"'))html=html.replace(/<script id="course-algorithms-counting-curation" type="application\/json">[\s\S]*?<\/script>/,()=>script);
+else html=html.replace(/(?=<script src="assets\/algorithms-learning\.js)/,()=>script+'\n');
+if(!html.includes('assets/counting-sort-walkthrough.js'))html=html.replace(/(?=<script src="assets\/algorithms-learning\.js)/,'<script src="assets/counting-sort-walkthrough.js?v=counting-steps-20261101"></script>\n');
+if(!html.includes('assets/counting-sort-walkthrough.css'))html=html.replace('<link rel="stylesheet" href="assets/theme.css','<link rel="stylesheet" href="assets/counting-sort-walkthrough.css?v=counting-steps-20261101">\n<link rel="stylesheet" href="assets/theme.css');
+html=html.replace(/assets\/algorithms-learning\.js\?[^" ]+/g,'assets/algorithms-learning.js?v=counting-steps-20261101');
+await writeFile('algorithms.html',html);await writeFile('assets/course-snapshots/algorithms.json',json(snapshot)+'\n');
+let js=await readFile('assets/algorithms-learning.js','utf8');
+const old='${window.courseQuestionTools.explanationMarkup(q, highlighted)}';
+const replacement='${window.courseCountingSort?.markup(q)||\'\'}<div class="${q.countingExplanation?\'counting-explanation\':\'\'}">${window.courseQuestionTools.explanationMarkup(q, highlighted)}</div>';
+if(!js.includes('courseCountingSort?.markup')){if(!js.includes(old))throw Error('Missing explanation render point');js=js.replace(old,replacement);await writeFile('assets/algorithms-learning.js',js);}
+console.log('Prepared 19 explanations, 9 interactive walkthroughs and current public snapshot.');

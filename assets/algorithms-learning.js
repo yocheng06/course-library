@@ -1,6 +1,7 @@
 /* Algorithm question-bank interactions. */
 'use strict';
 const COURSES=JSON.parse(document.getElementById('course-data').textContent);
+for(const unit of COURSES)if(unit.id==='L6')unit.questions=unit.questions.map(q=>window.courseCountingSort?.apply(q)||q);
 function refreshCourseSummary(){
  const total=COURSES.reduce((sum,unit)=>sum+unit.questions.length,0);
  document.querySelector('[data-course-total]').textContent=`${COURSES.length} 個單元 · ${total} 道題目`;
@@ -44,7 +45,7 @@ function setupLesson(preserveCards=false){document.querySelectorAll('.community-
  $('lessonTabs').innerHTML=COURSES.map(item=>`<button class="lesson-tab ${item.id===lesson?'active':''}" data-lesson="${item.id}" aria-pressed="${item.id===lesson}"><span class="tabtop"><span>${item.id}</span><small>${visibleQuestionCount(item)} 題</small></span><strong>${esc(meta[item.id].short)}</strong></button>`).join('');
  render(preserveCards);}
 function renderChapters(){$('chapterSelect').value=chapter;}
-function answerMarkup(q,id){return `<div class="answer" id="answer-${id}"><div><strong>${window.courseQuestionTools.answerLabel(q)}</strong><br><span class="answer-value">${window.courseQuestionTools.answerValueMarkup(q,highlighted)}</span></div><div class="explain"><strong>解析</strong><div class="explanation-text">${window.courseQuestionTools.explanationMarkup(q, highlighted)}</div></div>${q.note?`<div class="warning"><strong>觀念提醒：</strong>${highlighted(q.note)}</div>`:q.warn?'<div class="warning">原資料已標記此題需要核對；請搭配原題、完整選項或老師的說明確認。</div>':''}${window.courseQuestionTools.reviewMarkup(q)}</div>`;}
+function answerMarkup(q,id){return `<div class="answer" id="answer-${id}"><div><strong>${window.courseQuestionTools.answerLabel(q)}</strong><br><span class="answer-value">${window.courseQuestionTools.answerValueMarkup(q,highlighted)}</span></div><div class="explain"><strong>解析</strong><div class="explanation-text">${window.courseCountingSort?.markup(q)||''}<div class="${q.countingExplanation?'counting-explanation':''}">${window.courseQuestionTools.explanationMarkup(q, highlighted)}</div></div></div>${q.note?`<div class="warning"><strong>觀念提醒：</strong>${highlighted(q.note)}</div>`:q.warn?'<div class="warning">原資料已標記此題需要核對；請搭配原題、完整選項或老師的說明確認。</div>':''}${window.courseQuestionTools.reviewMarkup(q)}</div>`;}
 function questionImagesMarkup(q){return window.courseQuestionTools.questionImagesMarkup(q);}
 function expectedOptionKeys(q,options){return window.courseQuestionTools.optionAnswerKeys(q,options);}
 function optionContent(value,index){const text=String(value??''),match=text.match(/^\s*([A-H][.、．:：)）])(\s*)([\s\S]*)$/i);const label=match?.[1]||`${String.fromCharCode(65+index)}.`;return `<span class="option-label">${highlighted(label)}</span>${esc(match?.[2]||' ')}${highlighted(match?match[3]:text)}`;}
@@ -110,7 +111,7 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],ov
   if(!builtinOriginals.has(id)||builtinOriginals.get(id).unit!==row.unit||next.has(id)||nextDeleted.has(id))throw new Error('Invalid built-in update');
   if(row.deleted===true){if(q.aliases!==undefined&&(!Array.isArray(q.aliases)||q.aliases.some(alias=>typeof alias!=='string')))throw new Error('Invalid built-in deletion');nextDeleted.add(id);continue;}
   if(typeof q.q!=='string'||typeof q.a!=='string'||!Array.isArray(q.opts)||q.opts.some(v=>typeof v!=='string'))throw new Error('Invalid built-in update');
-  next.set(id,q);
+  next.set(id,window.courseCountingSort?.apply(q)||q);
  }
  if(replace){
   const previous=new Map(questionEntries.filter(e=>!builtinOriginals.has(e.id)).map(e=>[e.id,e.q]));
@@ -131,7 +132,7 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],ov
  let added=0,updated=0;
  for(const entry of entries){
   if(!entry||typeof entry!=='object')continue;
-  const {unit:unitId,question:q}=entry;
+  const {unit:unitId}=entry;const q=window.courseCountingSort?.apply(entry.question)||entry.question;
   let unit=COURSES.find(unit=>unit.id===unitId);
   if(!q||!/^community-[0-9a-f-]{36}-[1-9]\d*$/.test(q.bookmarkId)||typeof q.q!=='string'||typeof q.a!=='string')continue;
   const existing=findEntry(q.bookmarkId);
