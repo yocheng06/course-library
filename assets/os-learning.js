@@ -53,6 +53,7 @@ ensureUnitLoaded(0);
 document.querySelector('[data-course-total]').textContent = `${UNITS.length} 個單元 · ${totalQuestionCount()} 道題目`;
 const allUnits = () => $('searchScopeSelect').value === 'all';
 function orderEntries(entries) {
+  if(window.courseTopicOrder)return window.courseTopicOrder.sort(entries,'os',entry=>entry.unitIndex,entry=>unitQuestionOrders.get(entry.unit.id)?.get(entry.q.id)??Number.MAX_SAFE_INTEGER);
   entries.sort((a,b) => {
     if (a.unitIndex !== b.unitIndex) return a.unitIndex-b.unitIndex;
     const order=unitQuestionOrders.get(a.unit.id);
@@ -92,7 +93,7 @@ const findEntry = id => {
 };
 function refreshFilters() {
   const entries = scopedEntries();
-  window.courseQuestionTools.populateSelect($('chapter'), entries.map(({q}) => q.category), 'all', '全部章節');
+  window.courseQuestionTools.populateSelect($('chapter'), entries.map(entry=>entry.topicLabel??entry.q.category), 'all', '全部章節');
   window.courseQuestionTools.populateSelect($('typeSelect'), entries.map(({q}) => kind(q)), 'all', '全部題型');
 }
 function highlighted(value) {
@@ -104,12 +105,12 @@ function highlighted(value) {
   return out + esc(text.slice(last));
 }
 function matches() {
-  return scopedEntries().filter(({q}) => (!window.learningUI?.reviewOnly || window.learningUI.isSaved(q.id)) &&
+  return scopedEntries().filter(({q,topicLabel,unit}) => (!window.learningUI?.reviewOnly || window.learningUI.isSaved(q.id)) &&
     (mode !== 'practice' || window.coursePracticeProgress?.includes(q.id) !== false) &&
-    ($('chapter').value === 'all' || q.category === $('chapter').value) &&
+    ($('chapter').value === 'all' || (topicLabel??q.category) === $('chapter').value) &&
     ($('typeSelect').value === 'all' || kind(q) === $('typeSelect').value) &&
     ($('qualitySelect').value !== 'pending' || window.courseQuestionTools.qualityReasons(q, 'os').length > 0) &&
-    window.courseQuestionTools.matchesSearch(q, $('search').value));
+    window.courseQuestionTools.matchesSearch(window.courseTopicOrder?.view(q,'os',unit.id)||q, $('search').value));
 }
 function refreshUnitNavigation() {
   const i = active, u = UNITS[i];
@@ -155,6 +156,7 @@ function updateCorrectOptions(card,q,visible) {
   window.courseQuestionTools.updateStudyOptionMarks(card,q,keys);
 }
 function cardMarkup({q, unit, unitIndex, i, displayNumber}) {
+  q=window.courseTopicOrder?.view(q,'os',unit.id)||q;
   q=window.courseExplanationContent?.apply(q)||q;
   if(mode==='practice')q=practiceOptions.get(q,q.id);
   const practice = mode === 'practice', open = revealed.has(q.id) || (!practice && $('showAnswers').checked), chosen = selections.get(q.id) || [];
@@ -269,7 +271,7 @@ const linkedUnitIndex = questionUnitIndex.get(linkedQuestion) ?? questionUnitInd
 if (linkedUnitIndex !== undefined) ensureUnitLoaded(linkedUnitIndex);
 const linkedEntry = findEntry(linkedQuestion);
 switchUnit(linkedEntry?.unitIndex ?? 0);
-if (linkedEntry) { page=Math.floor(linkedEntry.i/pageSize)+1; render(); window.courseQuestionTools.focusLinkedQuestion(linkedEntry.q.id); }
+if (linkedEntry) { page=Math.floor((questionDisplayNumber(linkedEntry)-1)/pageSize)+1; render(); window.courseQuestionTools.focusLinkedQuestion(linkedEntry.q.id); }
 let waitingForLinkedQuestion = !linkedEntry && /^community-/.test(linkedQuestion || '');
 function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases = [], overrides = [], replace = false} = {}) {
   if(!Array.isArray(overrides))throw new Error('Invalid built-in updates');
@@ -373,7 +375,7 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
   const linked=waitingForLinkedQuestion && openLinkedQuestion && findEntry(linkedQuestion);
   if (linked) {
     waitingForLinkedQuestion=false; switchUnit(linked.unitIndex);
-    page=Math.floor(linked.i/pageSize)+1; render();
+    page=Math.floor((questionDisplayNumber(linked)-1)/pageSize)+1; render();
     window.courseQuestionTools.focusLinkedQuestion(linked.q.id);
   } else { refreshUnitNavigation(); refreshFilters(); render(true); }
   return {added, openedLinkedQuestion:Boolean(linked)};

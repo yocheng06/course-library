@@ -1,0 +1,2734 @@
+[
+  {
+    "course": "os",
+    "count": 1048,
+    "beforeViolations": 101,
+    "afterViolations": 0,
+    "units": [
+      {
+        "id": "basics",
+        "label": "L2 · 作業系統基礎",
+        "count": 101,
+        "topics": [
+          {
+            "name": "作業系統定義與目標",
+            "single": 5,
+            "multiple": 4,
+            "fill": 0,
+            "ids": [
+              "basics-1",
+              "basics-2",
+              "community-0193fc99-46c4-43ba-9be0-88c92d11d376-2",
+              "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-4",
+              "community-a028e435-0375-42e1-ac6e-87852572d6de-1",
+              "basics-3",
+              "basics-42",
+              "community-a353a3c9-59a1-4dc4-8cc3-c70d12a6738a-2",
+              "community-d971de46-3a05-4f24-a907-2a0363fed5e3-1"
+            ]
+          },
+          {
+            "name": "系統組成與硬體資源",
+            "single": 1,
+            "multiple": 3,
+            "fill": 0,
+            "ids": [
+              "basics-6",
+              "basics-4",
+              "basics-5",
+              "basics-55"
+            ]
+          },
+          {
+            "name": "開機",
+            "single": 1,
+            "multiple": 0,
+            "fill": 1,
+            "ids": [
+              "basics-7",
+              "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-7"
+            ]
+          },
+          {
+            "name": "中斷",
+            "single": 1,
+            "multiple": 4,
+            "fill": 1,
+            "ids": [
+              "basics-48",
+              "basics-8",
+              "basics-9",
+              "basics-44",
+              "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-6",
+              "basics-52"
+            ]
+          },
+          {
+            "name": "儲存與快取",
+            "single": 3,
+            "multiple": 8,
+            "fill": 6,
+            "ids": [
+              "basics-12",
+              "basics-60",
+              "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-6",
+              "basics-10",
+              "basics-11",
+              "basics-14",
+              "basics-15",
+              "basics-53",
+              "community-2215fba3-0142-4ff9-87fd-e7434b627f12-4",
+              "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-3",
+              "community-786aaebc-ed50-4d3e-a56b-abfd7f5e8919-1",
+              "basics-13",
+              "community-0193fc99-46c4-43ba-9be0-88c92d11d376-1",
+              "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-5",
+              "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-1",
+              "basics-59",
+              "community-2215fba3-0142-4ff9-87fd-e7434b627f12-7"
+            ]
+          },
+          {
+            "name": "I/O 與裝置",
+            "single": 2,
+            "multiple": 0,
+            "fill": 3,
+            "ids": [
+              "basics-17",
+              "basics-18",
+              "basics-16",
+              "community-2215fba3-0142-4ff9-87fd-e7434b627f12-5",
+              "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-8"
+            ]
+          },
+          {
+            "name": "多處理器",
+            "single": 0,
+            "multiple": 3,
+            "fill": 2,
+            "ids": [
+              "basics-19",
+              "basics-20",
+              "basics-54",
+              "basics-63",
+              "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-1"
+            ]
+          },
+          {
+            "name": "叢集系統",
+            "single": 0,
+            "multiple": 1,
+            "fill": 3,
+            "ids": [
+              "basics-21",
+              "basics-56",
+              "basics-57",
+              "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-5"
+            ]
+          },
+          {
+            "name": "多程式與分時",
+            "single": 0,
+            "multiple": 1,
+            "fill": 1,
+            "ids": [
+              "basics-22",
+              "basics-23"
+            ]
+          },
+          {
+            "name": "程序",
+            "single": 1,
+            "multiple": 4,
+            "fill": 2,
+            "ids": [
+              "basics-24",
+              "basics-25",
+              "basics-50",
+              "basics-64",
+              "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-4",
+              "community-2215fba3-0142-4ff9-87fd-e7434b627f12-2",
+              "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-9"
+            ]
+          },
+          {
+            "name": "記憶體",
+            "single": 1,
+            "multiple": 0,
+            "fill": 3,
+            "ids": [
+              "basics-26",
+              "basics-27",
+              "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-3",
+              "community-423e6d9d-2362-4ef5-b513-00d15b8f8d23-1"
+            ]
+          },
+          {
+            "name": "保護與安全",
+            "single": 4,
+            "multiple": 3,
+            "fill": 4,
+            "ids": [
+              "community-2215fba3-0142-4ff9-87fd-e7434b627f12-1",
+              "basics-28",
+              "basics-49",
+              "community-2215fba3-0142-4ff9-87fd-e7434b627f12-6",
+              "basics-29",
+              "basics-30",
+              "community-7d3d1684-4bd2-4567-a35a-ec5c69caff91-1",
+              "basics-47",
+              "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-3",
+              "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-10",
+              "community-2215fba3-0142-4ff9-87fd-e7434b627f12-3"
+            ]
+          },
+          {
+            "name": "核心資料結構",
+            "single": 4,
+            "multiple": 2,
+            "fill": 2,
+            "ids": [
+              "basics-32",
+              "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-2",
+              "basics-46",
+              "community-a241a5bb-8b24-4bae-af12-2d896244a7bc-1",
+              "basics-31",
+              "basics-62",
+              "basics-33",
+              "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-7"
+            ]
+          },
+          {
+            "name": "分散式系統與 P2P",
+            "single": 1,
+            "multiple": 1,
+            "fill": 0,
+            "ids": [
+              "basics-35",
+              "basics-34"
+            ]
+          },
+          {
+            "name": "虛擬化",
+            "single": 2,
+            "multiple": 1,
+            "fill": 2,
+            "ids": [
+              "basics-37",
+              "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-2",
+              "basics-36",
+              "community-a353a3c9-59a1-4dc4-8cc3-c70d12a6738a-1",
+              "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-2"
+            ]
+          },
+          {
+            "name": "雲端服務",
+            "single": 1,
+            "multiple": 3,
+            "fill": 3,
+            "ids": [
+              "basics-39",
+              "basics-38",
+              "basics-61",
+              "community-719cea30-56ae-4d9c-b3c2-e5cd5a70e812-8",
+              "basics-51",
+              "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-1",
+              "community-7d3d1684-4bd2-4567-a35a-ec5c69caff91-3"
+            ]
+          },
+          {
+            "name": "即時系統",
+            "single": 2,
+            "multiple": 0,
+            "fill": 0,
+            "ids": [
+              "basics-40",
+              "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-9"
+            ]
+          },
+          {
+            "name": "開放原始碼",
+            "single": 1,
+            "multiple": 0,
+            "fill": 0,
+            "ids": [
+              "basics-41"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "architecture",
+        "label": "L3 · 作業系統架構",
+        "count": 217,
+        "topics": [
+          {
+            "name": "使用者介面與系統程式",
+            "single": 15,
+            "multiple": 14,
+            "fill": 7,
+            "ids": [
+              "architecture-3",
+              "architecture-4",
+              "architecture-5",
+              "architecture-6",
+              "architecture-7",
+              "architecture-10",
+              "architecture-14",
+              "architecture-16",
+              "architecture-20",
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-7",
+              "community-eb1592ba-0e1e-47b2-a83d-0c7992445ee9-4",
+              "community-dcd2e755-8451-456a-9d22-357dd584f328-1",
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-3",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-8",
+              "community-e462552b-cd2b-4d07-b30f-cabf50893593-12",
+              "architecture-1",
+              "architecture-2",
+              "architecture-8",
+              "architecture-11",
+              "architecture-13",
+              "architecture-17",
+              "architecture-18",
+              "architecture-21",
+              "community-b52c9a6b-e697-4c98-997b-a34d57103cc3-5",
+              "community-eb1592ba-0e1e-47b2-a83d-0c7992445ee9-6",
+              "community-887db733-c68b-45e5-9727-ea6831f12258-5",
+              "community-887db733-c68b-45e5-9727-ea6831f12258-1",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-14",
+              "community-29b5c67c-f1ad-46e3-b201-d7562e26374e-2",
+              "architecture-9",
+              "architecture-12",
+              "architecture-19",
+              "architecture-22",
+              "architecture-friend-u3-226",
+              "community-e462552b-cd2b-4d07-b30f-cabf50893593-9",
+              "community-239e1711-48d9-41ae-aede-76dd97d31338-5"
+            ]
+          },
+          {
+            "name": "作業系統服務",
+            "single": 19,
+            "multiple": 14,
+            "fill": 9,
+            "ids": [
+              "architecture-25",
+              "architecture-26",
+              "architecture-27",
+              "architecture-29",
+              "architecture-33",
+              "architecture-37",
+              "architecture-38",
+              "architecture-39",
+              "architecture-40",
+              "community-b52c9a6b-e697-4c98-997b-a34d57103cc3-2",
+              "community-eb1592ba-0e1e-47b2-a83d-0c7992445ee9-3",
+              "community-eb1592ba-0e1e-47b2-a83d-0c7992445ee9-8",
+              "community-887db733-c68b-45e5-9727-ea6831f12258-6",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-10",
+              "community-4f304e00-3bda-42c9-980e-9feda8e76af0-3",
+              "community-e462552b-cd2b-4d07-b30f-cabf50893593-10",
+              "community-44192aa0-5ca5-4a32-a11b-de905cc1ee7a-2",
+              "community-29b5c67c-f1ad-46e3-b201-d7562e26374e-1",
+              "community-29b5c67c-f1ad-46e3-b201-d7562e26374e-3",
+              "architecture-23",
+              "architecture-24",
+              "architecture-28",
+              "architecture-30",
+              "architecture-31",
+              "architecture-34",
+              "architecture-35",
+              "architecture-36",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-1",
+              "community-887db733-c68b-45e5-9727-ea6831f12258-7",
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-4",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-12",
+              "community-e462552b-cd2b-4d07-b30f-cabf50893593-4",
+              "community-e462552b-cd2b-4d07-b30f-cabf50893593-8",
+              "architecture-32",
+              "architecture-41",
+              "architecture-42",
+              "community-887db733-c68b-45e5-9727-ea6831f12258-4",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-11",
+              "community-4f304e00-3bda-42c9-980e-9feda8e76af0-1",
+              "community-4f304e00-3bda-42c9-980e-9feda8e76af0-2",
+              "community-4f304e00-3bda-42c9-980e-9feda8e76af0-8",
+              "community-239e1711-48d9-41ae-aede-76dd97d31338-2"
+            ]
+          },
+          {
+            "name": "系統呼叫與 API",
+            "single": 12,
+            "multiple": 12,
+            "fill": 12,
+            "ids": [
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-15",
+              "architecture-44",
+              "architecture-47",
+              "architecture-52",
+              "architecture-54",
+              "architecture-56",
+              "architecture-57",
+              "architecture-58",
+              "architecture-59",
+              "architecture-61",
+              "community-887db733-c68b-45e5-9727-ea6831f12258-8",
+              "community-e462552b-cd2b-4d07-b30f-cabf50893593-7",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-4",
+              "architecture-43",
+              "architecture-49",
+              "architecture-50",
+              "architecture-53",
+              "architecture-62",
+              "architecture-63",
+              "community-eb1592ba-0e1e-47b2-a83d-0c7992445ee9-5",
+              "community-dcd2e755-8451-456a-9d22-357dd584f328-3",
+              "community-dcd2e755-8451-456a-9d22-357dd584f328-4",
+              "community-dcd2e755-8451-456a-9d22-357dd584f328-7",
+              "architecture-friend-u3-237",
+              "architecture-45",
+              "architecture-46",
+              "architecture-51",
+              "architecture-60",
+              "architecture-64",
+              "architecture-friend-u3-172",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-7",
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-10",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-9",
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-11",
+              "community-4f304e00-3bda-42c9-980e-9feda8e76af0-6",
+              "community-e462552b-cd2b-4d07-b30f-cabf50893593-2"
+            ]
+          },
+          {
+            "name": "核心結構與設計原則",
+            "single": 28,
+            "multiple": 17,
+            "fill": 18,
+            "ids": [
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-6",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-3",
+              "architecture-65",
+              "architecture-66",
+              "architecture-68",
+              "architecture-72",
+              "architecture-77",
+              "architecture-78",
+              "architecture-82",
+              "architecture-84",
+              "architecture-88",
+              "architecture-90",
+              "architecture-96",
+              "community-b52c9a6b-e697-4c98-997b-a34d57103cc3-7",
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-5",
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-6",
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-9",
+              "community-eb1592ba-0e1e-47b2-a83d-0c7992445ee9-1",
+              "community-dcd2e755-8451-456a-9d22-357dd584f328-6",
+              "community-887db733-c68b-45e5-9727-ea6831f12258-9",
+              "architecture-86",
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-13",
+              "architecture-97",
+              "community-4f304e00-3bda-42c9-980e-9feda8e76af0-7",
+              "community-e462552b-cd2b-4d07-b30f-cabf50893593-3",
+              "community-e462552b-cd2b-4d07-b30f-cabf50893593-5",
+              "community-239e1711-48d9-41ae-aede-76dd97d31338-4",
+              "community-44192aa0-5ca5-4a32-a11b-de905cc1ee7a-3",
+              "architecture-67",
+              "architecture-73",
+              "architecture-75",
+              "architecture-76",
+              "architecture-79",
+              "architecture-89",
+              "architecture-93",
+              "architecture-94",
+              "architecture-99",
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-1",
+              "community-e243b80f-edae-4b0c-b02b-68026c3b0c3d-3",
+              "community-4f304e00-3bda-42c9-980e-9feda8e76af0-10",
+              "community-4f304e00-3bda-42c9-980e-9feda8e76af0-4",
+              "community-4f304e00-3bda-42c9-980e-9feda8e76af0-9",
+              "community-e462552b-cd2b-4d07-b30f-cabf50893593-11",
+              "community-e462552b-cd2b-4d07-b30f-cabf50893593-6",
+              "community-44192aa0-5ca5-4a32-a11b-de905cc1ee7a-1",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-16",
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-2",
+              "architecture-69",
+              "architecture-70",
+              "architecture-71",
+              "architecture-74",
+              "architecture-80",
+              "architecture-81",
+              "architecture-83",
+              "architecture-85",
+              "architecture-95",
+              "architecture-98",
+              "architecture-friend-u3-190",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-13",
+              "community-b52c9a6b-e697-4c98-997b-a34d57103cc3-1",
+              "community-eb1592ba-0e1e-47b2-a83d-0c7992445ee9-7",
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-12",
+              "community-dcd2e755-8451-456a-9d22-357dd584f328-2"
+            ]
+          },
+          {
+            "name": "開機 系統生成與效能分析",
+            "single": 14,
+            "multiple": 3,
+            "fill": 8,
+            "ids": [
+              "community-dc64f46b-6ebd-4b30-a6c2-277d8fb70389-8",
+              "architecture-100",
+              "architecture-104",
+              "architecture-106",
+              "architecture-109",
+              "architecture-110",
+              "architecture-113",
+              "community-b52c9a6b-e697-4c98-997b-a34d57103cc3-3",
+              "community-dcd2e755-8451-456a-9d22-357dd584f328-8",
+              "community-887db733-c68b-45e5-9727-ea6831f12258-3",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-5",
+              "architecture-102",
+              "community-4f304e00-3bda-42c9-980e-9feda8e76af0-5",
+              "community-e462552b-cd2b-4d07-b30f-cabf50893593-1",
+              "architecture-111",
+              "community-dcd2e755-8451-456a-9d22-357dd584f328-5",
+              "architecture-friend-u3-207",
+              "community-5c7a7dab-12ae-412b-b022-bc13900862ef-2",
+              "architecture-101",
+              "architecture-108",
+              "architecture-112",
+              "architecture-115",
+              "community-b52c9a6b-e697-4c98-997b-a34d57103cc3-6",
+              "community-eb1592ba-0e1e-47b2-a83d-0c7992445ee9-2",
+              "community-dcd2e755-8451-456a-9d22-357dd584f328-9"
+            ]
+          },
+          {
+            "name": "Android 與 iOS",
+            "single": 5,
+            "multiple": 3,
+            "fill": 3,
+            "ids": [
+              "architecture-116",
+              "architecture-119",
+              "community-dcd2e755-8451-456a-9d22-357dd584f328-10",
+              "community-239e1711-48d9-41ae-aede-76dd97d31338-1",
+              "community-239e1711-48d9-41ae-aede-76dd97d31338-3",
+              "architecture-117",
+              "architecture-friend-u3-198",
+              "community-e243b80f-edae-4b0c-b02b-68026c3b0c3d-2",
+              "architecture-118",
+              "architecture-120",
+              "architecture-121"
+            ]
+          },
+          {
+            "name": "Unix / FreeBSD",
+            "single": 0,
+            "multiple": 3,
+            "fill": 1,
+            "ids": [
+              "architecture-friend-u3-045",
+              "community-b52c9a6b-e697-4c98-997b-a34d57103cc3-4",
+              "community-887db733-c68b-45e5-9727-ea6831f12258-2",
+              "community-29b5c67c-f1ad-46e3-b201-d7562e26374e-4"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "process",
+        "label": "L4 · 程序與 IPC",
+        "count": 100,
+        "topics": [
+          {
+            "name": "Process 基礎",
+            "single": 6,
+            "multiple": 1,
+            "fill": 2,
+            "ids": [
+              "process-2",
+              "process-3",
+              "process-4",
+              "process-6",
+              "process-98",
+              "community-540e5f34-482c-4c48-b683-67f59fc316ae-4",
+              "process-1",
+              "process-8",
+              "community-e9945852-7bb0-4512-a4ed-d4bd8fa5e297-2"
+            ]
+          },
+          {
+            "name": "PCB / Context Switch",
+            "single": 2,
+            "multiple": 1,
+            "fill": 3,
+            "ids": [
+              "process-9",
+              "process-105",
+              "process-10",
+              "process-11",
+              "process-13",
+              "process-106"
+            ]
+          },
+          {
+            "name": "Process State",
+            "single": 4,
+            "multiple": 1,
+            "fill": 2,
+            "ids": [
+              "process-17",
+              "process-108",
+              "community-3edc10a9-7d14-4af1-b6bf-3a86179c58b3-1",
+              "community-03cf7332-1d81-4ce0-9d89-77fa83353531-2",
+              "process-15",
+              "process-16",
+              "process-18"
+            ]
+          },
+          {
+            "name": "Scheduler / Queue",
+            "single": 3,
+            "multiple": 2,
+            "fill": 4,
+            "ids": [
+              "process-22",
+              "process-23",
+              "process-25",
+              "process-21",
+              "community-437af013-08d8-467d-a384-0478521bc21a-1",
+              "process-20",
+              "process-24",
+              "process-26",
+              "process-27"
+            ]
+          },
+          {
+            "name": "CPU / I/O Bound",
+            "single": 3,
+            "multiple": 0,
+            "fill": 1,
+            "ids": [
+              "process-28",
+              "process-33",
+              "process-34",
+              "process-30"
+            ]
+          },
+          {
+            "name": "Process Creation / Termination",
+            "single": 4,
+            "multiple": 7,
+            "fill": 7,
+            "ids": [
+              "process-35",
+              "process-40",
+              "process-48",
+              "community-3edc10a9-7d14-4af1-b6bf-3a86179c58b3-3",
+              "process-43",
+              "process-44",
+              "process-46",
+              "process-96",
+              "community-afcb95e7-391c-4c90-a3a1-1f4aa170454c-2",
+              "process-45",
+              "community-03cf7332-1d81-4ce0-9d89-77fa83353531-1",
+              "process-36",
+              "process-39",
+              "process-41",
+              "process-42",
+              "process-47",
+              "process-49",
+              "community-03cf7332-1d81-4ce0-9d89-77fa83353531-3"
+            ]
+          },
+          {
+            "name": "Cooperating Process",
+            "single": 0,
+            "multiple": 2,
+            "fill": 1,
+            "ids": [
+              "process-51",
+              "process-52",
+              "process-54"
+            ]
+          },
+          {
+            "name": "IPC 基礎",
+            "single": 2,
+            "multiple": 8,
+            "fill": 1,
+            "ids": [
+              "community-c7e19d49-a009-45f2-ac72-242b51b2b914-2",
+              "process-56",
+              "process-55",
+              "process-59",
+              "process-61",
+              "process-62",
+              "process-102",
+              "community-540e5f34-482c-4c48-b683-67f59fc316ae-5",
+              "process-58",
+              "process-60",
+              "process-57"
+            ]
+          },
+          {
+            "name": "Direct / Indirect Communication",
+            "single": 3,
+            "multiple": 1,
+            "fill": 2,
+            "ids": [
+              "process-64",
+              "process-103",
+              "community-9e5559de-2377-43bf-8d2f-e124e2aa2bd1-1",
+              "process-66",
+              "process-63",
+              "process-65"
+            ]
+          },
+          {
+            "name": "Message Passing",
+            "single": 1,
+            "multiple": 2,
+            "fill": 2,
+            "ids": [
+              "process-67",
+              "process-69",
+              "process-107",
+              "process-70",
+              "process-71"
+            ]
+          },
+          {
+            "name": "Pipe / Socket",
+            "single": 1,
+            "multiple": 2,
+            "fill": 5,
+            "ids": [
+              "process-77",
+              "process-79",
+              "process-76",
+              "process-73",
+              "process-75",
+              "process-78",
+              "process-80",
+              "process-82"
+            ]
+          },
+          {
+            "name": "RPC",
+            "single": 0,
+            "multiple": 2,
+            "fill": 5,
+            "ids": [
+              "community-afcb95e7-391c-4c90-a3a1-1f4aa170454c-1",
+              "community-9e5559de-2377-43bf-8d2f-e124e2aa2bd1-2",
+              "process-84",
+              "process-85",
+              "process-86",
+              "process-87",
+              "community-c7e19d49-a009-45f2-ac72-242b51b2b914-1"
+            ]
+          },
+          {
+            "name": "Mach / Windows IPC",
+            "single": 0,
+            "multiple": 1,
+            "fill": 2,
+            "ids": [
+              "community-3edc10a9-7d14-4af1-b6bf-3a86179c58b3-4",
+              "process-88",
+              "process-89"
+            ]
+          },
+          {
+            "name": "Mobile / Browser",
+            "single": 0,
+            "multiple": 3,
+            "fill": 1,
+            "ids": [
+              "process-92",
+              "process-93",
+              "community-540e5f34-482c-4c48-b683-67f59fc316ae-2",
+              "process-91"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "threads",
+        "label": "L5 · 執行緒與多執行緒",
+        "count": 85,
+        "topics": [
+          {
+            "name": "基本觀念",
+            "single": 0,
+            "multiple": 3,
+            "fill": 4,
+            "ids": [
+              "threads-001",
+              "threads-005",
+              "community-397ef7d1-7c02-405d-adc2-a72f0d2d3d5f-1",
+              "threads-002",
+              "threads-003",
+              "threads-004",
+              "threads-055"
+            ]
+          },
+          {
+            "name": "多執行緒優點",
+            "single": 6,
+            "multiple": 1,
+            "fill": 2,
+            "ids": [
+              "threads-007",
+              "threads-008",
+              "threads-009",
+              "threads-010",
+              "community-397ef7d1-7c02-405d-adc2-a72f0d2d3d5f-2",
+              "community-52b2bd1a-7b5d-4e33-ad3d-1c79791ff340-1",
+              "threads-063",
+              "threads-006",
+              "threads-012"
+            ]
+          },
+          {
+            "name": "多核心與平行程式設計",
+            "single": 1,
+            "multiple": 1,
+            "fill": 2,
+            "ids": [
+              "threads-039",
+              "threads-038",
+              "threads-040",
+              "threads-076"
+            ]
+          },
+          {
+            "name": "Amdahl's Law",
+            "single": 2,
+            "multiple": 0,
+            "fill": 2,
+            "ids": [
+              "threads-082",
+              "community-7c45c6a2-c776-4e3f-b48a-2c31f8739357-2",
+              "threads-041",
+              "threads-042"
+            ]
+          },
+          {
+            "name": "執行緒模型",
+            "single": 4,
+            "multiple": 7,
+            "fill": 5,
+            "ids": [
+              "threads-016",
+              "threads-020",
+              "threads-057",
+              "community-e31036c8-d1a7-4212-8818-715306385626-4",
+              "threads-018",
+              "threads-017",
+              "threads-019",
+              "threads-060",
+              "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-1",
+              "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-4",
+              "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-1",
+              "threads-013",
+              "threads-014",
+              "threads-015",
+              "community-2dbc9c78-9179-4ed1-a8f6-412e2d28d934-1",
+              "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-5"
+            ]
+          },
+          {
+            "name": "執行緒函式庫",
+            "single": 5,
+            "multiple": 1,
+            "fill": 1,
+            "ids": [
+              "threads-033",
+              "threads-059",
+              "threads-078",
+              "community-e31036c8-d1a7-4212-8818-715306385626-3",
+              "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-4",
+              "threads-034",
+              "threads-032"
+            ]
+          },
+          {
+            "name": "Java Threads",
+            "single": 1,
+            "multiple": 1,
+            "fill": 0,
+            "ids": [
+              "threads-068",
+              "threads-061"
+            ]
+          },
+          {
+            "name": "OpenMP / Implicit Threading",
+            "single": 3,
+            "multiple": 3,
+            "fill": 1,
+            "ids": [
+              "threads-044",
+              "threads-046",
+              "community-e31036c8-d1a7-4212-8818-715306385626-2",
+              "threads-045",
+              "threads-073",
+              "community-e31036c8-d1a7-4212-8818-715306385626-5",
+              "threads-047"
+            ]
+          },
+          {
+            "name": "Grand Central Dispatch",
+            "single": 2,
+            "multiple": 0,
+            "fill": 1,
+            "ids": [
+              "threads-085",
+              "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-2",
+              "threads-048"
+            ]
+          },
+          {
+            "name": "Thread Pools / Server",
+            "single": 1,
+            "multiple": 3,
+            "fill": 1,
+            "ids": [
+              "threads-051",
+              "threads-050",
+              "threads-052",
+              "community-397ef7d1-7c02-405d-adc2-a72f0d2d3d5f-3",
+              "threads-049"
+            ]
+          },
+          {
+            "name": "fork / exec",
+            "single": 0,
+            "multiple": 1,
+            "fill": 0,
+            "ids": [
+              "threads-053"
+            ]
+          },
+          {
+            "name": "訊號 / Signals",
+            "single": 0,
+            "multiple": 3,
+            "fill": 1,
+            "ids": [
+              "threads-086",
+              "community-e31036c8-d1a7-4212-8818-715306385626-1",
+              "community-2aa0ecfb-6355-4e00-bd7a-6bfc5023d145-3",
+              "threads-070"
+            ]
+          },
+          {
+            "name": "執行緒取消",
+            "single": 2,
+            "multiple": 2,
+            "fill": 1,
+            "ids": [
+              "threads-035",
+              "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-2",
+              "threads-037",
+              "community-2dbc9c78-9179-4ed1-a8f6-412e2d28d934-2",
+              "threads-036"
+            ]
+          },
+          {
+            "name": "Thread-local Storage",
+            "single": 1,
+            "multiple": 2,
+            "fill": 1,
+            "ids": [
+              "threads-030",
+              "threads-031",
+              "community-7c45c6a2-c776-4e3f-b48a-2c31f8739357-1",
+              "threads-028"
+            ]
+          },
+          {
+            "name": "Windows Threads",
+            "single": 1,
+            "multiple": 3,
+            "fill": 1,
+            "ids": [
+              "threads-023",
+              "threads-021",
+              "threads-022",
+              "community-7194cbec-f4e8-4431-b237-d8864d7ca8ea-3",
+              "threads-024"
+            ]
+          },
+          {
+            "name": "Linux Threads",
+            "single": 1,
+            "multiple": 1,
+            "fill": 0,
+            "ids": [
+              "threads-026",
+              "threads-066"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "scheduling",
+        "label": "L6 · CPU 排程",
+        "count": 133,
+        "topics": [
+          {
+            "name": "排程基本觀念",
+            "single": 6,
+            "multiple": 4,
+            "fill": 7,
+            "ids": [
+              "os6-014",
+              "os6-016",
+              "os6-019",
+              "os6-021",
+              "os6-024",
+              "community-4402f31c-8cad-4746-8071-585f8e8a29bd-1",
+              "os6-017",
+              "os6-022",
+              "os6-114",
+              "community-c8fd251c-2f96-418c-b6ec-ce209abb0975-1",
+              "os6-015",
+              "os6-018",
+              "os6-020",
+              "os6-023",
+              "os6-111",
+              "os6-116",
+              "os6-118"
+            ]
+          },
+          {
+            "name": "評估指標",
+            "single": 3,
+            "multiple": 2,
+            "fill": 8,
+            "ids": [
+              "os6-001",
+              "os6-004",
+              "os6-012",
+              "os6-010",
+              "os6-011",
+              "os6-002",
+              "os6-005",
+              "os6-006",
+              "os6-008",
+              "os6-009",
+              "os6-013",
+              "os6-119",
+              "os6-120"
+            ]
+          },
+          {
+            "name": "FCFS／SJF",
+            "single": 3,
+            "multiple": 4,
+            "fill": 8,
+            "ids": [
+              "os6-025",
+              "os6-031",
+              "os6-108",
+              "os6-032",
+              "os6-026",
+              "os6-115",
+              "community-c915391b-9327-4547-857a-13576a2db148-1",
+              "os6-029",
+              "os6-033",
+              "os6-035",
+              "os6-110",
+              "community-65307e6c-1612-4c30-b48f-0489756453b5-28",
+              "os6-121",
+              "os6-122",
+              "os6-123"
+            ]
+          },
+          {
+            "name": "RR 時間片",
+            "single": 2,
+            "multiple": 2,
+            "fill": 4,
+            "ids": [
+              "os6-036",
+              "os6-038",
+              "os6-040",
+              "os6-041",
+              "os6-124",
+              "os6-125",
+              "os6-134",
+              "community-4402f31c-8cad-4746-8071-585f8e8a29bd-4"
+            ]
+          },
+          {
+            "name": "優先權／飢餓",
+            "single": 6,
+            "multiple": 4,
+            "fill": 6,
+            "ids": [
+              "os6-044",
+              "os6-046",
+              "os6-050",
+              "os6-109",
+              "community-347bfabe-39d8-48b1-871e-e2da467131d4-1",
+              "community-c57ffcbc-2e7b-48df-aa41-7ffc2512ffd0-1",
+              "os6-043",
+              "os6-047",
+              "os6-048",
+              "os6-051",
+              "os6-049",
+              "os6-052",
+              "os6-126",
+              "os6-127",
+              "os6-133",
+              "community-541813b4-2729-4f23-875d-8dc488d5116e-1"
+            ]
+          },
+          {
+            "name": "多處理器",
+            "single": 3,
+            "multiple": 2,
+            "fill": 4,
+            "ids": [
+              "os6-054",
+              "os6-056",
+              "os6-061",
+              "os6-058",
+              "os6-060",
+              "os6-055",
+              "os6-057",
+              "os6-059",
+              "os6-105"
+            ]
+          },
+          {
+            "name": "即時排程",
+            "single": 5,
+            "multiple": 6,
+            "fill": 8,
+            "ids": [
+              "os6-065",
+              "os6-068",
+              "os6-069",
+              "os6-107",
+              "community-c5780dc5-fa11-46f9-8092-be3492d3d2a2-1",
+              "os6-062",
+              "os6-066",
+              "os6-067",
+              "os6-070",
+              "os6-073",
+              "community-894e9ae8-f063-45d2-b28c-ebf47695aef1-1",
+              "os6-063",
+              "os6-071",
+              "os6-072",
+              "os6-129",
+              "os6-130",
+              "community-347bfabe-39d8-48b1-871e-e2da467131d4-2",
+              "community-1c7e3e2e-c963-4b78-98d3-15e9503bac9c-1",
+              "community-0e337714-ae73-4217-b52d-78a76b4bf90f-1"
+            ]
+          },
+          {
+            "name": "Linux／Windows／Solaris",
+            "single": 6,
+            "multiple": 11,
+            "fill": 7,
+            "ids": [
+              "os6-076",
+              "os6-084",
+              "os6-086",
+              "os6-088",
+              "os6-089",
+              "os6-102",
+              "os6-075",
+              "os6-078",
+              "os6-080",
+              "os6-082",
+              "os6-083",
+              "os6-091",
+              "os6-103",
+              "scheduling-friend-u6-102",
+              "community-24766c59-046f-455b-8338-93a62a5a2da1-2",
+              "community-c915391b-9327-4547-857a-13576a2db148-2",
+              "community-c5780dc5-fa11-46f9-8092-be3492d3d2a2-2",
+              "os6-074",
+              "os6-077",
+              "os6-079",
+              "os6-081",
+              "os6-090",
+              "os6-131",
+              "os6-132"
+            ]
+          },
+          {
+            "name": "排程評估模型",
+            "single": 2,
+            "multiple": 5,
+            "fill": 3,
+            "ids": [
+              "os6-096",
+              "community-c5780dc5-fa11-46f9-8092-be3492d3d2a2-3",
+              "os6-095",
+              "os6-098",
+              "os6-099",
+              "os6-106",
+              "os6-113",
+              "os6-092",
+              "os6-094",
+              "os6-097"
+            ]
+          },
+          {
+            "name": "進階排程",
+            "single": 0,
+            "multiple": 2,
+            "fill": 0,
+            "ids": [
+              "os6-100",
+              "os6-101"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "treasure",
+        "label": "挖寶單元",
+        "count": 70,
+        "topics": [
+          {
+            "name": "FCFS／FIFO 計算",
+            "single": 5,
+            "multiple": 1,
+            "fill": 9,
+            "ids": [
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-1",
+              "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-7",
+              "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-10",
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-1",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-9",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-2",
+              "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-6",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-4",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-3",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-23",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-7",
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-3",
+              "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-11",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-8",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-10"
+            ]
+          },
+          {
+            "name": "SJF／SRTF 計算",
+            "single": 4,
+            "multiple": 0,
+            "fill": 14,
+            "ids": [
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-6",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-8",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-7",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-13",
+              "community-5a83ac61-ae48-436f-9af1-8829ff5c9658-2",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-25",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-24",
+              "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-5",
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-5",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-16",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-5",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-26",
+              "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-1",
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-7",
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-2",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-2",
+              "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-4",
+              "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-3"
+            ]
+          },
+          {
+            "name": "Round Robin 計算",
+            "single": 1,
+            "multiple": 0,
+            "fill": 8,
+            "ids": [
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-4",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-5",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-6",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-14",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-14",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-15",
+              "community-5a83ac61-ae48-436f-9af1-8829ff5c9658-1",
+              "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-9",
+              "community-5a83ac61-ae48-436f-9af1-8829ff5c9658-3"
+            ]
+          },
+          {
+            "name": "優先權排程",
+            "single": 1,
+            "multiple": 0,
+            "fill": 2,
+            "ids": [
+              "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-2",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-15",
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-10"
+            ]
+          },
+          {
+            "name": "Rate Monotonic 即時排程",
+            "single": 1,
+            "multiple": 4,
+            "fill": 5,
+            "ids": [
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-4",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-3",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-9",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-12",
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-6",
+              "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-8",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-11",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-1",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-13",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-10"
+            ]
+          },
+          {
+            "name": "EDF 即時排程",
+            "single": 0,
+            "multiple": 6,
+            "fill": 6,
+            "ids": [
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-8",
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-13",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-17",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-22",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-12",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-11",
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-9",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-18",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-17",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-21",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-20",
+              "community-310b2ef0-f0cc-4f7a-a5ad-86421a1227f6-19"
+            ]
+          },
+          {
+            "name": "即時排程可行性",
+            "single": 1,
+            "multiple": 2,
+            "fill": 0,
+            "ids": [
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-12",
+              "community-31668494-b954-40b4-b0ee-614fffc0d46c-16",
+              "community-c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a-11"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "synchronization",
+        "label": "L7 · 程序同步",
+        "count": 137,
+        "topics": [
+          {
+            "name": "臨界區與核心",
+            "single": 6,
+            "multiple": 2,
+            "fill": 6,
+            "ids": [
+              "os7-004",
+              "os7-025",
+              "os7-031",
+              "os7-143",
+              "os7-147",
+              "os7-175",
+              "os7-119",
+              "os7-231",
+              "os7-030",
+              "os7-059",
+              "os7-068",
+              "os7-073",
+              "os7-137",
+              "os7-272"
+            ]
+          },
+          {
+            "name": "同步風險",
+            "single": 2,
+            "multiple": 5,
+            "fill": 3,
+            "ids": [
+              "os7-086",
+              "os7-091",
+              "os7-016",
+              "os7-035",
+              "os7-061",
+              "os7-063",
+              "os7-069",
+              "os7-001",
+              "os7-007",
+              "os7-065"
+            ]
+          },
+          {
+            "name": "硬體原子指令",
+            "single": 3,
+            "multiple": 4,
+            "fill": 2,
+            "ids": [
+              "os7-015",
+              "os7-064",
+              "os7-140",
+              "os7-022",
+              "os7-093",
+              "os7-172",
+              "os7-197",
+              "os7-042",
+              "os7-215"
+            ]
+          },
+          {
+            "name": "Peterson’s Solution",
+            "single": 5,
+            "multiple": 2,
+            "fill": 2,
+            "ids": [
+              "os7-012",
+              "os7-040",
+              "os7-046",
+              "os7-058",
+              "os7-067",
+              "os7-017",
+              "os7-265",
+              "os7-027",
+              "os7-051"
+            ]
+          },
+          {
+            "name": "同步工具",
+            "single": 2,
+            "multiple": 5,
+            "fill": 3,
+            "ids": [
+              "os7-013",
+              "os7-116",
+              "os7-002",
+              "os7-018",
+              "os7-021",
+              "os7-075",
+              "os7-097",
+              "os7-081",
+              "os7-084",
+              "os7-134"
+            ]
+          },
+          {
+            "name": "Semaphore",
+            "single": 5,
+            "multiple": 4,
+            "fill": 7,
+            "ids": [
+              "os7-011",
+              "os7-024",
+              "os7-054",
+              "os7-168",
+              "os7-281",
+              "os7-010",
+              "os7-187",
+              "os7-234",
+              "os7-236",
+              "os7-029",
+              "os7-055",
+              "os7-066",
+              "os7-076",
+              "os7-188",
+              "os7-291",
+              "os7-303"
+            ]
+          },
+          {
+            "name": "Monitor",
+            "single": 4,
+            "multiple": 3,
+            "fill": 2,
+            "ids": [
+              "os7-117",
+              "os7-161",
+              "os7-177",
+              "os7-318",
+              "os7-070",
+              "os7-072",
+              "os7-149",
+              "os7-019",
+              "os7-109"
+            ]
+          },
+          {
+            "name": "經典同步案例",
+            "single": 1,
+            "multiple": 1,
+            "fill": 0,
+            "ids": [
+              "os7-169",
+              "os7-126"
+            ]
+          },
+          {
+            "name": "Bounded-Buffer",
+            "single": 8,
+            "multiple": 2,
+            "fill": 3,
+            "ids": [
+              "os7-026",
+              "os7-053",
+              "os7-071",
+              "os7-078",
+              "os7-083",
+              "os7-111",
+              "os7-128",
+              "os7-162",
+              "os7-033",
+              "os7-082",
+              "os7-060",
+              "os7-391",
+              "os7-249"
+            ]
+          },
+          {
+            "name": "Readers-Writers",
+            "single": 4,
+            "multiple": 2,
+            "fill": 2,
+            "ids": [
+              "os7-003",
+              "os7-080",
+              "os7-129",
+              "os7-371",
+              "os7-038",
+              "os7-104",
+              "os7-005",
+              "os7-287"
+            ]
+          },
+          {
+            "name": "Dining Philosophers",
+            "single": 5,
+            "multiple": 3,
+            "fill": 5,
+            "ids": [
+              "os7-023",
+              "os7-056",
+              "os7-094",
+              "os7-163",
+              "os7-209",
+              "os7-014",
+              "os7-090",
+              "os7-285",
+              "os7-009",
+              "os7-043",
+              "os7-050",
+              "os7-124",
+              "os7-160"
+            ]
+          },
+          {
+            "name": "系統實作",
+            "single": 5,
+            "multiple": 6,
+            "fill": 5,
+            "ids": [
+              "os7-008",
+              "os7-087",
+              "os7-096",
+              "os7-217",
+              "os7-321",
+              "os7-006",
+              "os7-120",
+              "os7-166",
+              "os7-183",
+              "os7-227",
+              "os7-345",
+              "os7-020",
+              "os7-047",
+              "os7-048",
+              "os7-062",
+              "os7-257"
+            ]
+          },
+          {
+            "name": "替代同步方法",
+            "single": 3,
+            "multiple": 2,
+            "fill": 3,
+            "ids": [
+              "os7-049",
+              "os7-132",
+              "os7-278",
+              "os7-103",
+              "os7-332",
+              "os7-028",
+              "os7-107",
+              "os7-176"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "deadlocks",
+        "label": "L8 · 死結",
+        "count": 140,
+        "topics": [
+          {
+            "name": "死結定義與影響",
+            "single": 1,
+            "multiple": 2,
+            "fill": 1,
+            "ids": [
+              "os8-023",
+              "os8-049",
+              "community-49eea5c8-6d64-4681-8f6f-5d3b0f8fa453-1",
+              "os8-070"
+            ]
+          },
+          {
+            "name": "資源類型",
+            "single": 0,
+            "multiple": 1,
+            "fill": 0,
+            "ids": [
+              "os8-060"
+            ]
+          },
+          {
+            "name": "死結必要條件",
+            "single": 5,
+            "multiple": 4,
+            "fill": 5,
+            "ids": [
+              "os8-004",
+              "os8-011",
+              "os8-019",
+              "os8-035",
+              "os8-076",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-16",
+              "os8-021",
+              "os8-051",
+              "os8-084",
+              "os8-001",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-11",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-29",
+              "os8-077",
+              "os8-088"
+            ]
+          },
+          {
+            "name": "資源分配圖",
+            "single": 4,
+            "multiple": 4,
+            "fill": 4,
+            "ids": [
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-24",
+              "os8-032",
+              "os8-045",
+              "os8-099",
+              "os8-006",
+              "os8-012",
+              "os8-100",
+              "os8-102",
+              "os8-003",
+              "os8-008",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-9",
+              "os8-022"
+            ]
+          },
+          {
+            "name": "處理方法總覽",
+            "single": 0,
+            "multiple": 7,
+            "fill": 1,
+            "ids": [
+              "os8-017",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-23",
+              "os8-025",
+              "os8-061",
+              "os8-073",
+              "os8-105",
+              "community-c245175e-f801-474b-a887-ba632c616350-1",
+              "os8-057"
+            ]
+          },
+          {
+            "name": "死結預防",
+            "single": 8,
+            "multiple": 8,
+            "fill": 7,
+            "ids": [
+              "os8-016",
+              "os8-040",
+              "os8-044",
+              "os8-063",
+              "os8-075",
+              "os8-107",
+              "os8-108",
+              "community-c245175e-f801-474b-a887-ba632c616350-2",
+              "os8-002",
+              "os8-010",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-15",
+              "os8-068",
+              "os8-110",
+              "os8-111",
+              "os8-112",
+              "community-49eea5c8-6d64-4681-8f6f-5d3b0f8fa453-3",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-26",
+              "os8-027",
+              "os8-048",
+              "os8-052",
+              "os8-114",
+              "os8-115",
+              "community-49eea5c8-6d64-4681-8f6f-5d3b0f8fa453-2"
+            ]
+          },
+          {
+            "name": "死結避免",
+            "single": 7,
+            "multiple": 4,
+            "fill": 3,
+            "ids": [
+              "os8-005",
+              "os8-009",
+              "os8-015",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-21",
+              "os8-033",
+              "os8-047",
+              "os8-118",
+              "os8-024",
+              "os8-037",
+              "os8-062",
+              "os8-079",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-22",
+              "os8-122",
+              "os8-123"
+            ]
+          },
+          {
+            "name": "安全狀態",
+            "single": 4,
+            "multiple": 3,
+            "fill": 5,
+            "ids": [
+              "os8-030",
+              "os8-059",
+              "os8-069",
+              "os8-090",
+              "os8-064",
+              "os8-092",
+              "os8-093",
+              "os8-013",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-17",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-25",
+              "os8-056",
+              "community-49eea5c8-6d64-4681-8f6f-5d3b0f8fa453-4"
+            ]
+          },
+          {
+            "name": "銀行家演算法",
+            "single": 5,
+            "multiple": 2,
+            "fill": 5,
+            "ids": [
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-12",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-13",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-30",
+              "os8-041",
+              "os8-080",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-19",
+              "os8-055",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-1",
+              "os8-020",
+              "os8-029",
+              "os8-046",
+              "os8-058"
+            ]
+          },
+          {
+            "name": "死結偵測",
+            "single": 3,
+            "multiple": 4,
+            "fill": 6,
+            "ids": [
+              "os8-018",
+              "os8-028",
+              "os8-066",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-3",
+              "os8-034",
+              "os8-039",
+              "os8-131",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-2",
+              "os8-014",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-31",
+              "os8-053",
+              "os8-074",
+              "os8-132"
+            ]
+          },
+          {
+            "name": "死結恢復",
+            "single": 6,
+            "multiple": 8,
+            "fill": 5,
+            "ids": [
+              "os8-007",
+              "os8-071",
+              "os8-134",
+              "os8-135",
+              "os8-136",
+              "os8-137",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-6",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-8",
+              "os8-026",
+              "os8-036",
+              "os8-050",
+              "os8-054",
+              "os8-081",
+              "os8-139",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-5",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-18",
+              "os8-031",
+              "os8-067",
+              "os8-142"
+            ]
+          },
+          {
+            "name": "死結偵測與恢復",
+            "single": 2,
+            "multiple": 1,
+            "fill": 1,
+            "ids": [
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-14",
+              "os8-065",
+              "os8-042",
+              "os8-043"
+            ]
+          },
+          {
+            "name": "死結範例",
+            "single": 1,
+            "multiple": 2,
+            "fill": 1,
+            "ids": [
+              "os8-038",
+              "community-17f37eed-b93c-485f-9bdd-c7591a014917-28",
+              "os8-078",
+              "os8-072"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "L9",
+        "label": "L9 · 記憶體管理",
+        "count": 65,
+        "topics": [
+          {
+            "name": "記憶體保護",
+            "single": 0,
+            "multiple": 3,
+            "fill": 2,
+            "ids": [
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-25",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-21",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-1",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-1",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-10"
+            ]
+          },
+          {
+            "name": "位址繫結",
+            "single": 3,
+            "multiple": 2,
+            "fill": 3,
+            "ids": [
+              "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-2",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-8",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-16",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-6",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-18",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-21",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-7",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-19"
+            ]
+          },
+          {
+            "name": "連續配置與碎片",
+            "single": 2,
+            "multiple": 5,
+            "fill": 5,
+            "ids": [
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-23",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-22",
+              "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-3",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-1",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-2",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-10",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-24",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-5",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-20",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-3",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-4",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-7"
+            ]
+          },
+          {
+            "name": "非連續配置方式",
+            "single": 0,
+            "multiple": 1,
+            "fill": 0,
+            "ids": [
+              "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-6"
+            ]
+          },
+          {
+            "name": "分頁與 TLB",
+            "single": 4,
+            "multiple": 0,
+            "fill": 2,
+            "ids": [
+              "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-1",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-6",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-8",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-15",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-11",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-11"
+            ]
+          },
+          {
+            "name": "頁表結構",
+            "single": 1,
+            "multiple": 4,
+            "fill": 2,
+            "ids": [
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-17",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-13",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-15",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-16",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-2",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-16",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-14"
+            ]
+          },
+          {
+            "name": "分段",
+            "single": 3,
+            "multiple": 1,
+            "fill": 3,
+            "ids": [
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-9",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-20",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-13",
+              "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-8",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-4",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-12",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-14"
+            ]
+          },
+          {
+            "name": "載入、交換與連結",
+            "single": 7,
+            "multiple": 1,
+            "fill": 3,
+            "ids": [
+              "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-4",
+              "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-5",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-14",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-19",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-13",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-23",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-4",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-3",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-11",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-17",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-5"
+            ]
+          },
+          {
+            "name": "架構案例：ARM／Intel",
+            "single": 1,
+            "multiple": 3,
+            "fill": 4,
+            "ids": [
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-12",
+              "community-0e3dac7a-033d-4471-8ce0-2e667c620b58-7",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-9",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-12",
+              "community-5ecdee2b-276b-46f0-968e-2c2c587559f9-24",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-5",
+              "community-6a10d9a3-efad-40d5-b09d-5417a347b2f3-18",
+              "community-0df11f27-86a6-4d62-86a7-85e26a96f8b6-6"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "course": "algorithms",
+    "count": 379,
+    "beforeViolations": 38,
+    "afterViolations": 0,
+    "units": [
+      {
+        "id": "L2",
+        "label": "L2 · 基礎與漸進分析",
+        "count": 78,
+        "topics": [
+          {
+            "name": "演算法分析 / RAM",
+            "single": 1,
+            "multiple": 5,
+            "fill": 1,
+            "ids": [
+              "community-0c193f84-655e-4d7e-b5c4-7d6a80a0668f-8",
+              "L2-057",
+              "L2-058",
+              "L2-059",
+              "community-0c193f84-655e-4d7e-b5c4-7d6a80a0668f-9",
+              "community-eaa5c327-54c5-4ccc-9493-ffe58921eb52-3",
+              "community-0c193f84-655e-4d7e-b5c4-7d6a80a0668f-3"
+            ]
+          },
+          {
+            "name": "漸進符號與定義",
+            "single": 5,
+            "multiple": 5,
+            "fill": 4,
+            "ids": [
+              "L2-004",
+              "L2-005",
+              "L2-006",
+              "L2-007",
+              "community-eaa5c327-54c5-4ccc-9493-ffe58921eb52-7",
+              "L2-001",
+              "L2-003",
+              "L2-010",
+              "community-0c193f84-655e-4d7e-b5c4-7d6a80a0668f-2",
+              "community-eaa5c327-54c5-4ccc-9493-ffe58921eb52-10",
+              "L2-002",
+              "L2-008",
+              "L2-009",
+              "community-0c87fc9b-213e-4bf2-8df6-18900897aaa2-2"
+            ]
+          },
+          {
+            "name": "單調性",
+            "single": 2,
+            "multiple": 0,
+            "fill": 3,
+            "ids": [
+              "L2-013",
+              "community-0c87fc9b-213e-4bf2-8df6-18900897aaa2-3",
+              "L2-011",
+              "L2-012",
+              "community-eaa5c327-54c5-4ccc-9493-ffe58921eb52-2"
+            ]
+          },
+          {
+            "name": "Floor / Ceiling / 模運算",
+            "single": 2,
+            "multiple": 2,
+            "fill": 0,
+            "ids": [
+              "L2-014",
+              "L2-015",
+              "L2-016",
+              "L2-017"
+            ]
+          },
+          {
+            "name": "函數增長率 / Log",
+            "single": 4,
+            "multiple": 6,
+            "fill": 3,
+            "ids": [
+              "L2-018",
+              "L2-020",
+              "community-eaa5c327-54c5-4ccc-9493-ffe58921eb52-6",
+              "community-eaa5c327-54c5-4ccc-9493-ffe58921eb52-8",
+              "L2-019",
+              "L2-023",
+              "L2-024",
+              "L2-025",
+              "L2-026",
+              "community-eaa5c327-54c5-4ccc-9493-ffe58921eb52-9",
+              "L2-021",
+              "L2-022",
+              "community-eaa5c327-54c5-4ccc-9493-ffe58921eb52-5"
+            ]
+          },
+          {
+            "name": "Iterative Log / Fibonacci",
+            "single": 2,
+            "multiple": 2,
+            "fill": 4,
+            "ids": [
+              "L2-028",
+              "L2-031",
+              "L2-027",
+              "L2-032",
+              "L2-029",
+              "L2-030",
+              "community-0c193f84-655e-4d7e-b5c4-7d6a80a0668f-15",
+              "community-eaa5c327-54c5-4ccc-9493-ffe58921eb52-4"
+            ]
+          },
+          {
+            "name": "Factorial / Stirling",
+            "single": 1,
+            "multiple": 1,
+            "fill": 6,
+            "ids": [
+              "L2-034",
+              "L2-038",
+              "L2-035",
+              "L2-036",
+              "L2-037",
+              "L2-061",
+              "L2-062",
+              "community-0c87fc9b-213e-4bf2-8df6-18900897aaa2-1"
+            ]
+          },
+          {
+            "name": "Insertion Sort",
+            "single": 4,
+            "multiple": 1,
+            "fill": 6,
+            "ids": [
+              "L2-039",
+              "L2-042",
+              "L2-043",
+              "L2-044",
+              "L2-047",
+              "L2-041",
+              "L2-045",
+              "L2-046",
+              "L2-048",
+              "L2-063",
+              "community-0c193f84-655e-4d7e-b5c4-7d6a80a0668f-16"
+            ]
+          },
+          {
+            "name": "Merge Sort",
+            "single": 2,
+            "multiple": 2,
+            "fill": 4,
+            "ids": [
+              "L2-050",
+              "L2-056",
+              "L2-052",
+              "L2-053",
+              "L2-054",
+              "L2-055",
+              "L2-060",
+              "community-eaa5c327-54c5-4ccc-9493-ffe58921eb52-1"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "L3",
+        "label": "L3 · 遞迴關係式",
+        "count": 60,
+        "topics": [
+          {
+            "name": "基礎觀念",
+            "single": 1,
+            "multiple": 0,
+            "fill": 0,
+            "ids": [
+              "L3-001"
+            ]
+          },
+          {
+            "name": "漸進符號",
+            "single": 0,
+            "multiple": 1,
+            "fill": 0,
+            "ids": [
+              "L3-026"
+            ]
+          },
+          {
+            "name": "代入法",
+            "single": 4,
+            "multiple": 4,
+            "fill": 5,
+            "ids": [
+              "L3-002",
+              "L3-004",
+              "L3-010",
+              "L3-018",
+              "L3-020",
+              "L3-027",
+              "L3-030",
+              "L3-034",
+              "L3-009",
+              "L3-040",
+              "L3-044",
+              "L3-045",
+              "L3-052"
+            ]
+          },
+          {
+            "name": "遞迴樹",
+            "single": 6,
+            "multiple": 4,
+            "fill": 4,
+            "ids": [
+              "L3-006",
+              "L3-007",
+              "L3-015",
+              "L3-016",
+              "L3-017",
+              "L3-058",
+              "L3-013",
+              "L3-021",
+              "L3-028",
+              "L3-037",
+              "L3-042",
+              "L3-049",
+              "L3-051",
+              "L3-056"
+            ]
+          },
+          {
+            "name": "大師定理",
+            "single": 4,
+            "multiple": 4,
+            "fill": 8,
+            "ids": [
+              "L3-003",
+              "L3q-11c3767f47ff",
+              "L3-019",
+              "L3q-a0628258a256",
+              "L3-023",
+              "L3-033",
+              "L3-035",
+              "L3-036",
+              "L3-038",
+              "L3-041",
+              "L3q-e529090709c4",
+              "L3q-6160a5c2478b",
+              "L3-047",
+              "L3q-580e3d8fa68f",
+              "L3-055",
+              "L3-057"
+            ]
+          },
+          {
+            "name": "技術細節",
+            "single": 4,
+            "multiple": 2,
+            "fill": 2,
+            "ids": [
+              "L3-005",
+              "L3-008",
+              "L3-011",
+              "L3q-2f1dad98fd80",
+              "L3-025",
+              "L3-032",
+              "L3-039",
+              "L3-050"
+            ]
+          },
+          {
+            "name": "特殊遞迴",
+            "single": 1,
+            "multiple": 2,
+            "fill": 2,
+            "ids": [
+              "L3-012",
+              "L3-022",
+              "L3-029",
+              "L3-053",
+              "L3-054"
+            ]
+          },
+          {
+            "name": "綜合方法",
+            "single": 0,
+            "multiple": 2,
+            "fill": 0,
+            "ids": [
+              "L3q-dcc5445a7dc5",
+              "L3q-aa439b2239eb"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "L4",
+        "label": "L4 · Heap 與 Heapsort",
+        "count": 60,
+        "topics": [
+          {
+            "name": "Heap 基礎",
+            "single": 1,
+            "multiple": 2,
+            "fill": 4,
+            "ids": [
+              "L4-022",
+              "L4-048",
+              "L4-056",
+              "L4-002",
+              "L4-014",
+              "L4-036",
+              "L4-009"
+            ]
+          },
+          {
+            "name": "Heap 索引",
+            "single": 1,
+            "multiple": 2,
+            "fill": 1,
+            "ids": [
+              "L4-027",
+              "L4-040",
+              "L4-050",
+              "L4-005"
+            ]
+          },
+          {
+            "name": "Heap Property",
+            "single": 3,
+            "multiple": 2,
+            "fill": 2,
+            "ids": [
+              "L4-026",
+              "L4-035",
+              "L4-021",
+              "L4-054",
+              "community-3f378d34-90b1-4772-8fba-22cd24614876-4",
+              "L4-006",
+              "L4-010"
+            ]
+          },
+          {
+            "name": "Max-Heapify",
+            "single": 3,
+            "multiple": 3,
+            "fill": 2,
+            "ids": [
+              "L4-025",
+              "L4-030",
+              "L4-023",
+              "L4-059",
+              "L4-043",
+              "L4-047",
+              "L4-003",
+              "L4-007"
+            ]
+          },
+          {
+            "name": "Build-Max-Heap",
+            "single": 1,
+            "multiple": 1,
+            "fill": 4,
+            "ids": [
+              "L4-031",
+              "L4-044",
+              "L4-060",
+              "L4-011",
+              "community-3f378d34-90b1-4772-8fba-22cd24614876-3",
+              "community-66351d2d-019c-491e-8427-646241ac4739-1"
+            ]
+          },
+          {
+            "name": "Heapsort",
+            "single": 7,
+            "multiple": 3,
+            "fill": 7,
+            "ids": [
+              "L4-028",
+              "L4-038",
+              "L4-024",
+              "L4-037",
+              "L4-033",
+              "L4-029",
+              "L4-034",
+              "L4-045",
+              "L4-053",
+              "L4-041",
+              "L4-013",
+              "L4-008",
+              "L4-012",
+              "L4-001",
+              "L4-004",
+              "community-66351d2d-019c-491e-8427-646241ac4739-3",
+              "community-97f746d1-91e8-4b86-ad2f-24b74111e3db-1"
+            ]
+          },
+          {
+            "name": "Priority Queue",
+            "single": 3,
+            "multiple": 4,
+            "fill": 1,
+            "ids": [
+              "L4-058",
+              "L4-020",
+              "L4-032",
+              "L4-051",
+              "L4-055",
+              "L4-057",
+              "L4-052",
+              "L4-015"
+            ]
+          },
+          {
+            "name": "Heap 效率",
+            "single": 0,
+            "multiple": 1,
+            "fill": 0,
+            "ids": [
+              "L4-049"
+            ]
+          },
+          {
+            "name": "Heap 應用",
+            "single": 0,
+            "multiple": 2,
+            "fill": 0,
+            "ids": [
+              "L4-039",
+              "L4-042"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "L5",
+        "label": "L5 · 快速排序",
+        "count": 60,
+        "topics": [
+          {
+            "name": "核心概念",
+            "single": 4,
+            "multiple": 3,
+            "fill": 4,
+            "ids": [
+              "L5-011",
+              "L5-027",
+              "L5-043",
+              "L5-059",
+              "L5-018",
+              "L5-040",
+              "L5-049",
+              "L5-003",
+              "L5-023",
+              "L5-025",
+              "L5-058"
+            ]
+          },
+          {
+            "name": "Pivot 與 Partition",
+            "single": 5,
+            "multiple": 4,
+            "fill": 7,
+            "ids": [
+              "L5-015",
+              "L5-016",
+              "L5-020",
+              "L5-024",
+              "L5-038",
+              "L5-008",
+              "L5-009",
+              "L5-033",
+              "L5-046",
+              "L5-002",
+              "L5-004",
+              "L5-019",
+              "L5-022",
+              "L5-037",
+              "L5-042",
+              "L5-044"
+            ]
+          },
+          {
+            "name": "遞迴與複雜度",
+            "single": 6,
+            "multiple": 8,
+            "fill": 7,
+            "ids": [
+              "L5-006",
+              "L5-026",
+              "L5-029",
+              "L5-036",
+              "L5-055",
+              "L5-056",
+              "L5-005",
+              "L5-007",
+              "L5-013",
+              "L5-031",
+              "L5-032",
+              "L5-035",
+              "L5-054",
+              "L5-060",
+              "L5-001",
+              "L5-010",
+              "L5-012",
+              "L5-028",
+              "L5-030",
+              "L5-041",
+              "L5-057"
+            ]
+          },
+          {
+            "name": "特性與優化",
+            "single": 5,
+            "multiple": 5,
+            "fill": 2,
+            "ids": [
+              "L5-014",
+              "L5-021",
+              "L5-034",
+              "L5-045",
+              "L5-048",
+              "L5-051",
+              "L5-017",
+              "L5-039",
+              "L5-052",
+              "L5-053",
+              "L5-047",
+              "L5-050"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "L6",
+        "label": "L6 · 排序演算法",
+        "count": 61,
+        "topics": [
+          {
+            "name": "線性排序與穩定性",
+            "single": 2,
+            "multiple": 4,
+            "fill": 0,
+            "ids": [
+              "L6-044",
+              "L6-061",
+              "L6-006",
+              "L6-011",
+              "L6-029",
+              "L6-032"
+            ]
+          },
+          {
+            "name": "比較排序與決策樹",
+            "single": 6,
+            "multiple": 3,
+            "fill": 3,
+            "ids": [
+              "L6-012",
+              "L6-033",
+              "L6-038",
+              "L6-039",
+              "L6-053",
+              "community-ff4cc29e-e524-4859-9764-a5b597317e87-6",
+              "L6-057",
+              "L6-023",
+              "L6-056",
+              "L6-034",
+              "L6-060",
+              "L6-055"
+            ]
+          },
+          {
+            "name": "計數排序",
+            "single": 6,
+            "multiple": 3,
+            "fill": 10,
+            "ids": [
+              "L6-014",
+              "L6-062",
+              "L6-017",
+              "L6-026",
+              "L6-040",
+              "L6-054",
+              "L6-009",
+              "L6-031",
+              "L6-064",
+              "L6-008",
+              "L6-028",
+              "L6-063",
+              "L6-047",
+              "L6-065",
+              "L6-066",
+              "L6-021",
+              "L6-022",
+              "L6-052",
+              "L6-042"
+            ]
+          },
+          {
+            "name": "基數排序",
+            "single": 5,
+            "multiple": 4,
+            "fill": 3,
+            "ids": [
+              "L6-007",
+              "L6-020",
+              "L6-025",
+              "L6-048",
+              "L6-059",
+              "L6-004",
+              "L6-010",
+              "L6-049",
+              "L6-050",
+              "L6-036",
+              "L6-001",
+              "L6-002"
+            ]
+          },
+          {
+            "name": "桶排序",
+            "single": 4,
+            "multiple": 3,
+            "fill": 5,
+            "ids": [
+              "L6-013",
+              "L6-041",
+              "L6-043",
+              "L6-051",
+              "L6-018",
+              "L6-045",
+              "L6-046",
+              "L6-027",
+              "L6-003",
+              "L6-005",
+              "L6-058",
+              "L6-035"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "L7",
+        "label": "L7 · 中位數與順序統計量",
+        "count": 60,
+        "topics": [
+          {
+            "name": "順序統計量與中位數",
+            "single": 8,
+            "multiple": 6,
+            "fill": 2,
+            "ids": [
+              "L7-2468",
+              "L7-2471",
+              "L7-2472",
+              "L7-2479",
+              "L7-2481",
+              "L7-2484",
+              "L7-2485",
+              "L7-2487",
+              "L7-2490",
+              "L7-2493",
+              "L7-2496",
+              "L7-2498",
+              "L7-2499",
+              "L7-2501",
+              "L7-2511",
+              "L7-2526"
+            ]
+          },
+          {
+            "name": "最小值與最大值",
+            "single": 3,
+            "multiple": 3,
+            "fill": 4,
+            "ids": [
+              "L7-2469",
+              "L7-2470",
+              "L7-2483",
+              "L7-2488",
+              "L7-2494",
+              "L7-2506",
+              "L7-2510",
+              "L7-2514",
+              "L7-2524",
+              "L7-2527"
+            ]
+          },
+          {
+            "name": "第二小元素",
+            "single": 1,
+            "multiple": 1,
+            "fill": 1,
+            "ids": [
+              "L7-2475",
+              "L7-2502",
+              "L7-2519"
+            ]
+          },
+          {
+            "name": "Partition 分割操作",
+            "single": 2,
+            "multiple": 2,
+            "fill": 3,
+            "ids": [
+              "L7-2476",
+              "L7-2482",
+              "L7-2500",
+              "L7-2507",
+              "L7-2512",
+              "L7-2521",
+              "L7-2523"
+            ]
+          },
+          {
+            "name": "Randomized-Select",
+            "single": 5,
+            "multiple": 4,
+            "fill": 7,
+            "ids": [
+              "L7-2473",
+              "L7-2474",
+              "L7-2477",
+              "L7-2478",
+              "L7-2486",
+              "L7-2489",
+              "L7-2491",
+              "L7-2497",
+              "L7-2505",
+              "L7-2509",
+              "L7-2515",
+              "L7-2516",
+              "L7-2517",
+              "L7-2518",
+              "L7-2520",
+              "L7-2525"
+            ]
+          },
+          {
+            "name": "確定性 Select 與中位數的中位數",
+            "single": 1,
+            "multiple": 4,
+            "fill": 3,
+            "ids": [
+              "L7-2480",
+              "L7-2492",
+              "L7-2495",
+              "L7-2503",
+              "L7-2504",
+              "L7-2508",
+              "L7-2513",
+              "L7-2522"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

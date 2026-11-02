@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFile} from 'node:fs/promises';import {parseHTML} from 'linkedom';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
-const files={};for(const n of ['question-tools','choice-answers','practice-feedback','explanation-content','course-exam','counting-sort-walkthrough','selection-explanations','scheduling-walkthrough','algorithms-learning','os-learning','course-bootstrap'])files[n]=await read('assets/'+n+'.js');
+const files={};for(const n of ['question-tools','choice-answers','practice-feedback','explanation-content','course-exam','counting-sort-walkthrough','selection-explanations','scheduling-walkthrough','topic-order','algorithms-learning','os-learning','course-bootstrap'])files[n]=await read('assets/'+n+'.js');
 function simple(){const window={},context=vm.createContext({window});for(const n of ['explanation-content','question-tools','choice-answers','practice-feedback'])vm.runInContext(files[n],context);return window;}
 test('single and multiple correct answers follow content after shuffling, including text answers and translations',()=>{
  const w=simple(),session=w.courseQuestionTools.createOptionSession(()=>0);
@@ -30,7 +30,7 @@ async function page(course){
  window.window=window;window.HTMLElement.prototype.focus=function(){};window.HTMLElement.prototype.scrollIntoView=function(){};window.HTMLElement.prototype.showModal=function(){this.setAttribute('open','');};window.HTMLElement.prototype.close=function(){this.removeAttribute('open');};window.scrollTo=()=>{};window.courseContributions={apiOrigin:'https://example.com'};
  const randomMath=Object.create(Math);randomMath.random=()=>0;
  const context=vm.createContext({window,document,Math:randomMath,location:{search:'',protocol:'https:'},URLSearchParams,navigator:{onLine:true},AbortSignal,Date,console,requestAnimationFrame:f=>f(),scrollX:0,scrollY:0,innerHeight:900,CSS:{escape:String},localStorage:{getItem:()=>null,setItem:()=>{}},fetch:()=>new Promise(()=>{})});
- for(const n of ['explanation-content','question-tools','choice-answers','practice-feedback',...(course==='os'?['scheduling-walkthrough']:['counting-sort-walkthrough','selection-explanations']),course+'-learning','course-bootstrap','course-exam'])vm.runInContext(files[n],context);
+ for(const n of ['explanation-content','question-tools','choice-answers','practice-feedback',...(course==='os'?['scheduling-walkthrough']:['counting-sort-walkthrough','selection-explanations']),'topic-order',course+'-learning','course-bootstrap','course-exam'])vm.runInContext(files[n],context);
  const click=selector=>{const el=document.querySelector(selector);assert(el,selector);el.click?el.click():el.dispatchEvent(new window.Event('click',{bubbles:true}));};
  return {window,document,click};
 }
