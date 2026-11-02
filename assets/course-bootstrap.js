@@ -160,8 +160,12 @@
   function showNotice(text, retry = false) {
     if (!notice) {
       notice = document.createElement('p'); notice.className = 'api-notice';
-      notice.style.order = linkedSubmission && !interacted ? '2' : '6';
-      notice.setAttribute('role', 'status'); document.querySelector('.main').append(notice);
+      notice.style.order = '2';
+      notice.id='courseSyncStatus';
+      notice.setAttribute('aria-live','polite');
+      notice.setAttribute('role', 'status');
+      const main=document.querySelector('.main'),bank=document.getElementById('bankHeading')?.closest('section');
+      if(bank?.parentElement===main)main.insertBefore(notice,bank);else main.prepend(notice);
     }
     notice.replaceChildren(document.createTextNode(text));
     if (retry) {
@@ -245,10 +249,13 @@
       return;
     }
     if (!navigator.onLine) {
+      document.documentElement.dataset.questionSync='offline';
       showNotice(`目前離線，顯示${sourceLabel()}；連線後會同步最新修改及下架狀態。`, true);
       return;
     }
     syncing = true;
+    document.documentElement.dataset.questionSync='syncing';
+    showNotice(`正在同步最新題庫，目前使用${sourceLabel()}。`);
     notice?.querySelector('button')?.setAttribute('disabled','');
     try {
       const response = await fetch(window.courseContributions.apiOrigin + '/api/questions?course=' + config.course, {
@@ -268,8 +275,10 @@
       const generatedAt = new Date(Number.isFinite(serverTime) ? serverTime : Date.now()).toISOString();
       try { localStorage.setItem(cacheKey, JSON.stringify({schema:1, course:config.course, generatedAt, data, etag:latestEtag})); } catch {}
       if (linkedSubmission && !config.validId(linkedId)) showNotice('這個投稿題目連結暫時沒有可用內容，已顯示原有題庫。',true);
-      else { notice?.remove(); notice = null; }
+      else { showNotice(`題庫已更新 · 最後同步 ${new Date().toLocaleTimeString('zh-TW')}。`,true); }
+      document.documentElement.dataset.questionSync='synced';
     } catch {
+      document.documentElement.dataset.questionSync='failed';
       showNotice(`暫時無法同步，仍可使用${sourceLabel()}；尚未確認最新修改及下架狀態。`,true);
     } finally {
       syncing = false;

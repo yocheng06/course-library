@@ -1,6 +1,6 @@
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 const uniqueQuestions=(course,unit,questions,onDuplicate)=>uniqueQuestionsBase(course,unit,questions,onDuplicate,{allowConflictingVersions:true});
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=treasure-unit-20261030';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=workflow-improvements-20261102';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -20,7 +20,7 @@ import {
   downloadJSON,
   copyText,
 } from "./contributions-ui.js?v=treasure-unit-20261030";
-import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=community-direct-publish-20261028";
+import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=workflow-improvements-20261102";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
@@ -271,6 +271,8 @@ form.addEventListener("submit", (event) => {
           .map((s) => s.trim())
           .filter(Boolean)
       : [];
+    const context=metadata();
+    data.category=globalThis.courseTopicOrder.topic(data,context.course,context.unit).label;
     data.images = images;
     const question = normalizeBatch({
         ...metadata(),

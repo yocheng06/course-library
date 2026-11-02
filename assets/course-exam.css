@@ -31,3 +31,5 @@
 
 .exam-range{min-width:0;margin:18px 0;padding:14px 16px;border:1px solid #a6b6c9;border-radius:12px}
 .exam-range legend{padding:0 6px;font-weight:600}.exam-range .exam-settings{margin:8px 0 12px}.exam-range .exam-hint{margin:0}
+
+.exam-start-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0}.course-exam [data-exam-results] [data-exam-retry]{margin:12px 0 0}

@@ -1915,6 +1915,7 @@ async function route(request, env) {
   if (path === "/api/review" && request.method === "GET")
     return listReview(request, env, url);
   let match;
+  if (path === '/api/manage/health' && request.method === 'GET') return managementHealth(request,env,url);
   if (path === '/api/manage/library' && request.method === 'GET') return listManagementLibrary(request,env,url);
   if (path === '/api/manage/library/item' && request.method === 'GET') return managementLibraryItem(request,env,url);
   if (path === '/api/manage/imports' && request.method === 'GET') return listManagementImports(request,env,url);

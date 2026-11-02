@@ -22,7 +22,7 @@
   'os/basics':{'OS 基礎':'作業系統定義與目標','Computer System':'系統組成與硬體資源',Booting:'開機',Interrupt:'中斷',Storage:'儲存與快取','I/O':'I/O 與裝置',Multiprocessing:'多處理器',Cluster:'叢集系統',Multiprogramming:'多程式與分時',Timesharing:'多程式與分時',Process:'程序',Memory:'記憶體',Protection:'保護與安全','Kernel Data Structures':'核心資料結構',P2P:'分散式系統與 P2P',Distributed:'分散式系統與 P2P',Virtualization:'虛擬化',Cloud:'雲端服務','Real-time':'即時系統','Open Source':'開放原始碼'},
   'os/synchronization':{"Peterson's Solution":'Peterson’s Solution'}
  };
- const generic=new Set(['','其他','HTML 匯入','作業系統基礎','作業系統架構','程序與 IPC','執行緒與多執行緒','CPU 排程','L6 · CPU 排程','L8 · 死結','死結','記憶體管理','基礎與漸進分析','LMS 精確格式','堆積、堆積排序與優先佇列','排序演算法','排序基礎','中位數與順序統計量']);
+ const generic=new Set(['','其他','課程觀念','HTML 匯入','作業系統基礎','作業系統架構','程序與 IPC','執行緒與多執行緒','CPU 排程','L6 · CPU 排程','L8 · 死結','死結','記憶體管理','基礎與漸進分析','LMS 精確格式','堆積、堆積排序與優先佇列','排序演算法','排序基礎','中位數與順序統計量']);
  // Rules are used only for generic import categories, never to replace a custom topic.
  const rules={
   'os/basics':[[/kernel.*data.structur|核心.*資料結構/i,12],[/cloud|雲端/i,15],[/virtuali|虛擬化/i,14],[/cluster|叢集/i,7],[/multiprocess|多處理器|對稱.*非對稱/i,6],[/interrupt|中斷|timer|計時器/i,3],[/bootstrap|boot|開機/i,2],[/cache|storage|儲存|位元|byte|register|暫存器/i,4],[/\bI\/O\b|DMA|裝置|device/i,5],[/protection|security|dual.mode|安全|保護|模式|權限|user.id|group.id/i,11],[/memory|記憶體/i,10],[/multiprogram|timeshar|多程式|分時/i,8],[/process|程序|行程/i,9],[/distributed|network|LAN|WAN|MAN|PAN|peer|分散|網路/i,13],[/real.time|即時/i,16],[/open.source|開源|原始碼/i,17],[/component|組成|硬體|hardware/i,1]],
@@ -64,5 +64,5 @@
   decorated.sort((a,b)=>a.unit-b.unit||a.topic.rank-b.topic.rank||(a.topic.label===b.topic.label?0:a.topic.label.localeCompare(b.topic.label,'zh-Hant'))||a.type-b.type||a.legacy-b.legacy||a.index-b.index);
   const numbers=new Map();return decorated.map(({entry,topic})=>{entry.topicLabel=topic.label;const n=(numbers.get(entry.unit.id)??0)+1;numbers.set(entry.unit.id,n);entry.displayNumber=n;return entry;});
  }
- window.courseTopicOrder={topic,view,typeRank,sort,catalogs};
+ (typeof window==='undefined'?globalThis:window).courseTopicOrder={topic,view,typeRank,sort,catalogs};
 })();

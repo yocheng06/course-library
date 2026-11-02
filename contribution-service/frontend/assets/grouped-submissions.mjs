@@ -1,3 +1,4 @@
+import './topic-order.js?v=workflow-improvements-20261102';
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 import {COURSE_UNITS,normalizeBatch as normalizeBatchBase,normalizeType,normalizeUnit,unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
 import {api,esc,questionPreview,downloadJSON,showSimilar} from './contributions-ui.js?v=treasure-unit-20261030';
@@ -18,6 +19,7 @@ export function groupImport(data, fallback, filename='匯入題庫', {allowMissi
     if(++count>2000)throw new Error('一次匯入最多 2,000 題，請拆分檔案。');
     const key=course+':'+unit;if(!groups.has(key))groups.set(key,{...next,questions:[]});
     groups.get(key).questions.push({...value,
+      category:globalThis.courseTopicOrder.topic(value,course,unit).label,
       type:normalizeType((value.options??value.opts)?.length?value.type || '單選題':value.type==='圖片題'?'圖片題':'填空題',value.images||[]),
       images:(value.images||[]).map(image=>typeof image==='string'?image:image.src),
     });
@@ -95,7 +97,28 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
     const card=questionPreview({...q,answer:''},questionIndex).replace('<p><strong>答案：</strong></p>','');
     return `${card}${answerEditor(q,groupIndex,questionIndex)}</article>`;
   }
+  function topicEditor(q,g,i,done=false) {
+    return `<div class="import-topic"><label><input type="checkbox" data-topic-select="${g}:${i}" aria-label="選取第 ${i+1} 題以整批修改主題" ${done?'disabled':''}>選取</label><label>主題（可修改）<input data-topic="${g}:${i}" maxlength="100" value="${esc(q.category)}" list="topics-${g}" ${done?'disabled':''}></label></div>`;
+  }
+  function topicToolbar(group,g) {
+    const names=globalThis.courseTopicOrder.catalogs[group.payload.course+'/'+group.payload.unit]||[];
+    return `<div class="topic-toolbar"><p>已依題目內容建議主題；請修正分錯的題目。自訂主題會保留。題庫顯示依主題，再依單選、多選、填空排序。</p><label><input type="checkbox" data-topic-all="${g}">選取本批全部題目</label><label>選取題目的主題<input maxlength="100" data-topic-bulk="${g}" list="topics-${g}" placeholder="選擇或輸入主題"></label><datalist id="topics-${g}">${names.map(n=>`<option value="${esc(n)}"></option>`).join('')}</datalist><button type="button" class="button secondary" data-topic-apply="${g}">套用至選取題目</button><span data-topic-count="${g}" role="status">已選 0 題</span></div>`;
+  }
+  function groupBody(group,index){
+    return `${!group.result?topicToolbar(group,index):''}${group.payload.questions.map((q,i)=>topicEditor(q,index,i,!!group.result)+(group.htmlImport?importedPreview(q,index,i):questionPreview(q,i)+'</article>')).join('')}`;
+  }
+  function topicChanged() {
+    list.querySelectorAll('[data-topic]').forEach(input=>{
+      const [g,i]=input.dataset.topic.split(':').map(Number),q=queue[g]?.payload.questions[i];
+      const meta=input.closest('.import-topic')?.nextElementSibling?.querySelector('.draft-meta');
+      if(q&&meta)meta.textContent=`第 ${i+1} 題 · ${q.category} · ${normalizeType(q.type,q.images)}`;
+    });
+    consent.checked=false;
+    try{save();status.textContent='主題已更新並保存草稿，請重新核對並勾選送出確認。';}catch{status.textContent='主題已更新，但無法暫存；請先下載分組草稿。';}
+    refreshSendButton();
+  }
   function refreshSendButton(){
+    list.querySelectorAll('[data-topic],[data-topic-select],[data-topic-all],[data-topic-bulk],[data-topic-apply],[data-import-answer]').forEach(el=>{const g=Number((el.dataset.topic||el.dataset.topicSelect||'').split(':')[0]||el.dataset.topicAll||el.dataset.topicBulk||el.dataset.topicApply||el.dataset.groupIndex);el.disabled=busy||Boolean(queue[g]?.result);});
     panel.querySelector('[data-send]').disabled=busy||!consent.checked||!queue.some(group=>!group.result)||queue.some(group=>!group.result&&missingAnswerCount(group)>0);
   }
   function updateAnswerStatus(){
@@ -114,7 +137,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
     panel.hidden=!queue.length;
     list.innerHTML=queue.map((group,index)=>{
       const missing=missingAnswerCount(group),counts=groupImportCounts(group);
-      return `<details data-group-index="${index}"><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`:'待送出'}${group.htmlImport?` <span data-answer-count>（待補正解 ${missing} 題）</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary>${group.payload.questions.map((q,i)=>group.htmlImport?importedPreview(q,index,i):questionPreview(q,i)+'</article>').join('')}${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+esc(group.result.id):group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，未新增投稿。'}</p>${replacedQuestionSummary(group.result)}`:''}<div data-similar></div><p data-error role="status"></p></details>`;
+      return `<details data-group-index="${index}" ${index===0?'open':''}><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`:'待送出'}${group.htmlImport?` <span data-answer-count>（待補正解 ${missing} 題）</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary><div data-group-body data-ready="${index===0?'true':'false'}">${index===0?groupBody(group,index):''}</div>${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+esc(group.result.id):group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，未新增投稿。'}</p>${replacedQuestionSummary(group.result)}`:''}<div data-similar></div><p data-error role="status"></p></details>`;
     }).join('');
     updateSummary();refreshSendButton();
   }
@@ -130,8 +153,24 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
       });
     }
   }catch(error){message('分組草稿無法讀取，原始資料未刪除。請先下載備份後重新匯入。',true);}
+  list.addEventListener('toggle',event=>{
+    const details=event.target;if(!details.matches('details[data-group-index]')||!details.open)return;
+    const body=details.querySelector('[data-group-body]');if(!body||body.dataset.ready==='true')return;
+    const index=Number(details.dataset.groupIndex);body.innerHTML=groupBody(queue[index],index);body.dataset.ready='true';refreshSendButton();
+  },true);
   consent.addEventListener('change',refreshSendButton);
   list.addEventListener('change',event=>{
+    if(busy)return;
+    const topic=event.target.closest('[data-topic]');
+    if(topic){const [g,i]=topic.dataset.topic.split(':').map(Number);const q=queue[g]?.payload.questions[i];if(q&&!queue[g].result){q.category=topic.value.trim()||globalThis.courseTopicOrder.topic({...q,category:''},queue[g].payload.course,queue[g].payload.unit).label;topic.value=q.category;topicChanged();}return;}
+    const all=event.target.closest('[data-topic-all]');
+    if(all)list.querySelectorAll(`[data-topic-select^="${all.dataset.topicAll}:"]`).forEach(el=>{el.checked=all.checked;});
+    if(all||event.target.matches('[data-topic-select]')){
+      const g=Number(all?.dataset.topicAll??event.target.dataset.topicSelect.split(':')[0]);
+      const boxes=[...list.querySelectorAll(`[data-topic-select^="${g}:"]`)];const n=boxes.filter(b=>b.checked).length;
+      list.querySelector(`[data-topic-count="${g}"]`).textContent=`已選 ${n} 題`;
+      const toggle=list.querySelector(`[data-topic-all="${g}"]`);toggle.checked=n===boxes.length;toggle.indeterminate=n>0&&n<boxes.length;return;
+    }
     const input=event.target.closest('[data-import-answer]');if(!input)return;
     const groupIndex=Number(input.dataset.groupIndex),questionIndex=Number(input.dataset.questionIndex),group=queue[groupIndex],question=group?.payload.questions[questionIndex];
     if(!group?.htmlImport||!question)return;
@@ -143,6 +182,14 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
     try{save();}catch{status.textContent='答案已更新，但此裝置無法保存；請下載分組草稿備份。';refreshSendButton();return;}
     updateAnswerStatus();
   });
+  list.addEventListener('click',event=>{
+    const button=event.target.closest('[data-topic-apply]');if(!button||busy)return;
+    const g=Number(button.dataset.topicApply),group=queue[g];if(!group||group.result)return;
+    const value=list.querySelector(`[data-topic-bulk="${g}"]`).value.trim();
+    const boxes=[...list.querySelectorAll(`[data-topic-select^="${g}:"]`)].filter(b=>b.checked);
+    if(!value||!boxes.length){status.textContent='請先選取題目並輸入要套用的主題。';return;}
+    boxes.forEach(box=>{const i=Number(box.dataset.topicSelect.split(':')[1]);group.payload.questions[i].category=value;list.querySelector(`[data-topic="${g}:${i}"]`).value=value;});topicChanged();
+  });
   panel.querySelector('[data-download]').addEventListener('click',()=>downloadJSON({version:1,groups:queue},'題庫分組草稿與收據.json'));
   panel.querySelector('[data-clear]').addEventListener('click',()=>{
     if(busy || !window.confirm('確定清空分組預覽？請先下載仍需要的草稿與收據。'))return;
@@ -151,7 +198,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
   panel.querySelector('[data-send]').addEventListener('click',async()=>{
     if(busy || !consent.checked)return;
     if(queue.some(group=>!group.result&&missingAnswerCount(group)>0)){updateAnswerStatus();return;}
-    busy=true;updateSummary();panel.querySelector('[data-send]').disabled=true;
+    busy=true;updateSummary();refreshSendButton();panel.querySelector('[data-send]').disabled=true;
     // The group-level consent also authorizes updating a uniquely matched existing version.
     try{
       for(let index=0;index<queue.length;index++){

@@ -534,3 +534,27 @@ summary:focus-visible {
   color: #326749;
   font-size: 14px;
 }
+
+
+/* Shared, theme-aware question comparison and bulk topic controls. */
+.question-comparison {margin:12px 0;color:var(--ink,inherit)}
+.comparison-scroll {overflow-x:auto;max-width:100%}
+.question-comparison table {width:100%;border-collapse:collapse;table-layout:fixed}
+.question-comparison th,.question-comparison td {padding:10px;border:1px solid var(--line,#8795a5);vertical-align:top;text-align:left;background:var(--card,var(--surface,transparent));color:inherit}
+.question-comparison th:first-child {width:18%}
+.question-comparison pre {white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;margin:0;max-height:340px;overflow:auto}
+.question-comparison .comparison-different>th {border-left:4px solid var(--accent,#56789a)}
+.import-topic,.topic-toolbar {display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:12px;border:1px solid var(--line,#8795a5);border-radius:10px;margin:12px 0;background:var(--soft,transparent);color:var(--ink,inherit)}
+.topic-toolbar>p {flex-basis:100%;margin:0}
+.import-topic input[type=checkbox],.topic-toolbar input[type=checkbox] {width:auto;min-height:20px}
+.topic-toolbar input:not([type=checkbox]),.import-topic input:not([type=checkbox]) {max-width:100%;width:260px}
+.health-card {padding:18px;border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--card,var(--surface,transparent));color:var(--ink)}
+.health-card h3 {font-size:17px;white-space:pre-wrap;overflow-wrap:anywhere}
+.health-card details {margin-top:12px}
+.health-card select {max-width:100%}
+.candidate-comparison {margin:12px 0}
+@media(max-width:600px){.question-comparison table{min-width:560px}.import-topic,.topic-toolbar{align-items:stretch}.topic-toolbar label,.import-topic label{max-width:100%}}
+
+.comparison-table [role=row]{display:grid;grid-template-columns:18% 41% 41%}.comparison-table [role=row]>div{padding:10px;border:1px solid var(--line,#8795a5);background:var(--card,var(--surface,transparent));color:inherit;min-width:0}.comparison-table .comparison-different>[role=rowheader]{border-left:4px solid var(--accent,#56789a)}@media(max-width:600px){.comparison-table{min-width:560px}}
+
+.health-card p{overflow-wrap:anywhere}

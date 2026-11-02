@@ -94,6 +94,33 @@ async function originalPublication(env, row) {
   const first = await env.DB.prepare('SELECT course,unit,data FROM question_history WHERE question_id=? ORDER BY revision ASC,created_at ASC,id ASC LIMIT 1').bind(row.id).first();
   return first || row;
 }
+function healthExplanation(course,id,q){
+  const source=String(q.explanation??q.ex??'');if(source.trim())return source;
+  const meta=HEALTH_EXPLANATIONS[course]?.[id];if(!meta)return source;
+  const signatureText=JSON.stringify([String(q.type||''),String(q.stem??q.q??''),q.options??q.opts??[],String(q.answer??q.a??'')]);
+  let hash=2166136261;for(let i=0;i<signatureText.length;i++){hash^=signatureText.charCodeAt(i);hash=Math.imul(hash,16777619);}
+  const curation=meta.curations?.find(v=>v.sourceSignature===(hash>>>0).toString(16).padStart(8,'0'));
+  if(curation)return curation.explanation;
+  const images=value=>(value||[]).map(i=>{const src=typeof i==='string'?i:i.src;try{return new URL(src,'https://yocheng06.github.io/course-library/').href;}catch{return src;}});
+  const identity=value=>JSON.stringify([String(value.type||''),String(value.stem??value.q??''),value.options??value.opts??[],String(value.answer??value.a??''),images(value.images)]);
+  const version=meta.versions?.find(v=>{const [type,stem,options,answer,imgs]=JSON.parse(v.identity);return identity({type,stem,options,answer,images:imgs})===identity(q);});
+  return version?.explanation||source;
+}
+async function managementHealth(request,env,url){
+  await owner(request,env);
+  const course=url.searchParams.get('course')||'os';
+  if(!Object.hasOwn(COURSE_UNITS,course))throw new HttpError(400,'科目不正確。');
+  await ensureReviewedContent(env);
+  const edits=await latestBuiltinEdits(env,course),items=[];
+  const add=(item)=>{if(item.deleted)return;items.push({...item,effectiveExplanation:healthExplanation(course,item.id,item.question),stemKey:builtinSearch.normalizeStem(item.question.stem||item.question.q||''),stemKeys:builtinSearch.questionStemVersions(item.question.stem||item.question.q||'',item.question.translation||'').map(builtinSearch.normalizeStem)});};
+  for(const base of BUILTIN_QUESTIONS){if(base.course!==course)continue;const row=builtinRow(base,edits.get(base.id));add({...row,source:'builtin',key:managementKey('builtin',course,base.id)});}
+  const result=await env.DB.prepare('SELECT id,course,unit,revision,data,updated_at,created_at FROM public_questions WHERE course=? AND is_published=1 ORDER BY id LIMIT 5001').bind(course).all();
+  for(const row of result.results.slice(0,5000)){
+    const q=JSON.parse(row.data);if(q.mergedInto||builtinReference(course,row.id))continue;
+    add({id:row.id,course,unit:row.unit,unitTitle:q.unitTitle||'',source:'community',key:managementKey('community',course,row.id),revision:row.revision,updatedAt:row.updated_at||row.created_at,question:managementQuestion(q)});
+  }
+  return json({items,complete:result.results.length<=5000});
+}
 async function managementLibraryItem(request, env, url) {
   await owner(request, env);
   await ensureReviewedContent(env);

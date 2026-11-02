@@ -6,7 +6,7 @@
     <meta name="robots" content="noindex" />
     <title>題庫管理｜課程學習站</title>
     <link rel="icon" href="assets/icons/course-mascot.png" />
-    <link rel="stylesheet" href="assets/contributions.css?v=management-workspace-20261029" />
+    <link rel="stylesheet" href="assets/contributions.css?v=workflow-improvements-20261102" />
     <link rel="stylesheet" href="assets/theme.css?v=integrated-management-20261029" />
     <link rel="stylesheet" href="assets/management.css?v=pending-review-20261030" />
     <script src="assets/theme.js?v=integrated-management-20261029" defer></script>
@@ -57,6 +57,7 @@
             <button type="button" class="button secondary" data-view="modified" aria-current="page">最近修改 <span class="count-badge" data-count="modified">—</span></button>
             <button type="button" class="button secondary" data-view="deleted" aria-current="false">已移除 <span class="count-badge" data-count="deleted">—</span></button>
             <button type="button" class="button secondary" data-view="pending" aria-current="false">待核對 <span class="count-badge" data-count="pending">—</span></button>
+            <button type="button" class="button secondary" data-view="health" aria-current="false">題庫健檢</button>
             <button type="button" class="button secondary" data-view="imports" aria-current="false">匯入紀錄</button>
           </nav>
           <details class="management-tools">
@@ -71,6 +72,7 @@
           </details>
         </div>
         <section id="libraryWorkspace" aria-labelledby="libraryTitle"></section>
+        <section id="healthWorkspace" hidden aria-label="題庫健檢"></section>
         <section id="importWorkspace" class="import-records" hidden aria-label="匯入紀錄管理"></section>
       </section>
       <p id="message" class="message" role="status" aria-live="polite" tabindex="-1"></p>
@@ -78,7 +80,7 @@
 
     <dialog id="questionDialog" class="question-dialog" aria-labelledby="questionDialogTitle"></dialog>
     <script src="assets/contributions-config.js?v=management-workspace-20261029"></script>
-    <script type="module" src="assets/contributions-review.js?v=treasure-unit-20261030"></script>
+    <script type="module" src="assets/contributions-review.js?v=workflow-improvements-20261102"></script>
     <noscript>請開啟 JavaScript 使用題庫管理功能。</noscript>
   </body>
 </html>

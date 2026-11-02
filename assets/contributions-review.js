@@ -1,10 +1,11 @@
+import {setupLibraryHealth} from './library-health.mjs?v=workflow-improvements-20261102';
 import { api, message, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
-import { setupLibraryManager } from './library-manager.mjs?v=treasure-unit-20261030';
+import { setupLibraryManager } from './library-manager.mjs?v=workflow-improvements-20261102';
 import { setupImportRecords } from './import-records.mjs?v=treasure-unit-20261030';
 
 const $ = id => document.getElementById(id);
 const origin = window.courseContributions.apiOrigin;
-let library = null;
+let library = null, health = null;
 let imports = null;
 let userId = '';
 let currentView = 'modified';
@@ -15,13 +16,15 @@ function setActiveView(view) {
   for (const button of document.querySelectorAll('[data-view]')) {
     button.setAttribute('aria-current', button.dataset.view === view ? 'page' : 'false');
   }
-  $('libraryWorkspace').hidden = view === 'imports';
+  $('libraryWorkspace').hidden = ['imports','health'].includes(view);
+  $('healthWorkspace').hidden = view !== 'health';
   $('importWorkspace').hidden = view !== 'imports';
 }
 async function showView(view = currentView, { refresh = false } = {}) {
   if (!library || !imports) return;
   setActiveView(view);
-  if (view === 'imports') await imports.show({ refresh });
+  if(view==='health') await health.show({refresh});
+  else if (view === 'imports') await imports.show({ refresh });
   else await library.show(view, { refresh });
 }
 function showLogin(session) {
@@ -71,13 +74,15 @@ async function start() {
     $('loginPanel').hidden = true;
     $('managementArea').hidden = false;
     if (userId !== session.userId || !library || !imports) {
+      health?.clear();
       library?.clear();
       imports?.clear();
       userId = session.userId || 'owner';
       library = setupLibraryManager({
         userId,
-        onChanged: () => { if (imports && currentView === 'imports') return imports.show({ refresh: true }); },
+        onChanged: () => { health?.invalidate();if (currentView==='health')return health.show({refresh:true});if (imports && currentView === 'imports') return imports.show({ refresh: true }); },
       });
+      health=setupLibraryHealth({container:$('healthWorkspace'),openItem:row=>library.openItem(row)});
       imports = setupImportRecords({
         userId,
         onChanged: () => library?.refresh(),
@@ -151,6 +156,7 @@ $('signOut').addEventListener('click', async () => {
     await api('/api/logout', { method: 'POST', body: '{}' });
     library?.clear();
     imports?.clear();
+    health?.clear();
     location.reload();
   } catch (error) { message(error.message, true); button.disabled = false; }
 });

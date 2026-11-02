@@ -7,10 +7,11 @@ const read = path => readFileSync(new URL('../'+path, import.meta.url),'utf8');
 function harness(course, fixture, storage = new Map()) {
  const {window,document}=parseHTML(fixture?'<html><body><button id="practiceMode">遮答練習</button></body></html>':read(course+'.html'));
  Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){return this.querySelector('option[selected]')?.value||this.querySelector('option')?.value||''},set(v){for(const o of this.querySelectorAll('option'))o.toggleAttribute('selected',o.value===v)}});
+ window.confirm=()=>true;
  window.HTMLElement.prototype.focus=function(){};
  window.HTMLElement.prototype.showModal=function(){this.setAttribute('open','')};
  window.HTMLElement.prototype.close=function(){this.removeAttribute('open');this.dispatchEvent(new window.Event('close'))};
- Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:key=>storage.get(key)??null,setItem:(key,value)=>storage.set(key,value)}});
+ Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:key=>storage.get(key)??null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)}});
  const context=vm.createContext({window,document,location:{search:''},URLSearchParams,requestAnimationFrame:fn=>fn(),console});
  for(const f of ['question-tools','choice-answers','practice-feedback'])vm.runInContext(read('assets/'+f+'.js'),context);
  if(fixture)window.courseLearning={course,examEntries:all=>all?fixture:fixture.slice(0,3),examUnitLabel:()=> '測試單元'};
@@ -142,4 +143,39 @@ test('stored multi-blank fields survive reloading and corrupt or blocked storage
  const blocked=harness('os',fixture,{get(){throw Error('blocked')},set(){throw Error('quota')}});blocked.click('#examMode');blocked.click('[data-exam-start]');blocked.click('[data-exam-submit]');blocked.click('[data-exam-submit]');
  assert.match(blocked.document.querySelector('[data-exam-results]').textContent,/0 分/);assert.match(blocked.document.querySelector('[data-exam-notice]').textContent,/無法儲存/);
  blocked.click('[data-exam-reset]');blocked.click('[data-exam-last]');assert.equal(blocked.document.querySelectorAll('.exam-card').length,3);
+});
+
+for(const course of ['os','algorithms'])test(course+' restores unfinished responses and shuffled choices after reload without replacing the last result',()=>{
+ const storage=new Map(),h=harness(course,fixture,storage);h.click('#examMode');h.click('[data-exam-start]');
+ answerCard(h,'單選測試',[1]);answerCard(h,'填空測試',null,'my draft');
+ const choices=[...h.document.querySelectorAll('.option')].map(e=>e.textContent);
+ assert.ok(storage.has('course-exam-draft-v1:'+course));
+ const reload=harness(course,fixture,storage);reload.click('#examMode');assert.equal(reload.document.querySelector('[data-exam-resume]').hidden,false);reload.click('[data-exam-resume]');
+ assert.deepEqual([...reload.document.querySelectorAll('.option')].map(e=>e.textContent),choices);
+ assert.equal(reload.document.querySelector('textarea').value,'my draft');assert.match(reload.document.querySelector('[data-exam-progress]').textContent,/2 \/ 3/);
+ assert.equal(reload.document.querySelector('[data-exam-results]').hidden,true);assert.equal(reload.document.querySelectorAll('[data-exam-review]:not([hidden])').length,0);
+ answerCard(reload,'多選測試',[0,2]);reload.click('[data-exam-submit]');
+ assert.equal(storage.has('course-exam-draft-v1:'+course),false);const last=storage.get('course-exam-last-v1:'+course);
+ reload.click('[data-exam-retry]');assert.equal(reload.document.querySelectorAll('.exam-card').length,1);assert.match(reload.document.querySelector('.exam-card h3').textContent,/填空/);
+ assert.equal(storage.get('course-exam-last-v1:'+course),last);assert.equal(reload.document.querySelector('textarea').value,'');
+ answerCard(reload,'填空測試',null,'safe state');reload.click('[data-exam-submit]');assert.match(reload.document.querySelector('[data-exam-results]').textContent,/100 分/);
+ assert.equal(reload.document.querySelector('[data-exam-retry]').hidden,true);
+});
+
+test('unfinished multiblank values restore separately, intentional reset clears the draft, and another tab cannot overwrite it',()=>{
+ const entry={id:'two',unit:'單元',q:{stem:'[__1__] 及 [__2__]',answer:'one / two',options:[],answerProvided:true}},storage=new Map(),h=harness('os',[entry],storage);
+ h.click('#examMode');h.click('[data-exam-start]');[...h.document.querySelectorAll('[data-fill-index]')].forEach((el,i)=>{el.value=['one','draft2'][i];el.dispatchEvent(new h.window.Event('input',{bubbles:true}));});
+ const reload=harness('os',[entry],storage);reload.click('#examMode');reload.click('[data-exam-resume]');assert.deepEqual([...reload.document.querySelectorAll('[data-fill-index]')].map(e=>e.value),['one','draft2']);
+ reload.click('[data-exam-reset]');assert.ok(storage.has('course-exam-draft-v1:os'));reload.click('[data-exam-reset]');assert.equal(storage.has('course-exam-draft-v1:os'),false);
+ reload.click('[data-exam-start]');const snapshot=storage.get('course-exam-draft-v1:os');answerCard(h,entry.q.stem,null,'obsolete');
+ assert.equal(storage.get('course-exam-draft-v1:os'),snapshot);assert.match(h.document.querySelector('[data-exam-notice]').textContent,/其他分頁/);
+});
+
+test('retrying a wrong choice reshuffles the saved version and still grades the correct content',()=>{
+ const h=harness('os',fixture);h.click('#examMode');h.click('[data-exam-start]');
+ answerCard(h,'單選測試',[0]);answerCard(h,'多選測試',[0,2]);answerCard(h,'填空測試',null,'safe state');h.click('[data-exam-submit]');
+ assert.match(h.document.querySelector('[data-exam-results]').textContent,/67 分/);h.click('[data-exam-retry]');assert.equal(h.document.querySelectorAll('.exam-card').length,1);
+ const correct=[...h.document.querySelectorAll('.exam-card .option')].find(label=>/Two/.test(label.textContent)).querySelector('input');
+ correct.checked=true;correct.setAttribute('checked','');correct.dispatchEvent(new h.window.Event('change',{bubbles:true}));h.click('[data-exam-submit]');
+ assert.match(h.document.querySelector('[data-exam-results]').textContent,/100 分/);
 });

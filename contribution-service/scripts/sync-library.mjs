@@ -1,3 +1,5 @@
+import {syncContributionStyles} from './shared-frontend.mjs';
+import {prepareHealthExplanations} from './health-explanations.mjs';
 import { readFile, writeFile, mkdir, cp } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { createHash } from "node:crypto";
@@ -7,7 +9,6 @@ const root = resolve(import.meta.dirname, ".."),
 const paths = [
   "submit.html",
   // review.html is service-owned: the GitHub Pages copy redirects back here.
-  "assets/contributions.css",
   "assets/theme.js",
   "assets/theme.css",
   "assets/ui-consistency.css",
@@ -17,6 +18,11 @@ const paths = [
   "assets/contributions-ui.js",
   "assets/contributions-submit.js",
   "assets/grouped-submissions.mjs",
+  "assets/topic-order.js",
+  "assets/question-comparison.mjs",
+  "assets/library-health.mjs",
+  "assets/library-manager.mjs",
+  "assets/management.css",
   "assets/corrections-review.mjs",
   "assets/builtin-review.mjs",
   "assets/learning-enhancements.css",
@@ -29,6 +35,8 @@ for (const name of paths) {
   await mkdir(dirname(resolve(root, "frontend", name)), { recursive: true });
   await cp(resolve(library, name), resolve(root, "frontend", name));
 }
+await syncContributionStyles(library,root);
+await prepareHealthExplanations(library,resolve(root,"content/health-explanations.json"));
 await cp(
   resolve(library, "assets/contribution-model.js"),
   resolve(root, "worker/model.js"),

@@ -1,3 +1,4 @@
+import {comparisonMarkup,mismatchLabel} from './question-comparison.mjs?v=workflow-improvements-20261102';
 import {fingerprintLibraryImages, inheritQuestionImages, validImageHashes} from "./batch-images.mjs?v=image-bank-retry-20261031";
 import {unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
 import {
@@ -113,7 +114,7 @@ function statusLabel(row) { return labels[row.status]; }
 let snapshotCoverage = false;
 let snapshotUnit = "all";
 let restoreUnit = null;
-const publicFlights = new Map(), publicData = new Map(), publicEtags = new Map(), syncedAt = new Map();
+const publicFlights = new Map(), publicData = new Map(), publicEtags = new Map(), syncedAt = new Map(), syncFailures = new Set();
 let baseLibrary, basePromise;
 function libraryStatus() {
   const course = $("course").value;
@@ -124,6 +125,8 @@ function libraryStatus() {
     `${names[course]}：${count} 題可供比對。` +
     (publicFlights.has(course)
       ? "正在確認最新變更，現在可先使用已載入題庫。"
+      : syncFailures.has(course)
+        ? "同步失敗，"+(invalidPublicData[course]?"線上題庫資料不完整；":"")+(publicData.has(course)&&!invalidPublicData[course]?"目前使用上次題庫快取":"目前僅比對隨站內建版本")+"；尚未確認最新修改及下架狀態。請按「重新同步題庫」重試。"
       : coverage[course]
       ? "已同步內建題修改與公開投稿題庫。" + (syncedAt.has(course) ? " 最後同步：" + new Date(syncedAt.get(course)).toLocaleTimeString("zh-TW") : "")
       : syncing
@@ -133,6 +136,8 @@ function libraryStatus() {
       : publicData.has(course)
         ? "暫時無法確認最新變更，目前使用上次題庫快取；請重新同步後核對。"
       : "線上題庫暫時無法同步，目前僅比對隨站內建版本。可按「重新同步題庫」重試。");
+  const state=publicFlights.has(course)?'syncing':syncFailures.has(course)?'failed':coverage[course]?'synced':publicData.has(course)?'cache':'builtin';
+  $('libraryStatus').dataset.syncState=state;
   const missingImages=new Set((index?.entries || []).filter(e=>e.course===course && e.imageUnavailable).map(e=>e.id)).size;
   if(missingImages && !publicFlights.has(course)) $("libraryStatus").textContent += ' 有 '+missingImages+' 題的題庫圖片暫時無法讀取，請重新同步；這不代表題目未收錄。';
 }
@@ -253,11 +258,11 @@ async function loadLibrary() {
       invalidPublicData[course] = false;
       if (changed) rebuildLibraryIndex();
       if (invalidPublicData[course]) throw Error("public-data");
-      syncedAt.set(course,Date.now());
+      syncFailures.delete(course);syncedAt.set(course,Date.now());
       try { localStorage.setItem(publicCacheKey(course), JSON.stringify({schema:1,course,generatedAt:new Date().toISOString(),data,etag})); } catch {}
       if (changed && results.length) $("staleNotice").textContent = "題庫比對資料已更新，請重新比對。下方保留的是上一批結果。";
     } catch (error) {
-      coverage[course] = false;
+      syncFailures.add(course);coverage[course] = false;
       if (error.message === "public-data") invalidPublicData[course] = true;
       if (!index) $("libraryStatus").textContent = "無法載入內建題庫，貼上的文字仍保留。請確認網路後重新同步。";
     } finally {
@@ -294,13 +299,20 @@ function unitNames(row) {
     ),
   ].join("、");
 }
+function candidateComparison(row) {
+  if(row.status==='matched')return '';
+  return `<p class="mismatch-reason"><strong>未收錄原因：${esc(mismatchLabel(row))}</strong></p>`+(row.references||[]).map(ref=>{
+    const candidate=index?.entries.find(e=>e.id===ref.id&&e.stem===ref.stem)||index?.entries.find(e=>e.id===ref.id);
+    return candidate?`<details class="candidate-comparison"><summary>並排核對 ${esc(ref.id)}</summary>${comparisonMarkup(row.question,candidate,{rightTitle:'候選版本 '+ref.id,reason:row.reason})}</details>`:'';
+  }).join('');
+}
 function renderResults() {
   const filter = $("resultFilter").value;
   const shown = results.filter((r) => filter === "all" || r.status === filter);
   $("resultRows").innerHTML = shown
     .map(
       (row) =>
-        `<tr><th scope="row">${esc(row.question.number)}</th><td class="answer-text">${esc(row.answer || "尚無可確認答案")}${row.conditions?.length ? `<p class="answer-condition"><strong>成立條件</strong><br>${row.conditions.map(esc).join("<br>")}</p>` : ""}${row.outsideScope ? `<p class="source-unit">收錄單元：${esc(unitNames(row))}</p>` : ""}</td><td><span class="result-badge ${row.status}">${esc(statusLabel(row))}</span></td><td><details class="question-detail"><summary>${esc(row.question.stem.slice(0, 90) || "缺少題幹")}</summary><p>${esc(row.question.stem)}</p>${row.question.options.length ? "<ul>" + row.question.options.map((o) => `<li>${esc(o.label)}. ${esc(o.text)}</li>`).join("") + "</ul>" : ""}<p>${esc(row.reason)}</p>${row.references.length ? '<ul class="source-links">' + row.references.map((ref) => `<li><a href="${sourceURL(ref.id)}" target="_blank" rel="noopener">${esc(ref.id)}・開啟${row.status === "matched" ? "收錄" : "候選"}原題 ↗</a>${ref.candidateAnswer!==undefined?`<p>此版本答案：${esc(ref.candidateAnswer||"尚未提供")}</p>`:""}</li>`).join("") + "</ul>" : ""}</details></td></tr>`,
+        `<tr><th scope="row">${esc(row.question.number)}</th><td class="answer-text">${esc(row.answer || "尚無可確認答案")}${row.conditions?.length ? `<p class="answer-condition"><strong>成立條件</strong><br>${row.conditions.map(esc).join("<br>")}</p>` : ""}${row.outsideScope ? `<p class="source-unit">收錄單元：${esc(unitNames(row))}</p>` : ""}</td><td><span class="result-badge ${row.status}">${esc(statusLabel(row))}</span></td><td><details class="question-detail"><summary>${esc(row.question.stem.slice(0, 90) || "缺少題幹")}</summary><p>${esc(row.question.stem)}</p>${row.question.options.length ? "<ul>" + row.question.options.map((o) => `<li>${esc(o.label)}. ${esc(o.text)}</li>`).join("") + "</ul>" : ""}<p>${esc(row.reason)}</p>${candidateComparison(row)}${row.references.length ? '<ul class="source-links">' + row.references.map((ref) => `<li><a href="${sourceURL(ref.id)}" target="_blank" rel="noopener">${esc(ref.id)}・開啟${row.status === "matched" ? "收錄" : "候選"}原題 ↗</a>${ref.candidateAnswer!==undefined?`<p>此版本答案：${esc(ref.candidateAnswer||"尚未提供")}</p>`:""}</li>`).join("") + "</ul>" : ""}</details></td></tr>`,
     )
     .join("");
   $("emptyResults").hidden = shown.length > 0;

@@ -2448,3 +2448,17 @@ test('treasure is available between scheduling and synchronization and accepts p
  const published=await call(env,'/api/questions?course=os');assert.ok(published.data.questions.some(q=>q.unit==='treasure'));
  const managed=await call(env,'/api/manage/library?course=os&unit=treasure',{reviewer:true});assert.equal(managed.response.status,200);assert.equal(managed.data.total,1);assert.equal(managed.data.items[0].unit,'treasure');
 });
+
+
+test('health endpoint is owner-only, reflects current edits and excludes removed questions',async()=>{
+ const env=await setup(),path='/api/manage/health?course=os';
+ assert.equal((await call(env,path)).response.status,401);
+ assert.ok([401,403].includes((await call(env,path,{otherUser:true})).response.status));
+ const before=await call(env,path,{reviewer:true});assert.equal(before.response.status,200,JSON.stringify(before.data));assert.equal(before.data.complete,true);
+ const item=(await call(env,'/api/manage/library/item?source=builtin&course=os&id=basics-1',{reviewer:true})).data.item;
+ const changed=await call(env,'/api/manage/builtin-questions/os/basics-1',{method:'POST',reviewer:true,body:{action:'update',revision:item.revision,sourceHash:item.sourceHash,note:'健檢測試',question:{...item.question,explanation:'最新健檢測試解析'}}});assert.equal(changed.response.status,200);
+ const after=await call(env,path,{reviewer:true});assert.equal(after.data.items.find(r=>r.id==='basics-1').question.explanation,'最新健檢測試解析');assert.ok(after.data.items.find(r=>r.id==='basics-1').stemKeys.length);
+ const removed=await call(env,'/api/manage/builtin-questions/os/basics-1',{method:'POST',reviewer:true,body:{action:'delete',revision:changed.data.item.revision,sourceHash:item.sourceHash,note:'移除健檢測試'}});assert.equal(removed.response.status,200,JSON.stringify(removed.data));
+ const filtered=await call(env,path,{reviewer:true});assert.ok(!filtered.data.items.some(r=>r.id==='basics-1'));
+ assert.equal((await call(env,'/api/manage/health?course=invalid',{reviewer:true})).response.status,400);
+});

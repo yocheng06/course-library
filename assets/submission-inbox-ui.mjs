@@ -13,7 +13,7 @@ export function setupSubmissionInbox({ document, storage, courses, addQuestion, 
   }
   function render() {
     try {
-      items = readInbox(storage);
+      items = readInbox(storage).map(q=>({...q,category:globalThis.courseTopicOrder?.topic(q,q.course,q.unit).label||q.category}));
       $("pendingDrafts").hidden = !items.length;
       $("pendingCount").textContent = `${items.length} 題待補`;
       $("pendingList").innerHTML = items.map((q, i) => `<details class="draft-card" ${i === 0 ? "open" : ""}>
