@@ -1,4 +1,4 @@
-/* A separate, in-memory exam session; reading/practice state stays independent. */
+/* Independent exam session with one completed snapshot per course/browser. */
 (() => {
   'use strict';
   const config = window.courseLearning, tools = window.courseQuestionTools;
@@ -25,12 +25,49 @@
   document.getElementById('practiceMode').after(trigger);
   const dialog = document.createElement('dialog');
   dialog.id = 'courseExam'; dialog.className = 'course-exam'; dialog.setAttribute('aria-labelledby', 'examTitle');
-  dialog.innerHTML = `<header class="exam-header"><h2 id="examTitle">單元測驗</h2><button type="button" class="plain" data-exam-close aria-label="關閉測驗，保留本次作答">關閉</button></header><div class="exam-body"><section data-exam-setup><p>選擇範圍後隨機抽題，交卷後統一顯示答案與解析。測驗不受題庫搜尋與篩選影響。</p><div class="exam-settings"><label>測驗範圍<select data-exam-scope aria-label="測驗範圍"><option value="unit">目前單元</option><option value="all">全部單元</option><option value="range">自訂單元範圍</option></select></label><label>每次題數<select data-exam-size aria-label="每次測驗題數"><option value="10">10 題</option><option value="20" selected>20 題</option><option value="30">30 題</option></select></label></div><fieldset class="exam-range" data-exam-range hidden><legend>自訂單元範圍</legend><div class="exam-settings"><label>起始單元<select data-exam-from aria-label="起始單元" aria-describedby="examRangeHint"></select></label><label>結束單元<select data-exam-to aria-label="結束單元" aria-describedby="examRangeHint"></select></label></div><p id="examRangeHint" class="exam-hint" data-exam-range-hint role="status" aria-live="polite">包含起始與結束單元。</p></fieldset><p data-exam-pool role="status" aria-live="polite"></p><p class="exam-hint">資料不完整或無法核對答案的題目不納入抽題。不足指定題數時，使用全部可測驗題目。每題等分，多選題須全部選對。作答暫存在本頁，重新整理會清除。</p><button type="button" class="reveal" data-exam-start>開始測驗</button></section><section data-exam-session hidden><p data-exam-description></p><p class="exam-hint" data-exam-fill-hint>填空請依題目指定格式作答。系統先依題庫文字核對，交卷後可對照解析自行確認其他寫法。</p><div data-exam-results hidden tabindex="-1" aria-live="polite"></div><div data-exam-questions></div></section></div><footer class="exam-footer" hidden><span data-exam-progress role="status"></span><p data-exam-notice role="status"></p><div><button type="button" class="plain" data-exam-reset>重新設定</button><button type="button" class="reveal" data-exam-submit>交卷</button></div></footer>`;
+  dialog.innerHTML = `<header class="exam-header"><h2 id="examTitle">單元測驗</h2><button type="button" class="plain" data-exam-close aria-label="關閉測驗，保留本次作答">關閉</button></header><div class="exam-body"><section data-exam-setup><p>選擇範圍後隨機抽題，交卷後統一顯示答案與解析。測驗不受題庫搜尋與篩選影響。</p><div class="exam-settings"><label>測驗範圍<select data-exam-scope aria-label="測驗範圍"><option value="unit">目前單元</option><option value="all">全部單元</option><option value="range">自訂單元範圍</option></select></label><label>每次題數<select data-exam-size aria-label="每次測驗題數"><option value="10">10 題</option><option value="20" selected>20 題</option><option value="30">30 題</option></select></label></div><fieldset class="exam-range" data-exam-range hidden><legend>自訂單元範圍</legend><div class="exam-settings"><label>起始單元<select data-exam-from aria-label="起始單元" aria-describedby="examRangeHint"></select></label><label>結束單元<select data-exam-to aria-label="結束單元" aria-describedby="examRangeHint"></select></label></div><p id="examRangeHint" class="exam-hint" data-exam-range-hint role="status" aria-live="polite">包含起始與結束單元。</p></fieldset><p data-exam-pool role="status" aria-live="polite"></p><p class="exam-hint">資料不完整或無法核對答案的題目不納入抽題。不足指定題數時，使用全部可測驗題目。每題等分，多選題須全部選對。未交卷作答暫存在本頁；已交卷自動保留最近一次結果於此瀏覽器，重新設定不會刪除。</p><button type="button" class="reveal" data-exam-start>開始測驗</button><button type="button" class="plain" data-exam-last hidden>查看上次測驗</button><p class="exam-hint" data-exam-last-info></p></section><section data-exam-session hidden><p data-exam-description></p><p class="exam-hint" data-exam-fill-hint>填空請依題目指定格式作答。系統先依題庫文字核對，交卷後可對照解析自行確認其他寫法。</p><div data-exam-results hidden tabindex="-1" aria-live="polite"></div><div data-exam-questions></div></section></div><footer class="exam-footer" hidden><span data-exam-progress role="status"></span><p data-exam-notice role="status"></p><div><button type="button" class="plain" data-exam-reset>重新設定</button><button type="button" class="reveal" data-exam-submit>交卷</button></div></footer>`;
   document.body.append(dialog);
   const find = selector => dialog.querySelector(selector);
   const scope = find('[data-exam-scope]'), size = find('[data-exam-size]');
   const questionList = find('[data-exam-questions]'), notice = find('[data-exam-notice]');
   let entries = [], responses = new Map(), results = [], submitted = false, confirmation = '';
+  const storageKey = 'course-exam-last-v1:' + config.course;
+  let lastExam = null, completedAt = '', resultFilter = 'all';
+  try {
+    const saved = JSON.parse(window.localStorage?.getItem(storageKey) || 'null');
+    if (saved?.version === 1 && saved.course === config.course && Array.isArray(saved.entries) && saved.entries.length > 0 && saved.entries.length <= 30 && saved.entries.every(e => e && typeof e.id === 'string' && e.q && typeof e.q === 'object') && Array.isArray(saved.responses) && saved.responses.every(pair => Array.isArray(pair) && Number.isInteger(pair[0]) && pair[0] >= 0 && pair[0] < saved.entries.length && Array.isArray(pair[1]?.chosen) && pair[1].chosen.every(i=>Number.isInteger(i) && i>=0) && typeof pair[1].text === 'string') && Array.isArray(saved.results) && saved.results.length === saved.entries.length && saved.results.every(r=>r && typeof r.correct === 'boolean') && typeof saved.label === 'string' && Number.isFinite(Date.parse(saved.completedAt))) lastExam = saved;
+  } catch { /* Unavailable or damaged storage must not block exams. */ }
+  function lastInfo(message = '') {
+    find('[data-exam-last]').hidden = !lastExam;
+    find('[data-exam-last-info]').textContent = message || (lastExam ? `上次：${lastExam.label} · ${new Date(lastExam.completedAt).toLocaleString('zh-TW')} · ${lastExam.entries.length} 題。只保留最近一次已交卷測驗。` : '尚無已交卷紀錄。');
+  }
+  function saveLast() {
+    try {
+      const snapshot = {version:1, course:config.course, completedAt, label:sessionLabel,
+        entries:entries.map(e => ({id:e.id,unit:e.unit,q:{...e.q, explanation:tools.explanationText(e.q), ex:tools.explanationText(e.q)}})),
+        responses:[...responses], results};
+      lastExam = JSON.parse(JSON.stringify(snapshot));
+      window.localStorage.setItem(storageKey, JSON.stringify(lastExam));
+      lastInfo();
+    } catch { lastInfo('本次結果目前僅保留在本頁；瀏覽器無法儲存，關閉或重新整理後可能遺失。'); notice.textContent = '瀏覽器無法儲存紀錄，請先查看本次錯題。'; }
+  }
+  function restoreLast() {
+    if (!lastExam) return;
+    const saved = JSON.parse(JSON.stringify(lastExam));
+    entries = saved.entries; responses = new Map(saved.responses); results = saved.results;
+    completedAt = saved.completedAt; sessionLabel = saved.label; submitted = true; confirmation = ''; resultFilter = 'all'; notice.textContent = '';
+    find('[data-exam-setup]').hidden = true; find('[data-exam-session]').hidden = false; find('.exam-footer').hidden = false;
+    find('[data-exam-description]').textContent = `${sessionLabel} · 上次測驗 · ${new Date(completedAt).toLocaleString('zh-TW')}（保留交卷當時題目與選項）`;
+    questionList.innerHTML = entries.map(questionMarkup).join('');
+    for (const [index] of entries.entries()) {
+      const card = questionList.children[index], response = responses.get(index);
+      card.querySelectorAll('input').forEach(input => { input.checked = Boolean(response?.chosen.includes(Number(input.value))); });
+      const draft = card.querySelector('[data-draft]'); if (draft) draft.value = response?.text || '';
+      card.querySelectorAll('[data-fill-index]').forEach((field,i) => {field.value = response?.fields?.[i] || '';});
+    }
+    renderResults();
+  }
+  lastInfo();
   const optionSession=tools.createOptionSession();
   let sessionLabel = '', poolLabel = '';
   let units = [];
@@ -86,7 +123,7 @@
   function start() {
     refreshPool();optionSession.reset();entries = sample(pool(), Number(size.value)).map(entry=>({...entry,q:optionSession.get(entry.q,entry.id)}));
     if (!entries.length) return;
-    sessionLabel = poolLabel; responses = new Map(); results = []; submitted = false; confirmation = '';
+    completedAt = ''; resultFilter = 'all'; sessionLabel = poolLabel; responses = new Map(); results = []; submitted = false; confirmation = '';
     find('[data-exam-setup]').hidden = true; find('[data-exam-session]').hidden = false;
     find('.exam-footer').hidden = false; find('[data-exam-results]').hidden = true;
     find('[data-exam-submit]').hidden = false; notice.textContent = '';
@@ -99,13 +136,18 @@
     const input = event.target;
     if (submitted || input.dataset.examIndex === undefined) return;
     const index = Number(input.dataset.examIndex), card = input.closest('[data-exam-card]');
-    responses.set(index, {chosen:[...card.querySelectorAll('input:checked')].map(el => Number(el.value)), text:(card.querySelector('[data-draft]') || card.querySelector('textarea'))?.value || ''});
+    responses.set(index, {chosen:[...card.querySelectorAll('input:checked')].map(el => Number(el.value)), text:(card.querySelector('[data-draft]') || card.querySelector('textarea'))?.value || '', fields:[...card.querySelectorAll('[data-fill-index]')].map(field=>field.value)});
     confirmation = ''; notice.textContent = ''; progress();
   }
   function summary() {
     const correct = results.filter(r => r.correct).length;
     const self = results.filter(r => r.selfAssessed).length;
-    find('[data-exam-results]').innerHTML = `<h3>測驗結果：${Math.round(correct / entries.length * 100)} 分</h3><p>答對 ${correct} / ${entries.length} 題 · 答錯或未答 ${entries.length-correct} 題${self ? ` · 其中 ${self} 題為自行確認` : ''}</p><p class="exam-hint">填空依題庫文字核對；若你的其他寫法也正確，可在對照解析後自行確認。</p>`;
+    find('[data-exam-results]').innerHTML = `<h3>測驗結果：${Math.round(correct / entries.length * 100)} 分</h3><p>答對 ${correct} / ${entries.length} 題 · 答錯或未答 ${entries.length-correct} 題${self ? ` · 其中 ${self} 題為自行確認` : ''}</p><p class="exam-hint">填空依題庫文字核對；若你的其他寫法也正確，可在對照解析後自行確認。</p><label>顯示題目<select data-exam-result-filter><option value="all">全部題目</option><option value="wrong">只看錯題與未作答</option><option value="unanswered">只看未作答</option></select></label>`;
+    find('[data-exam-result-filter]').value = resultFilter;
+    filterResults();
+  }
+  function filterResults() {
+    [...questionList.children].forEach((card,i) => { card.hidden = resultFilter === "wrong" ? Boolean(results[i]?.correct) : resultFilter === "unanswered" ? answered(i) : false; });
   }
   function submit() {
     if (submitted) return;
@@ -118,6 +160,11 @@
       const response = responses.get(index) || {chosen:[],text:''};
       return window.coursePractice.evaluate(answer(q), options(q), response.chosen, q, response.text);
     });
+    completedAt = new Date().toISOString();
+    saveLast();
+    renderResults();
+  }
+  function renderResults() {
     for (const [index, entry] of entries.entries()) {
       const {q,id} = entry, card = questionList.children[index], result = results[index], review = card.querySelector('[data-exam-review]');
       card.querySelectorAll('input, textarea').forEach(input => input.disabled = true);
@@ -125,7 +172,7 @@
       card.querySelectorAll('.option').forEach((option, i) => option.classList.toggle('correct', Boolean(expected?.includes(String.fromCharCode(65+i)))));
       const response = responses.get(index), yourAnswer = options(q).length ? (response?.chosen || []).sort((a,b)=>a-b).map(i=>String.fromCharCode(65+i)).join('、') : response?.text;
       review.hidden = false;
-      review.innerHTML = `<p class="exam-verdict ${result.correct ? 'exam-right' : 'exam-wrong'}">${result.correct ? '答對' : answered(index) ? '答錯' : '未作答'}</p><p><strong>你的答案：</strong>${esc(yourAnswer || '未作答')}</p><div class="answer"><strong>${tools.answerLabel(q)}</strong><div>${tools.answerValueMarkup(q)}</div><div class="explain"><strong>解析</strong><div class="explanation-text">${tools.explanationMarkup(q, esc)}</div></div></div>${!options(q).length && !result.correct && answered(index) ? `<button type="button" class="plain" data-exam-self="${index}" aria-pressed="false">我的寫法也正確（自行確認）</button>` : ''}<button type="button" class="plain" data-exam-review-id="${esc(id)}">${window.learningUI?.isSaved(id) ? '已加入待複習' : '加入待複習'}</button>`;
+      review.innerHTML = `<p class="exam-verdict ${result.correct ? 'exam-right' : 'exam-wrong'}">${result.selfAssessed ? '自行確認正確' : result.correct ? '答對' : answered(index) ? '答錯' : '未作答'}</p><p><strong>你的答案：</strong>${esc(yourAnswer || '未作答')}</p><div class="answer"><strong>${tools.answerLabel(q)}</strong><div>${tools.answerValueMarkup(q)}</div><div class="explain"><strong>解析</strong><div class="explanation-text">${tools.explanationMarkup(q, esc)}</div></div></div>${!options(q).length && (!result.correct || result.selfAssessed) && answered(index) ? `<button type="button" class="plain" data-exam-self="${index}" aria-pressed="${Boolean(result.selfAssessed)}">${result.selfAssessed ? '已自行確認正確（取消）' : '我的寫法也正確（自行確認）'}</button>` : ''}<button type="button" class="plain" data-exam-review-id="${esc(id)}">${window.learningUI?.isSaved(id) ? '已加入待複習' : '加入待複習'}</button>`;
     }
     find('[data-exam-submit]').hidden = true; find('[data-exam-results]').hidden = false;
     summary(); progress(); find('.exam-body').scrollTop = 0; find('[data-exam-results]').focus();
@@ -134,13 +181,15 @@
     if (!submitted && entries.length && confirmation !== 'reset') { confirmation = 'reset'; notice.textContent = '重新設定會清除本次作答，確定請再按一次「重新設定」。'; return; }
     entries = []; responses.clear(); submitted = false; confirmation = ''; notice.textContent = '';
     questionList.replaceChildren(); find('[data-exam-session]').hidden = true; find('.exam-footer').hidden = true;
-    find('[data-exam-setup]').hidden = false; refreshPool(); scope.focus();
+    find('[data-exam-setup]').hidden = false; lastInfo(); refreshPool(); scope.focus();
   }
   trigger.addEventListener('click', () => { if (!entries.length) refreshPool(); dialog.showModal(); });
   find('[data-exam-close]').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', () => trigger.focus());
   scope.addEventListener('change', refreshPool); size.addEventListener('change', refreshPool);
   from.addEventListener('change', refreshPool); to.addEventListener('change', refreshPool);
+  find('[data-exam-last]').addEventListener('click', restoreLast);
+  find('[data-exam-results]').addEventListener('change', event => { if (event.target.matches('[data-exam-result-filter]')) {resultFilter = event.target.value; filterResults();} });
   find('[data-exam-start]').addEventListener('click', start);
   find('[data-exam-submit]').addEventListener('click', submit);
   find('[data-exam-reset]').addEventListener('click', reset);
@@ -148,7 +197,7 @@
   questionList.addEventListener('change', updateResponse);
   questionList.addEventListener('click', event => {
     const self = event.target.closest('[data-exam-self]');
-    if (self) { const result = results[Number(self.dataset.examSelf)]; result.selfAssessed = !result.selfAssessed; result.correct = result.selfAssessed; self.setAttribute('aria-pressed', String(result.selfAssessed)); self.textContent = result.selfAssessed ? '已自行確認正確（取消）' : '我的寫法也正確（自行確認）'; const verdict=self.closest('.exam-card').querySelector('.exam-verdict'); verdict.textContent=result.selfAssessed?'自行確認正確':'答錯'; verdict.className='exam-verdict '+(result.selfAssessed?'exam-right':'exam-wrong'); summary(); }
+    if (self) { const result = results[Number(self.dataset.examSelf)]; result.selfAssessed = !result.selfAssessed; result.correct = result.selfAssessed; self.setAttribute('aria-pressed', String(result.selfAssessed)); self.textContent = result.selfAssessed ? '已自行確認正確（取消）' : '我的寫法也正確（自行確認）'; const verdict=self.closest('.exam-card').querySelector('.exam-verdict'); verdict.textContent=result.selfAssessed?'自行確認正確':'答錯'; verdict.className='exam-verdict '+(result.selfAssessed?'exam-right':'exam-wrong'); summary(); saveLast(); }
     const review = event.target.closest('[data-exam-review-id]');
     if (review) { window.learningUI?.addReview(review.dataset.examReviewId); review.textContent = '已加入待複習'; review.disabled = true; }
   });

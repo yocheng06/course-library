@@ -4,12 +4,13 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 import {parseHTML} from 'linkedom';
 const read = path => readFileSync(new URL('../'+path, import.meta.url),'utf8');
-function harness(course, fixture) {
+function harness(course, fixture, storage = new Map()) {
  const {window,document}=parseHTML(fixture?'<html><body><button id="practiceMode">遮答練習</button></body></html>':read(course+'.html'));
  Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){return this.querySelector('option[selected]')?.value||this.querySelector('option')?.value||''},set(v){for(const o of this.querySelectorAll('option'))o.toggleAttribute('selected',o.value===v)}});
  window.HTMLElement.prototype.focus=function(){};
  window.HTMLElement.prototype.showModal=function(){this.setAttribute('open','')};
  window.HTMLElement.prototype.close=function(){this.removeAttribute('open');this.dispatchEvent(new window.Event('close'))};
+ Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:key=>storage.get(key)??null,setItem:(key,value)=>storage.set(key,value)}});
  const context=vm.createContext({window,document,location:{search:''},URLSearchParams,requestAnimationFrame:fn=>fn(),console});
  for(const f of ['question-tools','choice-answers','practice-feedback'])vm.runInContext(read('assets/'+f+'.js'),context);
  if(fixture)window.courseLearning={course,examEntries:all=>all?fixture:fixture.slice(0,3),examUnitLabel:()=> '測試單元'};
@@ -105,4 +106,40 @@ for(const course of ['os','algorithms'])test(course+' same-unit range works, rev
  h.click('[data-exam-close]');h.click('#examMode');assert.equal(h.document.querySelector('[data-exam-from]').value,units[2].id);
  const ids=new Set(h.window.courseLearning.examEntries([units[2].id]).map(e=>e.id));h.click('[data-exam-start]');
  assert([...h.document.querySelectorAll('.exam-card')].every(card=>ids.has(card.dataset.examQuestionId)));
+});
+
+for (const course of ['os','algorithms']) test(course+' saves only the last completed exam across reset and reload with original choice order and answers',()=>{
+ const storage=new Map(),h=harness(course,fixture,storage);
+ h.click('#examMode'); assert.equal(h.document.querySelector('[data-exam-last]').hidden,true);
+ h.click('[data-exam-start]'); answerCard(h,'單選測試',[1]);answerCard(h,'多選測試',[0]);answerCard(h,'填空測試',null,'alternative');
+ const optionText=[...h.document.querySelectorAll('.option')].map(e=>e.textContent);
+ h.click('[data-exam-submit]'); h.click('[data-exam-self]');
+ const saved=storage.get('course-exam-last-v1:'+course); assert.ok(saved);assert.match(h.document.querySelector('[data-exam-results]').textContent,/67 分/);
+ h.click('[data-exam-reset]'); h.click('[data-exam-last]');
+ assert.deepEqual([...h.document.querySelectorAll('.option')].map(e=>e.textContent),optionText);
+ assert.equal([...h.document.querySelectorAll('.exam-card input')].filter(e=>e.checked).length,2);
+ assert.equal(h.document.querySelector('textarea').value,'alternative');
+ assert.match(h.document.querySelector('[data-exam-results]').textContent,/67 分/);
+ h.change('[data-exam-result-filter]','wrong');
+ assert.equal([...h.document.querySelectorAll('.exam-card')].filter(e=>!e.hidden).length,1);
+ h.click('[data-exam-reset]');h.click('[data-exam-start]'); assert.equal(storage.get('course-exam-last-v1:'+course),saved);
+ const reload=harness(course,fixture,storage);reload.click('#examMode');reload.click('[data-exam-last]');
+ assert.deepEqual([...reload.document.querySelectorAll('.option')].map(e=>e.textContent),optionText);
+ assert.match(reload.document.querySelector('[data-exam-results]').textContent,/67 分/);
+ reload.click('[data-exam-reset]');reload.click('[data-exam-start]');reload.click('[data-exam-submit]');reload.click('[data-exam-submit]');
+ assert.equal(storage.size,1); assert.notEqual(storage.get('course-exam-last-v1:'+course),saved);
+ reload.click('[data-exam-reset]');reload.click('[data-exam-last]');reload.change('[data-exam-result-filter]','unanswered');
+ assert.equal([...reload.document.querySelectorAll('.exam-card')].filter(e=>!e.hidden).length,3);
+});
+
+test('stored multi-blank fields survive reloading and corrupt or blocked storage does not block exams',()=>{
+ const storage=new Map(),entry={id:'two',unit:'單元',q:{stem:'第 [__1__] 格及第 [__2__] 格',type:'填空題',answer:'one / two',options:[],answerProvided:true}};
+ const h=harness('os',[entry],storage);h.click('#examMode');h.click('[data-exam-start]');
+ [...h.document.querySelectorAll('[data-fill-index]')].forEach((el,i)=>{el.value=['one','two'][i];el.dispatchEvent(new h.window.Event('input',{bubbles:true}));});h.click('[data-exam-submit]');
+ const reload=harness('os',[entry],storage);reload.click('#examMode');reload.click('[data-exam-last]');
+ assert.deepEqual([...reload.document.querySelectorAll('[data-fill-index]')].map(e=>e.value),['one','two']);assert.match(reload.document.querySelector('[data-exam-results]').textContent,/100 分/);
+ const broken=harness('os',fixture,new Map([['course-exam-last-v1:os','{broken']]));broken.click('#examMode');assert.equal(broken.document.querySelector('[data-exam-last]').hidden,true);
+ const blocked=harness('os',fixture,{get(){throw Error('blocked')},set(){throw Error('quota')}});blocked.click('#examMode');blocked.click('[data-exam-start]');blocked.click('[data-exam-submit]');blocked.click('[data-exam-submit]');
+ assert.match(blocked.document.querySelector('[data-exam-results]').textContent,/0 分/);assert.match(blocked.document.querySelector('[data-exam-notice]').textContent,/無法儲存/);
+ blocked.click('[data-exam-reset]');blocked.click('[data-exam-last]');assert.equal(blocked.document.querySelectorAll('.exam-card').length,3);
 });
