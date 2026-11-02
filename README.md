@@ -1,58 +1,39 @@
 # 課程學習站
 
-作業系統與演算法課程題庫，提供分單元閱讀、搜尋、練習作答與答案解析。
+作業系統與演算法課程題庫，提供分單元閱讀、搜尋、遮答練習、單元測驗與答案解析。
 
-**[開啟網站](https://yocheng06.github.io/course-library/)** · [批次查題](https://yocheng06.github.io/course-library/batch.html) · [投稿題目](https://yocheng06.github.io/course-library/submit.html)
+**[開啟網站](https://yocheng06.github.io/course-library/)** · [批次查題](https://yocheng06.github.io/course-library/batch.html) · [投稿題庫](https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/submit.html) · [題庫管理](https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/review.html)
 
-## 功能
+目前版本：**[v1.3.0](https://github.com/yocheng06/course-library/releases/tag/v1.3.0)** · [所有 Releases](https://github.com/yocheng06/course-library/releases) · [本版更新說明](docs/releases/v1.3.0.md)
 
-- 依科目、單元、題型或待複習狀態瀏覽與搜尋題目。
-- 練習單選、多選與填空題，檢查答案並閱讀解析。
-- 批次查題支援 TXT、Markdown、JSON、CSV／TSV 與 HTML；可預覽比對結果。
-- 標記待複習題目，匯出或匯入瀏覽器中的學習設定。
-- 投稿新增與修正題目後立即公開；修改歷史供站主管理及還原。
-- 隨頁面提供完整題庫快照；再次進站可先用上次快取，背景同步最新投稿、修改與下架狀態。
-- 支援手機閱讀、單元切換、換頁與字級調整。
+## 主要功能
+
+- 題目依單元、主題分組，同主題依「單選 → 多選 → 填空」排序，可搜尋題目、答案與解析。
+- 遮答練習與單元測驗支援選項隨機排列；相依選項保留原序，閱讀模式維持原有選項順序。
+- 測驗作答自動暫存，重新整理後可繼續；每科保留最近一次已交卷結果，可查看錯題並直接重練。
+- 批次查題支援 TXT、Markdown、JSON、CSV／TSV、HTML；完整符合才顯示已收錄與答案，未收錄可並排核對候選版本。
+- 題目與答案 HTML 可配對匯入；自動建議主題，並支援勾選題目整批調整。
+- 任何人可投稿及修正題目，修改後立即公開；保留歷史，管理者可還原修改與已移除題目。
+- 管理區提供題庫健檢、缺解析與疑似重複清單、題圖連結檢查及版本比較。
+- 完整題庫快照與瀏覽器快取可先顯示內容，背景同步最新投稿、修改及下架狀態。
+- 支援深色模式、手機閱讀、字級調整、待複習標記及學習設定備份。
 
 ## 使用方式
 
-1. 從首頁選擇科目與單元。
-2. 搜尋或閱讀題目，也可切換練習模式作答。
-3. 檢查答案、查看解析，並將需要複習的題目加上標記。
+1. 從首頁選擇科目與單元，閱讀題目或使用搜尋。
+2. 切換遮答練習或單元測驗，作答後對照正解與解析。
+3. 將需要複習的題目加上標記，或從上次測驗直接重練錯題。
 
-待複習標記、閱讀設定與練習統計保存在目前瀏覽器，不會跨裝置同步。重要資料可從閱讀設定匯出備份。
+測驗暫存、上次結果、待複習標記與閱讀設定保存在目前瀏覽器，不會跨裝置同步；清除瀏覽器資料會一併移除。可從閱讀設定匯出其支援的學習資料備份。
 
-## 本機開啟與測試
+## 本機使用與開發
 
-下載完整專案後，以瀏覽器開啟 `index.html` 閱讀內建題庫，並保留 `assets/` 資料夾。批次查題需透過 HTTP／HTTPS 開啟；投稿與審核需連接線上服務。
+下載專案並保留 `assets/`，在專案目錄執行 `python -m http.server 8000`，再開啟 `http://localhost:8000/`。投稿與管理功能使用上方的線上服務入口。
 
-前端使用 HTML、CSS 與 JavaScript。安裝開發相依套件後，可執行：
-
-```sh
-npm ci
-npm test
-npm run test:all
-```
-
-`npm test` 執行前端測試；`npm run test:all` 另建置並測試投稿服務。
-
-更新 GitHub 題庫快照時執行 `npm run snapshot:questions`，再提交產出的兩個 HTML 與 `assets/course-snapshots/`。此指令只讀取公開題庫，不含管理者帳號或修改歷史。快照與頁面內建題庫合起來提供完整課程；最新公開資料仍以線上服務為準。
-
-快取依科目保存於目前瀏覽器；新快照會取代更舊的快取。背景同步使用完整公開清單，因此會移除已下架或合併的投稿題目，並套用原題的最新修訂。離線或同步失敗時會提示目前使用的資料來源；快照與快取不包含尚未同步的新變更，也不保證線上題圖離線可用。
-
-## 專案結構
-
-| 路徑 | 說明 |
-| --- | --- |
-| `index.html` | 課程首頁 |
-| `os.html`、`algorithms.html` | 作業系統與演算法題庫 |
-| `batch.html` | 批次查題 |
-| `submit.html` | 題目投稿 |
-| `assets/` | 共用程式、樣式、題庫索引與媒體 |
-| `contribution-service/` | 投稿與審核服務 |
+前端使用 HTML、CSS 與 JavaScript；開發時執行 `npm ci` 安裝套件，`npm test` 執行前端測試。網站題庫快照不包含管理帳號或私人修改歷史，最新公開題庫仍以線上同步資料為準。
 
 ## 維護文件
 
 - [網站與題庫維護說明](docs/maintenance.md)
-- [投稿服務說明](contribution-service/README.md)
-- [題庫內容檢視](content-review.md)
+- [投稿與管理服務說明](contribution-service/README.md)
+- [本次功能整合與驗證紀錄](docs/網站功能整合改良_20261102.md)
