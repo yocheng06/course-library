@@ -27,6 +27,11 @@
   const filter = tools.querySelector('.review-filter');
   const status = tools.querySelector('.learning-status');
   const storageHint = tools.querySelector('small');
+  const manager = document.createElement('details');
+  manager.className = 'review-manager';
+  manager.innerHTML = '<summary>管理待複習</summary><div><button type="button" class="plain" data-clear-unit-review>清除此單元的待複習</button><button type="button" class="plain" data-clear-course-review>清除此課程的待複習</button><button type="button" class="plain" data-undo-clear-review hidden>復原上次清除</button></div>';
+  tools.insertBefore(manager, storageHint);
+  let clearedReviews = [];
   const size = document.createElement('label');
   size.className = 'reading-size';
   size.innerHTML = '閱讀字級 <select aria-label="閱讀字級"><option value="standard">標準</option><option value="large">大字</option></select>';
@@ -160,6 +165,7 @@
     });
     filter.querySelector('span').textContent = config.scopeIds().filter(id => saved.has(id)).length;
     filter.setAttribute('aria-pressed', String(reviewOnly));
+    manager.querySelector('[data-clear-course-review]').disabled = !saved.size;
     config.list.querySelectorAll('[data-add-review]').forEach(button => {
       const marked = saved.has(button.dataset.addReview);
       button.disabled = marked;
@@ -173,6 +179,39 @@
     if (!silent || !persistent) message(persistent ? '已加入待複習，並保存於這台裝置。' : '本次已加入待複習，但瀏覽器無法保存；關閉後會遺失，請匯出備份。');
     return {saved:true, persistent};
   }
+  function updateReviews(ids, marked) {
+    const changed = [];
+    for (const id of new Set(ids)) {
+      const target = config.resolveId?.(id) || id;
+      if (marked && !config.validId(target) && !communityId(target)) continue;
+      if (saved.has(target) === marked) continue;
+      if (marked) saved.add(target); else saved.delete(target);
+      changed.push(target);
+    }
+    const persistent = write();
+    if (reviewOnly) config.render(); else refresh();
+    return {changed, persistent};
+  }
+  function clearBookmarks(all) {
+    const unitId = config.examUnitId?.();
+    const unitIds = new Set(config.examEntries?.([unitId]).map(entry=>entry.id) || config.unitIds?.() || []);
+    const ids = [...saved].filter(id=>all || unitIds.has(id));
+    if (!ids.length) { message('這個範圍沒有待複習標記。'); return; }
+    const label = all ? courseNames[config.course] : config.examUnitLabel?.() || '目前單元';
+    if (!window.confirm(`清除「${label}」的 ${ids.length} 題待複習標記？只移除標記，不會刪除題目或測驗紀錄。`)) return;
+    const result = updateReviews(ids, false);
+    clearedReviews = result.changed;
+    manager.querySelector('[data-undo-clear-review]').hidden = !clearedReviews.length;
+    message(`已清除 ${clearedReviews.length} 題待複習標記，可按「復原上次清除」還原。${result.persistent?'':'瀏覽器無法保存，僅套用於本次開啟。'}`);
+  }
+  manager.querySelector('[data-clear-unit-review]').addEventListener('click',()=>clearBookmarks(false));
+  manager.querySelector('[data-clear-course-review]').addEventListener('click',()=>clearBookmarks(true));
+  manager.querySelector('[data-undo-clear-review]').addEventListener('click',()=>{
+    const result = updateReviews(clearedReviews, true);
+    clearedReviews = [];
+    manager.querySelector('[data-undo-clear-review]').hidden = true;
+    message(`已還原 ${result.changed.length} 題待複習標記。${result.persistent?'':'瀏覽器無法保存，僅套用於本次開啟。'}`);
+  });
   function prepareLearning(data) {
     const bookmarks = [...new Set([...saved, ...normalizeBackup(JSON.stringify(data.bookmarks))])];
     if (bookmarks.length > maxBookmarks || !['standard','large'].includes(data.size)) throw new Error('學習備份的標記或字級不正確。');
@@ -185,7 +224,7 @@
     storagePersistent = true;
     refreshStorageHint();
   }
-  window.learningUI = { refresh, addReview, exportLearning:()=>({bookmarks:backupData(),size:sizeSelect.value}), prepareLearning, applyLearning, exportBookmarks:backupData, importBookmarks:importBackup, get persistent() { return storagePersistent; }, get reviewOnly() { return reviewOnly; }, get currentReviewCount() { return config.scopeIds().filter(id => saved.has(id)).length; }, isSaved:id => saved.has(id), clearReview:()=>{reviewOnly=false;message('');} };
+  window.learningUI = { refresh, addReview, addReviews:ids=>updateReviews(ids,true), removeReviews:ids=>updateReviews(ids,false), exportLearning:()=>({bookmarks:backupData(),size:sizeSelect.value}), prepareLearning, applyLearning, exportBookmarks:backupData, importBookmarks:importBackup, get persistent() { return storagePersistent; }, get reviewOnly() { return reviewOnly; }, get currentReviewCount() { return config.scopeIds().filter(id => saved.has(id)).length; }, isSaved:id => saved.has(id), clearReview:()=>{reviewOnly=false;message('');} };
   config.list.addEventListener('click', event => {
     const add = event.target.closest('[data-add-review]');
     if (add) { addReview(add.dataset.addReview); return; }

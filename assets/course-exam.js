@@ -31,6 +31,7 @@
   const scope = find('[data-exam-scope]'), size = find('[data-exam-size]');
   const questionList = find('[data-exam-questions]'), notice = find('[data-exam-notice]');
   let entries = [], responses = new Map(), results = [], submitted = false, confirmation = '';
+  let markWrong = false, addedWrongReviews = new Set();
   const storageKey = 'course-exam-last-v1:' + config.course;
   const draftKey = 'course-exam-draft-v1:' + config.course, responseKey = draftKey + ':answers';
   let pendingExam = null, sessionId = '';
@@ -94,7 +95,7 @@
     if (!pendingExam) return;
     const saved=JSON.parse(JSON.stringify(pendingExam));
     entries=saved.entries;responses=new Map(saved.responses);sessionId=saved.sessionId;sessionLabel=saved.label;
-    results=[];submitted=false;confirmation='';resultFilter='all';
+    results=[];submitted=false;confirmation='';resultFilter='all';markWrong=false;addedWrongReviews=new Set();
     showSession();restoreResponses();progress();notice.textContent='已還原未交卷的題目、選項順序及作答。';
   }
   function retryWrong() {
@@ -108,7 +109,7 @@
     try {
       const snapshot = {version:1, course:config.course, completedAt, label:sessionLabel,
         entries:draftEntries(),
-        responses:[...responses], results};
+        responses:[...responses], results, markWrong, addedWrongReviews:[...addedWrongReviews]};
       lastExam = JSON.parse(JSON.stringify(snapshot));
       window.localStorage.setItem(storageKey, JSON.stringify(lastExam));
       lastInfo();
@@ -118,6 +119,9 @@
     if (!lastExam) return;
     const saved = JSON.parse(JSON.stringify(lastExam));
     entries = saved.entries; responses = new Map(saved.responses); results = saved.results;
+    markWrong = saved.markWrong === true;
+    const ids = new Set(entries.map(entry=>entry.id));
+    addedWrongReviews = new Set((Array.isArray(saved.addedWrongReviews)?saved.addedWrongReviews:[]).filter(id=>ids.has(id)));
     completedAt = saved.completedAt; sessionLabel = saved.label; submitted = true; confirmation = ''; resultFilter = 'all'; notice.textContent = '';
     find('[data-exam-setup]').hidden = true; find('[data-exam-session]').hidden = false; find('.exam-footer').hidden = false;
     find('[data-exam-description]').textContent = `${sessionLabel} · 上次測驗 · ${new Date(completedAt).toLocaleString('zh-TW')}（保留交卷當時題目與選項）`;
@@ -188,6 +192,7 @@
     refreshPool();begin(sample(pool(), Number(size.value)),poolLabel);
   }
   function begin(selected,label) {
+    markWrong = false; addedWrongReviews = new Set();
     optionSession.reset();entries=selected.map(entry=>({...entry,q:optionSession.get(entry.q,entry.id)}));
     if (!entries.length) return;
     completedAt = ''; resultFilter = 'all'; sessionLabel = label; responses = new Map(); results = []; submitted = false; confirmation = '';
@@ -213,6 +218,13 @@
     const correct = results.filter(r => r.correct).length;
     const self = results.filter(r => r.selfAssessed).length;
     find('[data-exam-results]').innerHTML = `<h3>測驗結果：${Math.round(correct / entries.length * 100)} 分</h3><p>答對 ${correct} / ${entries.length} 題 · 答錯或未答 ${entries.length-correct} 題${self ? ` · 其中 ${self} 題為自行確認` : ''}</p><p class="exam-hint">填空依題庫文字核對；若你的其他寫法也正確，可在對照解析後自行確認。</p><label>顯示題目<select data-exam-result-filter><option value="all">全部題目</option><option value="wrong">只看錯題與未作答</option><option value="unanswered">只看未作答</option></select></label><button type="button" class="reveal" data-exam-retry>重練錯題與未作答</button>`;
+    const reviewLabel = document.createElement('label');
+    reviewLabel.className = 'exam-review-toggle';
+    reviewLabel.innerHTML = `<input type="checkbox" data-exam-mark-wrong> 將本次答錯或未答的題目全部標記為待複習（${entries.length-correct} 題）`;
+    const reviewToggle = reviewLabel.querySelector('input');
+    reviewToggle.checked = markWrong;
+    reviewToggle.disabled = !window.learningUI?.addReviews || (!markWrong && correct === entries.length);
+    find('[data-exam-results]').append(reviewLabel);
     find('[data-exam-result-filter]').value = resultFilter;
     find('[data-exam-retry]').hidden = correct===entries.length;
     filterResults();
@@ -264,7 +276,25 @@
   find('[data-exam-last]').addEventListener('click', restoreLast);
   find('[data-exam-resume]').addEventListener('click', resumeDraft);
   find('[data-exam-results]').addEventListener('click',event=>{if(event.target.closest('[data-exam-retry]'))retryWrong();});
-  find('[data-exam-results]').addEventListener('change', event => { if (event.target.matches('[data-exam-result-filter]')) {resultFilter = event.target.value; filterResults();} });
+  function updateWrongReviews() {
+    if (!window.learningUI?.addReviews) return;
+    const wrong = new Set(entries.filter((_,i)=>!results[i]?.correct).map(entry=>entry.id));
+    const remove = [...addedWrongReviews].filter(id=>!markWrong || !wrong.has(id));
+    window.learningUI.removeReviews(remove);
+    remove.forEach(id=>addedWrongReviews.delete(id));
+    const added = markWrong ? window.learningUI.addReviews([...wrong]) : {changed:[],persistent:window.learningUI.persistent};
+    added.changed.forEach(id=>addedWrongReviews.add(id));
+    notice.textContent = markWrong ? `已將本次 ${wrong.size} 題錯題與未答題加入待複習，原有標記保留。` : '已撤回本次新增的待複習標記，原有標記保留。';
+    if (!added.persistent) notice.textContent += '瀏覽器無法保存，關閉後可能遺失。';
+    questionList.querySelectorAll('[data-exam-review-id]').forEach(button=>{
+      const saved = window.learningUI.isSaved(button.dataset.examReviewId);
+      button.textContent = saved ? '已加入待複習' : '加入待複習'; button.disabled = saved;
+    });
+  }
+  find('[data-exam-results]').addEventListener('change', event => {
+    if (event.target.matches('[data-exam-result-filter]')) {resultFilter = event.target.value; filterResults();}
+    if (event.target.matches('[data-exam-mark-wrong]')) {markWrong = event.target.checked; updateWrongReviews(); saveLast();}
+  });
   find('[data-exam-start]').addEventListener('click', start);
   find('[data-exam-submit]').addEventListener('click', submit);
   find('[data-exam-reset]').addEventListener('click', reset);
@@ -272,7 +302,7 @@
   questionList.addEventListener('change', updateResponse);
   questionList.addEventListener('click', event => {
     const self = event.target.closest('[data-exam-self]');
-    if (self) { const result = results[Number(self.dataset.examSelf)]; result.selfAssessed = !result.selfAssessed; result.correct = result.selfAssessed; self.setAttribute('aria-pressed', String(result.selfAssessed)); self.textContent = result.selfAssessed ? '已自行確認正確（取消）' : '我的寫法也正確（自行確認）'; const verdict=self.closest('.exam-card').querySelector('.exam-verdict'); verdict.textContent=result.selfAssessed?'自行確認正確':'答錯'; verdict.className='exam-verdict '+(result.selfAssessed?'exam-right':'exam-wrong'); summary(); saveLast(); }
+    if (self) { const result = results[Number(self.dataset.examSelf)]; result.selfAssessed = !result.selfAssessed; result.correct = result.selfAssessed; self.setAttribute('aria-pressed', String(result.selfAssessed)); self.textContent = result.selfAssessed ? '已自行確認正確（取消）' : '我的寫法也正確（自行確認）'; const verdict=self.closest('.exam-card').querySelector('.exam-verdict'); verdict.textContent=result.selfAssessed?'自行確認正確':'答錯'; verdict.className='exam-verdict '+(result.selfAssessed?'exam-right':'exam-wrong'); if(markWrong)updateWrongReviews(); summary(); saveLast(); }
     const review = event.target.closest('[data-exam-review-id]');
     if (review) { window.learningUI?.addReview(review.dataset.examReviewId); review.textContent = '已加入待複習'; review.disabled = true; }
   });

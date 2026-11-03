@@ -177,3 +177,19 @@ test('every question offers direct editing without duplicating buttons', () => {
   h.ui.refresh();
   assert.equal(card.querySelectorAll('.question-report').length, 1);
 });
+
+for(const course of ['os','algorithms'])test(course+' bulk review management preserves old marks, clears the real unit despite all-unit filters, and undoes without losing newer marks',()=>{
+ const h=harness({course,initial:{bookmarks:['known-1','known-2',pendingId]}});
+ h.config.examUnitId=()=> 'unit-one';h.config.examUnitLabel=()=> '第一單元';
+ h.config.examEntries=selection=>{assert.deepEqual(plain(selection),['unit-one']);return [{id:'known-1'}];};
+ const confirmations=[];h.window.confirm=text=>{confirmations.push(text);return true;};
+ const added=h.ui.addReviews(['known-1','known-2']);assert.equal(added.changed.length,0);
+ h.click('[data-clear-unit-review]');assert.equal(h.ui.isSaved('known-1'),false);assert(h.ui.isSaved('known-2'));assert(h.ui.isSaved(pendingId));
+ assert.match(confirmations[0],/第一單元.*1 題/);
+ h.click('[data-undo-clear-review]');assert(h.ui.isSaved('known-1'));assert(h.ui.isSaved('known-2'));
+ h.window.confirm=()=>false;h.click('[data-clear-course-review]');assert.equal(h.ui.exportBookmarks().bookmarks.length,3);
+ h.window.confirm=()=>true;h.click('[data-clear-course-review]');assert.equal(h.ui.exportBookmarks().bookmarks.length,0);
+ h.ui.addReview('known-1');h.click('[data-undo-clear-review]');assert.equal(h.ui.exportBookmarks().bookmarks.length,3);
+ assert.equal(JSON.parse(h.storage.get(h.key)).bookmarks.length,3);
+ const result=h.ui.removeReviews(['known-1']);assert.equal(result.changed.length,1);assert(h.ui.isSaved('known-2'));
+});

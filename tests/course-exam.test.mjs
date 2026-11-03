@@ -179,3 +179,23 @@ test('retrying a wrong choice reshuffles the saved version and still grades the 
  correct.checked=true;correct.setAttribute('checked','');correct.dispatchEvent(new h.window.Event('change',{bubbles:true}));h.click('[data-exam-submit]');
  assert.match(h.document.querySelector('[data-exam-results]').textContent,/100 分/);
 });
+
+function reviewUI(h,marks){
+ h.window.learningUI={isSaved:id=>marks.has(id),persistent:true,
+ addReviews:ids=>{const changed=[...ids].filter(id=>!marks.has(id));changed.forEach(id=>marks.add(id));return {changed,persistent:true};},
+ removeReviews:ids=>{const changed=[...ids].filter(id=>marks.has(id));changed.forEach(id=>marks.delete(id));return {changed,persistent:true};},
+ addReview:id=>{marks.add(id);return {saved:true,persistent:true};}};
+}
+function toggleWrong(h,checked){const el=h.document.querySelector('[data-exam-mark-wrong]');el.checked=checked;el.dispatchEvent(new h.window.Event('change',{bubbles:true}));}
+for(const course of ['os','algorithms'])test(course+' exam bulk wrong-review checkbox is opt-in and reversible, including last exam and self-assessment',()=>{
+ const storage=new Map(),marks=new Set(['single','multi']),h=harness(course,fixture,storage);reviewUI(h,marks);
+ h.click('#examMode');h.click('[data-exam-start]');answerCard(h,'單選測試',[1]);answerCard(h,'多選測試',[0]);answerCard(h,'填空測試',null,'alternative');h.click('[data-exam-submit]');
+ assert(!h.document.querySelector('[data-exam-mark-wrong]').checked);assert.deepEqual([...marks],['single','multi']);
+ toggleWrong(h,true);assert(marks.has('fill'));assert.equal(marks.size,3);
+ toggleWrong(h,false);assert(!marks.has('fill'));assert(marks.has('multi'));assert(marks.has('single'));
+ toggleWrong(h,true);h.click('[data-exam-reset]');h.click('[data-exam-last]');assert(h.document.querySelector('[data-exam-mark-wrong]').checked);
+ const reload=harness(course,fixture,storage);reviewUI(reload,marks);reload.click('#examMode');reload.click('[data-exam-last]');
+ assert(reload.document.querySelector('[data-exam-mark-wrong]').checked);toggleWrong(reload,false);assert(!marks.has('fill'));assert(marks.has('multi'));
+ toggleWrong(reload,true);reload.click('[data-exam-self]');assert(!marks.has('fill'));assert(marks.has('multi'));assert(marks.has('single'));
+ reload.click('[data-exam-reset]');reload.click('[data-exam-start]');reload.click('[data-exam-submit]');reload.click('[data-exam-submit]');assert(!reload.document.querySelector('[data-exam-mark-wrong]').checked);
+});
