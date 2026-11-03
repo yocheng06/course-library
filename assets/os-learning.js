@@ -106,7 +106,7 @@ function highlighted(value) {
   return out + esc(text.slice(last));
 }
 function matches() {
-  return scopedEntries().filter(({q,topicLabel,unit}) => (!window.learningUI?.reviewOnly || window.learningUI.isSaved(q.id)) &&
+  return scopedEntries().filter(({q,topicLabel,unit}) => (!$('hideEnglish').checked || !window.courseQuestionTools.isEnglishOnlyQuestion(q)) && (!window.learningUI?.reviewOnly || window.learningUI.isSaved(q.id)) &&
     (mode !== 'practice' || window.coursePracticeProgress?.includes(q.id) !== false) &&
     ($('chapter').value === 'all' || (topicLabel??q.category) === $('chapter').value) &&
     ($('typeSelect').value === 'all' || kind(q) === $('typeSelect').value) &&
@@ -189,7 +189,7 @@ function render(preserveCards = false) {
   $('footer').textContent=`共 ${UNITS.length} 個單元 · ${totalQuestionCount()} 題`;
   window.learningUI?.refresh();
 }
-function resetFilters() { window.learningUI?.clearReview(); window.coursePracticeProgress?.clearFilter(); $('search').value=''; $('chapter').value='all'; $('typeSelect').value='all'; $('qualitySelect').value='all'; page=1; render(); }
+function resetFilters() { window.learningUI?.clearReview(); window.coursePracticeProgress?.clearFilter(); $('search').value=''; $('chapter').value='all'; $('typeSelect').value='all'; $('qualitySelect').value='all'; $('hideEnglish').checked=false; page=1; render(); }
 function switchMode(next) { mode=next; revealed.clear(); feedback.clear(); render(); }
 function toggleAnswer(id,button) {
   const card=button.closest('.card'), panel=card.querySelector('[data-answer]');
@@ -240,7 +240,7 @@ document.addEventListener('click',e=>{
 $('search').addEventListener('input',()=>{page=1;render();});
 for(const id of ['chapter','typeSelect','qualitySelect']) $(id).addEventListener('change',()=>{page=1;render();});
 $('searchScopeSelect').addEventListener('change',()=>{page=1;refreshFilters();render();});
-$('showAnswers').addEventListener('change',()=>{revealed.clear();render();});
+$('hideEnglish').addEventListener('change',()=>{page=1;render();});$('showAnswers').addEventListener('change',()=>{revealed.clear();render();});
 $('unitPicker').addEventListener('change',e=>switchUnit(Number(e.target.value)));
 $('clear').onclick=resetFilters; $('emptyReset').onclick=resetFilters;
 $('studyMode').onclick=()=>switchMode('study'); $('practiceMode').onclick=()=>switchMode('practice');

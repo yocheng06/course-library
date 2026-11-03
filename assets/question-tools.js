@@ -338,5 +338,13 @@
     [...list.children].forEach((card,i) => renderedCardVersions.set(card, versions[i]));
   }
 
-  window.courseQuestionTools = { questionType, answerType, questionImagesMarkup, hasProvidedAnswer, optionAnswerKeys, studyOptionMark, updateStudyOptionMarks, matchesSearch, searchMatchMarkup, createPracticeOrder, createOptionSession, explanationText, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
+  // Inspect question wording only; English answer choices and explanations do not
+  // make a Chinese question English. Answer-format hints are not question text.
+  function isEnglishOnlyQuestion(q) {
+    const text = [q.stem ?? q.q ?? '', q.translation ?? ''].join(' ')
+      .replace(/[（(]\s*請(?:用|以|使用)[^()（）]*[)）]/gu, '');
+    return /[a-z]/iu.test(text) && !/[\u3400-\u9fff]/u.test(text);
+  }
+
+  window.courseQuestionTools = { isEnglishOnlyQuestion, questionType, answerType, questionImagesMarkup, hasProvidedAnswer, optionAnswerKeys, studyOptionMark, updateStudyOptionMarks, matchesSearch, searchMatchMarkup, createPracticeOrder, createOptionSession, explanationText, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
 })();
