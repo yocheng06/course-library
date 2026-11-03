@@ -1741,6 +1741,7 @@ async function publicationHistory(request, env, id) {
 }
 async function exportBackup(request, env) {
   await owner(request, env);
+  await ensureUnitSettings(env);
   await ensureReviewedContent(env);
   const [questions, submissions, history, corrections, builtinEdits] = await Promise.all([
     // The complete edit log allows restoring changes independently of a browser.
@@ -1754,6 +1755,8 @@ async function exportBackup(request, env) {
   ]);
   return json({
     schemaVersion: 1,
+    unitSettings:await env.DB.prepare('SELECT * FROM unit_settings ORDER BY course').all().then(r=>r.results),
+    unitSettingsHistory:await env.DB.prepare('SELECT * FROM unit_settings_history ORDER BY course,revision').all().then(r=>r.results),
     builtinQuestions: BUILTIN_QUESTIONS,
     builtinEdits: builtinEdits.results.map(r=>({...r,data:JSON.parse(r.data),previous_data:JSON.parse(r.previous_data)})),
     corrections: corrections.results.map(row=>({...row,snapshot:JSON.parse(row.snapshot)})),
@@ -1915,6 +1918,7 @@ async function route(request, env) {
   if (path === "/api/review" && request.method === "GET")
     return listReview(request, env, url);
   let match;
+  if (path === '/api/manage/units' && ['GET','POST'].includes(request.method)) return manageUnits(request,env,url);
   if (path === '/api/manage/health' && request.method === 'GET') return managementHealth(request,env,url);
   if (path === '/api/manage/library' && request.method === 'GET') return listManagementLibrary(request,env,url);
   if (path === '/api/manage/library/item' && request.method === 'GET') return managementLibraryItem(request,env,url);
@@ -1974,13 +1978,7 @@ async function route(request, env) {
   if (path === '/api/units' && request.method === 'GET') {
     const course=url.searchParams.get('course');
     if(!Object.hasOwn(COURSE_UNITS,course))throw new HttpError(400,'請指定科目。');
-    const rows=await env.DB.prepare('SELECT unit,data FROM public_questions WHERE course=? AND is_published=1 ORDER BY created_at,id').bind(course).all();
-    const units=new Map(Object.entries(COURSE_UNITS[course].units).map(([id,label])=>[id,{id,title:label.replace(/^L\d+ · /,'')} ]));
-    for(const row of rows.results){
-      if(units.has(row.unit) || !/^L[1-9]\d?$/.test(row.unit))continue;
-      const q=JSON.parse(row.data);units.set(row.unit,{id:row.unit,title:unitLabel(course,row.unit,q.unitTitle).replace(/^L\d+ · /,'')});
-    }
-    return json({units:[...units.values()]});
+    return json(await publicUnitCatalog(env,course));
   }
   if (path === "/api/questions" && request.method === "GET") {
     const course = url.searchParams.get("course");
@@ -2001,6 +1999,7 @@ async function route(request, env) {
       .all();
     const response = json({
       revision: etag.slice(1,-1),
+      units:(await publicUnitCatalog(env,course)).units,
       aliases: archived.results
         .filter((row) => {const q=JSON.parse(row.data);return q.mergedInto||q.submissionReview?.status==='merged';})
         .map((row) => ({

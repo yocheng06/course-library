@@ -1,5 +1,5 @@
 import './sync-summary.js?v=flow-clarity-20261103';
-import {createUnitCatalog} from './unit-catalog.mjs?v=flow-clarity-20261103';
+import {createUnitCatalog} from './unit-catalog.mjs?v=admin-units-20261103';
 import {comparisonMarkup,mismatchLabel} from './question-comparison.mjs?v=workflow-improvements-20261102';
 import {fingerprintLibraryImages, inheritQuestionImages, validImageHashes} from "./batch-images.mjs?v=image-bank-retry-20261031";
 import {unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
@@ -200,6 +200,11 @@ function rebuildLibraryIndex() {
       buildIndex(candidate);
       entries = candidate;
       library.courses[course].units.push(...newUnits.values());
+      if(Array.isArray(data.units)){
+        const unitMeta=new Map(data.units.map(u=>[u.id,u]));
+        library.courses[course].units=library.courses[course].units.map(u=>({...u,name:unitMeta.get(u.id)?.label||u.name}));
+        unitCatalog.update(course,data.units);
+      }
       invalidPublicData[course] = false;
     } catch {
       invalidPublicData[course] = true;
@@ -208,7 +213,7 @@ function rebuildLibraryIndex() {
   }
   index = buildIndex(entries);
   libraryGeneration++;
-  for(const [course,data] of Object.entries(library.courses)) unitCatalog.update(course,data.units.map(unit=>({id:unit.id,title:unit.name.replace(/^L\d+ · /,'')})));
+  for(const [course,data] of Object.entries(library.courses)) unitCatalog.update(course,publicData.get(course)?.units || data.units.map(unit=>({id:unit.id,title:unit.name.replace(/^L\d+ · /,'')})));
   units();
 }
 async function getBaseLibrary() {

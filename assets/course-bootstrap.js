@@ -184,13 +184,14 @@
     const prefix = card ? `article[data-id="${CSS.escape(card.dataset.id)}"] ` : parent ? `#${CSS.escape(parent.id)} ` : '';
     return prefix + element.tagName.toLowerCase() + selected.map(name => `[${name}="${CSS.escape(element.getAttribute(name))}"]`).join('');
   }
-  function merge(entries, aliases, overrides) {
+  function merge(entries, aliases, overrides, unitMetadata) {
     const focused = document.activeElement, selector = focusedSelector(focused);
     const selection = typeof focused?.selectionStart === 'number' ? [focused.selectionStart, focused.selectionEnd, focused.selectionDirection] : null;
     const anchor = [...config.list.children].find(card => { const r=card.getBoundingClientRect();return r.bottom>0 && r.top<innerHeight; });
     const anchorTop = anchor?.getBoundingClientRect().top;
     const scroll = {x:scrollX,y:scrollY}, menu = config.sidebar.querySelector('.course-menu'), menuScroll = menu?.scrollTop;
     const result = config.mergeCommunityQuestions(entries, {openLinkedQuestion:linkedSubmission && !interacted, aliases, overrides, replace:true});
+    config.setUnitMetadata?.(unitMetadata);
     if (!result.openedLinkedQuestion) {
       if (menu) menu.scrollTop = menuScroll;
       if (!focused?.isConnected && selector) {
@@ -224,7 +225,7 @@
     const presentIds = new Set(data.questions.map(row=>row.question.id || row.question.bookmarkId));
     const curatedAliases = (curation?.aliases || []).flatMap(alias=>presentIds.has(alias.target) ? [alias] : presentIds.has(alias.id) ? [{id:alias.target,target:alias.id}] : []);
     const aliases = [...data.aliases, ...curatedAliases];
-    merge(curateRows(data.questions, curation, basicsCuration), aliases, data.overrides);
+    merge(curateRows(data.questions, curation, basicsCuration), aliases, data.overrides, data.units);
     source = name;
     document.documentElement.dataset.questionSource = name;
   }

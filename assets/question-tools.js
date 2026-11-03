@@ -318,9 +318,23 @@
     return (q.images||[]).filter(img=>/^assets\/questions\/[a-z0-9/_-]+\.(png|jpe?g)$/i.test(img.src)||/^https:\/\//.test(img.src)).map(img=>`<figure class="question-figure"><button type="button" class="question-image-open" data-image-viewer aria-haspopup="dialog" aria-controls="question-image-viewer"><img src="${esc(img.src)}" alt="${esc(img.alt||q.stem||q.q)}" ${img.width&&img.height?`width="${Number(img.width)}" height="${Number(img.height)}"`:''} loading="lazy"><span>放大題圖（可縮放）</span></button></figure>`).join('');
   }
 
+  // Display only: never replace stems/translations in the source question.
+  function bilingualPromptMarkup(question, render = escape) {
+    const first=String(question.stem ?? question.q ?? ''),second=String(question.translation ?? '');
+    const chinese=text=>/[\u3400-\u9fff]/u.test(text),english=text=>/[a-z]/i.test(text)&&!chinese(text);
+    let top=first,bottom=second;
+    if(chinese(second)&&english(first)){top=second;bottom=first;}
+    const paired=Boolean(chinese(top)&&english(bottom));
+    const heading=`<h3 class="question" tabindex="-1" lang="${chinese(top)?'zh-Hant':'en'}">${render(top)}</h3>`;
+    if(!bottom)return heading;
+    const translation=`<p class="translation" lang="${chinese(bottom)?'zh-Hant':'en'}">${render(bottom)}</p>`;
+    return heading+(paired?`<details class="english-prompt"><summary>查看英文原題</summary>${translation}</details>`:translation);
+  }
+
   const renderedCardVersions = new WeakMap();
   function renderQuestionCards(list, entries, markup, preserveCards = false) {
     const cards = [...list.children];
+    const expandedEnglish = new Set(cards.filter(card=>card.querySelector('details.english-prompt')?.open).map(card=>card.dataset.id));
     const id = entry => entry.id ?? entry.q.id;
     // A stable ID identifies a question, not a revision. Compare public content
     // too, replacing changed cards while leaving other responses/focus intact.
@@ -335,8 +349,12 @@
         cards[i].replaceWith(template.content.firstElementChild);
       });
     }
-    [...list.children].forEach((card,i) => renderedCardVersions.set(card, versions[i]));
+    [...list.children].forEach((card,i) => {
+      renderedCardVersions.set(card, versions[i]);
+      const english=card.querySelector('details.english-prompt');
+      if(english && expandedEnglish.has(card.dataset.id))english.open=true;
+    });
   }
 
-  window.courseQuestionTools = { questionType, answerType, questionImagesMarkup, hasProvidedAnswer, optionAnswerKeys, studyOptionMark, updateStudyOptionMarks, matchesSearch, searchMatchMarkup, createPracticeOrder, createOptionSession, explanationText, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
+  window.courseQuestionTools = { bilingualPromptMarkup, questionType, answerType, questionImagesMarkup, hasProvidedAnswer, optionAnswerKeys, studyOptionMark, updateStudyOptionMarks, matchesSearch, searchMatchMarkup, createPracticeOrder, createOptionSession, explanationText, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
 })();

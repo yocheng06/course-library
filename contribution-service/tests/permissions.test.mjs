@@ -2462,3 +2462,33 @@ test('health endpoint is owner-only, reflects current edits and excludes removed
  const filtered=await call(env,path,{reviewer:true});assert.ok(!filtered.data.items.some(r=>r.id==='basics-1'));
  assert.equal((await call(env,'/api/manage/health?course=invalid',{reviewer:true})).response.status,400);
 });
+
+test('unit settings are owner-only, revision-protected, audited, and synchronized to public metadata without rewriting questions',async()=>{
+ const env=await setup();
+ assert.equal((await call(env,'/api/manage/units?course=os')).response.status,401);
+ const before=await call(env,'/api/questions?course=os');
+ const base=await call(env,'/api/manage/units?course=os',{reviewer:true});assert.equal(base.response.status,200);
+ const units=base.data.units.map(({id,title})=>({id,title}));const index=units.findIndex(u=>u.id==='basics');units[index].title='基礎新名稱';
+ const scheduling=units.splice(units.findIndex(u=>u.id==='scheduling'),1)[0];units.unshift(scheduling);
+ const bad=await call(env,'/api/manage/units?course=os',{method:'POST',body:{revision:base.data.revision,units}});assert.equal(bad.response.status,401);
+ const saved=await call(env,'/api/manage/units?course=os',{reviewer:true,method:'POST',body:{revision:base.data.revision,units}});
+ assert.equal(saved.response.status,200,JSON.stringify(saved.data));assert.equal(saved.data.revision,1);assert.equal(saved.data.units[0].id,'scheduling');
+ const stale=await call(env,'/api/manage/units?course=os',{reviewer:true,method:'POST',body:{revision:0,units}});assert.equal(stale.response.status,409);
+ const catalog=await call(env,'/api/units?course=os');assert.equal(catalog.data.units.find(u=>u.id==='basics').label,'L2 · 基礎新名稱');
+ const after=await call(env,'/api/questions?course=os');assert.notEqual(after.response.headers.get('etag'),before.response.headers.get('etag'));assert.deepEqual(after.data.questions,before.data.questions);assert.deepEqual(after.data.overrides,before.data.overrides);assert.equal(after.data.units[0].id,'scheduling');
+ const listing=await call(env,'/api/manage/library?course=os&unit=basics',{reviewer:true});assert(listing.data.items.every(item=>item.unitLabel==='L2 · 基礎新名稱'));
+ const invalid=await call(env,'/api/manage/units?course=os',{reviewer:true,method:'POST',body:{revision:1,units:units.slice(1)}});assert.equal(invalid.response.status,400);
+ const backup=await call(env,'/api/manage/export',{reviewer:true});assert.equal(backup.data.unitSettings.length,1);assert.equal(backup.data.unitSettingsHistory.length,1);
+ assert.equal(env.sql.prepare('SELECT count(*) AS n FROM builtin_question_edits').get().n,0);
+});
+
+test('owner can move a community question between existing units while preserving the original history and public-edit boundary',async()=>{
+ const env=await setup(),p=payload();const posted=await call(env,'/api/submissions',{method:'POST',body:p});assert.equal(posted.response.status,201);
+ const row=(await call(env,'/api/questions?course=os')).data.questions[0],id=row.question.id;
+ const detail=await call(env,'/api/manage/library/item?course=os&source=community&id='+id,{reviewer:true});
+ const moved=await call(env,'/api/manage/questions/'+id,{reviewer:true,method:'POST',body:{action:'update',revision:detail.data.item.revision,payload:{...p,unit:'scheduling',questions:[row.question]},note:'調整所屬單元'}});
+ assert.equal(moved.response.status,200,JSON.stringify(moved.data));
+ const after=(await call(env,'/api/questions?course=os')).data.questions.find(r=>r.question.id===id);
+ assert.equal(after.unit,'scheduling');assert.equal(after.question.answer,row.question.answer);
+ const history=await call(env,'/api/manage/questions/'+id+'/history',{reviewer:true});assert.equal(history.data.items[0].unit,'basics');
+});

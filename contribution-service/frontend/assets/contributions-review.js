@@ -1,29 +1,33 @@
-import {setupLibraryHealth} from './library-health.mjs?v=workflow-improvements-20261102';
+import {setupUnitManager} from './unit-manager.mjs?v=admin-workflow-20261103';
+import {setupLibraryHealth} from './library-health.mjs?v=admin-workflow-20261103';
 import { api, message, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
-import { setupLibraryManager } from './library-manager.mjs?v=workflow-improvements-20261102';
+import { setupLibraryManager } from './library-manager.mjs?v=admin-workflow-20261103';
 import { setupImportRecords } from './import-records.mjs?v=treasure-unit-20261030';
 
 const $ = id => document.getElementById(id);
 const origin = window.courseContributions.apiOrigin;
-let library = null, health = null;
+let library = null, health = null, units = null;
 let imports = null;
 let userId = '';
-let currentView = 'modified';
+let currentView = 'all';
 let starting = false;
 
 function setActiveView(view) {
   currentView = view;
+  if(userId)try{localStorage.setItem('course-library.manager-view.v1.'+userId,view);}catch{}
   for (const button of document.querySelectorAll('[data-view]')) {
     button.setAttribute('aria-current', button.dataset.view === view ? 'page' : 'false');
   }
-  $('libraryWorkspace').hidden = ['imports','health'].includes(view);
+  $('libraryWorkspace').hidden = ['imports','health','units'].includes(view);
+  $('unitWorkspace').hidden = view !== 'units';
   $('healthWorkspace').hidden = view !== 'health';
   $('importWorkspace').hidden = view !== 'imports';
 }
 async function showView(view = currentView, { refresh = false } = {}) {
   if (!library || !imports) return;
   setActiveView(view);
-  if(view==='health') await health.show({refresh});
+  if(view==='units') await units.show({refresh});
+  else if(view==='health') await health.show({refresh});
   else if (view === 'imports') await imports.show({ refresh });
   else await library.show(view, { refresh });
 }
@@ -74,15 +78,17 @@ async function start() {
     $('loginPanel').hidden = true;
     $('managementArea').hidden = false;
     if (userId !== session.userId || !library || !imports) {
-      health?.clear();
+      health?.clear();units?.clear();
       library?.clear();
       imports?.clear();
       userId = session.userId || 'owner';
+      try{const saved=localStorage.getItem('course-library.manager-view.v1.'+userId);if(['all','modified','deleted','pending','health','imports','units'].includes(saved))currentView=saved;}catch{}
       library = setupLibraryManager({
         userId,
         onChanged: () => { health?.invalidate();if (currentView==='health')return health.show({refresh:true});if (imports && currentView === 'imports') return imports.show({ refresh: true }); },
       });
-      health=setupLibraryHealth({container:$('healthWorkspace'),openItem:row=>library.openItem(row)});
+      units=setupUnitManager({container:$('unitWorkspace'),onChanged:()=>{library.refresh();health?.invalidate();}});
+      health=setupLibraryHealth({container:$('healthWorkspace'),openItem:(row,options)=>library.openItem(row,options)});
       imports = setupImportRecords({
         userId,
         onChanged: () => library?.refresh(),
@@ -98,7 +104,7 @@ async function start() {
     starting = false;
   }
 }
-$('managementNav').addEventListener('click', event => {
+$('managementTabs').addEventListener('click', event => {
   const button = event.target.closest('[data-view]');
   if (!button || !library || !imports) return;
   showView(button.dataset.view);
@@ -156,7 +162,7 @@ $('signOut').addEventListener('click', async () => {
     await api('/api/logout', { method: 'POST', body: '{}' });
     library?.clear();
     imports?.clear();
-    health?.clear();
+    health?.clear();units?.clear();
     location.reload();
   } catch (error) { message(error.message, true); button.disabled = false; }
 });

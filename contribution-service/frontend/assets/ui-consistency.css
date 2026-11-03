@@ -69,3 +69,9 @@ body[data-course] .toolbar .quality-hint { margin:8px 0 0; }
 
 body[data-course] .toolbar .more-filters > summary::after { content:none; }
 html[data-theme="dark"] body[data-course] .search-icon { filter:invert(1); opacity:.85; }
+
+/* Chinese-first bilingual stems: native disclosure affects display only. */
+.english-prompt{margin:8px 0 16px;padding:10px 12px;border:1px solid var(--line,#c6d7e8);border-radius:8px}
+.english-prompt>summary{cursor:pointer;font:inherit;color:inherit;min-height:24px}
+.english-prompt>summary:focus-visible{outline:2px solid var(--accent,currentColor);outline-offset:4px}
+.english-prompt>.translation{white-space:pre-wrap;margin:12px 0 0;overflow-wrap:anywhere}

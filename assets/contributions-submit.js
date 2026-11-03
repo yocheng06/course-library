@@ -1,6 +1,6 @@
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 const uniqueQuestions=(course,unit,questions,onDuplicate)=>uniqueQuestionsBase(course,unit,questions,onDuplicate,{allowConflictingVersions:true});
-import {createUnitCatalog} from './unit-catalog.mjs?v=flow-clarity-20261103';
+import {createUnitCatalog} from './unit-catalog.mjs?v=admin-units-20261103';
 import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=easy-import-20261103';
 import {
   COURSE_UNITS,
@@ -67,7 +67,7 @@ async function loadPublicUnits() {
     unitCatalog.update(course,result.units);
     for(const unit of result.units){
       const id=normalizeUnit(course,unit.id);
-      publicUnits[course][id]=unitLabel(course,id,unit.title);publicTitles[course][id]=unit.title||'';
+      publicUnits[course][id]=unit.managed&&unit.label?unit.label:unitLabel(course,id,unit.title);publicTitles[course][id]=unit.title||'';
     }
     units();if(selected==='__new__'){$("unit").value=selected;unitFields();}
   }catch { /* The built-in list and manual new-unit fields remain usable offline. */ }

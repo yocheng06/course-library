@@ -106,3 +106,13 @@ export const builtinQuestionEdits = sqliteTable('builtin_question_edits', {
   baseHash:text('base_hash').notNull(), action:text('action').notNull(), note:text('note').notNull(),
   actor:text('actor').notNull(), createdAt:integer('created_at').notNull(),
 }, t => [uniqueIndex('builtin_edits_question_revision').on(t.course,t.questionId,t.revision)]);
+
+export const unitSettings = sqliteTable('unit_settings', {
+  course:text('course').primaryKey(), revision:integer('revision').notNull(),
+  data:text('data').notNull(), updatedAt:integer('updated_at').notNull(),
+});
+export const unitSettingsHistory = sqliteTable('unit_settings_history', {
+  id:text('id').primaryKey(),course:text('course').notNull(),revision:integer('revision').notNull(),
+  beforeData:text('before_data').notNull(),afterData:text('after_data').notNull(),
+  actor:text('actor').notNull(),createdAt:integer('created_at').notNull(),
+});

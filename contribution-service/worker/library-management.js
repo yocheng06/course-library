@@ -77,9 +77,9 @@ async function listManagementLibrary(request, env, url) {
     !['all','builtin','community'].includes(source) || !['updated','id'].includes(sort) || q.length > 100 ||
     !/^\d{1,6}$/.test(cursor) || unit.length > 30) throw new HttpError(400, '篩選條件不正確。');
   const catalog = await managementSummaries(env, course, q);
-  const units = new Map(Object.entries(COURSE_UNITS[course].units).map(([id, label]) => [id, {id, title: label.replace(/^L\d+ · /, ''), label}]));
+  const unitData=await publicUnitCatalog(env,course,true),units=new Map(unitData.units.map(u=>[u.id,u]));
   for (const row of catalog) {
-    row.unitLabel = unitLabel(course,row.unit,row.unitTitle);
+    row.unitLabel = units.get(row.unit)?.label || unitLabel(course,row.unit,row.unitTitle);
     if (!units.has(row.unit)) units.set(row.unit, {id:row.unit,title:row.unitLabel.replace(/^L\d+ · /,''),label:row.unitLabel});
   }
   const matching = catalog.filter((r) => (!unit || r.unit === unit) && (source === 'all' || r.source === source) && (!q || r._search.includes(q)));
@@ -186,9 +186,61 @@ async function managementImportDetail(request,env,id){
   return json({item});
 }
 async function publicLibraryEtag(env, course) {
-  const [p,b] = await Promise.all([
+  const [p,b,units] = await Promise.all([
     env.DB.prepare('SELECT COUNT(*) AS n,COALESCE(SUM(revision),0) AS revisions,COALESCE(MAX(COALESCE(updated_at,created_at)),0) AS updated FROM public_questions WHERE course=?').bind(course).first(),
     env.DB.prepare('SELECT COUNT(*) AS n,COALESCE(SUM(revision),0) AS revisions,COALESCE(MAX(created_at),0) AS updated FROM builtin_question_edits WHERE course=?').bind(course).first(),
+    unitConfiguration(env,course),
   ]);
-  return '"' + await hash(JSON.stringify([LIBRARY_BUILD_REVISION,course,p,b])) + '"';
+  return '"' + await hash(JSON.stringify([LIBRARY_BUILD_REVISION,course,p,b,units.revision])) + '"';
+}
+
+// Unit presentation settings are independent of question IDs and answer revisions.
+const unitSettingsReady=new WeakMap();
+async function ensureUnitSettings(env){
+  if(!unitSettingsReady.has(env.DB))unitSettingsReady.set(env.DB,(async()=>{
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS unit_settings (course TEXT PRIMARY KEY, revision INTEGER NOT NULL, data TEXT NOT NULL, updated_at INTEGER NOT NULL)').run();
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS unit_settings_history (id TEXT PRIMARY KEY, course TEXT NOT NULL, revision INTEGER NOT NULL, before_data TEXT NOT NULL, after_data TEXT NOT NULL, actor TEXT NOT NULL, created_at INTEGER NOT NULL)').run();
+  })().catch(error=>{unitSettingsReady.delete(env.DB);throw error;}));
+  await unitSettingsReady.get(env.DB);
+}
+async function unitConfiguration(env,course){
+  await ensureUnitSettings(env);
+  const row=await env.DB.prepare('SELECT revision,data FROM unit_settings WHERE course=?').bind(course).first();
+  return {revision:row?.revision||0,settings:row?JSON.parse(row.data):[]};
+}
+function managedUnitLabel(course,id,title){
+  const base=COURSE_UNITS[course].units[id];
+  return base?.match(/^L\d+/)?.[0] ? base.match(/^L\d+/)[0]+' · '+title : id==='treasure'?title:id+' · '+title;
+}
+async function publicUnitCatalog(env,course,includeHidden=false){
+  const config=await unitConfiguration(env,course);
+  const units=new Map(Object.entries(COURSE_UNITS[course].units).map(([id,label])=>[id,{id,title:label.replace(/^L\d+ · /,''),label,order:id==='treasure'?6.5:Number(label.match(/^L(\d+)/)?.[1]||99)}]));
+  const rows=await env.DB.prepare("SELECT unit,MIN(json_extract(data,'$.unitTitle')) AS title FROM public_questions WHERE course=?"+(includeHidden?'':' AND is_published=1')+' GROUP BY unit').bind(course).all();
+  for(const row of rows.results)if(!units.has(row.unit)){
+    const label=unitLabel(course,row.unit,row.title);
+    units.set(row.unit,{id:row.unit,title:label.replace(/^L\d+ · /,''),label,order:Number(row.unit.slice(1))||99});
+  }
+  for(const item of config.settings)units.set(item.id,{...units.get(item.id),...item,label:managedUnitLabel(course,item.id,item.title),managed:true});
+  return {revision:config.revision,units:[...units.values()].sort((a,b)=>a.order-b.order||a.id.localeCompare(b.id))};
+}
+async function manageUnits(request,env,url){
+  const actor=await owner(request,env),course=url.searchParams.get('course')||'os';
+  if(!Object.hasOwn(COURSE_UNITS,course))throw new HttpError(400,'科目不正確。');
+  if(request.method==='GET')return json(await publicUnitCatalog(env,course,true));
+  requireOrigin(request,true);const body=await readBody(request,48000),current=await publicUnitCatalog(env,course,true);
+  if(!body||!Number.isSafeInteger(body.revision)||body.revision!==current.revision)throw new HttpError(409,'單元資料已更新，請重新載入後再儲存。');
+  if(!Array.isArray(body.units)||body.units.length!==current.units.length)throw new HttpError(400,'請保留所有單元，這裡不能刪除單元。');
+  const ids=new Set(current.units.map(u=>u.id)),seen=new Set();
+  const next=body.units.map((row,index)=>{
+    if(!row||!ids.has(row.id)||seen.has(row.id)||typeof row.title!=='string'||!row.title.trim()||row.title.trim().length>60)throw new HttpError(400,'單元名稱或編號不正確。');
+    seen.add(row.id);return {id:row.id,title:row.title.trim(),order:index+1};
+  });
+  await env.DB.prepare('INSERT OR IGNORE INTO unit_settings(course,revision,data,updated_at) VALUES(?,0,?,0)').bind(course,'[]').run();
+  const before=await unitConfiguration(env,course),now=Date.now(),after=JSON.stringify(next);
+  const result=await env.DB.batch([
+    env.DB.prepare('UPDATE unit_settings SET revision=revision+1,data=?,updated_at=? WHERE course=? AND revision=?').bind(after,now,course,body.revision),
+    env.DB.prepare('INSERT INTO unit_settings_history(id,course,revision,before_data,after_data,actor,created_at) SELECT ?,?,?,?,?,?,? WHERE changes()=1').bind(crypto.randomUUID(),course,body.revision+1,JSON.stringify(before.settings),after,actor,now),
+  ]);
+  if(!result[0].meta.changes)throw new HttpError(409,'單元資料已更新，請重新載入。');
+  return json(await publicUnitCatalog(env,course,true));
 }

@@ -18,6 +18,7 @@ const pageSize = 20, drafts = new Map(), selections = new Map(), revealed = new 
 const practiceSequence = window.courseQuestionTools.createPracticeOrder();
 const practiceOptions = window.courseQuestionTools.createOptionSession();
 const kind = window.courseQuestionTools.questionType;
+const managedUnitOrder=new Map();
 const unitNumber = i => String(UNITS[i]?.number ?? i + 2).padStart(2, '0');
 const unitCaption = i => UNITS[i]?.id === 'treasure' ? '特別單元' : 'UNIT ' + unitNumber(i);
 const unitQuestionOrders = new Map();
@@ -115,11 +116,11 @@ function matches() {
 function refreshUnitNavigation() {
   const i = active, u = UNITS[i];
   document.querySelectorAll(".community-course-link").forEach(link => { link.href = `submit.html?course=os&unit=${encodeURIComponent(u.id)}`; });
-  $('unitPicker').innerHTML = UNITS.map((v,j)=>({v,j})).sort((a,b)=>Number(unitNumber(a.j))-Number(unitNumber(b.j))).map(({v,j}) => `<option value="${j}">${unitCaption(j)} · ${esc(v.label)} · ${v.questionCount} 題</option>`).join('');
+  $('unitPicker').innerHTML = UNITS.map((v,j)=>({v,j})).sort((a,b)=>(managedUnitOrder.get(a.v.id)??Number(unitNumber(a.j)))-(managedUnitOrder.get(b.v.id)??Number(unitNumber(b.j)))).map(({v,j}) => `<option value="${j}">${unitCaption(j)} · ${esc(v.label)} · ${v.questionCount} 題</option>`).join('');
   $('unitPicker').value = i;
   $('title').textContent=u.label; $('unitEn').textContent=u.en; $('description').textContent=u.desc; $('unitCount').textContent=u.questionCount;
   $('guideText').textContent = guides[u.id] || '先理解本單元的概念，再用題目練習，對照原答案與解析。';
-  $('units').innerHTML = UNITS.map((v,j)=>({v,j})).sort((a,b)=>Number(unitNumber(a.j))-Number(unitNumber(b.j))).map(({v,j}) => `<button class="course-nav ${j===i?'active':''}" data-unit="${j}" aria-pressed="${j===i}"><span class="course-copy"><span class="unit-number">${unitCaption(j)}</span><span class="unit-row"><strong>${esc(v.label)}</strong><span class="unit-count">${v.questionCount} 題</span></span><small class="unit-en">${esc(v.en)}</small></span></button>`).join('');
+  $('units').innerHTML = UNITS.map((v,j)=>({v,j})).sort((a,b)=>(managedUnitOrder.get(a.v.id)??Number(unitNumber(a.j)))-(managedUnitOrder.get(b.v.id)??Number(unitNumber(b.j)))).map(({v,j}) => `<button class="course-nav ${j===i?'active':''}" data-unit="${j}" aria-pressed="${j===i}"><span class="course-copy"><span class="unit-number">${unitCaption(j)}</span><span class="unit-row"><strong>${esc(v.label)}</strong><span class="unit-count">${v.questionCount} 題</span></span><small class="unit-en">${esc(v.en)}</small></span></button>`).join('');
 }
 function switchUnit(i) {
   if (!Number.isInteger(i) || !UNITS[i]) return;
@@ -168,8 +169,7 @@ function cardMarkup({q, unit, unitIndex, i, displayNumber}) {
   const pending = window.courseQuestionTools.qualityReasons(q, 'os').length > 0;
   const hasResponse=chosen.length>0||Boolean(drafts.get(q.id)?.trim());
   const buttonText=practice?'檢查答案':open?'收起答案':'查看答案與解析';
-  const prompt = orderedBilingualText(q.stem, q.translation);
-  return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">${unitCaption(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${window.courseQuestionTools.incompleteReasons(q).length?'<span class="badge gold">資料不完整</span>':''}${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(displayNumber??i+1).padStart(3,'0')}</span></div><h3 class="question" tabindex="-1">${highlighted(prompt.top)}</h3>${prompt.bottom?`<p class="translation" lang="${languageOf(prompt.bottom)}">${highlighted(prompt.bottom)}</p>`:''}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.incompleteMarkup(q)}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${entry}${practice?`<div class="practice-actions"><button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}">${buttonText}</button><button type="button" class="plain" data-clear-response="${q.id}" ${hasResponse?'':'disabled'}>清除作答</button><button type="button" class="plain" data-show-answer="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${open?'收起答案與解析':'顯示答案與解析'}</button></div>`:!$('showAnswers').checked?`<button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${buttonText}</button>`:''}${practice&&result?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
+  return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">${unitCaption(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${window.courseQuestionTools.incompleteReasons(q).length?'<span class="badge gold">資料不完整</span>':''}${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(displayNumber??i+1).padStart(3,'0')}</span></div>${window.courseQuestionTools.bilingualPromptMarkup(q,highlighted)}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.incompleteMarkup(q)}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${entry}${practice?`<div class="practice-actions"><button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}">${buttonText}</button><button type="button" class="plain" data-clear-response="${q.id}" ${hasResponse?'':'disabled'}>清除作答</button><button type="button" class="plain" data-show-answer="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${open?'收起答案與解析':'顯示答案與解析'}</button></div>`:!$('showAnswers').checked?`<button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${buttonText}</button>`:''}${practice&&result?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
 }
 function render(preserveCards = false) {
   const filtered=practiceSequence.apply(matches(),mode==='practice'&&$('practiceOrder').value==='random',entry=>entry.q.id), entries=scopedEntries(), pages=Math.max(1,Math.ceil(filtered.length/pageSize)); page=Math.min(page,pages); totalPages=pages;
@@ -386,7 +386,7 @@ window.courseLearning={
     unitQuestionOrders.set(unitId,new Map(ids.map((id,index)=>[id,index])));
     page=1;render();return true;
   },
-  examUnits:()=>UNITS.map((unit,index)=>({id:unit.id,label:unit.id==='treasure'?'挖寶單元':`L${Number(unitNumber(index))} · ${unit.label}`,number:Number(unitNumber(index))})).sort((a,b)=>a.number-b.number),
+  examUnits:()=>UNITS.map((unit,index)=>({id:unit.id,label:unit.id==='treasure'?unit.label:`L${Number(unitNumber(index))} · ${unit.label}`,number:Number(unitNumber(index))})).sort((a,b)=>(managedUnitOrder.get(a.id)??a.number)-(managedUnitOrder.get(b.id)??b.number)),
   examUnitId:()=>UNITS[active].id,
   examEntries:selection=>{
     const ids=Array.isArray(selection)?new Set(selection):null;
@@ -396,6 +396,11 @@ window.courseLearning={
     return orderEntries(questionEntries.filter(e=>!builtinDeletedIds.has(e.q.id)&&(ids?ids.has(e.unit.id):selection===true||e.unitIndex===active))).map(e=>({id:e.q.id,q:e.q,unit:e.unit.label,unitId:e.unit.id}));
   },
   examUnitLabel:()=>UNITS[active].label,
+  setUnitMetadata(rows){
+    if(!Array.isArray(rows))return;
+    for(const row of rows){const unit=UNITS.find(u=>u.id===row.id);if(!unit)continue;if(row.managed&&typeof row.title==='string')unit.label=row.title.slice(0,60);if(Number.isFinite(row.order))managedUnitOrder.set(row.id,row.order);}
+    refreshUnitNavigation();
+  },
   mergeCommunityQuestions, course:'os',toolbar:document.querySelector('.toolbar'),sidebar:document.querySelector('.sidebar'),list:$('cards'),
   unitIds:()=>orderEntries(questionEntries.filter(e=>e.unitIndex===active&&!builtinDeletedIds.has(e.q.id))).map(e=>e.q.id),
   scopeIds:()=>scopedEntries().map(({q})=>q.id), allUnits,

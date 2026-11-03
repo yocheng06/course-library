@@ -28,7 +28,7 @@ export function setupLibraryHealth({container,openItem,onChanged=()=>{}}) {
   function matching(){return rows.filter(r=>(!$('[data-health-unit]').value||r.unit===$('[data-health-unit]').value)&&(r.issues.length||imageResults.get(r.id)==='無法確認')).filter(r=>$('[data-health-filter]').value==='all'||($('[data-health-filter]').value==='圖片無法確認'?imageResults.get(r.id)==='無法確認':r.issues.includes($('[data-health-filter]').value)));}
   function render(){
     const list=matching();
-    $('[data-health-rows]').innerHTML=list.slice(0,visible).map(row=>`<article class="health-card" data-health-row="${esc(row.id)}"><h3>${esc(row.question.stem??row.question.q)}</h3><p>${esc(unitLabel(row.course,row.unit,row.unitTitle))} · ${esc(row.id)} · ${esc(row.issues.join('、'))}${imageResults.has(row.id)?' · 題圖：'+esc(imageResults.get(row.id)):''}</p><button type="button" class="button secondary" data-health-edit="${esc(row.id)}">編輯此題</button>${row.duplicates.length?`<details><summary>並排比較疑似重複版本（${row.duplicates.length}）</summary><label>對照題目<select data-health-compare="${esc(row.id)}"><option value="">選擇對照版本</option>${row.duplicates.map(id=>`<option value="${esc(id)}">${esc(id)}</option>`).join('')}</select></label><button type="button" class="button secondary" data-health-edit-target="${esc(row.id)}">編輯對照題</button><p>兩個版本目前都保留。若確定要移除其中一題，請進入該題編輯器；移除後仍可在「已移除」還原。</p><div data-health-comparison></div></details>`:''}</article>`).join('')||'<p>目前篩選範圍沒有符合的問題。題圖需另外執行連結檢查。</p>';
+    $('[data-health-rows]').innerHTML=list.slice(0,visible).map(row=>`<article class="health-card" data-health-row="${esc(row.id)}"><h3>${esc(row.question.stem??row.question.q)}</h3><p>${esc(unitLabel(row.course,row.unit,row.unitTitle))} · ${esc(row.id)} · ${esc(row.issues.join('、'))}${imageResults.has(row.id)?' · 題圖：'+esc(imageResults.get(row.id)):''}</p><button type="button" class="button secondary" data-health-edit="${esc(row.id)}">編輯此題</button>${row.duplicates.length?`<details><summary>並排比較疑似重複版本（${row.duplicates.length}）</summary><label>對照題目<select data-health-compare="${esc(row.id)}"><option value="">選擇對照版本</option>${row.duplicates.map(id=>`<option value="${esc(id)}">${esc(id)}</option>`).join('')}</select></label><button type="button" class="button secondary" data-health-edit-target="${esc(row.id)}">編輯對照題</button><p>兩個版本目前都保留。若確定要移除其中一題，請進入該題編輯器；移除後仍可在「已移除」還原。</p><div data-health-comparison></div><div class="actions"><button type="button" class="button secondary" data-health-remove-other="${esc(row.id)}">保留本題、移除對照題</button><button type="button" class="button secondary" data-health-remove-this="${esc(row.id)}">保留對照題、移除本題</button></div></details>`:''}</article>`).join('')||'<p>目前篩選範圍沒有符合的問題。題圖需另外執行連結檢查。</p>';
     $('[data-health-more]').hidden=list.length<=visible;
     const counts=['缺解析','缺答案','答案無法對應選項','疑似重複'].map(issue=>issue+' '+rows.filter(r=>r.issues.includes(issue)).length+' 題').join(' · ');
     $('[data-health-stop]').hidden=!checking;
@@ -70,6 +70,13 @@ export function setupLibraryHealth({container,openItem,onChanged=()=>{}}) {
     if(event.target.closest('[data-health-refresh]'))show({refresh:true});
     if(event.target.closest('[data-health-images]'))checkImages();
     if(event.target.closest('[data-health-more]')){visible+=25;render();}
+    const removal=event.target.closest('[data-health-remove-other],[data-health-remove-this]');
+    if(removal){
+      const otherId=removal.closest('details').querySelector('[data-health-compare]').value;
+      const other=rows.find(r=>r.id===otherId),current=rows.find(r=>r.id===(removal.dataset.healthRemoveOther||removal.dataset.healthRemoveThis));
+      if(!other||!current){$('[data-health-status]').textContent='請先選擇並核對對照版本。';return;}
+      openItem(removal.hasAttribute('data-health-remove-other')?other:current,{remove:true});return;
+    }
     const target=event.target.closest('[data-health-edit-target]');if(target){const id=target.closest('details').querySelector('[data-health-compare]').value;const row=rows.find(r=>r.id===id);if(row)openItem(row);else $('[data-health-status]').textContent='請先選擇要編輯的對照版本。';return;}
     const edit=event.target.closest('[data-health-edit]');if(edit)openItem(rows.find(r=>r.id===edit.dataset.healthEdit));
   });

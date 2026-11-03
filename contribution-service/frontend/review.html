@@ -8,7 +8,7 @@
     <link rel="icon" href="assets/icons/course-mascot.png" />
     <link rel="stylesheet" href="assets/contributions.css?v=workflow-improvements-20261102" />
     <link rel="stylesheet" href="assets/theme.css?v=integrated-management-20261029" />
-    <link rel="stylesheet" href="assets/management.css?v=danger-button-20261103" />
+    <link rel="stylesheet" href="assets/management.css?v=admin-workflow-20261103" />
     <script src="assets/theme.js?v=flow-clarity-20261103" defer></script>
   </head>
   <body>
@@ -56,13 +56,14 @@
             <button type="button" class="button secondary" data-view="all" aria-current="false">全部題目 <span class="count-badge" data-count="all">—</span></button>
             <button type="button" class="button secondary" data-view="modified" aria-current="page">最近修改 <span class="count-badge" data-count="modified">—</span></button>
             <button type="button" class="button secondary" data-view="deleted" aria-current="false">已移除 <span class="count-badge" data-count="deleted">—</span></button>
-            <button type="button" class="button secondary" data-view="pending" aria-current="false">待核對 <span class="count-badge" data-count="pending">—</span></button>
-            <button type="button" class="button secondary" data-view="health" aria-current="false">題庫健檢</button>
+            <button type="button" class="button secondary" data-view="units" aria-current="false">管理單元</button>
             <button type="button" class="button secondary" data-view="imports" aria-current="false">匯入紀錄</button>
           </nav>
           <details class="management-tools">
             <summary class="text-button">管理工具</summary>
             <div class="management-tool-menu">
+            <button type="button" class="button secondary" data-view="pending" aria-current="false">待核對 <span class="count-badge" data-count="pending">—</span></button>
+            <button type="button" class="button secondary" data-view="health" aria-current="false">題庫健檢</button>
               <button type="button" class="text-button" id="exportQuestionDrafts">下載題目編輯草稿</button>
               <button type="button" class="text-button" id="exportImportDrafts">下載匯入紀錄草稿</button>
               <button type="button" class="text-button" id="exportBackup">下載完整備份</button>
@@ -72,6 +73,7 @@
           </details>
         </div>
         <section id="libraryWorkspace" aria-labelledby="libraryTitle"></section>
+        <section id="unitWorkspace" hidden aria-label="單元名稱與順序管理"></section>
         <section id="healthWorkspace" hidden aria-label="題庫健檢"></section>
         <section id="importWorkspace" class="import-records" hidden aria-label="匯入紀錄管理"></section>
       </section>
@@ -80,7 +82,7 @@
 
     <dialog id="questionDialog" class="question-dialog" aria-labelledby="questionDialogTitle"></dialog>
     <script src="assets/contributions-config.js?v=management-workspace-20261029"></script>
-    <script type="module" src="assets/contributions-review.js?v=workflow-improvements-20261102"></script>
+    <script type="module" src="assets/contributions-review.js?v=admin-workflow-20261103"></script>
     <noscript>請開啟 JavaScript 使用題庫管理功能。</noscript>
   </body>
 </html>
