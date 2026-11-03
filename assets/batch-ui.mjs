@@ -11,7 +11,7 @@ import {
   MAX_TEXT,
 } from "./batch-model.mjs?v=rr-format-records-20261101";
 import { parseBatchInput } from "./batch-import.mjs?v=rr-format-records-20261101";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=rr-format-records-20261101";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=easy-import-20261103";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 function ensureTransferButton() {
@@ -30,7 +30,7 @@ function ensureTransferButton() {
   button.type = "button";
   button.className = "button secondary";
   button.disabled = true;
-  button.textContent = "轉入投稿草稿";
+  button.textContent = "補答案並分享未收錄題目";
   copyButton.insertAdjacentElement("afterend", button);
   return button;
 }
@@ -332,6 +332,7 @@ $("batchForm").addEventListener("submit", (event) => {
       $("batchText").value,
     );
     const parsed = inheritQuestionImages(rawParsed,imageQuestions);
+    $("resultImageHelp").hidden=!parsed.some(q=>q.stem.includes('[題圖未轉錄]') && !validImageHashes(q.imageHashes));
     if (parsed.some(q=>validImageHashes(q.imageHashes)) && publicFlights.has($("course").value)) throw new Error("題庫圖片仍在同步，請等同步完成後再比對；題目與圖片資料已保留。");
     results = matchRecordedQuestions(parsed, index, scope());
     snapshot = currentSnapshot();
@@ -488,6 +489,17 @@ try {
   }
 } catch {}
 units();
-const importUI = setupBatchImport({ document, getImageQuestions:()=>imageQuestions, onApply:result=>{imageQuestions=result.questions.filter(q=>validImageHashes(q.imageHashes));markChanged();} });
+const importUI = setupBatchImport({ document, autoApply:true, getImageQuestions:()=>imageQuestions, onApply:(result,{autoCompare=false}={})=>{
+  imageQuestions=result.questions.filter(q=>validImageHashes(q.imageHashes));markChanged();
+  if(autoCompare) {
+    const expected=currentSnapshot();
+    // Wait for the current course's image fingerprints and public questions too.
+    Promise.resolve(loadLibrary()).then(()=>{
+      if(currentSnapshot()!==expected)return;
+      if(!index){message("題目已保留，題庫尚未載入；請重新同步後查題。",true);return;}
+      $("batchForm").dispatchEvent(new Event("submit",{bubbles:true,cancelable:true}));
+    }).catch(()=>message("題目已保留，請重新同步題庫後查題。",true));
+  }
+} });
 markChanged();
 loadLibrary();

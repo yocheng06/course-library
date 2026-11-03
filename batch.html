@@ -59,7 +59,7 @@
             type="button"
             aria-describedby="importHelp"
           >
-            匯入題目檔案
+            選檔並查答案
           </button>
           <input
             id="batchFiles"
@@ -69,9 +69,9 @@
             aria-label="選擇題目檔案"
             hidden
           />
-          <button id="chooseBatchImageFolder" class="button secondary" type="button">選取題圖資料夾（選填）</button>
+          <div id="batchImageHelp" hidden><p>這份題目需要圖片，請選取下載時附帶的同名 _files 資料夾；補圖後會自動重新查題。</p><button id="chooseBatchImageFolder" class="button secondary" type="button">選取題圖資料夾（選填）</button>
           <input id="batchImageFolder" type="file" webkitdirectory multiple hidden aria-label="選取 HTML 附帶的圖片資料夾">
-          <p class="muted">有題圖時，先選取下載時附帶的 _files 資料夾，再匯入 HTML。圖片內容完全相同且題幹與選項符合才帶入答案；圖片只在這台裝置讀取，每張限 1 MB。</p>
+          <p class="muted">圖片與題幹、選項符合才帶入答案；圖片只在這台裝置讀取，每張限 1 MB。</p></div>
           <p id="importHelp" class="muted">
             支援 TXT／Markdown、JSON、CSV／TSV、HTML，可一次選多個檔案。合計最多
             30 題、20 MB；完整下載的 HTML 也可匯入，檔案在這台裝置讀取。
@@ -262,6 +262,10 @@ D. 巨集排程器
           <h2 id="resultsHeading" tabindex="-1">答案總表</h2>
           <span id="resultCount" class="muted"></span>
         </div>
+        <div id="resultImageHelp" class="notice" role="status" hidden>
+          <p>部分題目缺少題圖，補上圖片後才能完整比對。</p>
+          <button id="completeResultImages" type="button" class="button secondary">補上題圖並重新查題</button>
+        </div>
         <div id="courseMismatch" class="notice" role="status" hidden>
           <p id="courseMismatchText"></p>
           <button id="switchCourse" type="button" class="button secondary">
@@ -287,7 +291,7 @@ D. 巨集排程器
             <button id="copyAnswers" type="button" class="button secondary">
               複製答案總表</button
             <button id="transferUnmatched" type="button" class="button secondary" disabled>
-              轉入投稿草稿
+              補答案並分享未收錄題目
             </button>
           </div>
         </div>
@@ -334,7 +338,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=flow-clarity-20261103"
+      src="assets/batch-ui.mjs?v=easy-import-20261103"
     ></script>
   </body>
 </html>

@@ -9,7 +9,7 @@ export function groupImport(data, fallback, filename='匯入題庫', {allowMissi
     if(Array.isArray(value)){value.forEach(item=>visit(item,context));return;}
     if(!value || typeof value!=='object')throw new Error('匯入資料必須是題目或單元清單。');
     const course=value.course ?? context.course;
-    if(!COURSE_UNITS[course])throw new Error('科目不正確，請使用 os 或 algorithms。');
+    if(!COURSE_UNITS[course])throw new Error(course?'科目不正確，請選擇作業系統或演算法。':'檔案未提供科目，請先選擇科目與單元，再重新讀取。');
     if(targetUnit && course!==fallback.course)throw new Error('匯入檔案的科目與所選單元不同，請先確認科目。');
     const nested=Array.isArray(value.questions) || Array.isArray(value.groups) || Array.isArray(value.units);
     let unit=targetUnit ?? value.unit ?? (nested && value.id ? value.id : context.unit);
@@ -24,7 +24,7 @@ export function groupImport(data, fallback, filename='匯入題庫', {allowMissi
       images:(value.images||[]).map(image=>typeof image==='string'?image:image.src),
     });
   }
-  visit(data,{...fallback,title:fallback.title||filename});
+  visit(data,{...fallback,...(fallback.requireScope?{course:undefined,unit:undefined}:{}),title:fallback.title||filename});
   const result=[];
   for(const group of groups.values()){
     for(let start=0;start<group.questions.length;start+=200){
@@ -71,7 +71,7 @@ function replacedQuestionSummary(result) {
 export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}) {
   const key='course-library-grouped-submissions-v1';let queue=[],busy=false;
   const panel=document.createElement('section');panel.className='group-preview';
-  panel.innerHTML='<h2>匯入分組預覽</h2><p>依科目與單元分組，每批最多 200 題。可同時選取 CCSA 題目 HTML 和交卷結果 HTML，自動配對正解；解析可留白。確認每組內容與答案後再送出；下方手動編輯中的原草稿會保留。已送出的批次會保留收據，重試只處理未完成批次。沒有配對到的正解需先補上。</p><p class="notice" data-import-summary role="status" aria-live="polite" hidden></p><div data-groups></div><label class="consent"><input type="checkbox" data-consent>我已預覽各組題目並確認題目與答案正確。完全重複會略過；疑似重複或版本不同會另行收錄並標示待核對，既有題目會保留。送出後會立即公開。</label><div class="actions"><button type="button" class="button" data-send>確認分組並逐批加入題庫</button><button type="button" class="button secondary" data-download>下載分組草稿與收據</button><button type="button" class="text-button" data-clear>清空分組預覽</button></div><p data-import-status role="status" aria-live="polite"></p>';
+  panel.innerHTML='<h2>匯入分組預覽</h2><p>依科目與單元分組，每批最多 200 題。可同時選取 CCSA 題目 HTML 和交卷結果 HTML，自動配對正解；解析可留白。確認每組內容與答案後再送出；下方手動編輯中的原草稿會保留。已送出的批次會保留收據，重試只處理未完成批次。沒有配對到的正解需先補上。</p><p class="notice" data-import-summary role="status" aria-live="polite" hidden></p><div data-groups></div><label class="consent"><input type="checkbox" data-consent>我已預覽各組題目並確認題目與答案正確。完全重複會略過；疑似重複或版本不同會另行收錄並標示待核對，既有題目會保留。送出後會立即公開。</label><div class="actions"><button type="button" class="button" data-send>公開題目</button><button type="button" class="button secondary" data-download>下載分組草稿與收據</button><button type="button" class="text-button" data-clear>清空分組預覽</button></div><p data-import-status role="status" aria-live="polite"></p>';
   document.getElementById('draftHeading').closest('section').before(panel);
   const list=panel.querySelector('[data-groups]'),status=panel.querySelector('[data-import-status]'),consent=panel.querySelector('[data-consent]');
   function updateSummary(){
@@ -118,6 +118,8 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
     refreshSendButton();
   }
   function refreshSendButton(){
+    const pendingCount=queue.filter(group=>!group.result).reduce((n,group)=>n+group.payload.questions.length,0);
+    panel.querySelector('[data-send]').textContent=busy?'正在公開題目…':pendingCount?`公開這 ${pendingCount} 題`:'已完成公開';
     list.querySelectorAll('[data-topic],[data-topic-select],[data-topic-all],[data-topic-bulk],[data-topic-apply],[data-import-answer]').forEach(el=>{const g=Number((el.dataset.topic||el.dataset.topicSelect||'').split(':')[0]||el.dataset.topicAll||el.dataset.topicBulk||el.dataset.topicApply||el.dataset.groupIndex);el.disabled=busy||Boolean(queue[g]?.result);});
     panel.querySelector('[data-send]').disabled=busy||!consent.checked||!queue.some(group=>!group.result)||queue.some(group=>!group.result&&missingAnswerCount(group)>0);
   }
@@ -238,6 +240,19 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
   render();
   if(queue.some(group=>group.htmlImport&&!group.result))updateAnswerStatus();
   return {
+    getMetadata(){
+      const pending=queue.filter(group=>!group.result);
+      return pending.length && new Set(pending.map(group=>group.payload.course+':'+group.payload.unit)).size===1 ? pending[0].payload : null;
+    },
+    updateMetadata(meta){
+      if(busy)throw new Error('請等待目前公開操作完成。');
+      const pending=queue.filter(group=>!group.result);
+      if(!pending.length)throw new Error('沒有待公開的題目。');
+      if(new Set(pending.map(group=>group.payload.course+':'+group.payload.unit)).size>1)throw new Error('這份檔案包含多個單元，請保留各組分類；需要調整時請拆分檔案後匯入。');
+      const next=queue.map(group=>group.result?group:{...group,payload:normalizeBatch({...group.payload,...meta,questions:group.payload.questions},{allowMissingAnswers:group.htmlImport===true})});
+      const old=queue;queue=next;try{save();}catch{queue=old;throw new Error('無法保存修改，原預覽仍保留。');}
+      consent.checked=false;render();status.textContent='資料已套用，請重新核對後再公開。';
+    },
     async importFiles(files, imageFiles=[]){
       if(busy)throw new Error('請等待分組投稿完成。');
       const selected=Array.from(files||[]);
@@ -253,7 +268,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
       const restored=parsed?.version===1 && Array.isArray(parsed.groups) && parsed.groups.every(g=>g.payload && g.requestId);
       const htmlImport=parsed?.__htmlQuestionImport===true;
       const importContext=metadata();
-      const targetUnit=importContext.course==='os' && importContext.unit==='treasure' ? 'treasure' : null;
+      const targetUnit=importContext.targetUnit || null;
       const groups=restored?parsed.groups.map(g=>({...g,payload:normalizeBatch(g.payload,{allowMissingAnswers:g.htmlImport===true})})):groupImport(parsed,importContext,names.join(' + '),{allowMissingAnswers:htmlImport,targetUnit});
       if(parsed?.__answerImportSummary)groups.forEach(group=>{group.answerImportSummary=parsed.__answerImportSummary;});
       const next=groups.map(g=>({...g,requestId:g.requestId||crypto.randomUUID()}));
@@ -269,6 +284,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
         ?'已匯入 '+questionCount+' 題；答案檔自動配對 '+answerSummary.matchedQuestionCount+'/'+answerSummary.totalQuestionCount+' 題，解析留白。'+(missing?'尚有 '+missing+' 題需補正解並核對。':'請展開預覽核對後送出。')+' 尚未送出。'
         :missing?'已匯入 '+questionCount+' 題；'+missing+' 題尚缺正解，請補上並核對。解析可留白。尚未送出。':'已分為 '+queue.length+' 批，解析可留白；請展開每組預覽後再送出。';
       panel.scrollIntoView({block:'start'});
+      return queue.map(group=>group.payload);
     },
   };
 }

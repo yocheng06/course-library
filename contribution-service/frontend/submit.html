@@ -58,7 +58,38 @@
         <div id="pendingList"></div>
       </section>
       <section class="panel" aria-labelledby="batchHeading">
-        <h2 id="batchHeading">這份題庫</h2>
+        <h2 id="batchHeading">選取要分享的題目</h2>
+        <div id="importWorkspace">
+          <h3>題目與答案分成兩份 HTML</h3>
+          <p class="muted">先選題目檔與交卷結果檔，兩份選齊後會自動配對答案並產生預覽。科目與單元會依檔案帶入，解析可留白。</p>
+          <ol class="html-import-steps">
+            <li><strong>題目 HTML</strong><button class="button secondary" id="chooseQuestionHtml" type="button">選取題目檔</button><input id="questionHtmlFile" type="file" accept=".html,.htm,text/html" hidden><span id="questionHtmlName">尚未選取</span></li>
+            <li><strong>答案 HTML</strong><button class="button secondary" id="chooseAnswerHtml" type="button">選取交卷結果檔</button><input id="answerHtmlFile" type="file" accept=".html,.htm,text/html" hidden><span id="answerHtmlName">尚未選取</span></li>
+            <li id="submissionImageHelp" hidden><strong>這份題目需要圖片</strong><p>請選取下載時附帶的同名 _files 資料夾，或複選題圖；選好後會自動重試。</p><strong>題圖</strong><button class="text-button" id="chooseImportImages" type="button">選取 HTML 題圖資料夾</button><input
+              type="file" id="importImages" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
+              webkitdirectory directory multiple hidden><button class="text-button" id="chooseImportImageFiles" type="button">選取題圖檔（可複選）</button><input type="file" id="importImageFiles" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" multiple hidden>
+              <span id="importImageStatus" class="muted" role="status" aria-live="polite">沒有本機題圖可略過；可選取「_files」資料夾，或直接複選這份題目的 PNG／JPEG／WebP 圖片。</span></li>
+            <li><strong>核對結果</strong><button class="button" id="previewHtmlPair" type="button" disabled hidden>重新讀取兩份檔案</button><span id="htmlPairStatus" role="status" aria-live="polite">請先選取題目及交卷結果兩份 HTML。</span></li>
+          </ol>
+        <details class="import-other-formats"><summary>其他格式、單一題庫檔與備份</summary>
+        <p class="muted">可匯入單一 JSON／HTML，或一次選取兩份題目與答案 HTML。跨單元 JSON 可使用 course、unit、questions；未指定範圍時沿用上方科目與單元。</p>
+        <div class="import-row">
+          <button class="button secondary" id="chooseImport" type="button">選取 JSON／HTML 題庫</button><input
+              type="file"
+              id="importFile"
+              accept=".json,.html,.htm,application/json,text/html"
+              multiple
+              hidden /><button class="text-button" id="downloadExample" type="button">
+            下載匯入範例</button
+          ><button id="restorePending" class="text-button" type="button">載入待補備份</button><input id="pendingFile" type="file" accept=".json,application/json" hidden
+          ><span class="muted"
+            >匯入最多 2,000 題、20 批，每批最多 200 題。題目與答案會自動配對；匯入後請核對，解析可留白。</span
+          >
+        </div>
+        </details>
+        </div>
+        <div id="submissionMetadata" hidden>
+        <h3>確認科目與單元</h3><p class="muted" id="detectedScope" role="status">檔案有提供分類時會自動帶入；請核對後再公開。</p>
         <div class="field-grid">
           <label>科目<select id="course" required></select></label
           ><label>單元<select id="unit" required></select></label
@@ -89,34 +120,8 @@
             placeholder="例如：課堂講義第 12 頁、自行整理的練習題"
           ></textarea>
         </label>
-        <div id="importWorkspace">
-          <h3>題目與答案分成兩份 HTML</h3>
-          <p class="muted">支援一般練習與挖寶挑戰題組。依序選取檔案，再產生預覽；共用題幹與題圖會保留，解析可以留白。</p>
-          <ol class="html-import-steps">
-            <li><strong>題目 HTML</strong><button class="button secondary" id="chooseQuestionHtml" type="button">選取題目檔</button><input id="questionHtmlFile" type="file" accept=".html,.htm,text/html" hidden><span id="questionHtmlName">尚未選取</span></li>
-            <li><strong>答案 HTML</strong><button class="button secondary" id="chooseAnswerHtml" type="button">選取交卷結果檔</button><input id="answerHtmlFile" type="file" accept=".html,.htm,text/html" hidden><span id="answerHtmlName">尚未選取</span></li>
-            <li><strong>題圖（有圖片時）</strong><button class="text-button" id="chooseImportImages" type="button">選取 HTML 題圖資料夾</button><input
-              type="file" id="importImages" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
-              webkitdirectory directory multiple hidden><button class="text-button" id="chooseImportImageFiles" type="button">選取題圖檔（可複選）</button><input type="file" id="importImageFiles" accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp" multiple hidden>
-              <span id="importImageStatus" class="muted" role="status" aria-live="polite">沒有本機題圖可略過；可選取「_files」資料夾，或直接複選這份題目的 PNG／JPEG／WebP 圖片。</span></li>
-            <li><strong>核對結果</strong><button class="button" id="previewHtmlPair" type="button" disabled>產生題目與答案預覽</button><span id="htmlPairStatus" role="status" aria-live="polite">請先選取題目及交卷結果兩份 HTML。</span></li>
-          </ol>
-        <details class="import-other-formats"><summary>其他格式、單一題庫檔與備份</summary>
-        <p class="muted">可匯入單一 JSON／HTML，或一次選取兩份題目與答案 HTML。跨單元 JSON 可使用 course、unit、questions；未指定範圍時沿用上方科目與單元。</p>
-        <div class="import-row">
-          <button class="button secondary" id="chooseImport" type="button">選取 JSON／HTML 題庫</button><input
-              type="file"
-              id="importFile"
-              accept=".json,.html,.htm,application/json,text/html"
-              multiple
-              hidden /><button class="text-button" id="downloadExample" type="button">
-            下載匯入範例</button
-          ><button id="restorePending" class="text-button" type="button">載入待補備份</button><input id="pendingFile" type="file" accept=".json,application/json" hidden
-          ><span class="muted"
-            >匯入最多 2,000 題、20 批，每批最多 200 題。題目與答案會自動配對；匯入後請核對，解析可留白。</span
-          >
-        </div>
-        </details>
+        <button id="applyImportMetadata" class="button secondary" type="button">套用資料至預覽</button>
+        <button id="retryMetadataImport" class="button secondary" type="button" hidden>使用這些資料重新讀取</button>
         </div>
       </section>
       <form id="questionForm" class="panel">
@@ -277,7 +282,7 @@
     <script src="assets/contributions-config.js?v=global-dedup-20261016"></script>
     <script
       type="module"
-      src="assets/contributions-submit.js?v=subject-palette-20261103"
+      src="assets/contributions-submit.js?v=easy-import-20261103"
     ></script>
     <noscript>請開啟 JavaScript 使用題庫投稿功能。</noscript>
   </body>

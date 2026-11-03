@@ -1,7 +1,7 @@
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 const uniqueQuestions=(course,unit,questions,onDuplicate)=>uniqueQuestionsBase(course,unit,questions,onDuplicate,{allowConflictingVersions:true});
 import {createUnitCatalog} from './unit-catalog.mjs?v=flow-clarity-20261103';
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=collapsed-import-20261103';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=easy-import-20261103';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -26,6 +26,7 @@ const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
 let selectedImportImageFiles = [];
+let retryImportFiles = [], importScopeChosen = false, manualImportBackup = null, importMetadata = null;
 let selectedQuestionHtml = null, selectedAnswerHtml = null, importBusy = false, draftSaveTimer;
 let questions = [],
   images = [],
@@ -75,6 +76,7 @@ function metadata() {
   const course=$("course").value,custom=$("unit").value==='__new__';
   return {course,unit:custom?'L'+$("newUnitNumber").value:$("unit").value,
     unitTitle:custom?$("newUnitTitle").value:publicTitles[course][$("unit").value]||'',
+    requireScope:!importScopeChosen, targetUnit:importScopeChosen && course==='os' && $("unit").value==='treasure'?'treasure':null,
     title:$("batchTitle").value,name:$("submitter").value,source:$("source").value};
 }
 function save() {
@@ -83,7 +85,7 @@ function save() {
     localStorage.setItem(
       key,
       JSON.stringify({
-        ...metadata(),
+        ...(manualImportBackup || metadata()),
         questions,
         editor: Object.fromEntries(new FormData(form)),
         images,
@@ -106,6 +108,7 @@ function scheduleDraftSave() {
 window.addEventListener("pagehide", save);
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); });
 function ready() {
+  $("submitBatch").textContent=submitPending?"正在公開題目…":questions.length?`公開這 ${questions.length} 題`:"公開題目";
   $("submitBatch").disabled =
     !questions.length ||
     !$("consent").checked ||
@@ -470,6 +473,7 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
     title = doc.title.replace(/\s+/g, " ").trim() || name.replace(/\.(?:html?)$/i, "");
   let unit;
   try {
+    if(!realmId && !(challenge && course==='os') && !importScopeChosen)throw new Error('請先選擇單元');
     unit = challenge && course === "os" ? normalizeUnit(course,"treasure") : realmId ? normalizeUnit(course, realmId) : normalizeUnit(course, $("unit").value);
   } catch {
     throw new Error("已辨識課程練習頁，但無法判斷單元；請確認頁面網址有 realm_id，或先選擇正確單元。" );
@@ -853,7 +857,24 @@ function importedQuestions(data) {
 $("chooseImport").addEventListener("click", () => $("importFile").click());
 function setSubmissionMode(mode) {
   const importing = mode === "import";
+  if(importing && !manualImportBackup){
+    const imported=importMetadata || groupedSubmissions.getMetadata();
+    if(imported){
+      manualImportBackup=metadata();
+      $("course").value=imported.course;units();setSubmissionUnit(imported.unit,imported.unitTitle);
+      $("batchTitle").value=imported.title;$("submitter").value=imported.name||'';$("source").value=imported.source||'';
+    }
+  }
+  if(!importing && manualImportBackup){
+    const original=manualImportBackup;manualImportBackup=null;
+    $("course").value=original.course;units();setSubmissionUnit(original.unit,original.unitTitle);
+    $("batchTitle").value=original.title;$("submitter").value=original.name;$("source").value=original.source;
+  }
   $("importWorkspace").hidden = !importing;
+  $("applyImportMetadata").hidden=!importing || !document.querySelector(".group-preview [data-group-index]");
+  if(!importing)$("retryMetadataImport").hidden=true;
+  $("submissionMetadata").hidden = importing && !document.querySelector(".group-preview [data-group-index]");
+  $("batchHeading").textContent=importing?'選取要分享的題目':'這份題庫';
   form.hidden = importing;
   $("draftHeading").closest("section").hidden = importing;
   const grouped = document.querySelector(".group-preview");
@@ -864,12 +885,13 @@ function setSubmissionMode(mode) {
   }
 }
 function updatePairStatus() {
-  for (const id of ["chooseQuestionHtml", "chooseAnswerHtml", "chooseImportImages", "chooseImport"]) $(id).disabled = importBusy;
+  for (const id of ["chooseQuestionHtml", "chooseAnswerHtml", "chooseImportImages", "chooseImportImageFiles", "chooseImport"]) $(id).disabled = importBusy;
   $("questionHtmlName").textContent = selectedQuestionHtml?.name || "尚未選取";
   $("answerHtmlName").textContent = selectedAnswerHtml?.name || "尚未選取";
   $("previewHtmlPair").disabled = importBusy || !selectedQuestionHtml || !selectedAnswerHtml;
+  $("previewHtmlPair").hidden = $("previewHtmlPair").disabled;
   $("htmlPairStatus").textContent = importBusy ? "正在產生預覽，請稍候…" :
-    selectedQuestionHtml && selectedAnswerHtml ? "檔案已備妥；有題圖時選取資料夾或複選圖片，再產生預覽。" : "請先選取題目及交卷結果兩份 HTML。";
+    selectedQuestionHtml && selectedAnswerHtml ? "兩份檔案已選齊，將自動配對答案。" : "請先選取題目及交卷結果兩份 HTML。";
 }
 for (const [buttonId, inputId, kind] of [["chooseQuestionHtml", "questionHtmlFile", "question"], ["chooseAnswerHtml", "answerHtmlFile", "answer"]]) {
   $(buttonId).addEventListener("click", () => $(inputId).click());
@@ -881,21 +903,36 @@ for (const [buttonId, inputId, kind] of [["chooseQuestionHtml", "questionHtmlFil
     }
     event.target.value = "";
     updatePairStatus();
+    if(file && selectedQuestionHtml && selectedAnswerHtml)void previewSelectedPair();
   });
 }
 $("showHtmlImport").addEventListener("click", () => setSubmissionMode("import"));
 $("showManualEntry").addEventListener("click", () => setSubmissionMode("manual"));
 async function previewImport(files) {
   if (importBusy) return false;
+  retryImportFiles=Array.from(files);
   importBusy = true;
   updatePairStatus();
   try {
-    await groupedSubmissions.importFiles(files, selectedImportImageFiles);
+    const groups=await groupedSubmissions.importFiles(files, selectedImportImageFiles);
+    if(!manualImportBackup)manualImportBackup=metadata();
+    if(groups?.length){
+      const scopes=new Set(groups.map(group=>group.course+':'+group.unit));
+      if(scopes.size===1){const group=groups[0];$("course").value=group.course;units();setSubmissionUnit(group.unit,group.unitTitle);$("batchTitle").value=group.title;}
+      $("detectedScope").textContent='已辨識：'+[...new Set(groups.map(group=>COURSE_UNITS[group.course].name+'／'+unitLabel(group.course,group.unit,group.unitTitle)))].join('、')+'。各組公開範圍以下方預覽為準。';
+    }
+    importMetadata=metadata();
+    $("submissionMetadata").hidden=false;$("retryMetadataImport").hidden=true;$("applyImportMetadata").hidden=false;
+    $("submissionImageHelp").hidden=true;retryImportFiles=[];
     selectedImportImageFiles = [];
     $("importImageStatus").textContent = "題圖已帶入預覽；選取的圖片暫存已清除。";
     setSubmissionMode("import");
     return true;
   } catch(error) {
+    const missingImage=/題圖|圖片/.test(error.message);
+    $("submissionImageHelp").hidden=!missingImage;
+    if(missingImage)$("importImageStatus").textContent=error.message;
+    else {$("submissionMetadata").hidden=false;$("retryMetadataImport").hidden=false;$("applyImportMetadata").hidden=true;$("detectedScope").textContent='請確認科目與單元，再重新讀取檔案。';}
     message("無法匯入：" + error.message, true);
     return false;
   } finally {
@@ -903,14 +940,15 @@ async function previewImport(files) {
     updatePairStatus();
   }
 }
-$("previewHtmlPair").addEventListener("click", async () => {
+async function previewSelectedPair() {
   if (!selectedQuestionHtml || !selectedAnswerHtml) return;
   if (await previewImport([selectedQuestionHtml, selectedAnswerHtml])) {
     selectedQuestionHtml = selectedAnswerHtml = null;
     updatePairStatus();
     $("htmlPairStatus").textContent = "已產生預覽，尚未送出。請往下核對每題、正解與題圖。";
   }
-});
+}
+$("previewHtmlPair").addEventListener("click",previewSelectedPair);
 $("chooseImportImages").addEventListener("click", () => $("importImages").click());
 $("chooseImportImageFiles")?.addEventListener("click", () => $("importImageFiles").click());
 function selectImportImages(event) {
@@ -921,13 +959,17 @@ function selectImportImages(event) {
     ? `已選取 ${supported.length} 個 PNG／JPEG／WebP 檔；匯入成功後會清除暫存選擇。`
     : "沒有找到 PNG、JPEG 或 WebP 題圖；可選取題目 HTML 同名的「_files」資料夾。";
   event.target.value = "";
+  if(supported.length && retryImportFiles.length && !importBusy) {
+    const retry=retryImportFiles.slice();
+    void previewImport(retry).then(ok=>{if(ok){selectedQuestionHtml=selectedAnswerHtml=null;updatePairStatus();$("htmlPairStatus").textContent='已補圖並產生預覽，尚未送出。';}});
+  }
 }
 $("importImages").addEventListener("change", selectImportImages);
 $("importImageFiles")?.addEventListener("change", selectImportImages);
 $("importFile").addEventListener("change", async event => {
-  const files=event.target.files;if(!files?.length)return;
-  try { await previewImport(files); }
-  finally { event.target.value=''; }
+  const input=event.target, files=Array.from(input.files||[]);if(!files.length)return;
+  input.value='';
+  await previewImport(files);
 });
 $("downloadExample").addEventListener("click", () =>
   download(
@@ -1156,6 +1198,15 @@ const groupedSubmissions=setupGroupedSubmissions({parseImport,metadata,message,o
   renderReceipts();
 }});
 
+$("unit").addEventListener('change',()=>{importScopeChosen=true;});
+$("course").addEventListener('change',()=>{importScopeChosen=true;});
+$("retryMetadataImport").addEventListener('click',()=>{
+  importScopeChosen=true;
+  if(retryImportFiles.length)void previewImport(retryImportFiles.slice()).then(ok=>{if(ok){selectedQuestionHtml=selectedAnswerHtml=null;updatePairStatus();$("htmlPairStatus").textContent='已產生預覽，尚未送出。';}});
+});
+$("applyImportMetadata").addEventListener('click',()=>{
+  try{groupedSubmissions.updateMetadata(metadata());importMetadata=metadata();$("detectedScope").textContent='資料已套用至預覽，請核對後再公開。';}catch(error){message(error.message,true);}
+});
 loadPublicUnits();
 setSubmissionMode(document.querySelector(".group-preview [data-group-index]") ? "import" :
   questions.length || editIndex !== -1 || form.elements.stem.value.trim() ? "manual" : "import");

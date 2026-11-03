@@ -107,6 +107,7 @@ test('separate HTML pickers produce a paired preview and switching modes preserv
  assert.equal(form.hidden,true);
  ui.fire(ui.$('showManualEntry'),'click');
  form.elements.stem.value='保留手動編輯的原題 ___';
+ const originalUnit=ui.$('unit').value;
  ui.fire(ui.$('showHtmlImport'),'click');
  assert.equal(form.hidden,true);
  assert.equal(form.elements.stem.value,'保留手動編輯的原題 ___');
@@ -116,8 +117,7 @@ test('separate HTML pickers produce a paired preview and switching modes preserv
   Object.defineProperty(ui.$(id),'files',{configurable:true,value:[{name,size:text.length,text:async()=>text}]});
   ui.fire(ui.$(id),'change');
  }
- assert.equal(ui.$('previewHtmlPair').disabled,false);
- ui.fire(ui.$('previewHtmlPair'),'click');
+ assert.equal(ui.$('previewHtmlPair').disabled,true); // The second file starts parsing automatically.
  await new Promise(resolve=>setImmediate(resolve)); await new Promise(resolve=>setImmediate(resolve));
  const batch=ui.document.querySelector('details[data-group-index]');assert.equal(batch.hasAttribute('open'),false);batch.open=true;ui.fire(batch,'toggle');
  assert.equal(ui.document.querySelector('[data-import-answer="fill"]').value,'pipe');
@@ -126,6 +126,8 @@ test('separate HTML pickers produce a paired preview and switching modes preserv
  assert.equal(ui.requests.filter(r=>r.opts?.method==='POST').length,0);
  ui.fire(ui.$('showManualEntry'),'click');
  assert.equal(form.hidden,false);assert.equal(form.elements.stem.value,'保留手動編輯的原題 ___');
+ assert.equal(ui.$('unit').value,originalUnit);
+ ui.fire(ui.$('showHtmlImport'),'click');assert.equal(ui.$('unit').value,'process');
 });
 
 test('selecting treasure sends paired HTML questions to treasure instead of the original chapter',async()=>{
@@ -139,8 +141,10 @@ test('selecting treasure sends paired HTML questions to treasure instead of the 
 test('challenge HTML and individually selected pictures create a complete treasure preview without posting',async()=>{
  const store=storage(),ui=await page(store);const html='<html><body><form id="challenge-quiz-form" action="https://example.invalid/course/OS26B/process_challenge.php"><div class="question-block group-block"><div class="group-stem">共用條件<img src="./challenge_files/tiny.png"></div><div class="sub-question-block"><p class="question-text">1. 合成子題<input type="text" class="text-answer"></p></div></div></form></body></html>',result='<div class="question-result"><p>題目：合成子題[__1__]</p><p>正確答案：42</p></div>';
  for(const [id,name,text] of [['questionHtmlFile','questions.html',html],['answerHtmlFile','answers.html',result]]){Object.defineProperty(ui.$(id),'files',{configurable:true,value:[{name,size:text.length,text:async()=>text}]});ui.fire(ui.$(id),'change');}
+ await new Promise(resolve=>setImmediate(resolve)); await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(ui.$('submissionImageHelp').hidden,false);
  Object.defineProperty(ui.$('importImageFiles'),'files',{configurable:true,value:[{name:'tiny.png',type:'image/png',arrayBuffer:async()=>Uint8Array.from([137,80,78,71,13,10,26,10]).buffer}]});ui.fire(ui.$('importImageFiles'),'change');assert.match(ui.$('importImageStatus').textContent,/已選取 1 個/);
- ui.fire(ui.$('previewHtmlPair'),'click');await new Promise(resolve=>setImmediate(resolve));await new Promise(resolve=>setImmediate(resolve));
+ await new Promise(resolve=>setImmediate(resolve));await new Promise(resolve=>setImmediate(resolve));
  const draft=JSON.parse(store.getItem('course-library-grouped-submissions-v1'));assert.equal(draft.groups[0].payload.unit,'treasure');const q=draft.groups[0].payload.questions[0];assert.equal(q.answer,'42');assert.match(q.stem,/共用條件/);assert.equal(q.images.length,1);assert.equal('__practiceAnswerStem'in q,false);assert.equal(ui.requests.filter(r=>r.opts?.method==='POST').length,0);
 });
 
@@ -160,4 +164,23 @@ test('submission course palette follows selection and the restored draft without
  ui.$('course').value='algorithms';ui.fire(ui.$('course'),'change');assert.equal(ui.document.body.dataset.course,'algorithms');assert.equal(ui.document.documentElement.dataset.theme,'dark');
  ui=await page(store);assert.equal(ui.$('course').value,'algorithms');assert.equal(ui.document.body.dataset.course,'algorithms');
  ui.$('course').value='os';ui.fire(ui.$('course'),'change');assert.equal(ui.document.body.dataset.course,'os');
+});
+
+
+test('file-first import asks for missing scope, retries with confirmed metadata, and labels the actual public question count',async()=>{
+ const store=storage(),ui=await page(store);
+ assert.equal(ui.$('submissionMetadata').hidden,true);assert.equal(ui.$('submissionImageHelp').hidden,true);
+ const json=JSON.stringify({questions:[{stem:'合成填空題 ____',type:'填空題',answer:'test',options:[]}]});
+ ui.$('importFile').files=[{name:'question.json',size:json.length,text:async()=>json}];ui.fire(ui.$('importFile'),'change');
+ await new Promise(resolve=>setImmediate(resolve));await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(store.getItem('course-library-grouped-submissions-v1'),null);
+ assert.equal(ui.$('submissionMetadata').hidden,false);assert.equal(ui.$('retryMetadataImport').hidden,false);
+ ui.$('course').value='algorithms';ui.fire(ui.$('course'),'change');ui.$('unit').value='L7';ui.fire(ui.$('unit'),'change');
+ ui.fire(ui.$('retryMetadataImport'),'click');await new Promise(resolve=>setImmediate(resolve));await new Promise(resolve=>setImmediate(resolve));
+ let draft=JSON.parse(store.getItem('course-library-grouped-submissions-v1'));
+ assert.equal(draft.groups[0].payload.course,'algorithms');assert.equal(draft.groups[0].payload.unit,'L7');
+ assert.equal(ui.document.querySelector('[data-send]').textContent,'公開這 1 題');
+ ui.$('unit').value='L6';ui.fire(ui.$('unit'),'change');ui.fire(ui.$('applyImportMetadata'),'click');
+ draft=JSON.parse(store.getItem('course-library-grouped-submissions-v1'));assert.equal(draft.groups[0].payload.unit,'L6');
+ assert.equal(ui.requests.filter(r=>r.opts?.method==='POST').length,0);
 });

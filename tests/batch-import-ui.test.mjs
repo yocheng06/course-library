@@ -308,7 +308,7 @@ test("full page: imported/pasted structured questions use bank answers, update d
   await tick();
   assert.equal(ui.$("compare").disabled, false);
   await ui.choose([file("questions.json", JSON.stringify([rawQuestion]))]);
-  ui.fire("applyImport", "click");
+  assert.equal(ui.$("results").hidden,false); // File selection alone now runs the lookup.
   assert(
     [...storage.values()].some((value) =>
       JSON.parse(value).text.startsWith("1. CPU"),
@@ -355,4 +355,42 @@ test("full page: imported/pasted structured questions use bank answers, update d
   ui.fire("batchForm", "submit");
   assert(ui.$("resultRows").textContent.includes("A. 短程排程器"));
   assert.equal(ui.$("staleNotice").hidden, true);
+});
+
+
+test('automatic fresh-file lookup preserves existing text and requires an explicit append choice',async()=>{
+ const ui=dom(),applied=[];
+ setupBatchImport({document:ui.document,autoApply:true,onApply:(result,options)=>applied.push({result,options})});
+ assert.equal(ui.$('batchImageHelp').hidden,true);
+ await ui.choose([file('first.json',JSON.stringify([rawQuestion]))]);
+ assert.equal(applied.length,1);assert.equal(applied[0].options.autoCompare,true);
+ assert.equal(ui.$('importPreview').hidden,true);assert.match(ui.$('batchText').value,/CPU/);
+ const original=ui.$('batchText').value;
+ await ui.choose([file('next.txt','2. 另一題 ____')]);
+ assert.equal(applied.length,1);assert.equal(ui.$('batchText').value,original);
+ assert.equal(ui.$('importPreview').hidden,false);
+ ui.fire('applyImport','click');assert.equal(applied.length,2);assert.equal(applied[1].result.questions.length,2);
+});
+
+test('automatic import never overwrites edits made while reading a file',async()=>{
+ const ui=dom();let finish,changes=0;
+ setupBatchImport({document:ui.document,autoApply:true,onApply:()=>changes++});
+ ui.$('batchFiles').files=[{name:'slow.txt',size:20,arrayBuffer:()=>new Promise(resolve=>{finish=resolve;})}];
+ ui.fire('batchFiles','change');ui.$('batchText').value='1. 正在編輯的題目';
+ finish(new TextEncoder().encode('1. 檔案內題目').buffer);await tick();
+ assert.equal(changes,0);assert.equal(ui.$('batchText').value,'1. 正在編輯的題目');assert.match(ui.$('importStatus').textContent,/文字已變更/);
+});
+
+test('missing image prompt appears only when needed; selecting images retries without adding the same questions twice',async()=>{
+ const ui=dom();let saved=[],changes=0;
+ setupBatchImport({document:ui.document,autoApply:true,getImageQuestions:()=>saved,onApply:result=>{saved=result.questions;changes++;}});
+ const raw='<form id="challenge-quiz-form"><div class="question-block group-block"><div class="group-stem"><img src="quiz_files/chart.png"></div><div class="sub-question-block"><p class="question-text">1. 計算結果<input type="text" class="text-answer"></p></div></div></form>';
+ await ui.choose([file('quiz.html',raw)]);
+ assert.equal(changes,1);assert.equal(ui.$('batchImageHelp').hidden,false);assert.equal(saved.length,1);
+ const data=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jG3sAAAAASUVORK5CYII=','base64');
+ ui.$('batchImageFolder').files=[{name:'chart.png',size:data.length,arrayBuffer:async()=>Uint8Array.from(data).buffer}];
+ ui.fire('batchImageFolder','change');
+ for(let i=0;i<60 && changes<2;i++)await tick();
+ assert.equal(changes,2);assert.equal(saved.length,1);assert.equal(saved[0].imageHashes[0].length,64);
+ assert.equal(ui.$('batchImageHelp').hidden,true);
 });

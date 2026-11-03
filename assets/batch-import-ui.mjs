@@ -6,7 +6,7 @@ import {
   resolveImportMapping,
 } from "./batch-import.mjs?v=rr-format-records-20261101";
 
-export function setupBatchImport({ document, onApply, getImageQuestions = () => [] }) {
+export function setupBatchImport({ document, onApply, getImageQuestions = () => [], autoApply = false }) {
   const $ = (id) => document.getElementById(id);
   const formats = {
     text: "文字／Markdown",
@@ -18,6 +18,7 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
   };
   let pending = null;
   let imageFiles = [];
+  let retainedFiles = [], retryBase = null;
   let generation = 0;
   let mapping = null;
   function status(text, error = false) {
@@ -34,6 +35,9 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
   }
   function preview(batch, source, original = "") {
     pending = { ...batch, source, original };
+    $("applyImport").hidden = false;
+    const missingImages=batch.questions.some(q=>q.stem.includes('[題圖未轉錄]') && !validImageHashes(q.imageHashes));
+    if($("batchImageHelp"))$("batchImageHelp").hidden=!missingImages;
     $("importModeField").hidden = source === "paste";
     $("applyImport").textContent =
       source === "paste" ? "使用整理後的文字" : "匯入下方文字區";
@@ -78,6 +82,8 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
       .join("、");
     status(`已讀取 ${sources}。尚未更動目前文字。`);
     $("importPreviewHeading").focus();
+    // Existing text always requires an explicit append/replace choice.
+    if(autoApply && source==='files' && !$("batchText").value.trim() && !batch.questions.some(q=>q.issues.some(issue=>issue!=='題目含未提供的圖片或無法辨識的文字。' || !q.stem.includes('[題圖未轉錄]')))) applyPending(true);
   }
   function showMapping(error, source, original = "") {
     if (!error.mapping) return;
@@ -123,31 +129,35 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
     $("batchFiles").click(),
   );
   $("chooseBatchImageFolder")?.addEventListener("click",()=>$("batchImageFolder").click());
-  $("batchImageFolder")?.addEventListener("change",event=>{
-    generation++; close();
-    imageFiles=[...event.target.files].filter(file=>/\.(png|jpe?g|webp)$/i.test(file.name));
-    if(imageFiles.length>200){imageFiles=[];status("圖片資料夾最多 200 個圖片檔，請選取對應的 _files 資料夾。",true);return;}
-    status("已選取 "+imageFiles.length+" 個圖片檔，請接著選取題目 HTML。圖片只在這台裝置讀取。");
-  });
-  $("batchFiles").addEventListener("change", async (event) => {
-    const files = [...event.target.files];
-    event.target.value = "";
-    if (!files.length) return;
-    const current = ++generation;
-    close();
-    status("正在讀取題目檔案……");
-    $("importTools").setAttribute("aria-busy", "true");
+  $("completeResultImages")?.addEventListener("click",()=>$("batchImageFolder").click());
+  async function readFiles(files, retry=false) {
+    const current=++generation, original=$("batchText").value;
+    close();status("正在讀取題目檔案……");
+    $("importTools").setAttribute("aria-busy","true");
     try {
-      const batch = await readBatchFiles(files, { document, imageFiles });
-      if (generation === current) preview(batch, "files");
-    } catch (error) {
-      if (generation === current) {
-        status(`無法匯入：${error.message} 目前文字已保留。`, true);
-        showMapping(error, "files");
-      }
-    } finally {
-      if (generation === current) $("importTools").removeAttribute("aria-busy");
-    }
+      const batch=await readBatchFiles(files,{document,imageFiles});
+      if(generation!==current)return;
+      if($("batchText").value!==original){status("讀檔期間文字已變更，請重新選檔；目前文字已保留。",true);return;}
+      if(retry && retryBase && original===retryBase.applied) {
+        preview(batch,"files");
+        if(pending)applyPending(true,retryBase.before);
+      } else preview(batch,"files");
+    } catch(error) {
+      if(generation===current){status(`無法匯入：${error.message} 目前文字已保留。`,true);showMapping(error,"files");}
+    } finally {if(generation===current)$("importTools").removeAttribute("aria-busy");}
+  }
+  $("batchImageFolder")?.addEventListener("change",async event=>{
+    const selected=[...event.target.files].filter(file=>/\.(png|jpe?g|webp)$/i.test(file.name));event.target.value='';
+    if(selected.length>200){status("圖片資料夾最多 200 個圖片檔，請選取對應的 _files 資料夾。",true);return;}
+    if(!selected.length){status("沒有找到 PNG／JPEG／WebP 圖片，請重新選取資料夾。",true);return;}
+    imageFiles=selected;
+    status("已選取 "+imageFiles.length+" 個圖片檔，請接著選取題目 HTML。圖片只在這台裝置讀取。");
+    if(autoApply && retainedFiles.length)await readFiles(retainedFiles,true);
+  });
+  $("batchFiles").addEventListener("change", async event=>{
+    const files=[...event.target.files];event.target.value='';if(!files.length)return;
+    retainedFiles=files;retryBase=null;
+    await readFiles(files);
   });
   $("recognizePaste").addEventListener("click", () => {
     generation++;
@@ -214,17 +224,21 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
   });
   $("cancelMapping").addEventListener("click", () => {
     generation++;
+    retainedFiles=[];retryBase=null;
+    if($("batchImageHelp"))$("batchImageHelp").hidden=true;
     close();
     status("已取消欄位對應，目前文字已保留。");
     $("chooseBatchFiles").focus();
   });
   $("cancelImport").addEventListener("click", () => {
     generation++;
+    retainedFiles=[];retryBase=null;
+    if($("batchImageHelp"))$("batchImageHelp").hidden=true;
     close();
     status("已取消匯入，目前文字已保留。");
     $("chooseBatchFiles").focus();
   });
-  $("applyImport").addEventListener("click", () => {
+  function applyPending(autoCompare=false, existingOverride) {
     if (!pending) return;
     try {
       if (
@@ -235,24 +249,29 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
       const mode =
         pending.source === "paste" ? "replace" : $("importMode").value;
       const result = prepareImport(
-        $("batchText").value,
+        existingOverride ?? $("batchText").value,
         pending.questions,
         mode,
         { document, imageQuestions:getImageQuestions() },
       );
+      const before=existingOverride ?? $("batchText").value;
       $("batchText").value = result.text;
+      retryBase={before,applied:result.text};
       close();
-      onApply(result);
+      onApply(result,{autoCompare:autoApply || autoCompare});
       status(
-        `已${mode === "replace" ? "取代為" : "加入"} ${result.added} 題，目前共 ${result.questions.length} 題。${result.renumbered ? `有 ${result.renumbered} 個衝突題號已接續編號。` : ""}請選擇科目與範圍，再按「比對全部題目」。`,
+        `已${mode === "replace" ? "取代為" : "加入"} ${result.added} 題，目前共 ${result.questions.length} 題。${result.renumbered ? `有 ${result.renumbered} 個衝突題號已接續編號。` : ""}${autoApply || autoCompare ? "正在查詢題庫答案。" : "請選擇科目與範圍，再按「比對全部題目」。"}`,
       );
-      $("batchText").focus();
+      if(!autoCompare)$("batchText").focus();
     } catch (error) {
       status(`無法套用：${error.message} 目前文字已保留。`, true);
     }
-  });
+  }
+  $("applyImport").addEventListener("click",()=>applyPending());
   $("clearInput").addEventListener("click", () => {
     generation++;
+    retainedFiles=[];retryBase=null;imageFiles=[];
+    if($("batchImageHelp"))$("batchImageHelp").hidden=true;
     close();
     $("importTools").removeAttribute("aria-busy");
     status("");
