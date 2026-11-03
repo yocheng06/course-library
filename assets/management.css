@@ -8,3 +8,9 @@ html[data-theme=dark] .management-tabs [aria-current=page]{background:#3b3b3b!im
 @media(max-width:760px){.library-table thead{display:block}.library-table thead th{display:none}.library-table thead th:first-child{display:block;width:auto}.library-table td:nth-child(4){font-size:13px}}
 
 .pending-review{margin:0 24px 12px;max-height:240px;overflow:auto}.pending-review button{margin:6px}.pending-review p{margin:8px 0}.pending-review a{overflow-wrap:anywhere}
+
+/* Filled destructive actions need white text, not the outline-action red label. */
+.button.danger:not(.secondary):not(:disabled) { background:#9b303d;border-color:#9b303d;color:#fff; }
+.button.danger:not(.secondary):not(:disabled):hover { background:#7d2430;border-color:#7d2430; }
+html[data-theme="dark"] .button.danger:not(.secondary):not(:disabled) { background:#9b303d!important;border-color:#e1a2ad!important;color:#fff!important; }
+html[data-theme="dark"] .button.danger:not(.secondary):not(:disabled):hover { background:#7d2430!important; }
