@@ -1,32 +1,78 @@
-# 課程題庫投稿服務
+# 課程題庫投稿與管理服務
 
-為 GitHub Pages 題庫提供匿名投稿、題圖儲存、管理者登入與審核發布。前端仍使用原網站格式；正式題庫頁透過公開 API 載入核准的補充題。
+更新日期：2026-11-04。此目錄保存獨立服務的原始碼；整體資料流見 [系統架構](../docs/architecture.md)。
 
-- `POST /api/submissions`：匿名送出 1–200 題，檢查資料格式並自動略過同批及正式題庫重複題；新題固定進入待審核。回傳保留數量、略過數量與題目清單；全部重複時回傳 `duplicates_only`，不新增投稿。
-- `GET /api/status/:id`：只回傳投稿狀態與給投稿者的說明。
-- `GET /api/questions?course=os|algorithms`：回傳核准且仍公開的題目，另以 `aliases` 提供已合併原投稿 ID 與內建 ID 對照。
-- `content/approved-explanations.json` 保存已審閱的解析補充及查核來源，隨版本發布。題庫載入或管理者登入時，獨立且可重入的內容更新會把這 76 題解析寫入資料庫，並保留修改前版本。只有題目 ID、科目、單元、題幹、選項與答案仍相符且原解析為空時才套用，不修改題幹、答案或發布狀態；已完成的內容更新不會覆寫日後修改或清空的解析。此更新不混入資料庫結構遷移。
-- `/review` 與 `/api/review`：管理者以帳號密碼登入；首次設定及忘記密碼時，需先用 Site 綁定的管理者帳號驗證。密碼以 PBKDF2 雜湊儲存，登入狀態使用 8 小時 HttpOnly、Secure、SameSite cookie，並限制登入嘗試。審核修改會在目前裝置依管理者帳號暫存；修訂號不符的草稿只供下載，不覆蓋伺服器新版。
-- `/api/manage/questions`：管理者可篩選已核准投稿題目、編輯解析與內容、下架及重新上架；每次修改均保留之前版本，以修訂號防止覆寫。`/:id/history` 可查最近 50 筆修改前版本。
-- `/api/manage/export`：管理者下載全部已核准投稿題目（含下架與原始資料）、投稿與修改紀錄；含題圖連結，不含圖片二進位檔。
-- 選項答案必須能對應現有選項，單選只能有一個答案；保留數學符號大小寫。同題選項換序或改代號會自動略過；題幹僅有句尾標點差異時仍要求確認。填空底線格式統一，數學大小寫、題圖及明示填答要求保留。
-- 成功投稿後可複製編號及下載收據；目前裝置會保存最近 20 筆收據，方便查詢。
-- 題圖放在 R2；未公開題圖只允許管理者讀取。只保留核准清單中使用的題圖供公開讀取。
-- 所有單元使用相同查重規則，索引包含合併前的已審閱語言與措辭版本。既有資料庫指紋會在查重時重新計算以相容舊版本。題圖以實際位元組雜湊辨識，上傳網址改變也不會漏查；不同圖及不同的圖片排列保留，外部 HTTPS 圖片網址不會由伺服器任意抓取。
-- 核准時再次自動略過重複題；D1 的唯一索引與批次交易防止重複及部分發布，遇同時發布衝突會重新查重重試；修訂號避免同一投稿被同時處理。
+服務為 GitHub Pages 主站提供公開題庫 API、匿名投稿／編輯、可復原刪除、管理者歷史與還原、單元設定、健檢與題圖讀取。**目前新投稿通過檢查後立即公開，不必先經站主核准。** 舊待審核與勘誤端點保留作為相容功能。
 
-Runtime 設定由 Sites 管理，不能放進 GitHub：`ADMIN_SETUP_CODE`（建立或重設管理者帳密用的一次性機密碼）、`REVIEWER_EMAIL`（忘記密碼時驗證管理者身分的信箱）、`RATE_HASH_KEY`（投稿、登入與設定碼嘗試頻率雜湊密鑰）。首次使用 `/review` 時，輸入一次性設定碼建立管理者帳號密碼；設定碼用過後會在 D1 標記失效，日常審核只需輸入該組帳密。本機驗證使用測試帳號與記憶體資料庫，不寫入正式資料。
+## 程式與儲存
 
-修改原網站投稿 UI 或原始題庫後，先在本目錄執行 `node scripts/sync-library.mjs ..`，把前端與現有題目索引同步到服務；同步器使用題庫的共用選項別名與題幹版本展開規則，涵蓋已核對的中英文混貼組合。原始題庫與 `assets/batch-model.mjs` 必須同時可讀取。同步後執行主網站的 `node tests/submission-index.test.mjs` 檢查兩邊對照沒有遺漏；同步資料供服務獨立建置，不需要在部署時讀取 GitHub。修改 schema 後執行 `npm run db:generate` 產生新遷移，已套用的遷移不能改寫。
+| 位置 | 功能 |
+| --- | --- |
+| `worker/index.js` | 路由、認證、投稿、圖片、公開 API 及內容更新 |
+| `worker/model.js` | 題目資料格式、單元、查重與正規化 |
+| `worker/builtin-management.js` | 內建題覆寫與單元設定 |
+| `worker/library-management.js` | 統一管理清單與明細 |
+| `frontend/` | 投稿資產及服務自身的管理頁 |
+| `db/schema.js`、`drizzle/` | D1 schema 與 SQL 遷移 |
+| `scripts/build.mjs` | 產生獨立 Worker 與部署資產 |
+| `scripts/sync-library.mjs` | 從主站同步共用前端、題庫與索引 |
+| `content/` | 已核對解析補充、合併資料與來源記錄 |
 
-`npm run build` 產生獨立 Worker 與部署資源；`npm test` 驗證匿名投稿、管理者權限、退回、重複略過及疑似重複確認、第 200 題附圖、答案驗證、解析整合、題目管理、歷史備份與頻率限制。部署須同步推送服務來源並使用 Sites 的儲存版本及部署工具，保留 `.openai/hosting.json` 的專案 ID。
+D1 保存投稿、公開題目、修改歷史、內建題覆寫、單元設定與管理狀態。R2 保存投稿題圖。正式資料不在原始碼 Repository 裡；管理匯出 JSON 含圖片連結，不包含完整圖片二進位內容。
 
-管理者密碼只在設定時送到後端，使用唯一鹽值與 PBKDF2 雜湊後存入 D1；前端、GitHub 與版本封存檔都不保存密碼。一次性設定碼只放在 Sites 的機密環境設定，成功使用後無法再次設定帳密；Sites 綁定的管理者帳號可用於忘記密碼時重設。
+## API 與權限
 
-`content/approved-merges.json` 是 75 題已核對投稿的精確原稿快照；`merge-map.json` 另保存 10 組內建合併，共 85 筆對照。公開題庫載入或管理者開啟會執行獨立、可重入的內容更新：僅封存科目、單元與原稿雜湊完全相符的公開投稿，保留原始資料、修改前歷史與投稿清單，以 `data.mergedInto` 記錄收錄 ID。後續編輯過的原稿不會封存。已封存同題提供舊 ID 連結、歷史與備份，不提供誤重新上架或直接修改控制；管理介面會連到收錄題目。第 28 題的 SJF 縮寫要求不同，保留公開。
+| API | 行為 |
+| --- | --- |
+| `GET /api/questions?course=os|algorithms` | 公開題目、覆寫、別名與單元資訊；支援 ETag／304 |
+| `GET /api/units?course=os|algorithms` | 公開單元目錄，包含已設定的空單元 |
+| `POST /api/submissions` | 匿名投稿，每批 1–200 題；新題立即公開，完整重複略過，不同版本可帶狀態另收錄 |
+| `GET /api/status/:id` | 投稿狀態與給投稿者的說明 |
+| `GET/POST /api/community/questions/:id` | 公開投稿題讀取、修改及可復原刪除 |
+| `GET/POST /api/community/builtin-questions/:course/:id` | 公開內建題讀取、覆寫及可復原刪除 |
+| `/api/session`、`/api/login`、`/api/logout`、`/api/password/setup` | 管理者登入與設定流程 |
+| `GET /api/manage/library`、`/api/manage/library/item`、`/api/manage/imports` | 需登入；統一列表、單題與匯入批次明細 |
+| `GET/POST /api/manage/units` | 需登入；單元新增、名稱／順序設定，保留設定歷史 |
+| `GET /api/manage/health` | 需登入；題庫健檢 |
+| `/api/manage/questions`、`/api/manage/builtin-questions` 及各自單題／歷史子路徑 | 需登入；編輯、歷史、還原與移除 |
+| `GET /api/manage/export` | 需登入；完整管理資料匯出，不含帳密與圖片二進位 |
+| `GET /api/image/...` | 依發布狀態與權限提供題圖 |
 
-新增免登入勘誤：`POST /api/corrections` 接受公開題目 ID、問題說明與建議；`GET /api/corrections/:id` 只回傳狀態及站主說明。勘誤清單與 POST 審核操作需管理者登入，審核以 revision 避免覆蓋，處理說明必填。新資料表由 `0004_burly_bromley` 遷移建立，完整管理備份也包含勘誤。確認勘誤不直接修改公開答案。
+寫入會檢查來源、格式、答案對應與修訂號；內建題也檢查來源雜湊，避免覆寫較新資料。匿名使用者不能直接還原已刪題；站主可在管理區還原。程式內的舊 `pending` 預設與歷史審核資料不表示新投稿一律等待審核。
 
-分組投稿可附上 UUID 格式 `clientRequestId`。相同 ID、相同正規化內容會回傳原收據，不再新增投稿；同 ID 改變內容則回傳 409。匿名勘誤沿用投稿頻率限制與來源檢查。
+匿名投稿不再使用「同 IP 每小時 20 次操作」的舊限制；登入與初始設定仍限制嘗試，相關雜湊狀態仍有用途。
 
-投稿支援未建立的編號單元：`unit` 可填 `L7` 等 1–99 的編號，`unitTitle` 為選填名稱；既有 OS 單元編號會對應原固定 ID。名稱隨審核保存到核准題目的 JSON。`GET /api/units?course=os|algorithms` 回傳內建與已公開的投稿單元，不含待審核單元；不需新增資料表。
+## 匯入、查重與可重試寫入
+
+- 答案必須對應現有選項；單選只能有一個正確答案，多選可有一個或多個答案，保留數學大小寫與原文。
+- 查重比對會處理題號前綴、填空表示法與已核對的雙語／選項版本；不改寫原題文字。
+- 題圖以實際圖片內容指紋等資訊辨識，不把不同圖題視為相同；不任意從外部 HTTPS 位址抓取圖片。
+- 分組投稿可提供 UUID `clientRequestId`，相同 ID 與正規化內容重試回傳原收據；同 ID 不同內容會拒絕。
+- 完整重複略過；疑似重複與版本差異保留給管理者比較，不自動覆蓋既有答案。
+- 單元新增與名稱／順序修改不更換既有 ID，閱讀、查題及投稿使用公開目錄更新。
+
+## 本機建置與驗證
+
+由 Repository 根目錄執行：
+
+```sh
+npm ci
+npm run sync:questions
+npm --prefix contribution-service ci
+npm --prefix contribution-service run build
+npm --prefix contribution-service test
+```
+
+`sync:questions` 會重建批次索引及同步服務所需資料，需檢查 diff；主站 `node tests/submission-index.test.mjs` 可檢查索引對照。管理頁 `frontend/review.html` 為服務自行維護，不能以主站導向頁覆蓋。
+
+測試使用本機模擬／測試資料，不操作正式題庫。修改 schema 後用 `npm run db:generate` 產生新遷移，不改寫已套用遷移。`0007_unit_settings.sql` 保存單元設定與歷史；既有資料表的內容補充與 schema 遷移分開處理。
+
+`content/approved-explanations.json` 與 `approved-merges.json` 的內容更新可重入，檢查題目 ID、來源內容與更新狀態後才套用，保留修改前歷史，避免覆寫日後的人工修改。
+
+## 設定與部署
+
+Runtime 設定由 Sites 管理，不寫進 GitHub：`ADMIN_SETUP_CODE`、`REVIEWER_EMAIL`、`RATE_HASH_KEY`。管理密碼使用唯一鹽值與 PBKDF2 雜湊；登入使用 HttpOnly、Secure、SameSite cookie。一次性設定碼使用後會記錄失效。
+
+服務使用 Cloudflare Worker、D1 `DB`、R2 `BUCKET`；保留 `.openai/hosting.json` 的原有 project ID。發布需將服務來源推送、建置封裝，經 Sites 儲存版本再部署。**推送 GitHub main 只更新主站 Pages，不會自動更新這個獨立 Worker。**
+
+不要提交設定碼、密碼、Cookie、權杖、正式 DB、使用者私人備份或 node_modules／dist。GitHub 原始碼封存不是正式題庫與題圖的完整備份。

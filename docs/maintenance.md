@@ -1,5 +1,7 @@
 # 維護說明
 
+> 現行架構與流程以 [系統架構](architecture.md)、[2026-11-04 進度](updates/2026-11-04.md) 及 [服務 README](../contribution-service/README.md) 為準。下方日期章節是歷史紀錄，例如 2026-10-25 的審核／匯入限制不代表目前新投稿流程。
+
 本文保留題庫更新與網站維護需要的規則。網站使用方式請看 [README](../README.md)，後端 API、儲存與部署設定請看 [投稿服務說明](../contribution-service/README.md)。
 
 ## 題庫內容
