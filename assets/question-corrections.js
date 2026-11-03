@@ -261,6 +261,11 @@
           note: '使用者刪除此題；站主可從管理頁還原。',
         }),
       });
+      // The server has committed the deletion; update the page before re-fetching.
+      window.dispatchEvent(new window.CustomEvent('course-question-deleted', {detail:{
+        course:config.course, id:active, unit:currentItem.unit,
+        question:config.questionForEdit(active),
+      }}));
       drafts.delete(active);
       form.hidden = true;
       deleteButton.hidden = true;

@@ -208,3 +208,25 @@ test('a network failure retains the last cache, and full synchronization preserv
   assert.equal(h.config.examEntries(true).length,716);
   assert(h.config.examEntries(['deadlocks']).some(e=>e.id==='community-17f37eed-b93c-485f-9bdd-c7591a014917-16'));
 });
+
+for (const course of ['os','algorithms']) for (const community of [false,true])
+test(`${course}: confirmed ${community?'community':'built-in'} deletion updates counts and cache before sync, ignoring older responses`,async()=>{
+ const h=await page(course),unit=course==='os'?'basics':'L2';
+ const data={...empty(),questions:[row(course,98,unit)]};cache(h,data);h.boot();
+ const target=community?h.config.examEntries([unit]).find(e=>e.id===id(98)):h.config.examEntries([unit]).find(e=>!e.id.startsWith('community-'));
+ const count=h.config.examEntries(true).length,question=h.config.questionForEdit(target.id);
+ const total=()=>h.document.querySelector('[data-course-total]').textContent;
+ const before=total();
+ h.window.dispatchEvent(new h.window.CustomEvent('course-question-deleted',{detail:{course,id:target.id,unit,question}}));
+ assert.equal(h.config.examEntries(true).length,count-1);
+ assert(!h.config.examEntries(true).some(e=>e.id===target.id));assert.notEqual(total(),before);
+ const saved=JSON.parse(h.storage.get(key(course)));assert.equal(saved.etag,null);
+ if(community)assert(!saved.data.questions.some(r=>r.question.id===target.id||r.question.bookmarkId===target.id));
+ else assert(saved.data.overrides.some(r=>r.deleted&&r.unit===unit));
+ // The initial download was started before deletion and still contains the old question.
+ await h.complete(data);
+ assert.equal(h.config.examEntries(true).length,count-1);assert.equal(h.pending.length,1);
+ await h.complete(saved.data);assert.equal(h.config.examEntries(true).length,count-1);
+ const again=await page(course,{storage:h.storage,online:false});again.boot();
+ assert(!again.config.examEntries(true).some(e=>e.id===target.id));
+});

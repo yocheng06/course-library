@@ -5,16 +5,17 @@ import vm from 'node:vm';
 import {parseHTML} from 'linkedom';
 const source=await readFile(new URL('../assets/question-corrections.js',import.meta.url),'utf8');
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-async function page({id='basics-1',course='os',server,shown}={}) {
+async function page({id='basics-1',course='os',server,shown,failPost=false}={}) {
  const {document,window}=parseHTML('<html><body><div id="cards"><article><button data-correction="'+id+'">修改題目</button></article></div></body></html>');
  window.confirm=()=>true;
  Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){return this.querySelector('option[selected]')?.textContent||this.querySelector('option')?.textContent||''},set(value){for(const option of this.querySelectorAll('option'))option.toggleAttribute('selected',option.textContent===value)}});
- const requests=[];let online=0;
+ const requests=[],deletions=[];let online=0;
+ window.addEventListener('course-question-deleted',event=>deletions.push(event.detail));
  window.courseLearning={course,list:document.getElementById('cards'),questionDetails:()=>({unit:'測試單元',number:1}),questionForEdit:()=>shown};
  window.courseContributions={apiOrigin:'https://example.com'};
  window.addEventListener('online',()=>online++);
  const context=vm.createContext({document,window,URL,URLSearchParams,AbortSignal,Event:window.Event,Blob,setTimeout,fetch:async(url,opts={})=>{
-  requests.push({url,opts});return {ok:true,json:async()=>({item:structuredClone(server)})};
+  requests.push({url,opts});if(failPost&&opts.method==='POST')return {ok:false,json:async()=>({error:'Conflict'})};return {ok:true,json:async()=>({item:structuredClone(server)})};
  }});
  vm.runInContext(source,context);
  const dialog=document.querySelector('dialog'),form=dialog.querySelector('form');
@@ -23,7 +24,7 @@ async function page({id='basics-1',course='os',server,shown}={}) {
  const fire=(node,event)=>node.dispatchEvent(new window.Event(event,{bubbles:true,cancelable:true}));
  const open=async()=>{fire(document.querySelector('[data-correction]'),'click');await tick();};
  await open();
- return {document,form,requests,open,fire,online:()=>online};
+ return {document,form,requests,open,fire,deletions,online:()=>online};
 }
 const question={category:'分類',type:'填空題',stem:'The value is ___.',options:[],answer:'base',explanation:'解析',images:[],translation:'',optionTranslations:[],answerProvided:true,note:''};
 test('both courses expose the original-question editor and save through the versioned public endpoint',async()=>{
@@ -77,4 +78,16 @@ test('a stale local draft is not reapplied over the latest server revision',asyn
  server.revision=2;server.question.stem='其他人已儲存的新版';await ui.open();
  assert.equal(ui.form.elements.stem.value,server.question.stem);
  assert.equal(ui.document.querySelector('[data-download-draft]').hidden,false);
+});
+
+
+test('local deletion notification is sent only after a successful server response',async()=>{
+ const shown={...question,id:'sample-1'},server={id:'sample-1',unit:'basics',revision:4,sourceHash:'hash',question};
+ for(const failPost of [false,true]){
+  const ui=await page({id:shown.id,server,shown,failPost});
+  ui.fire(ui.document.querySelector('[data-delete-question]'),'click');await tick();
+  assert.equal(ui.deletions.length,failPost?0:1);
+  if(!failPost){assert.equal(ui.deletions[0].id,shown.id);assert.equal(ui.deletions[0].unit,'basics');assert.equal(ui.deletions[0].question.stem,shown.stem);}
+  else assert.match(ui.document.querySelector('[data-status]').textContent,/未能刪除/);
+ }
 });

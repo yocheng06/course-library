@@ -3,11 +3,12 @@
 const COURSES=JSON.parse(document.getElementById('course-data').textContent);
 function applyReviewedExplanations(q){const reviewed=window.courseCountingSort?.apply(q)||q;return window.courseSelection?.apply(reviewed)||reviewed;}
 for(const unit of COURSES)if(unit.id==='L6'||unit.id==='L7')unit.questions=unit.questions.map(applyReviewedExplanations);
-function refreshCourseSummary(){
- const total=COURSES.reduce((sum,unit)=>sum+unit.questions.length,0);
+function refreshCourseSummary(deletedIds=new Set()){
+ const countQuestions=unit=>unit.questions.filter(q=>!deletedIds.has(q.bookmarkId)).length;
+ const total=COURSES.reduce((sum,unit)=>sum+countQuestions(unit),0);
  document.querySelector('[data-course-total]').textContent=`${COURSES.length} 個單元 · ${total} 道題目`;
  document.querySelector('meta[name="description"]').content=`整合演算法課程與${total}道題目，依章節閱讀與練習。可離線使用。`;
- document.querySelector('[data-course-source-summary]').textContent=`收錄 ${COURSES.length} 份題庫：${COURSES.map(course=>course.id+' '+course.questions.length+' 題').join('、')}，共 ${total} 題。L6 相同題意與答案內容已核對合併；選項換序與原始文字保留供查題，不同輸入資料、執行階段與題型分開保留。已提供題庫答案的題目視為正常；選擇題與有標準答案的填空題可自動核對，答錯可重試，答對後顯示解析。`;
+ document.querySelector('[data-course-source-summary]').textContent=`收錄 ${COURSES.length} 份題庫：${COURSES.map(course=>course.id+' '+countQuestions(course)+' 題').join('、')}，共 ${total} 題。L6 相同題意與答案內容已核對合併；選項換序與原始文字保留供查題，不同輸入資料、執行階段與題型分開保留。已提供題庫答案的題目視為正常；選擇題與有標準答案的填空題可自動核對，答錯可重試，答對後顯示解析。`;
 }
 refreshCourseSummary();
 const $=id=>document.getElementById(id);
@@ -161,7 +162,7 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],ov
  if(replace&&!current())lesson=COURSES[0].id;
  window.learningUI?.refresh();
  if(!replace&&!added&&!updated&&!communityAliases.size&&!changedIds.size)return {added:0,openedLinkedQuestion:false};
- refreshCourseSummary();
+ refreshCourseSummary(builtinDeletedIds);
  const linked=waitingForLinkedQuestion&&openLinkedQuestion&&findEntry(linkedQuestion);
  if(linked){waitingForLinkedQuestion=false;lesson=linked.unit.id;setupLesson();page=Math.floor((questionDisplayNumber(linked)-1)/PAGE_SIZE)+1;render();window.courseQuestionTools.focusLinkedQuestion(linked.id);}
  else setupLesson(true);

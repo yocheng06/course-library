@@ -242,7 +242,24 @@
     }
   }
   let latestData = initial?.data || null;
+  let mutationVersion = 0;
   let latestEtag = /^(?:W\/)?".*"$/.test(initial?.etag || '') ? initial.etag : null;
+  window.addEventListener('course-question-deleted', event => {
+    const {course,id,unit,question} = event.detail || {};
+    if (course !== config.course || !latestData || !question || typeof id !== 'string' || typeof unit !== 'string') return;
+    mutationVersion++;
+    const next = {...latestData,
+      questions:latestData.questions.filter(row => (row.question.id || row.question.bookmarkId) !== id),
+      aliases:latestData.aliases.filter(row => row.id !== id && row.target !== id),
+      overrides:latestData.overrides.filter(row => (row.question.id || row.question.bookmarkId) !== id),
+    };
+    if (!/^community-/.test(id)) next.overrides.push({unit,question,deleted:true});
+    apply(next, 'live');
+    latestData = next;
+    // A 304 for the pre-deletion snapshot must not validate the patched cache.
+    latestEtag = null;
+    try { localStorage.setItem(cacheKey, JSON.stringify({schema:1,course:config.course,generatedAt:new Date().toISOString(),data:next,etag:null})); } catch {}
+  });
   async function sync() {
     if (syncing) { syncAgain = true; return; }
     if (location.protocol === 'file:') {
@@ -255,6 +272,7 @@
       return;
     }
     syncing = true;
+    const requestVersion = mutationVersion;
     document.documentElement.dataset.questionSync='syncing';
     showNotice(`正在同步最新題庫，目前使用${sourceLabel()}。`);
     notice?.querySelector('button')?.setAttribute('disabled','');
@@ -267,6 +285,7 @@
       if (!unchanged && !response.ok) throw new Error('unavailable');
       const data = unchanged ? latestData : await response.json();
       if (!validData(data)) throw new Error('Invalid public snapshot');
+      if (requestVersion !== mutationVersion) { syncAgain = true; return; }
       const unitId=config.examUnitId(), unitLabel=config.examUnitLabel();
       const before=globalThis.courseSyncSummary?.snapshot(config.examEntries([unitId]));
       if (JSON.stringify(data) !== JSON.stringify(latestData)) apply(data, 'live');
