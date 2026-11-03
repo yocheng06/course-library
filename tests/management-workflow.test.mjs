@@ -102,3 +102,37 @@ test('history highlights changed text and keeps imported markup inert',async()=>
  assert.equal(ui.document.querySelector('.history-record img'),null);
  assert.match(ui.document.querySelector('.history-record').textContent,/<img/);
 });
+
+test('unit creation stays a draft, rejects duplicate chapter numbers, and saves the new unit',async()=>{
+ const ui=dom();let payload;
+ globalThis.fetch=async(raw,opts={})=>{if(opts.method==='POST'){payload=JSON.parse(opts.body);return new Response(JSON.stringify({revision:1,units:payload.units}));}return new Response(JSON.stringify({revision:0,units:[{id:'basics',title:'基礎',label:'L2 · 基礎',order:1}]}));};
+ const manager=setupUnitManager({container:ui.$('unitWorkspace')});await manager.show();
+ ui.document.querySelector('[data-unit-add]').click();assert.equal(ui.document.querySelector('[data-unit-new]').hidden,false);
+ ui.document.querySelector('[data-unit-number]').value='2';ui.document.querySelector('[data-unit-name]').value='不能重複';ui.fire(ui.document.querySelector('[data-unit-new]'),'submit');
+ assert.match(ui.document.querySelector('[data-unit-status]').textContent,/已存在/);assert.equal(ui.document.querySelectorAll('[data-unit-row]').length,1);
+ ui.document.querySelector('[data-unit-number]').value='10';ui.document.querySelector('[data-unit-name]').value='虛擬記憶體';ui.fire(ui.document.querySelector('[data-unit-new]'),'submit');
+ assert.equal(payload,undefined);assert.equal(ui.document.querySelectorAll('[data-unit-row]').length,2);assert.match(ui.document.querySelector('[data-unit-rows]').textContent,/尚未儲存/);
+ ui.document.querySelector('[data-unit-save]').click();await waitFor(()=>payload!==undefined&&ui.document.querySelector('[data-unit-save]').disabled);
+ assert.deepEqual(payload.units,[{id:'basics',title:'基礎'},{id:'L10',title:'虛擬記憶體'}]);
+});
+
+for(const pointerType of ['mouse','touch'])test(pointerType+' drag changes visible order and the exact saved order; pointer cancellation preserves the draft',async()=>{
+ const ui=dom();let payload;const bank=[{id:'L2',title:'第二單元',order:1},{id:'L3',title:'第三單元',order:2},{id:'L4',title:'第四單元',order:3}];
+ globalThis.fetch=async(raw,opts={})=>{if(opts.method==='POST'){payload=JSON.parse(opts.body);return new Response(JSON.stringify({revision:2,units:payload.units}));}return new Response(JSON.stringify({revision:1,units:bank}));};
+ ui.window.requestAnimationFrame=()=>1;ui.window.cancelAnimationFrame=()=>{};
+ const container=ui.$('unitWorkspace'),manager=setupUnitManager({container});await manager.show();
+ const pointer=(node,type,y)=>{const e=new ui.window.Event(type,{bubbles:true,cancelable:true});Object.assign(e,{pointerId:1,isPrimary:true,button:0,clientY:y,pointerType});node.dispatchEvent(e);};
+ const geometry=()=>{for(const row of ui.document.querySelectorAll('[data-unit-row]'))row.getBoundingClientRect=()=>({top:[...row.parentElement.children].indexOf(row)*100,height:100});};geometry();
+ pointer(ui.document.querySelector('[data-unit-drag="L4"]'),'pointerdown',250);pointer(container,'pointermove',10);
+ assert.equal(ui.document.querySelector('[data-unit-row]').dataset.unitRow,'L4');pointer(container,'pointercancel',10);
+ assert.deepEqual([...ui.document.querySelectorAll('[data-unit-row]')].map(n=>n.dataset.unitRow),['L2','L3','L4']);assert.equal(ui.document.querySelector('[data-unit-save]').disabled,true);
+ geometry();pointer(ui.document.querySelector('[data-unit-drag="L4"]'),'pointerdown',250);pointer(container,'pointermove',10);pointer(container,'pointerup',10);
+ assert.deepEqual([...ui.document.querySelectorAll('[data-unit-row]')].map(n=>n.dataset.unitRow),['L4','L2','L3']);assert.equal(payload,undefined);
+ ui.document.querySelector('[data-unit-save]').click();await waitFor(()=>payload!==undefined);assert.deepEqual(payload.units.map(u=>u.id),['L4','L2','L3']);
+});
+
+test('drag handles also support keyboard reordering without changing unit IDs',async()=>{
+ const ui=dom();globalThis.fetch=async()=>new Response(JSON.stringify({revision:0,units:[{id:'L2',title:'二'},{id:'L3',title:'三'}]}));
+ const manager=setupUnitManager({container:ui.$('unitWorkspace')});await manager.show();const e=new ui.window.Event('keydown',{bubbles:true,cancelable:true});e.key='ArrowUp';ui.document.querySelector('[data-unit-drag="L3"]').dispatchEvent(e);
+ assert.deepEqual([...ui.document.querySelectorAll('[data-unit-row]')].map(n=>n.dataset.unitRow),['L3','L2']);assert.equal(ui.document.querySelector('[data-unit-save]').disabled,false);
+});

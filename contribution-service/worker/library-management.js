@@ -229,12 +229,13 @@ async function manageUnits(request,env,url){
   if(request.method==='GET')return json(await publicUnitCatalog(env,course,true));
   requireOrigin(request,true);const body=await readBody(request,48000),current=await publicUnitCatalog(env,course,true);
   if(!body||!Number.isSafeInteger(body.revision)||body.revision!==current.revision)throw new HttpError(409,'單元資料已更新，請重新載入後再儲存。');
-  if(!Array.isArray(body.units)||body.units.length!==current.units.length)throw new HttpError(400,'請保留所有單元，這裡不能刪除單元。');
+  if(!Array.isArray(body.units)||body.units.length<current.units.length||body.units.length>100)throw new HttpError(400,'請保留所有單元，這裡不能刪除單元。');
   const ids=new Set(current.units.map(u=>u.id)),seen=new Set();
   const next=body.units.map((row,index)=>{
-    if(!row||!ids.has(row.id)||seen.has(row.id)||typeof row.title!=='string'||!row.title.trim()||row.title.trim().length>60)throw new HttpError(400,'單元名稱或編號不正確。');
+    if(!row||typeof row.id!=='string'||(!ids.has(row.id)&&(!/^L[1-9]\d?$/.test(row.id)||normalizeUnit(course,row.id)!==row.id))||seen.has(row.id)||typeof row.title!=='string'||!row.title.trim()||row.title.trim().length>60)throw new HttpError(400,'單元名稱或編號不正確。');
     seen.add(row.id);return {id:row.id,title:row.title.trim(),order:index+1};
   });
+  if([...ids].some(id=>!seen.has(id)))throw new HttpError(400,'請保留所有既有單元，不能更換其編號或刪除。');
   await env.DB.prepare('INSERT OR IGNORE INTO unit_settings(course,revision,data,updated_at) VALUES(?,0,?,0)').bind(course,'[]').run();
   const before=await unitConfiguration(env,course),now=Date.now(),after=JSON.stringify(next);
   const result=await env.DB.batch([

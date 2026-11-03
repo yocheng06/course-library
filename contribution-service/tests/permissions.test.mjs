@@ -2492,3 +2492,15 @@ test('owner can move a community question between existing units while preservin
  assert.equal(after.unit,'scheduling');assert.equal(after.question.answer,row.question.answer);
  const history=await call(env,'/api/manage/questions/'+id+'/history',{reviewer:true});assert.equal(history.data.items[0].unit,'basics');
 });
+
+test('owner can create an empty unit without deleting or renumbering existing units; public catalogs expose it before questions are submitted',async()=>{
+ const env=await setup(),base=await call(env,'/api/manage/units?course=os',{reviewer:true});
+ const units=base.data.units.map(({id,title})=>({id,title}));units.push({id:'L10',title:'虛擬記憶體'});
+ const saved=await call(env,'/api/manage/units?course=os',{reviewer:true,method:'POST',body:{revision:base.data.revision,units}});
+ assert.equal(saved.response.status,200,JSON.stringify(saved.data));assert.equal(saved.data.units.at(-1).id,'L10');
+ const publicUnits=await call(env,'/api/units?course=os');assert.equal(publicUnits.data.units.find(u=>u.id==='L10').title,'虛擬記憶體');
+ const publicQuestions=await call(env,'/api/questions?course=os');assert(publicQuestions.data.units.some(u=>u.id==='L10'));assert.equal(publicQuestions.data.questions.length,0);
+ const alias=[...units,{id:'L2',title:'重複基礎'}];assert.equal((await call(env,'/api/manage/units?course=os',{reviewer:true,method:'POST',body:{revision:1,units:alias}})).response.status,400);
+ const renamed=units.map((u,i)=>i===0?{id:'L11',title:u.title}:u);assert.equal((await call(env,'/api/manage/units?course=os',{reviewer:true,method:'POST',body:{revision:1,units:renamed}})).response.status,400);
+ assert.equal((await call(env,'/api/manage/units?course=os',{reviewer:true})).data.revision,1);
+});

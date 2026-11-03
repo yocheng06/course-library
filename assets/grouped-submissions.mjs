@@ -71,7 +71,7 @@ function replacedQuestionSummary(result) {
 export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}) {
   const key='course-library-grouped-submissions-v1';let queue=[],busy=false;
   const panel=document.createElement('section');panel.className='group-preview';
-  panel.innerHTML='<h2>匯入分組預覽</h2><p>依科目與單元分組，每批最多 200 題。可同時選取 CCSA 題目 HTML 和交卷結果 HTML，自動配對正解；解析可留白。確認每組內容與答案後再送出；下方手動編輯中的原草稿會保留。已送出的批次會保留收據，重試只處理未完成批次。沒有配對到的正解需先補上。</p><p class="notice" data-import-summary role="status" aria-live="polite" hidden></p><div data-groups></div><label class="consent"><input type="checkbox" data-consent>我已預覽各組題目並確認題目與答案正確。完全重複會略過；疑似重複或版本不同會另行收錄並標示待核對，既有題目會保留。送出後會立即公開。</label><div class="actions"><button type="button" class="button" data-send>公開題目</button><button type="button" class="button secondary" data-download>下載分組草稿與收據</button><button type="button" class="text-button" data-clear>清空分組預覽</button></div><p data-import-status role="status" aria-live="polite"></p>';
+  panel.innerHTML='<h2>匯入分組預覽</h2><p>依科目與單元分組，每批最多 200 題。可同時選取 CCSA 題目 HTML 和交卷結果 HTML，自動配對正解；解析可留白。確認每組內容與答案後再送出；下方手動編輯中的原草稿會保留。已送出的批次會保留收據，重試只處理未完成批次。沒有配對到的正解需先補上。</p><p class="notice" data-import-summary role="status" aria-live="polite" hidden></p><div data-groups></div><label class="consent"><input type="checkbox" data-consent>我已預覽各組題目並確認題目與答案正確。完全重複會略過；疑似重複或版本不同會另行收錄並標示待核對，既有題目會保留。送出後會立即公開。</label><div class="actions"><button type="button" class="button" data-send>匯入題目</button><button type="button" class="button secondary" data-download>下載分組草稿與收據</button><button type="button" class="text-button" data-clear>清空分組預覽</button></div><p data-import-status role="status" aria-live="polite"></p>';
   document.getElementById('draftHeading').closest('section').before(panel);
   const list=panel.querySelector('[data-groups]'),status=panel.querySelector('[data-import-status]'),consent=panel.querySelector('[data-consent]');
   function updateSummary(){
@@ -119,7 +119,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
   }
   function refreshSendButton(){
     const pendingCount=queue.filter(group=>!group.result).reduce((n,group)=>n+group.payload.questions.length,0);
-    panel.querySelector('[data-send]').textContent=busy?'正在公開題目…':pendingCount?`公開這 ${pendingCount} 題`:'已完成公開';
+    panel.querySelector('[data-send]').textContent=busy?'正在匯入題庫…':pendingCount?`匯入這 ${pendingCount} 題`:'已完成匯入';
     list.querySelectorAll('[data-topic],[data-topic-select],[data-topic-all],[data-topic-bulk],[data-topic-apply],[data-import-answer]').forEach(el=>{const g=Number((el.dataset.topic||el.dataset.topicSelect||'').split(':')[0]||el.dataset.topicAll||el.dataset.topicBulk||el.dataset.topicApply||el.dataset.groupIndex);el.disabled=busy||Boolean(queue[g]?.result);});
     panel.querySelector('[data-send]').disabled=busy||!consent.checked||!queue.some(group=>!group.result)||queue.some(group=>!group.result&&missingAnswerCount(group)>0);
   }

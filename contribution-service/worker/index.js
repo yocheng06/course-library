@@ -1,5 +1,6 @@
 import {
   normalizeBatch,
+  normalizeUnit,
   questionKey,
   possibleMatches,
   duplicateStemKey,

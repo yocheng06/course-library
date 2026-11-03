@@ -1,7 +1,7 @@
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 const uniqueQuestions=(course,unit,questions,onDuplicate)=>uniqueQuestionsBase(course,unit,questions,onDuplicate,{allowConflictingVersions:true});
 import {createUnitCatalog} from './unit-catalog.mjs?v=admin-units-20261103';
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=easy-import-20261103';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=import-label-20261103';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -108,7 +108,7 @@ function scheduleDraftSave() {
 window.addEventListener("pagehide", save);
 document.addEventListener("visibilitychange", () => { if (document.hidden) save(); });
 function ready() {
-  $("submitBatch").textContent=submitPending?"正在公開題目…":questions.length?`公開這 ${questions.length} 題`:"公開題目";
+  $("submitBatch").textContent=submitPending?"正在匯入題庫…":questions.length?`匯入這 ${questions.length} 題`:"匯入題目";
   $("submitBatch").disabled =
     !questions.length ||
     !$("consent").checked ||

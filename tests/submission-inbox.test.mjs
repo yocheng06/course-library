@@ -179,7 +179,7 @@ test('file-first import asks for missing scope, retries with confirmed metadata,
  ui.fire(ui.$('retryMetadataImport'),'click');await new Promise(resolve=>setImmediate(resolve));await new Promise(resolve=>setImmediate(resolve));
  let draft=JSON.parse(store.getItem('course-library-grouped-submissions-v1'));
  assert.equal(draft.groups[0].payload.course,'algorithms');assert.equal(draft.groups[0].payload.unit,'L7');
- assert.equal(ui.document.querySelector('[data-send]').textContent,'公開這 1 題');
+ assert.equal(ui.document.querySelector('[data-send]').textContent,'匯入這 1 題');
  ui.$('unit').value='L6';ui.fire(ui.$('unit'),'change');ui.fire(ui.$('applyImportMetadata'),'click');
  draft=JSON.parse(store.getItem('course-library-grouped-submissions-v1'));assert.equal(draft.groups[0].payload.unit,'L6');
  assert.equal(ui.requests.filter(r=>r.opts?.method==='POST').length,0);

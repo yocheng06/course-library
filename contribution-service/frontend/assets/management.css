@@ -23,3 +23,15 @@ html[data-theme="dark"] .button.danger:not(.secondary):not(:disabled):hover { ba
 @media(max-width:600px){.unit-settings-row{grid-template-columns:1fr auto auto}.unit-settings-row>label{grid-column:1/-1;grid-row:2}.library-bulk{top:4px}.library-bulk .button{min-height:44px}}
 
 .library-table th:first-child{width:12%}.library-table th:nth-child(2){width:31%}
+
+/* Pointer-based sorting works with mouse, pen, and touch; form fields still scroll normally. */
+.unit-settings-row{grid-template-columns:64px 100px minmax(140px,1fr) auto auto}
+.unit-drag-handle{touch-action:none;cursor:grab;user-select:none;min-width:56px;min-height:44px;padding:8px}
+.unit-dragging{background:var(--soft);outline:2px dashed var(--accent);outline-offset:-2px;opacity:.85}
+.unit-dragging .unit-drag-handle{cursor:grabbing}
+[data-unit-new]{padding:16px;margin:12px 0;border:1px solid var(--line);border-radius:10px}
+@media(max-width:600px){.unit-settings-row{grid-template-columns:56px minmax(60px,1fr) auto auto;gap:8px}.unit-settings-row>label{grid-column:1/-1;grid-row:2}}
+
+.library-heading>.button{flex-shrink:0;white-space:nowrap}
+
+.unit-settings-row>span{min-width:0;overflow-wrap:anywhere}

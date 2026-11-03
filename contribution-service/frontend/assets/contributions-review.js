@@ -1,4 +1,4 @@
-import {setupUnitManager} from './unit-manager.mjs?v=admin-workflow-20261103';
+import {setupUnitManager} from './unit-manager.mjs?v=unit-drag-add-20261103';
 import {setupLibraryHealth} from './library-health.mjs?v=admin-workflow-20261103';
 import { api, message, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
 import { setupLibraryManager } from './library-manager.mjs?v=admin-workflow-20261103';
