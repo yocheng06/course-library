@@ -266,6 +266,8 @@
       if (!unchanged && !response.ok) throw new Error('unavailable');
       const data = unchanged ? latestData : await response.json();
       if (!validData(data)) throw new Error('Invalid public snapshot');
+      const unitId=config.examUnitId(), unitLabel=config.examUnitLabel();
+      const before=globalThis.courseSyncSummary?.snapshot(config.examEntries([unitId]));
       if (JSON.stringify(data) !== JSON.stringify(latestData)) apply(data, 'live');
       else { source = 'live'; document.documentElement.dataset.questionSource = 'live'; }
       latestData = data;
@@ -275,7 +277,10 @@
       const generatedAt = new Date(Number.isFinite(serverTime) ? serverTime : Date.now()).toISOString();
       try { localStorage.setItem(cacheKey, JSON.stringify({schema:1, course:config.course, generatedAt, data, etag:latestEtag})); } catch {}
       if (linkedSubmission && !config.validId(linkedId)) showNotice('這個投稿題目連結暫時沒有可用內容，已顯示原有題庫。',true);
-      else { showNotice(`題庫已更新 · 最後同步 ${new Date().toLocaleTimeString('zh-TW')}。`,true); }
+      else {
+        const changes=before ? ` · ${unitLabel}：${globalThis.courseSyncSummary.describe(before,globalThis.courseSyncSummary.snapshot(config.examEntries([unitId])))}` : '';
+        showNotice(`已載入最新題庫${changes} · 最後同步 ${new Date().toLocaleTimeString('zh-TW')}。`,true);
+      }
       document.documentElement.dataset.questionSync='synced';
     } catch {
       document.documentElement.dataset.questionSync='failed';

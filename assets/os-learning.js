@@ -93,7 +93,7 @@ const findEntry = id => {
 };
 function refreshFilters() {
   const entries = scopedEntries();
-  window.courseQuestionTools.populateSelect($('chapter'), entries.map(entry=>entry.topicLabel??entry.q.category), 'all', '全部章節');
+  window.courseQuestionTools.populateSelect($('chapter'), entries.map(entry=>entry.topicLabel??entry.q.category), 'all', '全部主題');
   window.courseQuestionTools.populateSelect($('typeSelect'), entries.map(({q}) => kind(q)), 'all', '全部題型');
 }
 function highlighted(value) {
@@ -175,7 +175,7 @@ function render(preserveCards = false) {
   const filtered=practiceSequence.apply(matches(),mode==='practice'&&$('practiceOrder').value==='random',entry=>entry.q.id), entries=scopedEntries(), pages=Math.max(1,Math.ceil(filtered.length/pageSize)); page=Math.min(page,pages); totalPages=pages;
   const start=(page-1)*pageSize;
   $('qualitySelect').options[1].textContent=`待確認（${entries.filter(({q})=>window.courseQuestionTools.qualityReasons(q,'os').length).length} 題）`;
-  $('resultCount').innerHTML=`<strong>${allUnits()?'全部單元':'目前單元'} · ${$('chapter').value==='all'?'全部章節':esc($('chapter').value)}</strong> · ${filtered.length} / ${entries.length} 題`;
+  $('resultCount').innerHTML=`<strong>${allUnits()?'全部單元':'目前單元'} · ${$('chapter').value==='all'?'全部主題':esc($('chapter').value)}</strong> · ${filtered.length} / ${entries.length} 題`;
   $('pageRange').textContent=filtered.length?`${start+1}–${Math.min(start+pageSize,filtered.length)} · 第 ${page} / ${pages} 頁`:'0 題';
   const visible=filtered.slice(start,start+pageSize);
   window.courseQuestionTools.renderQuestionCards($('cards'),visible,cardMarkup,preserveCards);

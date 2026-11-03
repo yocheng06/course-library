@@ -20,6 +20,7 @@
     const key = new URL(url);
     key.searchParams.delete(frameFlag);
     key.searchParams.delete('v');
+    key.searchParams.delete('theme');
     key.searchParams.sort();
     if (key.pathname === directory.pathname) key.pathname += 'index.html';
     return key.href;

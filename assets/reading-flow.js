@@ -101,14 +101,14 @@
     unitSelect.innerHTML = unit.innerHTML;
     unitSelect.value = unit.value;
     const label = config.scopeLabel();
-    filterDetails.querySelector('summary').textContent = modeHint.hidden ? '篩選設定' : '篩選／說明';
+    filterDetails.querySelector('summary').textContent = filterDetails.classList.contains('more-filters') ? '更多篩選' + (quality.value === 'pending' ? '（已啟用）' : '') : modeHint.hidden ? '篩選設定' : '篩選／說明';
     scope.textContent = '搜尋範圍：' + label;
     search.placeholder = '搜尋題目、答案或解析…';
     search.setAttribute('aria-label', `搜尋${label}的題目、答案與解析`);
     tools.querySelector('.review-filter').firstChild.textContent = config.allUnits() ? '全部單元待複習 ' : '本單元待複習 ';
     chips.replaceChildren();
     if (search.value.trim()) chip('搜尋：' + search.value.trim(), () => { search.value = ''; search.dispatchEvent(new Event('input', {bubbles:true})); });
-    if (chapter.selectedIndex > 0) chip('章節：' + chapter.selectedOptions[0].textContent, () => clearSelect(chapter));
+    if (chapter.selectedIndex > 0) chip('主題：' + chapter.selectedOptions[0].textContent, () => clearSelect(chapter));
     if (type.selectedIndex > 0) chip('題型：' + type.value, () => clearSelect(type));
     if (quality.value === 'pending') chip('只看待確認', () => clearSelect(quality));
     if (config.allUnits()) chip('範圍：全部單元', () => clearSelect(searchScope));

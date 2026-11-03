@@ -142,3 +142,12 @@ test('challenge HTML and individually selected pictures create a complete treasu
  ui.fire(ui.$('previewHtmlPair'),'click');await new Promise(resolve=>setImmediate(resolve));await new Promise(resolve=>setImmediate(resolve));
  const draft=JSON.parse(store.getItem('course-library-grouped-submissions-v1'));assert.equal(draft.groups[0].payload.unit,'treasure');const q=draft.groups[0].payload.questions[0];assert.equal(q.answer,'42');assert.match(q.stem,/共用條件/);assert.equal(q.images.length,1);assert.equal('__practiceAnswerStem'in q,false);assert.equal(ui.requests.filter(r=>r.opts?.method==='POST').length,0);
 });
+
+
+test('empty submission startup and import/manual toggles do not reveal an empty preview; snapshot units exist immediately',async()=>{
+ const ui=await page(storage()),panel=ui.document.querySelector('.group-preview');
+ assert.equal(panel.hidden,true);
+ assert.ok([...ui.$('unit').querySelectorAll('option')].some(option=>option.value==='L9'&&option.textContent.includes('記憶體管理')));
+ ui.fire(ui.$('showManualEntry'),'click');assert.equal(panel.hidden,true);
+ ui.fire(ui.$('showHtmlImport'),'click');assert.equal(panel.hidden,true);
+});

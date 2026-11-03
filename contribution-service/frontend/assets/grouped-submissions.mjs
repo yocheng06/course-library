@@ -134,7 +134,12 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
     refreshSendButton();
   }
   function render(){
-    panel.hidden=!queue.length;
+    panel.dataset.hasGroups=String(queue.length>0);
+    panel.hidden=!queue.length || document.getElementById('showHtmlImport')?.getAttribute('aria-pressed')==='false';
+    const complete=queue.length>0 && queue.every(group=>group.result);
+    document.querySelectorAll('.flow-steps li').forEach((step,index)=>{
+      if(index===(complete?2:queue.length?1:0))step.setAttribute('aria-current','step');else step.removeAttribute('aria-current');
+    });
     list.innerHTML=queue.map((group,index)=>{
       const missing=missingAnswerCount(group),counts=groupImportCounts(group);
       return `<details data-group-index="${index}" ${index===0?'open':''}><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`:'待送出'}${group.htmlImport?` <span data-answer-count>（待補正解 ${missing} 題）</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary><div data-group-body data-ready="${index===0?'true':'false'}">${index===0?groupBody(group,index):''}</div>${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+esc(group.result.id):group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，未新增投稿。'}</p>${replacedQuestionSummary(group.result)}`:''}<div data-similar></div><p data-error role="status"></p></details>`;

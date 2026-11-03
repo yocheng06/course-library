@@ -209,7 +209,7 @@
     if (!write()) message('字級已套用，但瀏覽器無法保存；下次開啟需重新設定。');
   });
   const compact = matchMedia('(max-width:1000px)');
-  const foldControls = () => document.querySelectorAll('.filter-details').forEach(details => { details.open = !compact.matches; });
+  const foldControls = () => document.querySelectorAll('.filter-details:not(.more-filters)').forEach(details => { details.open = !compact.matches; });
   document.getElementById('conceptGuide').open = false;
   foldControls(); compact.addEventListener('change', foldControls);
   refreshStorageHint(); refresh();

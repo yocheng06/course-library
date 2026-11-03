@@ -1,3 +1,5 @@
+import './sync-summary.js?v=flow-clarity-20261103';
+import {createUnitCatalog} from './unit-catalog.mjs?v=flow-clarity-20261103';
 import {comparisonMarkup,mismatchLabel} from './question-comparison.mjs?v=workflow-improvements-20261102';
 import {fingerprintLibraryImages, inheritQuestionImages, validImageHashes} from "./batch-images.mjs?v=image-bank-retry-20261031";
 import {unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
@@ -41,6 +43,8 @@ const esc = (value) =>
         c
       ],
   );
+let unitStorage;try{unitStorage=globalThis.localStorage;}catch{}
+const unitCatalog=createUnitCatalog(unitStorage), syncChanges=new Map();
 const names = { os: "作業系統", algorithms: "演算法" };
 const labels = { matched: "已收錄", unmatched: "未收錄" };
 const draftKey = "course-library.batch-draft.v1";
@@ -73,7 +77,7 @@ function units() {
   const previous = $("unit").value;
   $("unit").innerHTML =
     '<option value="all">全部單元</option>' +
-    (library?.courses[$("course").value]?.units || [])
+    unitCatalog.list($("course").value)
       .map((u) => `<option value="${esc(u.id)}">${esc(u.name)}</option>`)
       .join("");
   if ([...$("unit").options].some((o) => o.value === previous))
@@ -128,7 +132,7 @@ function libraryStatus() {
       : syncFailures.has(course)
         ? "同步失敗，"+(invalidPublicData[course]?"線上題庫資料不完整；":"")+(publicData.has(course)&&!invalidPublicData[course]?"目前使用上次題庫快取":"目前僅比對隨站內建版本")+"；尚未確認最新修改及下架狀態。請按「重新同步題庫」重試。"
       : coverage[course]
-      ? "已同步內建題修改與公開投稿題庫。" + (syncedAt.has(course) ? " 最後同步：" + new Date(syncedAt.get(course)).toLocaleTimeString("zh-TW") : "")
+      ? "已同步內建題修改與公開投稿題庫。" + (syncChanges.get(course) || "") + (syncedAt.has(course) ? " 最後同步：" + new Date(syncedAt.get(course)).toLocaleTimeString("zh-TW") : "")
       : syncing
         ? "正在同步公開投稿，現在可先比對內建題庫。"
       : invalidPublicData[course]
@@ -204,6 +208,7 @@ function rebuildLibraryIndex() {
   }
   index = buildIndex(entries);
   libraryGeneration++;
+  for(const [course,data] of Object.entries(library.courses)) unitCatalog.update(course,data.units.map(unit=>({id:unit.id,title:unit.name.replace(/^L\d+ · /,'')})));
   units();
 }
 async function getBaseLibrary() {
@@ -247,6 +252,7 @@ async function loadLibrary() {
       $("compare").disabled = false;
       libraryStatus();
       markChanged();
+      const before=globalThis.courseSyncSummary.snapshot((index?.entries||[]).filter(entry=>entry.course===course));
       const result = await publicRequest;
       if (result.error) throw result.error;
       const {data,etag} = result.value;
@@ -258,6 +264,7 @@ async function loadLibrary() {
       invalidPublicData[course] = false;
       if (changed) rebuildLibraryIndex();
       if (invalidPublicData[course]) throw Error("public-data");
+      syncChanges.set(course,globalThis.courseSyncSummary.describe(before,globalThis.courseSyncSummary.snapshot(index.entries.filter(entry=>entry.course===course))));
       syncFailures.delete(course);syncedAt.set(course,Date.now());
       try { localStorage.setItem(publicCacheKey(course), JSON.stringify({schema:1,course,generatedAt:new Date().toISOString(),data,etag})); } catch {}
       if (changed && results.length) $("staleNotice").textContent = "題庫比對資料已更新，請重新比對。下方保留的是上一批結果。";
@@ -414,7 +421,7 @@ transferButton?.addEventListener("click", () => {
   if (isStale() || loading || !index || courseSuggestion) return;
   try {
     stageUnmatched(results, { course: snapshotCourse, unit: snapshotUnit }, localStorage);
-    location.href = "submit.html?v=draft-transfer-20261020#pendingHeading";
+    location.href = window.courseTheme?.href("submit.html?v=draft-transfer-20261020#pendingHeading") || "submit.html?v=draft-transfer-20261020#pendingHeading";
   } catch (error) {
     message(`未能轉入投稿草稿：${error.message}。題目仍保留在本頁，可先複製備份。`, true);
   }

@@ -47,3 +47,25 @@ body[data-course] .toolbar [hidden] { display: none !important; }
   body .contribution-nav nav { flex-wrap: wrap; gap: 4px 14px; }
   .batch-page { margin-top: 22px; }
 }
+
+/* Keep everyday controls visible and secondary filters collapsed on both courses. */
+body[data-course] .toolbar .filters { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+body[data-course] .toolbar .primary-filters { display:flex; flex:1 1 320px; flex-wrap:wrap; align-items:center; gap:10px 16px; }
+body[data-course] .toolbar .primary-filters > label { display:inline-flex; align-items:center; gap:8px; margin:0; min-height:44px; }
+body[data-course] .toolbar .primary-filters > .answer-toggle { flex:0 1 auto; justify-content:flex-start; min-height:44px; }
+body[data-course] .toolbar .more-filters { flex:0 1 auto; width:auto; min-width:0; }
+body[data-course] .toolbar .more-filters > summary { display:list-item; cursor:pointer; padding:10px 12px; min-height:44px; border:1px solid var(--line); border-radius:8px; color:var(--ink); }
+body[data-course] .toolbar .more-filters[open] { flex:1 1 100%; order:3; }
+body[data-course] .toolbar .more-filters > .filter-fields { padding-top:10px; }
+body[data-course] .toolbar .study-controls { flex:0 1 auto; margin-left:auto; }
+body[data-course] .toolbar .quality-hint { margin:8px 0 0; }
+.flow-steps li[aria-current="step"] { font-weight:700; outline:2px solid var(--accent,var(--ink)); outline-offset:2px; }
+@media (max-width:720px) {
+  body[data-course] .toolbar .primary-filters { flex-basis:100%; }
+  body[data-course] .toolbar .primary-filters > label { flex:1 1 135px; }
+  body[data-course] .toolbar .primary-filters > label select { width:auto; max-width:100%; min-width:0; flex:1; }
+  body[data-course] .toolbar .study-controls { flex:1 1 100%; justify-content:flex-start; margin-left:0; }
+}
+
+body[data-course] .toolbar .more-filters > summary::after { content:none; }
+html[data-theme="dark"] body[data-course] .search-icon { filter:invert(1); opacity:.85; }

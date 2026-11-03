@@ -11,7 +11,7 @@ export async function loadCourse(course,{live,linkedQuestion='',ordering=true}={
  if(!ordering)window.courseTopicOrder=null;
  const stored=new Map();let respond;
  const context=vm.createContext({window,document,location:{search:linkedQuestion?'?question='+linkedQuestion:'',protocol:'https:'},URLSearchParams,navigator:{onLine:true},AbortSignal,Date,console,requestAnimationFrame:f=>f(),scrollX:0,scrollY:0,innerHeight:900,CSS:{escape:String},localStorage:{getItem:k=>stored.get(k),setItem:(k,v)=>stored.set(k,v)},fetch:()=>new Promise(resolve=>respond=resolve)});
- const names=['explanation-content','question-tools','choice-answers','practice-feedback',...(course==='os'?['scheduling-walkthrough']:['counting-sort-walkthrough','selection-explanations']),...(ordering?['topic-order']:[]),course+'-learning','course-bootstrap'];
+ const names=['explanation-content','question-tools','choice-answers','practice-feedback',...(course==='os'?['scheduling-walkthrough']:['counting-sort-walkthrough','selection-explanations']),...(ordering?['topic-order']:[]),course+'-learning','sync-summary','course-bootstrap'];
  for(const name of names)vm.runInContext(await read('assets/'+name+'.js'),context);
  return {window,document,config:window.courseLearning,respond:data=>respond({ok:true,headers:{get:()=>new Date().toUTCString()},json:async()=>data})};
 }

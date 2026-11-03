@@ -1,6 +1,7 @@
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 const uniqueQuestions=(course,unit,questions,onDuplicate)=>uniqueQuestionsBase(course,unit,questions,onDuplicate,{allowConflictingVersions:true});
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=workflow-improvements-20261102';
+import {createUnitCatalog} from './unit-catalog.mjs?v=flow-clarity-20261103';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=flow-clarity-20261103';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -35,8 +36,9 @@ let questions = [],
 $("course").innerHTML = Object.entries(COURSE_UNITS)
   .map(([id, course]) => `<option value="${id}">${course.name}</option>`)
   .join("");
-const publicUnits={os:{...COURSE_UNITS.os.units},algorithms:{...COURSE_UNITS.algorithms.units}};
-const publicTitles={os:{},algorithms:{}};
+let unitStorage;try{unitStorage=globalThis.localStorage;}catch{}
+const unitCatalog=createUnitCatalog(unitStorage);
+const publicUnits=unitCatalog.names, publicTitles=unitCatalog.titles;
 let unitsSequence=0;
 function unitFields() {
   const custom=$("unit").value==='__new__';
@@ -44,7 +46,7 @@ function unitFields() {
 }
 function units() {
   const previous=$("unit").value;
-  $("unit").innerHTML=Object.entries(publicUnits[$("course").value]).map(([id,name])=>`<option value="${esc(id)}">${esc(name)}</option>`).join('')+'<option value="__new__">＋ 投稿尚未建立的單元</option>';
+  $("unit").innerHTML=unitCatalog.list($("course").value).map(({id,name})=>`<option value="${esc(id)}">${esc(name)}</option>`).join('')+'<option value="__new__">＋ 投稿尚未建立的單元</option>';
   if(Object.hasOwn(publicUnits[$("course").value],previous))$("unit").value=previous;
   unitFields();
 }
@@ -60,6 +62,7 @@ async function loadPublicUnits() {
     const result=await api('/api/units?course='+course);
     if(seq!==unitsSequence || course!==$("course").value || !Array.isArray(result.units))return;
     const selected=$("unit").value;
+    unitCatalog.update(course,result.units);
     for(const unit of result.units){
       const id=normalizeUnit(course,unit.id);
       publicUnits[course][id]=unitLabel(course,id,unit.title);publicTitles[course][id]=unit.title||'';
@@ -853,7 +856,7 @@ function setSubmissionMode(mode) {
   form.hidden = importing;
   $("draftHeading").closest("section").hidden = importing;
   const grouped = document.querySelector(".group-preview");
-  if (grouped) grouped.hidden = !importing;
+  if (grouped) grouped.hidden = !importing || grouped.dataset.hasGroups !== 'true';
   for (const [id, active] of [["showHtmlImport", importing], ["showManualEntry", !importing]]) {
     $(id).setAttribute("aria-pressed", String(active));
     $(id).classList.toggle("secondary", !active);

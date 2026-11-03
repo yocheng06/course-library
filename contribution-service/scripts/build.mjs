@@ -96,6 +96,8 @@ const paths = [
   "assets/contributions-ui.js",
   "assets/contributions-submit.js",
   "assets/grouped-submissions.mjs",
+  "assets/unit-catalog.mjs",
+  "assets/unit-catalog-snapshot.mjs",
   "assets/topic-order.js",
   "assets/question-comparison.mjs",
   "assets/library-health.mjs",
