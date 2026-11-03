@@ -2,7 +2,7 @@ import {cp, mkdir} from 'node:fs/promises';
 import {resolve, dirname} from 'node:path';
 const root = resolve(import.meta.dirname, '..');
 // Application assets only. Do not regenerate question IDs or backend catalogs.
-const files = ['submit.html', 'assets/theme.js', 'assets/contributions-submit.js', 'assets/grouped-submissions.mjs', 'assets/unit-catalog.mjs', 'assets/unit-catalog-snapshot.mjs', 'assets/ui-consistency.css'];
+const files = ['submit.html', 'assets/theme.js', 'assets/contributions-submit.js', 'assets/grouped-submissions.mjs', 'assets/unit-catalog.mjs', 'assets/unit-catalog-snapshot.mjs', 'assets/ui-consistency.css', 'assets/submission-palette.css'];
 for (const file of files) {
   const target = resolve(root, 'contribution-service/frontend', file);
   await mkdir(dirname(target), {recursive: true});

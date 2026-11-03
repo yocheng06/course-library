@@ -89,6 +89,7 @@ const paths = [
   "assets/contributions.css",
   "assets/theme.js",
   "assets/theme.css",
+  "assets/submission-palette.css",
   "assets/ui-consistency.css",
   "assets/contributions-config.js",
   "assets/contribution-model.js",

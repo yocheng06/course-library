@@ -119,6 +119,7 @@ test('separate HTML pickers produce a paired preview and switching modes preserv
  assert.equal(ui.$('previewHtmlPair').disabled,false);
  ui.fire(ui.$('previewHtmlPair'),'click');
  await new Promise(resolve=>setImmediate(resolve)); await new Promise(resolve=>setImmediate(resolve));
+ const batch=ui.document.querySelector('details[data-group-index]');assert.equal(batch.hasAttribute('open'),false);batch.open=true;ui.fire(batch,'toggle');
  assert.equal(ui.document.querySelector('[data-import-answer="fill"]').value,'pipe');
  assert.match(ui.document.querySelector('.group-preview').textContent,/1\/1/);
  assert.match(ui.$('htmlPairStatus').textContent,/尚未送出/);
@@ -150,4 +151,13 @@ test('empty submission startup and import/manual toggles do not reveal an empty 
  assert.ok([...ui.$('unit').querySelectorAll('option')].some(option=>option.value==='L9'&&option.textContent.includes('記憶體管理')));
  ui.fire(ui.$('showManualEntry'),'click');assert.equal(panel.hidden,true);
  ui.fire(ui.$('showHtmlImport'),'click');assert.equal(panel.hidden,true);
+});
+
+
+test('submission course palette follows selection and the restored draft without changing light/dark preference',async()=>{
+ const store=storage();let ui=await page(store);
+ ui.document.documentElement.dataset.theme='dark';assert.equal(ui.document.body.dataset.course,'os');
+ ui.$('course').value='algorithms';ui.fire(ui.$('course'),'change');assert.equal(ui.document.body.dataset.course,'algorithms');assert.equal(ui.document.documentElement.dataset.theme,'dark');
+ ui=await page(store);assert.equal(ui.$('course').value,'algorithms');assert.equal(ui.document.body.dataset.course,'algorithms');
+ ui.$('course').value='os';ui.fire(ui.$('course'),'change');assert.equal(ui.document.body.dataset.course,'os');
 });

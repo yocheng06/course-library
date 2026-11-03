@@ -141,8 +141,8 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
       if(index===(complete?2:queue.length?1:0))step.setAttribute('aria-current','step');else step.removeAttribute('aria-current');
     });
     list.innerHTML=queue.map((group,index)=>{
-      const missing=missingAnswerCount(group),counts=groupImportCounts(group);
-      return `<details data-group-index="${index}" ${index===0?'open':''}><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`:'待送出'}${group.htmlImport?` <span data-answer-count>（待補正解 ${missing} 題）</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary><div data-group-body data-ready="${index===0?'true':'false'}">${index===0?groupBody(group,index):''}</div>${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+esc(group.result.id):group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，未新增投稿。'}</p>${replacedQuestionSummary(group.result)}`:''}<div data-similar></div><p data-error role="status"></p></details>`;
+      const missing=missingAnswerCount(group),counts=groupImportCounts(group),expand=!group.result && missing>0;
+      return `<details data-group-index="${index}" ${expand?'open':''}><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`:'待送出'}${group.htmlImport?` <span data-answer-count>（待補正解 ${missing} 題）</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary><div data-group-body data-ready="${expand?'true':'false'}">${expand?groupBody(group,index):''}</div>${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+esc(group.result.id):group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，未新增投稿。'}</p>${replacedQuestionSummary(group.result)}`:''}<div data-similar></div><p data-error role="status"></p></details>`;
     }).join('');
     updateSummary();refreshSendButton();
   }
@@ -158,10 +158,13 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
       });
     }
   }catch(error){message('分組草稿無法讀取，原始資料未刪除。請先下載備份後重新匯入。',true);}
-  list.addEventListener('toggle',event=>{
-    const details=event.target;if(!details.matches('details[data-group-index]')||!details.open)return;
+  function ensureGroupBody(details){
     const body=details.querySelector('[data-group-body]');if(!body||body.dataset.ready==='true')return;
     const index=Number(details.dataset.groupIndex);body.innerHTML=groupBody(queue[index],index);body.dataset.ready='true';refreshSendButton();
+  }
+  list.addEventListener('toggle',event=>{
+    const details=event.target;if(!details.matches('details[data-group-index]')||!details.open)return;
+    ensureGroupBody(details);
   },true);
   consent.addEventListener('change',refreshSendButton);
   list.addEventListener('change',event=>{
@@ -203,6 +206,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
   panel.querySelector('[data-send]').addEventListener('click',async()=>{
     if(busy || !consent.checked)return;
     if(queue.some(group=>!group.result&&missingAnswerCount(group)>0)){updateAnswerStatus();return;}
+    list.querySelectorAll('details[data-group-index]').forEach(node=>{node.open=false;});
     busy=true;updateSummary();refreshSendButton();panel.querySelector('[data-send]').disabled=true;
     // The group-level consent also authorizes updating a uniquely matched existing version.
     try{
@@ -214,13 +218,14 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message}
           const payload=normalizeBatch(group.payload);
           group.result=await api('/api/submissions',{method:'POST',body:JSON.stringify({...payload,clientRequestId:group.requestId,website:document.getElementById('website').value,replaceSimilar:true})});
           // Persist each completion before starting the next request.
+          node.open=false;
           save();updateSummary();if(group.result.id)onReceipt(group.result,payload);
           const counts=groupImportCounts(group);
           node.querySelector('summary').textContent=`${COURSE_UNITS[group.payload.course].name}／${unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle)} · ${counts.total} 題 · 已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`;
           node.querySelector('[data-error]').textContent=`本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+group.result.id:group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，沒有新增投稿。'}`;
         }catch(error){
           if(error.details?.code==='similar_questions')showSimilar(node.querySelector('[data-similar]'),error.details.possibleDuplicates,{mode:'replacement'});
-          node.open=true;node.querySelector('[data-error]').textContent=error.message;
+          ensureGroupBody(node);node.open=true;node.querySelector('[data-error]').textContent=error.message;
           const conflicts=error.details?.possibleDuplicates;
           const reason=conflicts?.length?`本批第 ${conflicts.map(q=>q.index).join('、')} 題需要核對，詳見下方清單`:error.message.replace(/[。.!！]+$/u,'');
           throw new Error(`第 ${index+1} 批未完成：${reason}。已完成的批次不會重送，草稿與結果仍保留。`);

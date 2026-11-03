@@ -1,7 +1,7 @@
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 const uniqueQuestions=(course,unit,questions,onDuplicate)=>uniqueQuestionsBase(course,unit,questions,onDuplicate,{allowConflictingVersions:true});
 import {createUnitCatalog} from './unit-catalog.mjs?v=flow-clarity-20261103';
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=flow-clarity-20261103';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=collapsed-import-20261103';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -45,6 +45,7 @@ function unitFields() {
   $("newUnitFields").hidden=!custom;$("newUnitNumber").required=custom;
 }
 function units() {
+  document.body.dataset.course=$("course").value;
   const previous=$("unit").value;
   $("unit").innerHTML=unitCatalog.list($("course").value).map(({id,name})=>`<option value="${esc(id)}">${esc(name)}</option>`).join('')+'<option value="__new__">＋ 投稿尚未建立的單元</option>';
   if(Object.hasOwn(publicUnits[$("course").value],previous))$("unit").value=previous;

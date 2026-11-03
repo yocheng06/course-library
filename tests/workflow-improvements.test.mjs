@@ -28,6 +28,7 @@ test('topic inference is shared with the reader, preserves custom topics, and bu
  const requests=[];globalThis.fetch=async(url,options)=>{requests.push(JSON.parse(options.body));return new Response(JSON.stringify({id:'receipt',acceptedCount:3,receivedCount:3,status:'approved'}));};
  const ui=setupGroupedSubmissions({parseImport:()=>[question(),question({stem:'雲端服務模型？'}),question({stem:'第三題？',category:'老師自訂主題'})],metadata:()=>({course:'os',unit:'basics',title:'測試題庫'}),onReceipt:()=>{},message:()=>{}});
  await ui.importFiles([{name:'bank.json',size:20,text:async()=>''}]);
+ const first=h.document.querySelector('details[data-group-index="0"]');assert.equal(first.hasAttribute('open'),false);first.open=true;h.fire('details[data-group-index="0"]','toggle');
  assert.equal(h.document.querySelector('[data-topic="0:0"]').value,'中斷');
  const all=h.document.querySelector('[data-topic-all]');all.checked=true;h.fire('[data-topic-all]','change');
  h.document.querySelector('[data-topic-bulk]').value='整批修正主題';h.fire('[data-topic-apply]');
@@ -96,11 +97,12 @@ test('reviewed explanation fallbacks are recognized only for the exact question 
  assert.equal(context.explain('os','demo',q),'已審閱的補充解析');assert.equal(context.explain('os','demo',{...q,answer:'B'}),'');assert.equal(context.explain('os','demo',{...q,explanation:'後來自己補的解析'}),'後來自己補的解析');
 });
 
-test('large grouped previews create later batches only when opened and keep earlier topic edits intact',async()=>{
+test('all grouped previews start collapsed and create question controls only when opened and keep earlier topic edits intact',async()=>{
  const h=dom('<section><h2 id="draftHeading"></h2></section><input id="website">');
  const data=[{...question(),course:'os',unit:'basics'},{...question({stem:'系統呼叫如何切換模式？'}),course:'os',unit:'architecture'}];
  const ui=setupGroupedSubmissions({parseImport:()=>data,metadata:()=>({course:'os',unit:'basics',title:'多批測試'}),onReceipt:()=>{},message:()=>{}});
- await ui.importFiles([{name:'bank.json',size:10,text:async()=>''}]);assert.equal(h.document.querySelectorAll('[data-topic]').length,1);
+ await ui.importFiles([{name:'bank.json',size:10,text:async()=>''}]);assert.equal(h.document.querySelectorAll('[data-topic]').length,0);assert.equal(h.document.querySelectorAll('details[data-group-index][open]').length,0);
+ const first=h.document.querySelector('details[data-group-index="0"]');first.open=true;h.fire('details[data-group-index="0"]','toggle');assert.equal(h.document.querySelectorAll('[data-topic]').length,1);
  h.document.querySelector('[data-topic="0:0"]').value='自訂主題';h.fire('[data-topic="0:0"]','change');
  const details=h.document.querySelector('details[data-group-index="1"]');details.open=true;h.fire('details[data-group-index="1"]','toggle');
  assert.equal(h.document.querySelectorAll('[data-topic]').length,2);assert.equal(h.document.querySelector('[data-topic="0:0"]').value,'自訂主題');assert.equal(h.document.querySelector('[data-topic="1:0"]').value,globalThis.courseTopicOrder.topic(data[1],'os','architecture').label);
@@ -110,4 +112,24 @@ test('frontend preparation preserves service-owned administration styles and rep
  const marker='/* Shared, theme-aware question comparison and bulk topic controls. */',old='.approved-publications{padding:16px}.management-toolbar{display:flex}',shared='.reader-only{}'+marker+'.import-topic{display:flex}';
  const merged=mergeContributionStyles(shared,old+marker+'.outdated-shared{}');assert.ok(merged.startsWith(old));assert.ok(!merged.includes('.reader-only'));assert.ok(!merged.includes('.outdated-shared'));assert.ok(merged.includes('.import-topic'));
  assert.equal(mergeContributionStyles(shared,merged),merged);assert.throws(()=>mergeContributionStyles('.missing-marker{}',old),/missing/);
+});
+
+
+test('submitting folds every batch, keeps successful batches folded, and opens only a failed batch',async()=>{
+ const h=dom('<section><h2 id="draftHeading"></h2></section><input id="website">');
+ const data=[{...question(),course:'os',unit:'basics'},{...question({stem:'系統呼叫？'}),course:'os',unit:'architecture'}];
+ let requests=0,fail=true;
+ globalThis.fetch=async()=>{requests++;return requests===2&&fail?new Response(JSON.stringify({error:'測試第二批失敗'}),{status:503}):new Response(JSON.stringify({id:'receipt-'+requests,acceptedCount:1,receivedCount:1,status:'approved'}));};
+ const ui=setupGroupedSubmissions({parseImport:()=>data,metadata:()=>({course:'os',unit:'basics',title:'分批測試'}),onReceipt:()=>{},message:()=>{}});
+ await ui.importFiles([{name:'bank.json',size:10,text:async()=>''}]);
+ const first=h.document.querySelector('details[data-group-index="0"]'),second=h.document.querySelector('details[data-group-index="1"]');
+ first.open=true;h.fire('details[data-group-index="0"]','toggle');second.open=true;h.fire('details[data-group-index="1"]','toggle');
+ h.document.querySelector('[data-consent]').checked=true;h.fire('[data-consent]','change');h.fire('[data-send]');
+ assert.equal(first.open,false);assert.equal(second.open,false);
+ for(let i=0;i<20&&!second.querySelector('[data-error]').textContent;i++)await tick();
+ assert.equal(requests,2);assert.equal(first.open,false);assert.equal(second.open,true);assert.match(second.textContent,/測試第二批失敗/);
+ fail=false;h.fire('[data-send]');for(let i=0;i<20&&!h.document.querySelector('[data-send]').disabled;i++)await tick();
+ for(let i=0;i<10;i++)await tick();
+ assert.equal(requests,3);assert.equal(h.document.querySelectorAll('details[data-group-index][open]').length,0);
+ assert.match(h.document.querySelector('[data-import-summary]').textContent,/已完成 2／2/);
 });

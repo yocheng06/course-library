@@ -11,6 +11,7 @@ const paths = [
   // review.html is service-owned: the GitHub Pages copy redirects back here.
   "assets/theme.js",
   "assets/theme.css",
+  "assets/submission-palette.css",
   "assets/ui-consistency.css",
   "assets/contributions-config.js",
   "assets/contribution-model.js",

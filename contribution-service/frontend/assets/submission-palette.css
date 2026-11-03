@@ -1,0 +1,18 @@
+/* Change existing course accents only; neutral surfaces and dark mode stay shared. */
+@media screen {
+  html:not([data-theme="dark"]) body.submission-site[data-course="os"] {
+    --accent:#38678f;
+    --line:#c6d7e8;
+    --soft:#e8f1fa;
+  }
+  html:not([data-theme="dark"]) body.submission-site[data-course="os"] .flow-steps li {
+    background:#dce8f5;
+    color:#365d7d;
+  }
+  html:not([data-theme="dark"]) body.submission-site[data-course="os"] :is(input,textarea,select,.button.secondary,.import-answer,.import-answer-options label) {
+    border-color:#a7bbcd;
+  }
+  html:not([data-theme="dark"]) body.submission-site[data-course="os"] :is(input,textarea,select,button,summary):focus-visible {
+    outline-color:var(--accent);
+  }
+}
