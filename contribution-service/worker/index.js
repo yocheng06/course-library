@@ -1919,6 +1919,11 @@ async function route(request, env) {
   if (path === "/api/review" && request.method === "GET")
     return listReview(request, env, url);
   let match;
+  if (path === '/api/manage/system' && request.method === 'GET') {
+    await owner(request,env);
+    await ensureReviewedContent(env);
+    return json({checkedAt:new Date().toISOString(),build:{version:BUILD_META.version,sourceHash:BUILD_META.sourceHash,builtAt:BUILD_META.builtAt},snapshots:BUILD_META.snapshots,api:{os:await publicLibraryEtag(env,'os'),algorithms:await publicLibraryEtag(env,'algorithms')}});
+  }
   if (path === '/api/manage/units' && ['GET','POST'].includes(request.method)) return manageUnits(request,env,url);
   if (path === '/api/manage/health' && request.method === 'GET') return managementHealth(request,env,url);
   if (path === '/api/manage/library' && request.method === 'GET') return listManagementLibrary(request,env,url);

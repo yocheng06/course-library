@@ -35,3 +35,5 @@ html[data-theme="dark"] .button.danger:not(.secondary):not(:disabled):hover { ba
 .library-heading>.button{flex-shrink:0;white-space:nowrap}
 
 .unit-settings-row>span{min-width:0;overflow-wrap:anywhere}
+
+#systemWorkspace dl{display:grid;grid-template-columns:minmax(120px,1fr) 3fr;gap:8px}#systemWorkspace dd{margin:0;overflow-wrap:anywhere}#systemWorkspace pre{white-space:pre-wrap;overflow-wrap:anywhere}#systemWorkspace button{margin:6px;min-height:44px}@media(max-width:600px){#systemWorkspace dl{display:block}#systemWorkspace dd{margin:4px 0 16px}}

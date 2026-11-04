@@ -26,6 +26,7 @@ const paths = [
   "assets/library-health.mjs",
   "assets/library-manager.mjs",
   "assets/unit-manager.mjs",
+  "assets/system-backup.mjs",
   "assets/management.css",
   "assets/corrections-review.mjs",
   "assets/builtin-review.mjs",
@@ -182,3 +183,8 @@ await cp(resolve(library,"assets/batch-model.mjs"),resolve(root,"worker/batch-mo
 
 await mkdir(resolve(root,'tests/fixtures'),{recursive:true});
 await cp(resolve(library,'tests/fixtures/batch-deadlocks-20261028.txt'),resolve(root,'tests/fixtures/batch-deadlocks-20261028.txt'));
+
+const statusVersion=JSON.parse(await readFile(resolve(library,'assets/site-version.json'),'utf8'));
+const snapshotStatus={};
+for(const course of ['os','algorithms']){const snap=JSON.parse(await readFile(resolve(library,'assets/course-snapshots',course+'.json'),'utf8'));snapshotStatus[course]={generatedAt:snap.generatedAt};}
+await writeFile(resolve(root,'content/site-status.json'),JSON.stringify({...statusVersion,snapshots:snapshotStatus},null,2)+'\n');

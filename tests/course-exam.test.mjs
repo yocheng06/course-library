@@ -199,3 +199,29 @@ for(const course of ['os','algorithms'])test(course+' exam bulk wrong-review che
  toggleWrong(reload,true);reload.click('[data-exam-self]');assert(!marks.has('fill'));assert(marks.has('multi'));assert(marks.has('single'));
  reload.click('[data-exam-reset]');reload.click('[data-exam-start]');reload.click('[data-exam-submit]');reload.click('[data-exam-submit]');assert(!reload.document.querySelector('[data-exam-mark-wrong]').checked);
 });
+
+for(const course of ['os','algorithms'])test(course+' exam language selection supports custom ratios, preserves source and blocks shortages',()=>{
+ const entries=Array.from({length:20},(_,i)=>({id:'lang-'+i,unit:'單元',q:{stem:i<14?'中文題目 '+i:'English question '+i,options:['Yes','No'],answer:'A',answerProvided:true}}));
+ const before=JSON.stringify(entries),h=harness(course,entries);
+ h.click('#examMode');h.change('[data-exam-scope]','all');
+ h.change('[data-exam-language]','zh');h.click('[data-exam-start]');assert.equal(h.document.querySelectorAll('.exam-card').length,14);assert([...h.document.querySelectorAll('.exam-card h3')].every(n=>n.textContent.includes('中文')));
+ h.click('[data-exam-reset]');h.click('[data-exam-reset]');
+ h.change('[data-exam-language]','en');h.click('[data-exam-start]');assert.equal(h.document.querySelectorAll('.exam-card').length,6);
+ h.click('[data-exam-reset]');h.click('[data-exam-reset]');h.change('[data-exam-language]','ratio');h.change('[data-exam-ratio]','70');
+ assert.equal(h.document.querySelector('[data-exam-start]').disabled,false);h.click('[data-exam-start]');
+ const stems=[...h.document.querySelectorAll('.exam-card h3')].map(n=>n.textContent);assert.equal(stems.filter(s=>s.includes('中文')).length,14);assert.equal(stems.filter(s=>s.includes('English')).length,6);
+ h.click('[data-exam-reset]');h.click('[data-exam-reset]');h.change('[data-exam-ratio]','90');assert(h.document.querySelector('[data-exam-start]').disabled);assert.match(h.document.querySelector('[data-exam-pool]').textContent,/數量不足/);
+ for(const percent of ['101','-1','3.5','']){h.change('[data-exam-ratio]',percent);assert(h.document.querySelector('[data-exam-start]').disabled);}
+ assert.equal(JSON.stringify(entries),before);
+});
+
+test('exam backup validates snapshots, merges by date and never owns imported review marks',()=>{
+ const h=harness('os',fixture),marks=new Set();reviewUI(h,marks);h.click('#examMode');h.click('[data-exam-start]');h.click('[data-exam-submit]');h.click('[data-exam-submit]');toggleWrong(h,true);
+ const backup=h.window.courseExam.exportBackup();assert(backup.last);assert.equal(backup.last.entries.length,3);
+ const newer=JSON.parse(JSON.stringify(backup));newer.last.completedAt='2090-01-01T00:00:00Z';
+ const prepared=h.window.courseExam.prepareBackup(newer);assert.equal(prepared.last.markWrong,false);assert.equal(prepared.last.addedWrongReviews.length,0);
+ h.window.courseExam.applyBackup(prepared);assert.equal(h.window.courseExam.exportBackup().last.completedAt,newer.last.completedAt);
+ const bad=JSON.parse(JSON.stringify(newer));bad.last.entries=[];assert.throws(()=>h.window.courseExam.prepareBackup(bad),/不正確/);
+ h.click('[data-exam-reset]');h.click('[data-exam-start]');const draft=h.window.courseExam.exportBackup().draft;assert(draft.updatedAt);assert(draft.sessionId);
+ assert(h.window.courseExam.prepareBackup({last:null,draft}).draft);
+});

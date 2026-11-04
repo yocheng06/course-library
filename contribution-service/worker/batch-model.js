@@ -61,7 +61,7 @@ function questionHeader(line) {
 }
 const option =
   /^(?:[-*+]\s+)?(?:\(([A-H])\)|\[([A-H])\]|([A-H])[.)、:])\s*(.*)$/i;
-const metadata = /^(?:正確答案|參考答案|答案|解答|解析|詳解|說明)\s*[:：]/;
+const metadata = /^(?:正確答案|參考答案|答案|解答|解析|詳解|說明|你的答案|您的答案|得分|Your\s+answer|Correct\s+answer|Score)\s*[:：]/i;
 const stemLabel = /^(?:題目|題幹|Question|Stem)\s*[:：]\s*/i;
 const optionsLabel = /^(?:選項|Options|Choices)\s*[:：]\s*/i;
 const typePattern =
@@ -101,6 +101,13 @@ export function normalizeText(value) {
 // The pasted text itself is kept for display/copy.
 function answerFormat(value) {
   const normalized = normalizeText(value).replace(/[?？。]+$/, "");
+  const mixedHyphenHint = normalized.match(
+    /\((Please\s+answer\s+using\s+(?:lowercase|uppercase)\s+English\s+letters;\s*connect\s+related\s+letters\s+with\s+a\s+hyphen\s+and\s+separate\s+unrelated\s+letters\s+with\s+a\s+space\.?)\)$/i,
+  );
+  if (mixedHyphenHint) return {
+    stem: normalized.slice(0,mixedHyphenHint.index).trim().replace(/[?？。.!！]+$/u,''),
+    hint: mixedHyphenHint[1],
+  };
   const quotedNumberHint = normalized.match(
     /\((Please\s+enclose\s+numbers\s+in\s+quotation\s+marks(?:,\s*e\.g\.,?\s*"\d+")?)\)$/i,
   );
@@ -474,6 +481,8 @@ export function toLibraryQuestion(
         : choiceAnswerKey(answer, options)
       : null,
     needsImage: Boolean(raw.images?.length || raw.missingContext),
+    ...(raw.imageFingerprintFailed === true ? {imageUnavailable:true} : {}),
+    ...(Array.isArray(raw.images) && raw.images.length && !raw.missingContext && imageHashKey(raw.imageHashes) && raw.imageHashes.length === raw.images.length ? {imageHashes:raw.imageHashes,imageType:imageQuestionType(raw.type,options,suppliedValid ? supplied : options.length ? choiceAnswerKey(answer,options) : null)} : {}),
     preferred,
     ...(raw.submissionReview?{reviewGroup:true,reviewPending:raw.submissionReview.status==='pending'}:{}),
     ...(raw.answerProvided === false ? {reviewReason:raw.note || "原題答案尚未確認，請開啟原題核對。"} : {}),
@@ -614,12 +623,41 @@ function withoutFillBlanks(value) {
     ),
   );
 }
+function splitTopLevelAnswer(text, separator) {
+  const stack = [], parts = [];
+  const closing = { ")": "(", "]": "[", "}": "{" };
+  let start = 0;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    if (['(', '[', '{'].includes(char)) stack.push(char);
+    else if (Object.hasOwn(closing, char)) {
+      if (stack.pop() !== closing[char]) return null;
+    } else if (!stack.length && separator.test(char)) {
+      parts.push(text.slice(start, i).trim());
+      // CRLF and blank lines form one separator, not extra answer slots.
+      if (/\r|\n/.test(char)) while (i + 1 < text.length && /\s/.test(text[i + 1])) i++;
+      start = i + 1;
+    }
+  }
+  if (stack.length) return null;
+  parts.push(text.slice(start).trim());
+  return parts;
+}
+function fillAnswerParts(answer, count) {
+  if (typeof answer !== "string" || !answer.trim()) return null;
+  if (count <= 1) return [answer.trim()];
+  const text = normalizeUnicode(answer).trim();
+  // Split answer slots only outside balanced parentheses/brackets/braces.
+  // T(7n/10+6)/O(n) has two slots; the division inside T(...) belongs to the formula.
+  // Slash-separated slots may themselves contain comma-separated arrays.
+  for (const separator of [/\//, /[\r\n]/, /[、，,;；]/]) {
+    const parts = splitTopLevelAnswer(text, separator);
+    if (parts?.length === count && parts.every(Boolean)) return parts;
+  }
+  return null;
+}
 function answerFitsBlankCount(answer, count) {
-  if (typeof answer !== "string" || !answer.trim()) return false;
-  if (count <= 1) return true;
-  return answer
-    .split(/\s*(?:\/|[、，,;；])\s*/)
-    .filter(Boolean).length === count;
+  return fillAnswerParts(answer,count) !== null;
 }
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 function filledBlankValues(questionStem, entryStem) {
@@ -695,11 +733,15 @@ function remapAnswer(question, entry) {
           !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(entry.answer.trim())) ||
         (/(?:單字間(?:請)?留-|單字間(?:請)?用-連接|字母間(?:請)?用-|以連字號連接單字|需要做字母連接的兩個文字用-|connecting\s+words\s+with\s+hyphens)/i.test(hint) && /[\s_]/.test(entry.answer)) ||
         (/one\s+space\s+between\s+letters/i.test(hint) && /\s{2,}/.test(entry.answer)) ||
+        (/connect\s+related\s+letters\s+with\s+a\s+hyphen/i.test(hint) && !/^[A-Za-z]+(?:-[A-Za-z]+)*(?: [A-Za-z]+(?:-[A-Za-z]+)*)*$/.test(entry.answer.trim())) ||
         (/中間不留空白/.test(hint) && /\s/.test(entry.answer)) ||
         (/不可用lg/.test(hint) && /\blg/.test(entry.answer)))
     )
       return null;
-    return { answer: entry.answer, signature: normalizeText(entry.answer) };
+    const count = fillBlankCount(question.stem);
+    const parts = count > 1 ? fillAnswerParts(entry.answer,count) : null;
+    if (count > 1 && !parts) return null;
+    return { answer: entry.answer, signature: parts ? JSON.stringify(parts.map(normalizeText)) : normalizeText(entry.answer) };
   }
   const key = entry.options.length &&
     (entry.choiceKey || choiceAnswerKey(entry.answer, entry.options));
@@ -748,11 +790,28 @@ const references = (entries) =>
       }]),
     ).values(),
   ].slice(0, 3);
-export function matchQuestion(question, index, { course, unit = "all" } = {}) {
+const completeStem = value => normalizeStem(value).replace(/(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/gu,"___").replace(/\s*___\s*/g,"___");
+function imageQuestionType(type, options, answerKey) {
+  if (!options.length) return 'fill';
+  if (/多選|multiple/i.test(type || '')) return 'multi';
+  if (/單選|single/i.test(type || '')) return 'single';
+  return answerKey ? answerKey.length>1 ? 'multi' : 'single' : null;
+}
+function imageHashKey(hashes) {
+  return Array.isArray(hashes) && hashes.length>0 && hashes.length<=8 && hashes.every(h=>/^[a-f0-9]{64}$/.test(h)) ? JSON.stringify(hashes) : null;
+}
+export function matchQuestion(question, index, { course, unit = "all", completeOnly = false } = {}) {
+  const imageKey = imageHashKey(question.imageHashes);
+  const imageMatches = entry => Boolean(imageKey && imageHashKey(entry.imageHashes) === imageKey && entry.imageType && entry.imageType === imageQuestionType(question.type,question.options,null));
+  if (imageKey) {
+    const stem=question.stem.replace(/\[題圖(?:未轉錄|已載入)\]/g,' ');
+    const unresolved=/\[(?:看不清楚|無法辨識|圖片|題圖)[^\]]*\]/.test(stem+question.options.map(o=>o.text).join(''));
+    question={...question,stem,issues:unresolved ? question.issues : question.issues.filter(issue=>issue!=="題目含未提供的圖片或無法辨識的文字。")};
+  }
   const eligible = (e) =>
-    e.course === course && (unit === "all" || e.unit === unit);
+    e.course === course && (unit === "all" || e.unit === unit) && (!imageKey || (e.needsImage && imageMatches(e)));
   if (question.issues.length) {
-    const candidates = matchQuestion({...question, issues: []}, index, {course, unit});
+    const candidates = matchQuestion({...question, issues: []}, index, {course, unit, completeOnly});
     return {
       status: "review",
       answer: "",
@@ -767,6 +826,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   );
   let missingBlank = false;
   if (
+    !completeOnly &&
     !blankCount &&
     !sameStem.some(e => !e.options.length) &&
     !question.options.length &&
@@ -789,9 +849,10 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       (entry) =>
         eligible(entry) &&
         !entry.options.length &&
-        withoutFillBlanks(entry.stem) === blankless,
+        withoutFillBlanks(entry.stem) === blankless &&
+        (!completeOnly || completeStem(entry.stem) === completeStem(question.stem)),
     );
-    const preferred = candidates.some((entry) => entry.preferred)
+    const preferred = !completeOnly && candidates.some((entry) => entry.preferred)
       ? candidates.filter((entry) => entry.preferred)
       : candidates;
     const candidateIds = new Set(candidates.map((entry) => entry.id));
@@ -825,7 +886,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   }
   let filledAnswerMatch = false;
   let correctedFilledTypo = false;
-  if (!exact.length && !question.options.length) {
+  if (!completeOnly && !exact.length && !question.options.length) {
     const filled = index.entries
       .filter(eligible)
       .map((entry) => ({
@@ -846,6 +907,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   // A text-answer question can be transcribed as MCQ. Accept only an exact
   // stem, an unambiguous literal answer, and no competing choice/image version.
   if (
+    !completeOnly &&
     !exact.length &&
     question.options.length &&
     sameStem.length &&
@@ -856,17 +918,19 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
   }
   // A changed distractor can become another correct answer. Only a complete
   // option-set match (including verified aliases) may inherit a choice answer.
-  const reviewVersions=[...new Set([...sameStem,...exact])];
+  // Complete lookup compares answers only within the version actually supplied.
+  // A different distractor set or question format remains a separate version.
+  const reviewVersions=[...new Set(completeOnly ? exact : [...sameStem,...exact])];
   if(reviewVersions.some(entry=>entry.reviewGroup)){
     const answers=reviewVersions.map(entry=>remapAnswer(question,entry));
-    if(reviewVersions.some(entry=>entry.needsImage)||question.options.length&&reviewVersions.some(entry=>!sameOptions(question,entry))||answers.some(answer=>!answer)||new Set(answers.map(answer=>answer?.signature)).size!==1||new Set(reviewVersions.map(entry=>JSON.stringify((entry.conditions||[]).map(normalizeText).sort()))).size!==1)
+    if(reviewVersions.some(entry=>entry.needsImage && !imageMatches(entry))||question.options.length&&reviewVersions.some(entry=>!sameOptions(question,entry))||answers.some(answer=>!answer)||new Set(answers.map(answer=>answer?.signature)).size!==1||new Set(reviewVersions.map(entry=>JSON.stringify((entry.conditions||[]).map(normalizeText).sort()))).size!==1)
       return {status:'review',answer:'',reason:'此題有另行收錄的投稿版本，答案、選項、作答格式或成立條件仍有差異，請核對下方各版本答案。',references:references(reviewVersions.slice().sort((a,b)=>Number(b.reviewPending)-Number(a.reviewPending)).map(entry=>({...entry,showCandidateAnswer:true})))};
     exact=reviewVersions;
-    repeatedFillStem=true;
+    if (!question.options.length) repeatedFillStem=true;
   }
-  if (!repeatedFillStem && exact.some((e) => e.preferred)) exact = exact.filter((e) => e.preferred);
+  if (!completeOnly && !repeatedFillStem && exact.some((e) => e.preferred)) exact = exact.filter((e) => e.preferred);
   if (exact.length) {
-    if (exact.some((e) => e.needsImage))
+    if (exact.some((e) => e.needsImage && !imageMatches(e)))
       return {
         status: "review",
         answer: "",
@@ -875,6 +939,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       };
     const answers = exact.map((e) => remapAnswer(question, e));
     if (
+      (completeOnly && new Set(exact.map(e => JSON.stringify((e.conditions || []).map(normalizeText).sort()))).size !== 1) ||
       answers.some((a) => !a) ||
       new Set(answers.map((a) => a.signature)).size !== 1
     )
@@ -889,7 +954,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
       answer: answers[0].answer,
       ...(exact.some(entry=>entry.reviewPending)?{pendingReview:true}:{}),
       choiceKey: question.options.length ? answers[0].signature : null,
-      reason: repeatedFillStem
+      reason: imageKey ? "題圖內容完全相同，題幹、題型與選項符合題庫，答案已依本次選項對應。" : repeatedFillStem
         ? "題幹與填空數精確符合，各筆題庫紀錄的答案、作答格式及成立條件一致。"
         : blankMarkerMatch
         ? "移除填空標記後與唯一題庫題幹精確符合，答案格式與填空數已核對。"
@@ -911,7 +976,7 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
     };
   }
   if (unit !== "all") {
-    const elsewhere = matchQuestion(question, index, { course, unit: "all" });
+    const elsewhere = matchQuestion(question, index, { course, unit: "all", completeOnly });
     if (elsewhere.status === "matched")
       return {
         ...elsewhere,
@@ -939,6 +1004,10 @@ export function matchQuestion(question, index, { course, unit = "all" } = {}) {
         : "找到同題幹的選擇題，請補齊選項後再比對。",
       references: references(sameStem),
     };
+  if (imageKey) {
+    const waitingImages=index.entries.filter(entry=>entry.course===course && (unit==='all'||entry.unit===unit) && entry.imageUnavailable && completeStem(entry.stem)===completeStem(question.stem) && sameOptions(question,entry));
+    if(waitingImages.length)return {status:'review',answer:'',reason:'已找到相同原題，但題庫端題圖尚未讀取成功。請按「重新同步題庫」後再比對；本機題圖已保留。',references:references(waitingImages)};
+  }
   const firstLine = normalizeStem(question.stem.split("\n")[0]);
   if (firstLine !== normalizeStem(question.stem) && firstLine.length >= 10) {
     const withContext = (
@@ -989,6 +1058,14 @@ export function matchQuestions(questions, index, scope) {
   }));
 }
 
+// Public batch lookup has exactly two outcomes; internal candidate matching stays reusable.
+export function matchRecordedQuestions(questions, index, scope) {
+  return matchQuestions(questions,index,{...scope,completeOnly:true}).map(row => {
+    if (row.status === 'matched') return row;
+    return {...row,status:'unmatched',answer:'',choiceKey:null,conditions:[],outsideScope:false};
+  });
+}
+
 export function formatQuestions(questions) {
   return questions
     .map((q) =>
@@ -1018,7 +1095,17 @@ export function applyBuiltinOverrides(entries,course,overrides=[]) {
     }
     if(typeof(q.stem??q.q)!=='string' || typeof(q.answer??q.a)!=='string' || !Array.isArray(q.options??q.opts) ||
        (q.options??q.opts).some(v=>typeof v!=='string'))throw new Error('Invalid built-in question');
-    const expanded=expandLibraryQuestion(course,row.unit,q);if(!expanded.length)throw new Error('Empty built-in question');
+    let effective=q;
+    // Public edits may omit optional qualifications even when the actual fill
+    // question and answer are unchanged. Retain only an unambiguous existing
+    // qualification for that exact identity, never for changed content or an
+    // explicitly supplied (including empty) condition list.
+    if(q.answerConditions===undefined && !(q.options??q.opts).length && !q.images?.length){
+      const originals=entries.filter(e=>e.course===course&&e.unit===row.unit&&e.id===id&&!e.options.length&&!e.needsImage&&normalizeStem(e.stem)===normalizeStem(q.stem??q.q)&&normalizeText(e.answer)===normalizeText(q.answer??q.a));
+      const conditionSets=new Set(originals.map(e=>JSON.stringify((e.conditions||[]).map(normalizeText).sort())));
+      if(originals.length&&conditionSets.size===1&&originals[0].conditions?.length)effective={...q,answerConditions:[...originals[0].conditions]};
+    }
+    const expanded=expandLibraryQuestion(course,row.unit,effective);if(!expanded.length)throw new Error('Empty built-in question');
     replacements.set(id,expanded);replacedIds.add(id);
     for(const alias of q.aliases || [])replacedIds.add(alias);
   }

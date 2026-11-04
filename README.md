@@ -8,6 +8,8 @@
 
 目前進度已更新至 **2026-11-04**；`main` 包含 v1.3.0 之後的更新。先看 [系統架構](docs/architecture.md)、[最新進度與驗證](docs/updates/2026-11-04.md)，或 [v1.3.0 以後的完整提交差異](https://github.com/yocheng06/course-library/compare/v1.3.0...main)。
 
+[測驗、備份與發布檢查改進](docs/improvements-20261104.md)：測驗語言與可調比例、手機篩選、完整備份、版本狀態及發布檢查。
+
 ## 主要功能
 
 - 題目依單元、主題分組，同主題依「單選 → 多選 → 填空」排序，可搜尋題目、答案與解析。

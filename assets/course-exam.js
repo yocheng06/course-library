@@ -25,10 +25,22 @@
   document.getElementById('practiceMode').after(trigger);
   const dialog = document.createElement('dialog');
   dialog.id = 'courseExam'; dialog.className = 'course-exam'; dialog.setAttribute('aria-labelledby', 'examTitle');
-  dialog.innerHTML = `<header class="exam-header"><h2 id="examTitle">單元測驗</h2><button type="button" class="plain" data-exam-close aria-label="關閉測驗，保留本次作答">關閉</button></header><div class="exam-body"><section data-exam-setup><p>選擇範圍後隨機抽題，交卷後統一顯示答案與解析。測驗不受題庫搜尋與篩選影響。</p><div class="exam-settings"><label>測驗範圍<select data-exam-scope aria-label="測驗範圍"><option value="unit">目前單元</option><option value="all">全部單元</option><option value="range">自訂單元範圍</option></select></label><label>每次題數<select data-exam-size aria-label="每次測驗題數"><option value="10">10 題</option><option value="20" selected>20 題</option><option value="30">30 題</option></select></label></div><fieldset class="exam-range" data-exam-range hidden><legend>自訂單元範圍</legend><div class="exam-settings"><label>起始單元<select data-exam-from aria-label="起始單元" aria-describedby="examRangeHint"></select></label><label>結束單元<select data-exam-to aria-label="結束單元" aria-describedby="examRangeHint"></select></label></div><p id="examRangeHint" class="exam-hint" data-exam-range-hint role="status" aria-live="polite">包含起始與結束單元。</p></fieldset><p data-exam-pool role="status" aria-live="polite"></p><p class="exam-hint">資料不完整或無法核對答案的題目不納入抽題。不足指定題數時，使用全部可測驗題目。每題等分，多選題須全部選對。未交卷作答也會自動暫存，可重新整理後繼續；已交卷自動保留最近一次結果於此瀏覽器，重新設定不會刪除。</p><div class="exam-start-actions"><button type="button" class="reveal" data-exam-start>開始測驗</button><button type="button" class="plain" data-exam-resume hidden>繼續未交卷測驗</button><button type="button" class="plain" data-exam-last hidden>查看上次測驗</button></div><p class="exam-hint" data-exam-last-info></p></section><section data-exam-session hidden><p data-exam-description></p><p class="exam-hint" data-exam-fill-hint>填空請依題目指定格式作答。系統先依題庫文字核對，交卷後可對照解析自行確認其他寫法。</p><div data-exam-results hidden tabindex="-1" aria-live="polite"></div><div data-exam-questions></div></section></div><footer class="exam-footer" hidden><span data-exam-progress role="status"></span><p data-exam-notice role="status"></p><div><button type="button" class="plain" data-exam-reset>重新設定</button><button type="button" class="reveal" data-exam-submit>交卷</button></div></footer>`;
+  dialog.innerHTML = `<header class="exam-header"><h2 id="examTitle">單元測驗</h2><button type="button" class="plain" data-exam-close aria-label="關閉測驗，保留本次作答">關閉</button></header><div class="exam-body"><section data-exam-setup><p>選擇範圍後隨機抽題，交卷後統一顯示答案與解析。題庫的搜尋條件不會限制測驗；請在這裡選擇題目語言。</p><div class="exam-settings"><label>測驗範圍<select data-exam-scope aria-label="測驗範圍"><option value="unit">目前單元</option><option value="all">全部單元</option><option value="range">自訂單元範圍</option></select></label><label>題目語言<select data-exam-language aria-label="測驗題目語言"><option value="all">全部語言</option><option value="zh">中文題（含雙語）</option><option value="en">純英文題</option><option value="ratio">自訂中英文比例</option></select></label><label>每次題數<select data-exam-size aria-label="每次測驗題數"><option value="10">10 題</option><option value="20" selected>20 題</option><option value="30">30 題</option></select></label></div><label class="exam-ratio" data-exam-ratio-control hidden>中文比例（%）<input type="number" min="0" max="100" step="1" value="90" data-exam-ratio aria-label="中文題比例"> <span data-exam-ratio-label>英文 10%</span></label><fieldset class="exam-range" data-exam-range hidden><legend>自訂單元範圍</legend><div class="exam-settings"><label>起始單元<select data-exam-from aria-label="起始單元" aria-describedby="examRangeHint"></select></label><label>結束單元<select data-exam-to aria-label="結束單元" aria-describedby="examRangeHint"></select></label></div><p id="examRangeHint" class="exam-hint" data-exam-range-hint role="status" aria-live="polite">包含起始與結束單元。</p></fieldset><p data-exam-pool role="status" aria-live="polite"></p><details class="exam-rules"><summary>測驗規則與紀錄保存</summary><p class="exam-hint">資料不完整或無法核對答案的題目不納入抽題。不足指定題數時，使用全部可測驗題目。每題等分，多選題須全部選對。未交卷作答也會自動暫存，可重新整理後繼續；已交卷自動保留最近一次結果於此瀏覽器，重新設定不會刪除。</p></details><div class="exam-start-actions"><button type="button" class="reveal" data-exam-start>開始測驗</button><button type="button" class="plain" data-exam-resume hidden>繼續未交卷測驗</button><button type="button" class="plain" data-exam-last hidden>查看上次測驗</button></div><p class="exam-hint" data-exam-last-info></p></section><section data-exam-session hidden><p data-exam-description></p><p class="exam-hint" data-exam-fill-hint>填空請依題目指定格式作答。系統先依題庫文字核對，交卷後可對照解析自行確認其他寫法。</p><div data-exam-results hidden tabindex="-1" aria-live="polite"></div><div data-exam-questions></div></section></div><footer class="exam-footer" hidden><span data-exam-progress role="status"></span><p data-exam-notice role="status"></p><div><button type="button" class="plain" data-exam-reset>重新設定</button><button type="button" class="reveal" data-exam-submit>交卷</button></div></footer>`;
   document.body.append(dialog);
   const find = selector => dialog.querySelector(selector);
   const scope = find('[data-exam-scope]'), size = find('[data-exam-size]');
+  const language = find('[data-exam-language]');
+  const englishOnly = entry => tools.isEnglishOnlyQuestion(entry.q);
+  function languagePlan(pool, count, mode = language.value, random = Math.random) {
+    const unique = [...new Map(pool.filter(eligible).map(e=>[e.id,e])).values()];
+    const zh=unique.filter(e=>!englishOnly(e)), en=unique.filter(englishOnly);
+    if(mode!=='ratio')return {entries:sample(mode==='zh'?zh:mode==='en'?en:unique,count,random),shortage:false,zh:zh.length,en:en.length};
+    const percent=Number(find('[data-exam-ratio]').value);
+    const valid=find('[data-exam-ratio]').value.trim()!==''&&Number.isInteger(percent)&&percent>=0&&percent<=100;
+    const total=Math.min(count,unique.length),wantZh=valid?Math.round(total*percent/100):0,wantEn=total-wantZh;
+    const shortage=!valid || zh.length<wantZh || en.length<wantEn;
+    return {entries:shortage?[]:sample([...sample(zh,wantZh,random),...sample(en,wantEn,random)],total,random),shortage,zh:zh.length,en:en.length,wantZh,wantEn};
+  }
   const questionList = find('[data-exam-questions]'), notice = find('[data-exam-notice]');
   let entries = [], responses = new Map(), results = [], submitted = false, confirmation = '';
   let markWrong = false, addedWrongReviews = new Set();
@@ -49,7 +61,7 @@
   let lastExam = null, completedAt = '', resultFilter = 'all';
   try {
     const saved = JSON.parse(window.localStorage?.getItem(storageKey) || 'null');
-    if (validEntries(saved) && validResponses(saved.responses,saved.entries.length) && Array.isArray(saved.results) && saved.results.length===saved.entries.length && saved.results.every(r=>r && typeof r.correct==='boolean') && Number.isFinite(Date.parse(saved.completedAt))) lastExam = saved;
+    if (validEntries(saved) && validResponses(saved.responses,saved.entries.length) && Array.isArray(saved.results) && saved.results.length===saved.entries.length && saved.results.every(r=>r && (typeof r.correct==='boolean'||r.correct===null)) && Number.isFinite(Date.parse(saved.completedAt))) lastExam = {...saved,results:saved.results.map(r=>({...r,correct:r.correct===true}))};
   } catch { /* Unavailable or damaged storage must not block exams. */ }
   function lastInfo(message = '') {
     find('[data-exam-resume]').hidden = !pendingExam;
@@ -64,12 +76,12 @@
     try {
       if (initial) {
         sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2);
-        pendingExam = {version:1,course:config.course,sessionId,label:sessionLabel,entries:draftEntries(),responses:[]};
+        pendingExam = {version:1,course:config.course,sessionId,label:sessionLabel,updatedAt:new Date().toISOString(),entries:draftEntries(),responses:[]};
         window.localStorage.setItem(draftKey,JSON.stringify(pendingExam));
       } else if (JSON.parse(window.localStorage.getItem(draftKey)||'null')?.sessionId!==sessionId) {
         notice.textContent='其他分頁已開始另一場測驗；本頁作答仍保留，但不覆蓋另一場暫存。';return;
       }
-      pendingExam.responses=[...responses];
+      pendingExam.responses=[...responses];pendingExam.updatedAt=new Date().toISOString();
       window.localStorage.setItem(responseKey,JSON.stringify({sessionId,responses:[...responses]}));
       notice.textContent='作答已自動暫存於此瀏覽器。';
     } catch { notice.textContent='此瀏覽器無法暫存，請勿關閉或重新整理本頁。'; }
@@ -169,9 +181,16 @@
     poolLabel = scope.value === 'all' ? ({os:'作業系統',algorithms:'演算法'}[config.course] + ' · 全部單元') : config.examUnitLabel();
     if (scope.value === 'range') poolLabel = selected.length ? `${{os:'作業系統',algorithms:'演算法'}[config.course]} · ${selected[0].label} ～ ${selected.at(-1).label}` : '請選擇有效的單元範圍';
     scope.options[0].textContent = '目前單元 · ' + config.examUnitLabel();
-    const count = pool().length;
+    find('[data-exam-ratio-control]').hidden=language.value!=='ratio';
+    const percent=Number(find('[data-exam-ratio]').value);
+    find('[data-exam-ratio-label]').textContent=Number.isInteger(percent)&&percent>=0&&percent<=100?`英文 ${100-percent}%`:'請輸入 0–100 的整數';
+    const candidates=pool(), plan=languagePlan(candidates,Number(size.value));
+    const count = language.value==='zh'?plan.zh:language.value==='en'?plan.en:candidates.length;
     find('[data-exam-pool]').textContent = `${poolLabel} · 可抽 ${count} 題，本次 ${Math.min(count, Number(size.value))} 題。`;
-    find('[data-exam-start]').disabled = count === 0;
+    if(language.value!=='all')find('[data-exam-pool]').textContent+=` 中文 ${plan.zh} 題、純英文 ${plan.en} 題。`;
+    if(language.value==='ratio'&&!plan.shortage)find('[data-exam-pool]').textContent+=` 本次中文 ${plan.wantZh} 題、英文 ${plan.wantEn} 題（依比例四捨五入）。`;
+    if(plan.shortage)find('[data-exam-pool]').textContent+=` 此比例需要中文 ${plan.wantZh} 題、英文 ${plan.wantEn} 題，數量不足；請更換語言、題數或範圍。`;
+    find('[data-exam-start]').disabled = count === 0 || plan.shortage;
   }
   function answered(index) {
     const response = responses.get(index);
@@ -189,7 +208,9 @@
   }
   function start() {
     if(pendingExam && !window.confirm('開始新測驗將取代未交卷的暫存；上次已交卷結果仍保留。確定開始？'))return;
-    refreshPool();begin(sample(pool(), Number(size.value)),poolLabel);
+    refreshPool();const plan=languagePlan(pool(),Number(size.value));
+    if(plan.shortage||!plan.entries.length)return;
+    begin(plan.entries,poolLabel+' · '+(language.value==='ratio'?`中文 ${find('[data-exam-ratio]').value}%／英文 ${100-Number(find('[data-exam-ratio]').value)}%`:[...language.options].find(option=>option.value===language.value).textContent));
   }
   function begin(selected,label) {
     markWrong = false; addedWrongReviews = new Set();
@@ -241,7 +262,8 @@
     submitted = true; confirmation = ''; notice.textContent = '';
     results = entries.map(({q}, index) => {
       const response = responses.get(index) || {chosen:[],text:''};
-      return window.coursePractice.evaluate(answer(q), options(q), response.chosen, q, response.text);
+      const result=window.coursePractice.evaluate(answer(q), options(q), response.chosen, q, response.text);
+      return {...result,correct:result.correct===true};
     });
     completedAt = new Date().toISOString();
     saveLast();
@@ -271,7 +293,7 @@
   trigger.addEventListener('click', () => { if (!entries.length) refreshPool(); dialog.showModal(); });
   find('[data-exam-close]').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', () => trigger.focus());
-  scope.addEventListener('change', refreshPool); size.addEventListener('change', refreshPool);
+  find('[data-exam-ratio]').addEventListener('input',refreshPool);find('[data-exam-ratio]').addEventListener('change',refreshPool); language.addEventListener('change', refreshPool); scope.addEventListener('change', refreshPool); size.addEventListener('change', refreshPool);
   from.addEventListener('change', refreshPool); to.addEventListener('change', refreshPool);
   find('[data-exam-last]').addEventListener('click', restoreLast);
   find('[data-exam-resume]').addEventListener('click', resumeDraft);
@@ -306,5 +328,20 @@
     const review = event.target.closest('[data-exam-review-id]');
     if (review) { window.learningUI?.addReview(review.dataset.examReviewId); review.textContent = '已加入待複習'; review.disabled = true; }
   });
-  window.courseExam = { sample, eligible };
+  function exportBackup() { return JSON.parse(JSON.stringify({last:lastExam,draft:pendingExam})); }
+  function prepareBackup(data) {
+    if(!data || typeof data!=='object' || Array.isArray(data))throw new Error('測驗備份資料不完整。');
+    const copy=JSON.parse(JSON.stringify(data));
+    if(Array.isArray(copy.last?.results))copy.last.results=copy.last.results.map(r=>r?.correct===null?{...r,correct:false}:r);
+    if(copy.last && (!validEntries(copy.last)||!validResponses(copy.last.responses,copy.last.entries.length)||!Array.isArray(copy.last.results)||copy.last.results.length!==copy.last.entries.length||!copy.last.results.every(r=>typeof r?.correct==='boolean')||!Number.isFinite(Date.parse(copy.last.completedAt))))throw new Error('已交卷測驗備份不正確。');
+    if(copy.draft && (!validEntries(copy.draft)||!validResponses(copy.draft.responses,copy.draft.entries.length)||typeof copy.draft.sessionId!=='string'||!Number.isFinite(Date.parse(copy.draft.updatedAt))))throw new Error('未交卷測驗備份不正確。');
+    // Imported marks are now ordinary bookmarks; do not claim ownership of marks
+    // that may already have existed on the receiving device.
+    if(copy.last){copy.last.markWrong=false;copy.last.addedWrongReviews=[];}
+    const newer=(current,incoming,field)=>!incoming?current:!current||Date.parse(incoming[field])>Date.parse(current[field])?incoming:current;
+    return {last:newer(lastExam,copy.last,'completedAt'),draft:newer(pendingExam,copy.draft,'updatedAt')};
+  }
+  function applyBackup(data) { lastExam=data.last;pendingExam=data.draft;lastInfo(); }
+  window.courseExam = { sample, eligible, languagePlan, exportBackup, prepareBackup, applyBackup,
+    backupKeys:{last:storageKey,draft:draftKey,answers:responseKey} };
 })();

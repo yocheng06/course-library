@@ -228,3 +228,6 @@ body[data-course="algorithms"] { --control-line:#8a7780; --rail-focus:#f2bdd0; -
 .image-viewer-footer a:focus-visible { outline:3px solid var(--ui-accent); outline-offset:2px; }
 @media(max-width:720px) { .image-viewer { width:calc(100vw - 16px); height:calc(100dvh - 16px); padding:12px; } }
 @media print { .image-viewer { display:none !important; } }
+
+.mobile-filter-group>summary{display:none}
+@media(max-width:600px){.mobile-filter-group>summary{display:flex;align-items:center;min-height:44px;cursor:pointer;color:var(--ui-accent);font-weight:600}.mobile-filter-group[open]>.mobile-filter-body{padding:8px 0}.mobile-filter-body .primary-filters{display:flex;flex-wrap:wrap}}

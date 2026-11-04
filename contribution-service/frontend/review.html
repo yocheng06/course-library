@@ -8,7 +8,7 @@
     <link rel="icon" href="assets/icons/course-mascot.png" />
     <link rel="stylesheet" href="assets/contributions.css?v=workflow-improvements-20261102" />
     <link rel="stylesheet" href="assets/theme.css?v=integrated-management-20261029" />
-    <link rel="stylesheet" href="assets/management.css?v=unit-drag-add-20261103" />
+    <link rel="stylesheet" href="assets/management.css?v=improvements-20261104" />
     <script src="assets/theme.js?v=flow-clarity-20261103" defer></script>
   </head>
   <body>
@@ -66,14 +66,15 @@
             <button type="button" class="button secondary" data-view="health" aria-current="false">題庫健檢</button>
               <button type="button" class="text-button" id="exportQuestionDrafts">下載題目編輯草稿</button>
               <button type="button" class="text-button" id="exportImportDrafts">下載匯入紀錄草稿</button>
-              <button type="button" class="text-button" id="exportBackup">下載完整備份</button>
-              <p class="muted">備份含題目、歷史與移除狀態；題圖以連結保存。</p>
+              <button type="button" class="text-button" id="exportBackup">完整備份與檢查</button><button type="button" class="text-button" data-view="system">版本與同步狀態</button>
+              <p class="muted">備份可含題目、歷史、單元與實際題圖，並檢查完整性。</p>
               <button type="button" class="text-button" id="signOut">登出</button>
             </div>
           </details>
         </div>
         <section id="libraryWorkspace" aria-labelledby="libraryTitle"></section>
         <section id="unitWorkspace" hidden aria-label="單元名稱與順序管理"></section>
+        <section id="systemWorkspace" class="panel" hidden aria-label="版本與完整備份"></section>
         <section id="healthWorkspace" hidden aria-label="題庫健檢"></section>
         <section id="importWorkspace" class="import-records" hidden aria-label="匯入紀錄管理"></section>
       </section>
@@ -82,7 +83,7 @@
 
     <dialog id="questionDialog" class="question-dialog" aria-labelledby="questionDialogTitle"></dialog>
     <script src="assets/contributions-config.js?v=management-workspace-20261029"></script>
-    <script type="module" src="assets/contributions-review.js?v=unit-drag-add-20261103"></script>
+    <script type="module" src="assets/contributions-review.js?v=improvements-20261104"></script>
     <noscript>請開啟 JavaScript 使用題庫管理功能。</noscript>
   </body>
 </html>

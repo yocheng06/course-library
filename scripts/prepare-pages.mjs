@@ -1,0 +1,11 @@
+import {mkdir,cp,copyFile,readdir,readFile,writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+const root=process.cwd(),target=resolve(root,'artifacts/pages');
+await mkdir(target,{recursive:true});
+for(const file of await readdir(root))if(file.endsWith('.html'))await copyFile(resolve(root,file),resolve(target,file));
+await cp(resolve(root,'assets'),resolve(target,'assets'),{recursive:true});
+const version=JSON.parse(await readFile(resolve(target,'assets/site-version.json'),'utf8'));
+version.sourceRevision=process.env.GITHUB_SHA||'local-draft';version.builtAt=new Date().toISOString();
+await writeFile(resolve(target,'assets/site-version.json'),JSON.stringify(version,null,2)+'\n');
+await copyFile(resolve(root,'README.md'),resolve(target,'README.md'));
+console.log('Pages artifact prepared: '+target);

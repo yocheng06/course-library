@@ -1,12 +1,13 @@
 import {openBuiltinEditor} from './builtin-review.mjs?v=treasure-unit-20261030';
 import {api,esc} from './contributions-ui.js?v=treasure-unit-20261030';
-let panel,allowed=false,sequence=0,cursor=null;
+let panel,sequence=0,cursor=null;
 const entries=new Map();
-export function correctionsAccess(value) {
+export function correctionsAccess(allowed) {
   if (!panel) {
-    panel=document.createElement('section');panel.className='panel corrections-workspace';panel.id='correctionsWorkspace';panel.hidden=true;
-    panel.innerHTML='<h2>題目勘誤回報</h2><p>查看同學回報的題目問題，修改完成後填寫處理說明並標記結果。</p><div class="review-controls"><label>回報狀態<select><option value="pending">待處理</option><option value="confirmed">已確認需更正</option><option value="resolved">已處理</option><option value="rejected">不採納</option></select></label><button type="button" class="button secondary" data-refresh>重新載入回報</button></div><p role="status" aria-live="polite"></p><div data-list></div><button type="button" class="button secondary" data-more hidden>載入更多回報</button>';
+    panel=document.createElement('details');panel.className='panel';panel.id='correctionsWorkspace';
+    panel.innerHTML='<summary>題目勘誤審核</summary><p>先按「編輯這道題目」修改題幹、答案或解析。儲存完成後，填寫處理說明並標為「已處理」。</p><label>狀態<select><option value="pending">待審核</option><option value="confirmed">已確認需更正</option><option value="resolved">已處理</option><option value="rejected">不採納</option></select></label><button type="button" class="button secondary" data-refresh>重新載入勘誤</button><p role="status" aria-live="polite"></p><div data-list></div><button type="button" class="button secondary" data-more hidden>載入更多勘誤</button>';
     document.getElementById('reviewWorkspace').before(panel);
+    panel.addEventListener('toggle',()=>{if(panel.open&&!panel.hidden)load();});
     panel.querySelector('select').addEventListener('change',()=>load());
     panel.querySelector('[data-refresh]').addEventListener('click',()=>load());
     panel.querySelector('[data-more]').addEventListener('click',()=>load(true));
@@ -21,11 +22,9 @@ export function correctionsAccess(value) {
       catch(error){status(error.message);article.querySelectorAll('button').forEach(node=>node.disabled=false);}
     });
   }
-  allowed=value;
-  if(!allowed){closeCorrections();entries.clear();panel.querySelector('[data-list]').replaceChildren();status('');}
+  panel.hidden=!allowed;
+  if(!allowed){sequence++;panel.open=false;entries.clear();panel.querySelector('[data-list]').replaceChildren();status('');}
 }
-export function openCorrections(){if(allowed&&panel){panel.hidden=false;load();}}
-export function closeCorrections(){if(panel){sequence++;panel.hidden=true;}}
 function status(text){panel.querySelector('[role="status"]').textContent=text;}
 async function load(append=false){
   const seq=++sequence;status('正在載入勘誤…');

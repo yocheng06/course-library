@@ -1,0 +1,12 @@
+{
+  "version": "2026.11.04-improvements-1",
+  "description": "測驗語言比例、行動篩選、備份驗證與狀態面板",
+  "snapshots": {
+    "os": {
+      "generatedAt": "2026-10-30T13:42:37.637Z"
+    },
+    "algorithms": {
+      "generatedAt": "2026-11-01T14:36:24.638Z"
+    }
+  }
+}

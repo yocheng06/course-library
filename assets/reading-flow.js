@@ -41,6 +41,15 @@
   });
   const tools = document.querySelector('.learning-tools');
   const filterDetails = document.querySelector('.filter-details');
+  const mobileFilters=document.createElement('details');
+  mobileFilters.className='mobile-filter-group';
+  mobileFilters.innerHTML='<summary>篩選條件</summary><div class="mobile-filter-body"></div>';
+  const primaryFilters=config.toolbar.querySelector('.primary-filters');
+  primaryFilters.before(mobileFilters);
+  mobileFilters.querySelector('div').append(primaryFilters,filterDetails);
+  const compactFilters=window.matchMedia('(max-width:600px)');
+  const updateFilterLayout=()=>{mobileFilters.open=!compactFilters.matches;};
+  updateFilterLayout();compactFilters.addEventListener('change',updateFilterLayout);
   const modeHint = document.getElementById('modeHint');
   filterDetails.append(modeHint);
   const settings = document.createElement('details');
@@ -113,6 +122,9 @@
     if (quality.value === 'pending') chip('只看待確認', () => clearSelect(quality));
     if (config.allUnits()) chip('範圍：全部單元', () => clearSelect(searchScope));
     if (ui.reviewOnly) chip('只看待複習', () => tools.querySelector('.review-filter').click());
+    if(document.getElementById('hideEnglish')?.checked)chip('隱藏英文題',()=>{const el=document.getElementById('hideEnglish');el.checked=false;el.dispatchEvent(new Event('change',{bubbles:true}));});
+    const activeCount=[chapter.selectedIndex>0,type.selectedIndex>0,quality.value==='pending',document.getElementById('hideEnglish')?.checked].filter(Boolean).length;
+    mobileFilters.querySelector('summary').textContent='篩選條件'+(activeCount?`（${activeCount} 項）`:'');
     chips.hidden = chips.childElementCount === 0;
     if (!empty.hidden) {
       const noBookmarks = ui.reviewOnly && ui.currentReviewCount === 0;

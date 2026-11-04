@@ -110,6 +110,7 @@ const paths = [
   "assets/contributions-review.js",
   "assets/library-manager.mjs",
   "assets/unit-manager.mjs",
+  "assets/system-backup.mjs",
   "assets/import-records.mjs",
   "assets/management.css",
 ];
@@ -147,6 +148,9 @@ worker = worker.replace(
   /^import\s+\{[^}]*\}\s+from\s+["']\.\/model\.js["'];\s*/,
   "",
 );
+const statusVersion=JSON.parse(await readFile(resolve(root,'content/site-status.json'),'utf8'));
+const buildMeta={version:statusVersion.version,snapshots:statusVersion.snapshots,builtAt:new Date().toISOString(),sourceHash:createHash('sha256').update(worker).update(model).update(JSON.stringify(assets)).digest('hex')};
+worker=worker.replace('/* BUILD_DATA */','const BUILD_META='+JSON.stringify(buildMeta)+';\n/* BUILD_DATA */');
 const libraryBuildRevision=createHash('sha256').update(JSON.stringify([builtins,entries,mergeCatalog,explanations])).digest('hex');
 worker=worker.replace('/* BUILD_DATA */', 'const LIBRARY_BUILD_REVISION='+JSON.stringify(libraryBuildRevision)+';\n/* BUILD_DATA */');
 worker =

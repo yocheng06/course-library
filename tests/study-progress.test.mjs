@@ -7,7 +7,7 @@ import {parseHTML} from 'linkedom';
 const read = name => readFile(new URL('../' + name, import.meta.url), 'utf8');
 const plain = value => JSON.parse(JSON.stringify(value));
 
-async function coursePage(course, {storage = new Map(), search = '', failStorage = false, readingFlow = false} = {}) {
+async function coursePage(course, {storage = new Map(), search = '', failStorage = false, readingFlow = false, mobile = false} = {}) {
   const {window, document} = parseHTML(await read(course === 'os' ? 'os.html' : 'algorithms.html'));
   Object.defineProperty(document, 'readyState', {value:'loading', configurable:true});
   Object.defineProperty(window.HTMLSelectElement.prototype, 'value', {
@@ -18,8 +18,10 @@ async function coursePage(course, {storage = new Map(), search = '', failStorage
   window.HTMLElement.prototype.focus = function () {};
   window.HTMLElement.prototype.scrollIntoView = function () {};
   window.window = window;
+  // linkedom Window proxies can retain properties between VM fixtures.
+  window.learningUI = undefined; window.coursePracticeProgress = undefined; window.courseLearning = undefined;
   window.confirm = () => true;
-  const media = () => ({matches:false, addEventListener() {}});
+  const media = () => ({matches:mobile, addEventListener() {}});
   window.matchMedia = media;
   const context = vm.createContext({
     window, document, Event:window.Event, location:{search}, URLSearchParams, URL, Blob, TextEncoder, Date,
@@ -431,4 +433,14 @@ test('treasure is an empty inserted OS unit and imported questions support readi
  const button=[...h.document.querySelectorAll('[data-unit]')].find(el=>el.textContent.includes('挖寶單元'));assert.ok(button);h.fire(button,'click');assert.equal(h.config.list.querySelectorAll('article').length,0);
  const id='community-88888888-8888-4888-8888-888888888888-1';h.config.mergeCommunityQuestions([{unit:'treasure',question:{id,stem:'挖寶測試題目？',options:['Alpha','Beta'],answer:'A',answerProvided:true,type:'單選題',category:'補充',explanation:'測試解析'}}]);
  const card=h.document.querySelector('article[data-id="'+id+'"]');assert.ok(card);assert.equal(h.config.examEntries(['treasure']).length,1);h.practice();const practiceCard=h.document.querySelector('article[data-id="'+id+'"]');h.choose(practiceCard,[0]);h.check(practiceCard);assert.ok(practiceCard.querySelector('.practice-correct'));
+});
+
+
+for(const course of ['os','algorithms'])test(course+' mobile filters start collapsed, retain controls and expose active filter count',async()=>{
+ const h=await coursePage(course,{readingFlow:true,mobile:true}),details=h.document.querySelector('.mobile-filter-group');
+ assert.equal(details.open,false);assert(details.querySelector('.primary-filters'));assert(details.querySelector('#hideEnglish'));
+ const hide=h.document.getElementById('hideEnglish');hide.checked=true;h.fire(hide,'change');
+ assert.match(details.querySelector('summary').textContent,/1 項/);assert.equal(details.open,false);
+ const chip=[...h.document.querySelectorAll('.active-filters button')].find(b=>b.textContent.includes('隱藏英文題'));assert(chip);h.fire(chip,'click');assert.equal(hide.checked,false);
+ const desktop=await coursePage(course,{readingFlow:true});assert.equal(desktop.document.querySelector('.mobile-filter-group').open,true);
 });

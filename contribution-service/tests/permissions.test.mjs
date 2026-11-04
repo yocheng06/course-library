@@ -2504,3 +2504,11 @@ test('owner can create an empty unit without deleting or renumbering existing un
  const renamed=units.map((u,i)=>i===0?{id:'L11',title:u.title}:u);assert.equal((await call(env,'/api/manage/units?course=os',{reviewer:true,method:'POST',body:{revision:1,units:renamed}})).response.status,400);
  assert.equal((await call(env,'/api/manage/units?course=os',{reviewer:true})).data.revision,1);
 });
+
+test('system status is owner-only and exposes version fingerprints without secrets',async()=>{
+ const env=await setup();
+ const anonymous=await call(env,'/api/manage/system');assert.equal(anonymous.response.status,401);
+ const result=await call(env,'/api/manage/system',{reviewer:true});
+ assert.equal(result.response.status,200);assert.match(result.data.build.sourceHash,/^[0-9a-f]{64}$/);assert.equal(typeof result.data.build.version,'string');assert(result.data.snapshots.os.generatedAt);
+ assert(!JSON.stringify(result.data).includes(env.RATE_HASH_KEY));assert(!JSON.stringify(result.data).includes(env.REVIEWER_EMAIL));
+});

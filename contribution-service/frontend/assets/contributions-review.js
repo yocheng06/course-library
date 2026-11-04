@@ -1,3 +1,4 @@
+import {setupSystemPanel} from './system-backup.mjs?v=improvements-20261104';
 import {setupUnitManager} from './unit-manager.mjs?v=unit-drag-add-20261103';
 import {setupLibraryHealth} from './library-health.mjs?v=admin-workflow-20261103';
 import { api, message, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
@@ -6,7 +7,7 @@ import { setupImportRecords } from './import-records.mjs?v=treasure-unit-2026103
 
 const $ = id => document.getElementById(id);
 const origin = window.courseContributions.apiOrigin;
-let library = null, health = null, units = null;
+let library = null, health = null, units = null, system = null;
 let imports = null;
 let userId = '';
 let currentView = 'all';
@@ -18,7 +19,8 @@ function setActiveView(view) {
   for (const button of document.querySelectorAll('[data-view]')) {
     button.setAttribute('aria-current', button.dataset.view === view ? 'page' : 'false');
   }
-  $('libraryWorkspace').hidden = ['imports','health','units'].includes(view);
+  $('libraryWorkspace').hidden = ['imports','health','units','system'].includes(view);
+  $('systemWorkspace').hidden = view !== 'system';
   $('unitWorkspace').hidden = view !== 'units';
   $('healthWorkspace').hidden = view !== 'health';
   $('importWorkspace').hidden = view !== 'imports';
@@ -26,7 +28,8 @@ function setActiveView(view) {
 async function showView(view = currentView, { refresh = false } = {}) {
   if (!library || !imports) return;
   setActiveView(view);
-  if(view==='units') await units.show({refresh});
+  if(view==='system')await system.show();
+  else if(view==='units') await units.show({refresh});
   else if(view==='health') await health.show({refresh});
   else if (view === 'imports') await imports.show({ refresh });
   else await library.show(view, { refresh });
@@ -78,16 +81,17 @@ async function start() {
     $('loginPanel').hidden = true;
     $('managementArea').hidden = false;
     if (userId !== session.userId || !library || !imports) {
-      health?.clear();units?.clear();
+      health?.clear();units?.clear();system?.clear();
       library?.clear();
       imports?.clear();
       userId = session.userId || 'owner';
-      try{const saved=localStorage.getItem('course-library.manager-view.v1.'+userId);if(['all','modified','deleted','pending','health','imports','units'].includes(saved))currentView=saved;}catch{}
+      try{const saved=localStorage.getItem('course-library.manager-view.v1.'+userId);if(['all','modified','deleted','pending','health','imports','units','system'].includes(saved))currentView=saved;}catch{}
       library = setupLibraryManager({
         userId,
         onChanged: () => { health?.invalidate();if (currentView==='health')return health.show({refresh:true});if (imports && currentView === 'imports') return imports.show({ refresh: true }); },
       });
       units=setupUnitManager({container:$('unitWorkspace'),onChanged:()=>{library.refresh();health?.invalidate();}});
+      system=setupSystemPanel({container:$('systemWorkspace'),api,downloadJSON,userId});
       health=setupLibraryHealth({container:$('healthWorkspace'),openItem:(row,options)=>library.openItem(row,options)});
       imports = setupImportRecords({
         userId,
@@ -149,9 +153,8 @@ $('exportBackup').addEventListener('click', async () => {
   const button = $('exportBackup');
   button.disabled = true;
   try {
-    const result = await api('/api/manage/export');
-    downloadJSON(result, '課程題庫完整備份.json');
-    message('已下載完整備份。題圖仍以連結保存。');
+    await showView('system');
+    message('請在此建立含實際題圖的完整備份，或檢查已有備份。');
   } catch (error) { message(error.message, true); }
   finally { button.disabled = false; }
 });
@@ -162,7 +165,7 @@ $('signOut').addEventListener('click', async () => {
     await api('/api/logout', { method: 'POST', body: '{}' });
     library?.clear();
     imports?.clear();
-    health?.clear();units?.clear();
+    health?.clear();units?.clear();system?.clear();
     location.reload();
   } catch (error) { message(error.message, true); button.disabled = false; }
 });
