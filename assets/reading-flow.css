@@ -231,3 +231,16 @@ body[data-course="algorithms"] { --control-line:#8a7780; --rail-focus:#f2bdd0; -
 
 .mobile-filter-group>summary{display:none}
 @media(max-width:600px){.mobile-filter-group>summary{display:flex;align-items:center;min-height:44px;cursor:pointer;color:var(--ui-accent);font-weight:600}.mobile-filter-group[open]>.mobile-filter-body{padding:8px 0}.mobile-filter-body .primary-filters{display:flex;flex-wrap:wrap}}
+
+/* Keep the desktop wrapper in the toolbar flex layout after mobile folding. */
+body[data-course] .toolbar .mobile-filter-group { flex:1 1 480px; min-width:0; max-width:100%; }
+body[data-course] .toolbar .mobile-filter-body { display:flex; align-items:flex-start; flex-wrap:wrap; gap:10px 16px; min-width:0; }
+body[data-course] .toolbar .mobile-filter-body .primary-filters { flex:1 1 320px; min-width:0; }
+body[data-course] .toolbar .mobile-filter-body .more-filters { flex:0 0 auto; width:auto; max-width:100%; }
+body[data-course] .toolbar .mobile-filter-body .more-filters[open] { flex:1 1 100%; }
+body[data-course] .toolbar .more-filters .filter-fields > .answer-toggle { flex:0 1 auto; justify-content:flex-start; min-height:44px; }
+@media(max-width:600px) {
+  body[data-course] .toolbar .mobile-filter-group { flex-basis:100%; }
+  body[data-course] .toolbar .mobile-filter-body .primary-filters { flex-basis:100%; }
+  body[data-course] .toolbar .mobile-filter-body .more-filters { flex-basis:100%; width:100%; }
+}

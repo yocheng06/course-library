@@ -110,7 +110,7 @@
     unitSelect.innerHTML = unit.innerHTML;
     unitSelect.value = unit.value;
     const label = config.scopeLabel();
-    filterDetails.querySelector('summary').textContent = filterDetails.classList.contains('more-filters') ? '更多篩選' + (quality.value === 'pending' ? '（已啟用）' : '') : modeHint.hidden ? '篩選設定' : '篩選／說明';
+    filterDetails.querySelector('summary').textContent = filterDetails.classList.contains('more-filters') ? '更多篩選' + (quality.value === 'pending' || document.getElementById('hideEnglish')?.checked ? '（已啟用）' : '') : modeHint.hidden ? '篩選設定' : '篩選／說明';
     scope.textContent = '搜尋範圍：' + label;
     search.placeholder = '搜尋題目、答案或解析…';
     search.setAttribute('aria-label', `搜尋${label}的題目、答案與解析`);

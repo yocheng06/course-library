@@ -438,9 +438,9 @@ test('treasure is an empty inserted OS unit and imported questions support readi
 
 for(const course of ['os','algorithms'])test(course+' mobile filters start collapsed, retain controls and expose active filter count',async()=>{
  const h=await coursePage(course,{readingFlow:true,mobile:true}),details=h.document.querySelector('.mobile-filter-group');
- assert.equal(details.open,false);assert(details.querySelector('.primary-filters'));assert(details.querySelector('#hideEnglish'));
+ assert.equal(details.open,false);assert(details.querySelector('.primary-filters'));assert(details.querySelector('#hideEnglish'));assert(h.document.getElementById('hideEnglish').closest('.more-filters'));assert(!h.document.querySelector('.primary-filters #hideEnglish'));
  const hide=h.document.getElementById('hideEnglish');hide.checked=true;h.fire(hide,'change');
- assert.match(details.querySelector('summary').textContent,/1 項/);assert.equal(details.open,false);
+ assert.match(details.querySelector('summary').textContent,/1 項/);assert.match(details.querySelector('.more-filters > summary').textContent,/已啟用/);assert.equal(details.open,false);
  const chip=[...h.document.querySelectorAll('.active-filters button')].find(b=>b.textContent.includes('隱藏英文題'));assert(chip);h.fire(chip,'click');assert.equal(hide.checked,false);
  const desktop=await coursePage(course,{readingFlow:true});assert.equal(desktop.document.querySelector('.mobile-filter-group').open,true);
 });
