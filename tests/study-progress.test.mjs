@@ -76,7 +76,6 @@ test('both courses refresh an already loaded community question immediately afte
 test('same-ID built-in updates refresh visible answers, explanation and correct-option marks in both courses',async()=>{
  for(const course of ['os','algorithms']){
   const h=await coursePage(course),id=course==='os'?'basics-9':h.config.examEntries(false)[0].id;
-  h.document.getElementById('showAnswers').checked=true;h.config.render();
   const row=h.config.examEntries(false).find(e=>e.id===id),before=h.document.querySelector(`article[data-id="${id}"]`);
   const untouched=h.document.querySelector(`article[data-id="${course==='os'?'basics-1':h.config.examEntries(false)[1].id}"]`);
   const q=course==='os'?{...row.q,answer:'A、C',choiceKey:'AC',explanation:'最新儲存的解析'}:{...row.q,a:'A、C',choiceKey:'AC',type:'多選題',ex:'最新儲存的解析'};
@@ -410,18 +409,15 @@ test('new L6 practice imports preserve distinct counting checkpoints and support
  assert.equal(lib.courses.algorithms.count,300);
 });
 
-test('pending submitted answers mark only their own choices in study, toggle cleanly and remain unverified for practice',async()=>{
+test('pending submitted answers mark only their own choices in study, display immediately and remain unverified for practice',async()=>{
  for(const course of ['os','algorithms']){
   const id='community-99999999-9999-4999-8999-999999999999-1',unit=course==='os'?'basics':'L2';
   const h=await coursePage(course,{search:'?question='+id});
   const raw={id,bookmarkId:id,stem:'投稿答案標記測試',q:'投稿答案標記測試',options:['比較次數','桶的數量','總位數','處理的位數區段長度'],opts:['比較次數','桶的數量','總位數','處理的位數區段長度'],answer:'D',a:'D',answerProvided:true,type:'單選題',category:'測試',images:[],submissionReview:{status:'pending',reason:'選項版本不同'}};
   h.config.mergeCommunityQuestions([{unit,question:raw}]);
   h.document.getElementById('searchScopeSelect').value='all';h.fire(h.document.getElementById('searchScopeSelect'),'change');h.document.getElementById('search').value='投稿答案標記測試';h.fire(h.document.getElementById('search'),'input');
-  h.document.getElementById('showAnswers').checked=false;h.config.render();
-  let card=h.document.querySelector('article[data-id="'+id+'"]');assert.ok(card);assert.equal(card.querySelectorAll('.submitted-answer').length,0);
-  h.fire(card.querySelector('[data-reveal]'),'click');assert.equal(card.querySelectorAll('.submitted-answer').length,1);assert.equal(card.querySelectorAll('.option')[3].classList.contains('submitted-answer'),true);assert.equal(card.querySelectorAll('.option.correct').length,0);assert.equal(card.querySelector('.submitted-answer-label').textContent,'投稿答案（待核對）');
-  h.fire(card.querySelector('[data-reveal]'),'click');assert.equal(card.querySelectorAll('.submitted-answer').length,0);assert.equal(card.querySelectorAll('.submitted-answer-label').length,0);
-  h.document.getElementById('showAnswers').checked=true;h.config.render();card=h.document.querySelector('article[data-id="'+id+'"]');assert.equal(card.querySelectorAll('.submitted-answer').length,1);
+  let card=h.document.querySelector('article[data-id="'+id+'"]');assert.ok(card);assert.equal(card.querySelector('[data-answer]').hidden,false);
+  assert.equal(card.querySelectorAll('.submitted-answer').length,1);assert.equal(card.querySelectorAll('.option')[3].classList.contains('submitted-answer'),true);assert.equal(card.querySelectorAll('.option.correct').length,0);assert.equal(card.querySelector('.submitted-answer-label').textContent,'投稿答案（待核對）');
   const updated={...raw,answer:'A、C',a:'A、C',type:'多選題'};h.config.mergeCommunityQuestions([{unit,question:updated}]);card=h.document.querySelector('article[data-id="'+id+'"]');assert.equal(card.querySelectorAll('.submitted-answer').length,2);assert.equal(card.querySelectorAll('.submitted-answer-label').length,2);
   assert.equal(h.window.courseQuestionTools.hasProvidedAnswer(h.question(id)),false);
   h.practice();card=h.document.querySelector('article[data-id="'+id+'"]');assert.equal(card.querySelectorAll('.submitted-answer').length,0);h.choose(card,[0,2]);h.check(card);assert.equal(card.querySelectorAll('.practice-correct').length,0);

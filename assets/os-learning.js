@@ -152,15 +152,11 @@ function optionMarkup(q, option, index) {
   return `<span class="option-content">${content}${ordered.bottom ? `<span class="option-translation" lang="${languageOf(ordered.bottom)}">${highlighted(ordered.bottom)}</span>` : ''}</span>`;
 }
 function expectedOptionKeys(q,options) {return window.courseQuestionTools.optionAnswerKeys(q,options);}
-function updateCorrectOptions(card,q,visible) {
-  const keys = visible && mode === 'study' && q?.options?.length ? expectedOptionKeys(q,q.options) : new Set();
-  window.courseQuestionTools.updateStudyOptionMarks(card,q,keys);
-}
 function cardMarkup({q, unit, unitIndex, i, displayNumber}) {
   q=window.courseTopicOrder?.view(q,'os',unit.id)||q;
   q=window.courseExplanationContent?.apply(q)||q;
   if(mode==='practice')q=practiceOptions.get(q,q.id);
-  const practice = mode === 'practice', open = revealed.has(q.id) || (!practice && $('showAnswers').checked), chosen = selections.get(q.id) || [];
+  const practice = mode === 'practice', open = !practice || revealed.has(q.id), chosen = selections.get(q.id) || [];
   const result = feedback.get(q.id);
   const correctKeys = !practice && open ? expectedOptionKeys(q, q.options || []) : new Set();
   const options = q.options?.length ? `<div class="options">${q.options.map((o,k)=>{const mark=window.coursePractice.optionMark(result,k),studyMark=window.courseQuestionTools.studyOptionMark(q,correctKeys.has(String.fromCharCode(65+k)));return practice?`<label class="option ${chosen.includes(k)?'chosen':''} ${mark.className}"><input type="${window.courseQuestionTools.answerType(q)==='多選題'?'checkbox':'radio'}" name="choice-${q.id}" data-choice="${q.id}" data-index="${k}" ${chosen.includes(k)?'checked':''} ${mark.className==='practice-incorrect'?'aria-invalid="true"':''}>${optionMarkup(q,o,k)}${mark.icon}</label>`:`<div class="option ${studyMark.className}">${optionMarkup(q,o,k)}${studyMark.label}</div>`}).join('')}</div>` : '';
@@ -168,9 +164,8 @@ function cardMarkup({q, unit, unitIndex, i, displayNumber}) {
   const entry=practice&&!q.options?.length?window.coursePractice.entryMarkup(q,q.id,drafts.get(q.id),textMark):'';
   const pending = window.courseQuestionTools.qualityReasons(q, 'os').length > 0;
   const hasResponse=chosen.length>0||Boolean(drafts.get(q.id)?.trim());
-  const buttonText=practice?'檢查答案':open?'收起答案':'查看答案與解析';
-  const prompt = orderedBilingualText(q.stem, q.translation);
-  return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">${unitCaption(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${window.courseQuestionTools.incompleteReasons(q).length?'<span class="badge gold">資料不完整</span>':''}${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(displayNumber??i+1).padStart(3,'0')}</span></div><h3 class="question" tabindex="-1">${highlighted(prompt.top)}</h3>${prompt.bottom?`<p class="translation" lang="${languageOf(prompt.bottom)}">${highlighted(prompt.bottom)}</p>`:''}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.incompleteMarkup(q)}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${entry}${practice?`<div class="practice-actions"><button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}">${buttonText}</button><button type="button" class="plain" data-clear-response="${q.id}" ${hasResponse?'':'disabled'}>清除作答</button><button type="button" class="plain" data-show-answer="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${open?'收起答案與解析':'顯示答案與解析'}</button></div>`:!$('showAnswers').checked?`<button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${buttonText}</button>`:''}${practice&&result?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
+    const prompt = orderedBilingualText(q.stem, q.translation);
+  return `<article class="card" data-id="${q.id}"><div class="cardtop"><div class="badges">${allUnits()?`<span class="badge unit-badge">${unitCaption(unitIndex)} · ${esc(unit.label)}</span>`:''}<span class="badge">${highlighted(q.category)}</span><span class="badge neutral">${kind(q)}</span>${window.courseQuestionTools.incompleteReasons(q).length?'<span class="badge gold">資料不完整</span>':''}${pending?'<span class="badge gold">待確認</span>':''}</div><span class="qid">#${String(displayNumber??i+1).padStart(3,'0')}</span></div><h3 class="question" tabindex="-1">${highlighted(prompt.top)}</h3>${prompt.bottom?`<p class="translation" lang="${languageOf(prompt.bottom)}">${highlighted(prompt.bottom)}</p>`:''}${window.courseQuestionTools.searchMatchMarkup(q, $('search').value)}${window.courseQuestionTools.qualityMarkup(q,'os')}${window.courseQuestionTools.incompleteMarkup(q)}${window.courseQuestionTools.questionImagesMarkup(q)}${options}${entry}${practice?`<div class="practice-actions"><button class="reveal" data-reveal="${q.id}" aria-controls="answer-${q.id}">檢查答案</button><button type="button" class="plain" data-clear-response="${q.id}" ${hasResponse?'':'disabled'}>清除作答</button><button type="button" class="plain" data-show-answer="${q.id}" aria-controls="answer-${q.id}" aria-expanded="${open}">${open?'收起答案與解析':'顯示答案與解析'}</button></div>`:''}${practice&&result?window.coursePractice.markup(result,q.id):''}<div data-answer="${q.id}" ${open?'':'hidden'}>${answerMarkup(q)}</div></article>`;
 }
 function render(preserveCards = false) {
   const filtered=practiceSequence.apply(matches(),mode==='practice'&&$('practiceOrder').value==='random',entry=>entry.q.id), entries=scopedEntries(), pages=Math.max(1,Math.ceil(filtered.length/pageSize)); page=Math.min(page,pages); totalPages=pages;
@@ -184,7 +179,7 @@ function render(preserveCards = false) {
   $('pager').innerHTML=pages>1?`<button data-page="${page-1}" aria-label="上一頁" ${page===1?'disabled':''}>←</button>`+Array.from({length:pages},(_,i)=>`<button data-page="${i+1}" ${page===i+1?'class="active" aria-current="page"':''} aria-label="第 ${i+1} 頁">${i+1}</button>`).join('')+`<button data-page="${page+1}" aria-label="下一頁" ${page===pages?'disabled':''}>→</button>`:'';
   $('studyMode').classList.toggle('active',mode==='study'); $('practiceMode').classList.toggle('active',mode==='practice');
   $('studyMode').setAttribute('aria-pressed',mode==='study'); $('practiceMode').setAttribute('aria-pressed',mode==='practice');
-  $('answerToggle').hidden=mode==='practice'; $('modeHint').hidden=mode!=='practice';
+  $('modeHint').hidden=mode!=='practice';
   $('practiceOrderControl').hidden=mode!=='practice';
   $('footer').textContent=`共 ${UNITS.length} 個單元 · ${totalQuestionCount()} 題`;
   window.learningUI?.refresh();
@@ -193,24 +188,19 @@ function resetFilters() { window.learningUI?.clearReview(); window.coursePractic
 function switchMode(next) { mode=next; revealed.clear(); feedback.clear(); render(); }
 function toggleAnswer(id,button) {
   const card=button.closest('.card'), panel=card.querySelector('[data-answer]');
-  if(mode==='practice') {
-    const wasRevealed=revealed.has(id);
-    const q=practiceOptions.get(findEntry(id).q,id),response=card.querySelector('[data-draft]')?.value||'';
-    const result=window.coursePractice.evaluate(q.answer,q.options||[],selections.get(id)||[],q,response);
-    feedback.set(id,result);
-    window.coursePracticeProgress?.record(id,result,{choices:practiceOptions.sourceChoices(id,selections.get(id)||[]),text:response});
-    const shouldOpen=result.correct===true||result.revealAnswer||wasRevealed;
-    panel.hidden=!shouldOpen;
-    if(shouldOpen)revealed.add(id);else revealed.delete(id);
-    button.textContent='檢查答案';
-    const answerButton=card.querySelector('[data-show-answer]');
-    if(answerButton){answerButton.setAttribute('aria-expanded',String(shouldOpen));answerButton.textContent=shouldOpen?'收起答案與解析':'顯示答案與解析';}
-    window.coursePractice.show(card,result,id); return;
-  }
-  const open=panel.hidden;panel.hidden=!open;
-  updateCorrectOptions(card,findEntry(id)?.q,open);
-  if(open)revealed.add(id);else revealed.delete(id);
-  button.setAttribute('aria-expanded',String(open));button.textContent=open?'收起答案':'查看答案與解析';
+  if(mode!=='practice') return;
+  const wasRevealed=revealed.has(id);
+  const q=practiceOptions.get(findEntry(id).q,id),response=card.querySelector('[data-draft]')?.value||'';
+  const result=window.coursePractice.evaluate(q.answer,q.options||[],selections.get(id)||[],q,response);
+  feedback.set(id,result);
+  window.coursePracticeProgress?.record(id,result,{choices:practiceOptions.sourceChoices(id,selections.get(id)||[]),text:response});
+  const shouldOpen=result.correct===true||result.revealAnswer||wasRevealed;
+  panel.hidden=!shouldOpen;
+  if(shouldOpen)revealed.add(id);else revealed.delete(id);
+  button.textContent='檢查答案';
+  const answerButton=card.querySelector('[data-show-answer]');
+  if(answerButton){answerButton.setAttribute('aria-expanded',String(shouldOpen));answerButton.textContent=shouldOpen?'收起答案與解析':'顯示答案與解析';}
+  window.coursePractice.show(card,result,id);
 }
 function togglePracticeAnswer(id,button) {
   const card=button.closest('.card'),panel=card.querySelector('[data-answer]'),open=panel.hidden;
@@ -240,7 +230,7 @@ document.addEventListener('click',e=>{
 $('search').addEventListener('input',()=>{page=1;render();});
 for(const id of ['chapter','typeSelect','qualitySelect']) $(id).addEventListener('change',()=>{page=1;render();});
 $('searchScopeSelect').addEventListener('change',()=>{page=1;refreshFilters();render();});
-$('hideEnglish').addEventListener('change',()=>{page=1;render();});$('showAnswers').addEventListener('change',()=>{revealed.clear();render();});
+$('hideEnglish').addEventListener('change',()=>{page=1;render();});
 $('unitPicker').addEventListener('change',e=>switchUnit(Number(e.target.value)));
 $('clear').onclick=resetFilters; $('emptyReset').onclick=resetFilters;
 $('studyMode').onclick=()=>switchMode('study'); $('practiceMode').onclick=()=>switchMode('practice');
