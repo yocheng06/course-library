@@ -850,7 +850,13 @@ export function matchQuestion(question, index, { course, unit = "all", completeO
         eligible(entry) &&
         !entry.options.length &&
         withoutFillBlanks(entry.stem) === blankless &&
-        (!completeOnly || completeStem(entry.stem) === completeStem(question.stem)),
+        (!completeOnly || completeStem(entry.stem) === completeStem(question.stem) ||
+          // Older imported records lost their placeholders. Recover only the
+          // exact remaining text with explicit fill instructions on both sides;
+          // the unique-record and answer-slot checks below still apply.
+          (!fillBlankCount(entry.stem) && answerFormat(entry.stem).hint && answerFormat(question.stem).hint &&
+            (blankCount > 1 || ![/\//, /[\r\n]/].some(separator =>
+              (splitTopLevelAnswer(entry.answer, separator)?.length || 0) > 1)))),
     );
     const preferred = !completeOnly && candidates.some((entry) => entry.preferred)
       ? candidates.filter((entry) => entry.preferred)

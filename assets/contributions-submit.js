@@ -464,12 +464,16 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
   const form = doc.querySelector("#practice-quiz-form,#challenge-quiz-form");
   if (!form) return null;
   const challenge = form.id === "challenge-quiz-form";
-  const action = form.getAttribute("action") || "",
-    courseCode = action.match(/\/course\/([a-z0-9_-]+)\/process_(?:practice|challenge)\.php/i)?.[1];
+  const action = form.getAttribute("action") || "";
+  const coursePath = /\/course\/([a-z0-9_-]+)\/(?:process_)?(?:practice|challenge)\.php(?:[?#]|$)/i;
+  // Newer downloaded pages omit form action but retain their source in <base>.
+  const sourceUrl = [action, doc.querySelector("base[href]")?.getAttribute("href") || ""]
+    .find(value => coursePath.test(value));
+  const courseCode = sourceUrl?.match(coursePath)?.[1];
   if (!courseCode) throw new Error("找到測驗表單，但無法辨識課程代碼；請下載題庫 JSON 匯入。");
   const course = /^OS/i.test(courseCode) ? "os" : /^Alg(?:\d[A-Za-z0-9_-]*)?$/i.test(courseCode) ? "algorithms" : null;
   if (!course) throw new Error(`目前無法辨識課程「${courseCode}」；請先選擇網站科目並使用題庫 JSON 匯入。`);
-  const realmId = /realm_id=(\d+)/i.exec(raw)?.[1],
+  const realmId = /[?&]realm_id=(\d+)(?:[&#]|$)/i.exec(sourceUrl)?.[1],
     title = doc.title.replace(/\s+/g, " ").trim() || name.replace(/\.(?:html?)$/i, "");
   let unit;
   try {

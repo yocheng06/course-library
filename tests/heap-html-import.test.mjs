@@ -44,3 +44,15 @@ test('batch HTML uses real blocks, excludes verification fields and keeps tree i
 test('GitHub and submission-service copies use identical prompt extraction',async()=>{
   assert.equal(await readFile(new URL('../assets/contributions-submit.js',import.meta.url),'utf8'),source);
 });
+
+
+test('base URL supports missing actions, while an explicit practice action takes precedence',async()=>{
+ const body='<div class="question-block"><div class="question-text">合成測試<input type="text" class="text-answer"></div></div>';
+ for(const [action,course,unit] of [['','os','L9'],['https://example.test/course/Alg26/process_practice.php?realm_id=4','algorithms','L4']]){
+  const html='<html><head><base href="https://example.test/course/OS26B/practice.php?realm_id=9"></head><body><form id="practice-quiz-form"'+(action?' action="'+action+'"':'')+'>'+body+'</form></body></html>';
+  const value=await context.p.parseCoursePracticeHtml(parseHTML(html).document,html,'test.html');
+  assert.equal(value.course,course);assert.equal(value.unit,unit);
+ }
+ const html='<html><head><base href="https://example.test/course/Physics26/practice.php?realm_id=9"></head><body><form id="practice-quiz-form">'+body+'</form></body></html>';
+ await assert.rejects(context.p.parseCoursePracticeHtml(parseHTML(html).document,html,'test.html'),/無法辨識課程/);
+});

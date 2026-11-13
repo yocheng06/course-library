@@ -58,3 +58,13 @@ test('downloaded HTML restores referenced local images and requires the matching
   assert.equal(groups[0].payload.questions[0].images.length, 1);
   assert.equal(groups[0].payload.questions[0].images[0], 'data:image/png;base64,AQID');
 });
+
+
+test('new practice exports without action use their base URL and ignore hidden decoys', async () => {
+  const html='<html><head><base href="http://example.test/course/OS26B/practice.php?realm_id=9&amp;difficulty=3"><title>記憶體</title></head><body><form id="practice-quiz-form" method="post"><div class="question-block" aria-hidden="true" style="left:-9999px"></div><div class="question-block"><p class="question-text">妖獸 1.</p><div class="question-text">分段的邏輯單元稱為<input type="text" class="text-answer"></div></div></form></body></html>';
+  const payload=await context.parsers.parseCoursePracticeHtml(parseHTML(html).document,html,'memory.html');
+  assert.equal(payload.course,'os');assert.equal(payload.unit,'L9');assert.equal(payload.questions.length,1);
+  const results=parseHTML('<div class="question-result"><p>題目：分段的邏輯單元稱為[__1__]</p><p>正確答案：segments</p></div>');
+  const paired=context.parsers.combineCoursePracticeHtml(payload,context.parsers.parseCoursePracticeResultsHtml(results.document));
+  assert.equal(paired.__answerImportSummary.matchedQuestionCount,1);assert.equal(paired.questions[0].answer,'segments');
+});

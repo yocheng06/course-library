@@ -9,7 +9,7 @@ import {
   expandLibraryQuestion,
   applyBuiltinOverrides,
   MAX_TEXT,
-} from "./batch-model.mjs?v=rr-format-records-20261101";
+} from "./batch-model.mjs?v=legacy-fill-records-20261113";
 import { parseBatchInput } from "./batch-import.mjs?v=rr-format-records-20261101";
 import { setupBatchImport } from "./batch-import-ui.mjs?v=easy-import-20261103";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
