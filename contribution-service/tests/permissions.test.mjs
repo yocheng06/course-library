@@ -2269,6 +2269,28 @@ test("HTML fill imports skip known Chinese and English variants with format hint
   assert.equal(env.sql.prepare("SELECT COUNT(*) n FROM public_questions").get().n,0);
 });
 
+test('legacy records without stored blanks skip identical Intel imports but retain real answer and blank-count differences',async()=>{
+  const env=await setup();
+  const stem='Intel x86-64 架構在實務上僅實作了位元的虛擬地址空間。 (請用數字回答)';
+  const question={category:'HTML 匯入',type:'填空題',stem,options:[],answer:'48',images:[],explanation:''};
+  const first=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'L9',questions:[question]}});
+  assert.equal(first.response.status,201,JSON.stringify(first.data));
+  for(const blank of ['[__1__]','____________']){
+    const result=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'L9',questions:[{...question,stem:stem.replace('了位元','了 '+blank+' 位元')}]}});
+    assert.equal(result.data.status,'duplicates_only',JSON.stringify(result.data));
+    assert.equal(result.data.skippedCount,1);
+  }
+  const changed=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'L9',questions:[{...question,stem:stem.replace('了位元','了 [__1__] 位元'),answer:'57'}]}});
+  assert.equal(changed.data.pendingReviewCount,1,JSON.stringify(changed.data));
+  assert.equal(env.sql.prepare('SELECT COUNT(*) n FROM public_questions').get().n,2);
+  // Real stored slot counts must remain distinct.
+  const other={...question,stem:'測試實際格數 ____ 和 ____ 。',answer:'48/57'};
+  await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'L9',questions:[other]}});
+  const differentCount=await call(env,'/api/submissions',{method:'POST',body:{...payload(),unit:'L9',questions:[{...other,stem:'測試實際格數 ____ 和 。',answer:'48'}]}});
+  assert.equal(differentCount.data.pendingReviewCount,1,JSON.stringify(differentCount.data));
+  assert.match(differentCount.data.pendingReviews[0].reason,/填空數不同/);
+});
+
 test('pending-review submissions preserve existing answers, deduplicate retries and support owner resolution',async()=>{
   const env=await setup();
   const original=(await call(env,'/api/community/builtin-questions/os/basics-1')).data.item;

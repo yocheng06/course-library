@@ -596,7 +596,11 @@ async function duplicateDecisions(env, payload, excludeId = null) {
     if (!sameType.length) return review('題幹相同，但題型不同');
     const count = stem => (duplicateStemKey(stem).match(/___/g)||[]).length;
     if (!q.options.length) {
-      const sameCount=candidates.filter(entry=>count(entry.stem)===count(stem));
+      // Legacy imports sometimes lost every placeholder before being stored.
+      // The matcher below still requires exact remaining text, compatible
+      // answer slots and the same submitted answer; never treat 1 vs 2 as equal.
+      const sameCount=candidates.filter(entry=>count(entry.stem)===count(stem) ||
+        (!count(entry.stem) && count(stem)>0));
       if (!sameCount.length) return review('題幹相同，但填空數不同');
       candidates=sameCount;
     }
