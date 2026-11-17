@@ -22,9 +22,9 @@ async function run(){
  console.log(JSON.stringify(summary,null,2));
  if(!summary.complete||summary.unexpected.length||summary.processError||(result.status!==0&&!summary.knownFailures.length)){process.exitCode=1;return;}
  console.log(`前端：${summary.passed} 通過；${summary.knownFailures.length} 個已列管舊失敗；沒有新增失敗。`);
- for(const script of ['scripts/build.mjs','tests/permissions.test.mjs']){
+ for(const script of ['scripts/build.mjs','tests/permissions.test.mjs','tests/cloudflare-migration.test.mjs']){
   const child=spawnSync(process.execPath,[script],{cwd:resolve(root,'contribution-service'),encoding:'utf8',maxBuffer:64*1024*1024,timeout:180000});
-  await writeFile(resolve(out,script.includes('build')?'service-build.log':'service-tests.log'),(child.stdout||'')+(child.stderr||''));
+  await writeFile(resolve(out,script.includes('build')?'service-build.log':script.includes('cloudflare')?'service-migration-tests.log':'service-tests.log'),(child.stdout||'')+(child.stderr||''));
   if(child.status!==0||child.error){console.error('服務檢查失敗：'+script);console.error(child.stdout,child.stderr);process.exitCode=1;return;}
   console.log(child.stdout.trim().split('\n').slice(-9).join('\n'));
  }

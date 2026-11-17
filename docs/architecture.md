@@ -1,6 +1,6 @@
 # 系統架構與程式導覽
 
-整理日期：2026-11-04。以下依目前 Repository 程式整理；線上題數及投稿內容會持續變動，不固定寫在文件中。
+整理日期：2026-11-17。以下依目前 Repository 程式整理；線上題數及投稿內容會持續變動，不固定寫在文件中。
 
 ## 1. 部署分為兩部分
 
@@ -10,7 +10,7 @@
 | 獨立投稿／管理服務 | `contribution-service/frontend/`、`worker/` | 投稿、編輯、可復原刪除、管理登入、歷史、題庫健檢、單元設定與題圖 API |
 | 服務位址設定 | `assets/contributions-config.js` | 主站使用的公開 API origin；不放登入憑證 |
 
-主站：[GitHub Pages](https://yocheng06.github.io/course-library/)。獨立服務：[投稿](https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/submit.html)、[管理](https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/review.html)。主站 `review.html` 導向服務；服務版管理介面由服務自身維護。
+主站：[GitHub Pages](https://yocheng06.github.io/course-library/)。獨立服務：[投稿](https://course-library-submissions.a0972711837.workers.dev/submit.html)、[管理](https://course-library-submissions.a0972711837.workers.dev/review.html)。主站 `review.html` 導向服務；服務版管理介面由服務自身維護。
 
 ## 2. 從題庫到畫面的資料流
 
@@ -69,15 +69,15 @@ flowchart TB
   V --> B[批次查題索引與最新公開資料]
   E[測驗結果與待複習] <--> LS[(目前瀏覽器 localStorage)]
   W[Worker] --> DB[(D1)]
-  W --> IMG[(R2 題圖)]
+  W --> IMG[(D1 image_objects 題圖)]
 ```
 
 - **GitHub**：程式、內建題庫、公開快照、解析整理、索引與文件；可重現隨版本發布的內容。
 - **D1**：`submissions`、`public_questions`、`question_history`、`builtin_question_edits`、`unit_settings`、`unit_settings_history`，以及管理帳號、舊勘誤與內容更新狀態。定義在 `contribution-service/db/schema.js`，遷移在 `drizzle/`。
-- **R2**：投稿題圖；API 依發布狀態與權限提供讀取。
+- **D1 image_objects**：投稿題圖二進位、內容類型與 SHA-256；API 依發布狀態與權限提供讀取。靜態題圖仍使用 GitHub Pages。未啟用 R2 訂閱。
 - **localStorage**：題庫快取、閱讀設定、待複習、練習紀錄、未交卷暫存、每科最近一次測驗等。不同 origin、瀏覽器與裝置各自保存。
 
-考後整批標記預設不啟用；取消勾選只移除本次新增的標記。清除此單元不受「搜尋全部單元」影響；清除此課程不影響另一科，復原只還原上次清除的標記。GitHub 原始碼壓縮檔不是 D1／R2 或個人學習紀錄備份。
+考後整批標記預設不啟用；取消勾選只移除本次新增的標記。清除此單元不受「搜尋全部單元」影響；清除此課程不影響另一科，復原只還原上次清除的標記。GitHub 原始碼壓縮檔不是 D1 或個人學習紀錄備份。
 
 ## 6. 原始碼目錄
 
@@ -120,7 +120,7 @@ npm --prefix contribution-service test
 
 `sync:questions` 重新建立批次索引並同步服務需要的前端與題庫資料，會修改產物，必須檢查 diff。`build` 產生 `contribution-service/dist/`；不把 dist、node_modules、機密、正式資料庫或使用者匯出備份提交。
 
-主站提交至 GitHub `main` 後由 Pages 發布；後端來源、建置封裝與 Sites 儲存版本／部署是另一條流程，只推 GitHub 不會部署 Worker。服務 `.openai/hosting.json` 保留原 project ID、D1 與 R2 綁定，不建立第二套正式服務取代原資料。
+主站提交至 GitHub `main` 後由 Pages 發布；後端以站主 Cloudflare 帳號及官方 Wrangler 獨立發布，只推 GitHub 不會部署 Worker。`wrangler.d1.example.jsonc` 是不含憑證的設定範本；本機 `wrangler.jsonc` 不提交。`.openai/hosting.json` 僅保留舊部署相容資料。獨立入口移除客戶端送來的 `oai-*` 身分標頭，管理權限使用本站帳密與 session。詳見 [移植與部署](../contribution-service/CLOUDFLARE-MIGRATION.md)。
 
 ## 8. 驗證狀態
 

@@ -16,7 +16,7 @@
   root.dataset.theme = theme;
   let button;
   const publicLibrary = 'https://yocheng06.github.io';
-  const publicService = 'https://course-library-submissions-yocheng06.yocheng06.chatgpt.site';
+  const publicService = 'https://course-library-submissions.a0972711837.workers.dev';
   function themedHref(value) {
     try {
       const url = new URL(value, location.href);

@@ -1,6 +1,6 @@
 # 課程題庫投稿與管理服務
 
-更新日期：2026-11-04。此目錄保存獨立服務的原始碼；整體資料流見 [系統架構](../docs/architecture.md)。
+更新日期：2026-11-17。此目錄保存獨立服務的原始碼；整體資料流見 [系統架構](../docs/architecture.md)。
 
 服務為 GitHub Pages 主站提供公開題庫 API、匿名投稿／編輯、可復原刪除、管理者歷史與還原、單元設定、健檢與題圖讀取。**目前新投稿通過檢查後立即公開，不必先經站主核准。** 舊待審核與勘誤端點保留作為相容功能。
 
@@ -18,7 +18,7 @@
 | `scripts/sync-library.mjs` | 從主站同步共用前端、題庫與索引 |
 | `content/` | 已核對解析補充、合併資料與來源記錄 |
 
-D1 保存投稿、公開題目、修改歷史、內建題覆寫、單元設定與管理狀態。R2 保存投稿題圖。正式資料不在原始碼 Repository 裡；管理匯出 JSON 含圖片連結，不包含完整圖片二進位內容。
+D1 保存投稿、公開題目、修改歷史、內建題覆寫、單元設定、管理狀態及 `image_objects` 題圖二進位。未啟用 R2 訂閱。正式資料不在原始碼 Repository 裡；管理匯出 JSON 含圖片連結，不包含完整圖片二進位內容。
 
 ## API 與權限
 
@@ -71,8 +71,10 @@ npm --prefix contribution-service test
 
 ## 設定與部署
 
-Runtime 設定由 Sites 管理，不寫進 GitHub：`ADMIN_SETUP_CODE`、`REVIEWER_EMAIL`、`RATE_HASH_KEY`。管理密碼使用唯一鹽值與 PBKDF2 雜湊；登入使用 HttpOnly、Secure、SameSite cookie。一次性設定碼使用後會記錄失效。
+2026-11-17 已部署至站主自己的 Cloudflare Worker 與 D1。操作、備份及驗證步驟見 [Cloudflare 移植說明](CLOUDFLARE-MIGRATION.md)。
 
-服務使用 Cloudflare Worker、D1 `DB`、R2 `BUCKET`；保留 `.openai/hosting.json` 的原有 project ID。發布需將服務來源推送、建置封裝，經 Sites 儲存版本再部署。**推送 GitHub main 只更新主站 Pages，不會自動更新這個獨立 Worker。**
+Runtime 秘密由 Cloudflare 管理，不寫進 GitHub：一次性 `ADMIN_SETUP_CODE` 與 `RATE_HASH_KEY`。新站管理者自行設定帳密，不依賴 ChatGPT 帳號。管理密碼使用唯一鹽值與 PBKDF2 雜湊；登入使用 HttpOnly、Secure、SameSite cookie。一次性設定碼使用後會記錄失效。
+
+服務使用 Cloudflare Worker 與 D1 `DB`；`worker/d1-image-store.mjs` 提供相容圖片儲存介面。`scripts/build-cloudflare.mjs` 產生獨立入口並移除不可信的 `oai-*` 標頭，`compact-worker-data.mjs` 在建置時核對無損資料壓縮。發布使用官方 Wrangler；保留 `.openai/hosting.json` 僅供舊部署相容。**推送 GitHub main 只更新主站 Pages，不會自動更新這個獨立 Worker。**
 
 不要提交設定碼、密碼、Cookie、權杖、正式 DB、使用者私人備份或 node_modules／dist。GitHub 原始碼封存不是正式題庫與題圖的完整備份。

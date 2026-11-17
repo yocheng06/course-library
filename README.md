@@ -2,11 +2,11 @@
 
 作業系統與演算法課程題庫，提供分單元閱讀、搜尋、遮答練習、單元測驗與答案解析。
 
-**[開啟網站](https://yocheng06.github.io/course-library/)** · [批次查題](https://yocheng06.github.io/course-library/batch.html) · [投稿題庫](https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/submit.html) · [題庫管理](https://course-library-submissions-yocheng06.yocheng06.chatgpt.site/review.html)
+**[開啟網站](https://yocheng06.github.io/course-library/)** · [批次查題](https://yocheng06.github.io/course-library/batch.html) · [投稿題庫](https://course-library-submissions.a0972711837.workers.dev/submit.html) · [題庫管理](https://course-library-submissions.a0972711837.workers.dev/review.html)
 
 最近正式 Release：**[v1.3.0](https://github.com/yocheng06/course-library/releases/tag/v1.3.0)** · [所有 Releases](https://github.com/yocheng06/course-library/releases) · [本版更新說明](docs/releases/v1.3.0.md)
 
-目前進度已更新至 **2026-11-04**；`main` 包含 v1.3.0 之後的更新。先看 [系統架構](docs/architecture.md)、[最新進度與驗證](docs/updates/2026-11-04.md)，或 [v1.3.0 以後的完整提交差異](https://github.com/yocheng06/course-library/compare/v1.3.0...main)。
+目前進度已更新至 **2026-11-17**；`main` 包含 v1.3.0 之後的更新。先看 [系統架構](docs/architecture.md)、[最新移植與驗證](docs/updates/2026-11-17-cloudflare.md)，或 [v1.3.0 以後的完整提交差異](https://github.com/yocheng06/course-library/compare/v1.3.0...main)。
 
 [測驗、備份與發布檢查改進](docs/improvements-20261104.md)：測驗語言與可調比例、手機篩選、完整備份、版本狀態及發布檢查。
 
@@ -38,7 +38,7 @@
 
 ## 架構總覽
 
-主站是 **GitHub Pages 靜態網站**；投稿與管理則由獨立的 **Cloudflare Worker + D1 + R2** 服務處理。閱讀時先用 GitHub 隨附快照或上次瀏覽器快取，背景再讀公開 API。測驗與待複習保存在瀏覽器，公開題目與修改歷史保存在後端，兩者不同步。
+主站是 **GitHub Pages 靜態網站**；投稿與管理則由獨立的 **Cloudflare Worker + D1（含題圖）** 服務處理。閱讀時先用 GitHub 隨附快照或上次瀏覽器快取，背景再讀公開 API。測驗與待複習保存在瀏覽器，公開題目與修改歷史保存在後端，兩者不同步。
 
 ```mermaid
 flowchart LR
@@ -48,7 +48,7 @@ flowchart LR
   P --> A["獨立投稿管理服務<br/>Cloudflare Worker"]
   U --> A
   A --> D[("D1<br/>公開題目／版本／單元設定")]
-  A --> R[("R2<br/>投稿題圖")]
+  A --> I[("D1 image_objects<br/>投稿題圖")]
 ```
 
 程式模組、資料流、權限與部署邊界見 [系統架構文件](docs/architecture.md)。原始碼不含正式資料庫、管理帳密、瀏覽器私人學習紀錄或全部投稿圖片；複製此 Repository 不會複製線上完整狀態。
@@ -58,6 +58,8 @@ flowchart LR
 下載專案並保留 `assets/`，在專案目錄執行 `python -m http.server 8000`，再開啟 `http://localhost:8000/`。投稿與管理功能使用上方的線上服務入口。
 
 前端使用 HTML、CSS 與 JavaScript；開發時執行 `npm ci` 安裝套件，`npm test` 執行前端測試。網站題庫快照不包含管理帳號或私人修改歷史，最新公開題庫仍以線上同步資料為準。
+
+2026-11-17 投稿服務移至站主自己的 Cloudflare，不再依賴 ChatGPT Sites 帳號。未啟用 R2 訂閱；部署與資料備份流程見 [Cloudflare 移植說明](contribution-service/CLOUDFLARE-MIGRATION.md)。
 
 ## 維護文件
 
