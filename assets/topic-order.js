@@ -43,7 +43,7 @@
  };
  const cache=new WeakMap(),views=new WeakMap();
  function topic(question,course,unit){
-  const key=course+'/'+unit,raw=String((course==='os'&&unit==='synchronization'?window.courseExplanationContent?.category(question):null)??question.category??'').trim(),stem=String(question.stem??question.q??'');
+  const key=course+'/'+unit,raw=String((course==='os'&&['synchronization','L9'].includes(unit)?window.courseExplanationContent?.category(question):null)??question.category??'').trim(),stem=String(question.stem??question.q??'');
   const old=cache.get(question);if(old?.key===key&&old.raw===raw&&old.stem===stem)return old.result;
   const names=catalogs[key]??[],alias=aliases[key]?.[raw];let label=alias||raw;
   if(!alias&&generic.has(raw)){
