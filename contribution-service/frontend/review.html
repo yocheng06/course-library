@@ -55,6 +55,7 @@
         <div id="managementTabs" class="management-toolbar panel">
           <nav id="managementNav" class="management-tabs" aria-label="管理清單">
             <button type="button" class="button secondary" data-view="all" aria-current="false">全部題目 <span class="count-badge" data-count="all">—</span></button>
+            <button type="button" class="button secondary" data-view="pending" aria-current="false">待核對 <span class="count-badge" data-count="pending">—</span></button>
             <button type="button" class="button secondary" data-view="modified" aria-current="page">最近修改 <span class="count-badge" data-count="modified">—</span></button>
             <button type="button" class="button secondary" data-view="deleted" aria-current="false">已移除 <span class="count-badge" data-count="deleted">—</span></button>
             <button type="button" class="button secondary" data-view="units" aria-current="false">管理單元</button>
@@ -63,7 +64,6 @@
           <details class="management-tools">
             <summary class="text-button">管理工具</summary>
             <div class="management-tool-menu">
-            <button type="button" class="button secondary" data-view="pending" aria-current="false">待核對 <span class="count-badge" data-count="pending">—</span></button>
             <button type="button" class="button secondary" data-view="health" aria-current="false">題庫健檢</button>
               <button type="button" class="text-button" id="exportQuestionDrafts">下載題目編輯草稿</button>
               <button type="button" class="text-button" id="exportImportDrafts">下載匯入紀錄草稿</button>
@@ -86,7 +86,7 @@
 
     <dialog id="questionDialog" class="question-dialog" aria-labelledby="questionDialogTitle"></dialog>
     <script src="assets/contributions-config.js?v=orange06-20261118"></script>
-    <script type="module" src="assets/contributions-review.js?v=menu-position-20261118"></script>
+    <script type="module" src="assets/contributions-review.js?v=pending-tab-20261118"></script>
     <noscript>請開啟 JavaScript 使用題庫管理功能。</noscript>
   </body>
 </html>
