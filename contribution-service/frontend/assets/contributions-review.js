@@ -50,8 +50,7 @@ function showLogin(session) {
   $('passwordSetupForm').hidden = !canSetUp;
   $('setupCodeField').hidden = !session.canUseSetupCode;
   $('setupCode').required = session.canUseSetupCode;
-  $('credentialAccess').hidden = session.canUseSetupCode ||
-    (session.canManageCredentials && canSetUp);
+  $('credentialAccess').hidden = !session.canManageCredentials;
   if (session.canUseSetupCode) {
     $('loginTitle').textContent = session.accountConfigured ? '設定或重設管理者帳號' : '首次設定管理者帳號';
     $('loginHint').textContent = '輸入一次性設定碼並設定帳號密碼；設定碼使用後就會失效。之後登入只需帳號密碼。';
