@@ -91,3 +91,22 @@ test('local deletion notification is sent only after a successful server respons
   else assert.match(ui.document.querySelector('[data-status]').textContent,/未能刪除/);
  }
 });
+
+test('question notes are visible and editable for both built-in and imported questions, including explicit clearing',async()=>{
+ for(const course of ['os','algorithms'])for(const imported of [false,true]){
+  const id=imported?'community-11111111-1111-4111-8111-111111111111-1':'sample-1';
+  const server={id,unit:'L2',unitTitle:'',revision:2,sourceHash:'hash',question:{...question,note:'原有題目備註'}};
+  for(const next of ['修改後的備註','']){
+   const ui=await page({id,course,server});
+   const input=ui.form.elements.questionNote;
+   assert.equal(input.value,'原有題目備註');
+   assert.equal(Boolean(input.closest('[data-builtin-fields]')),false);
+   input.value=next;ui.fire(ui.form,'input');await ui.open();
+   assert.equal(ui.form.elements.questionNote.value,next);
+   ui.fire(ui.form,'submit');await tick();
+   const body=JSON.parse(ui.requests.find(r=>r.opts.method==='POST').opts.body);
+   assert.equal((imported?body.payload.questions[0]:body.question).note,next);
+   assert.equal(body.note,'');
+  }
+ }
+});

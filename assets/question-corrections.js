@@ -19,10 +19,10 @@
         <label>正確答案<textarea name="answer" required maxlength="4000" rows="2"></textarea></label>
         <label data-answer-state><input name="answerProvided" type="checkbox">本題已有確定答案</label>
         <label>解析（選填）<textarea name="explanation" maxlength="16000" rows="4"></textarea></label>
-        <details data-builtin-fields><summary>翻譯與題目備註（選填）</summary>
+        <label>題目備註（選填；清空並儲存即可刪除）<textarea name="questionNote" maxlength="4000" rows="3" placeholder="補充題目條件、提醒或其他說明"></textarea></label>
+        <details data-builtin-fields><summary>翻譯（選填）</summary>
           <label>題目翻譯<textarea name="translation" maxlength="10000" rows="3"></textarea></label>
           <label>選項翻譯（依選項順序，每行一個）<textarea name="optionTranslations" maxlength="16000" rows="4"></textarea></label>
-          <label>題目備註<textarea name="questionNote" maxlength="4000" rows="2"></textarea></label>
         </details>
         <label>修正說明（選填）<textarea name="note" maxlength="2000" rows="2" placeholder="簡短說明修正原因或參考來源"></textarea></label>
       </div>
@@ -192,6 +192,7 @@
         answer: form.elements.answer.value,
         explanation: form.elements.explanation.value,
         images: old.images || [],
+        note: form.elements.questionNote.value,
       }],
     };
     return api('/api/community/questions/' + encodeURIComponent(active), {

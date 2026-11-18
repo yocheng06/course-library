@@ -56,7 +56,7 @@
       const question = { ...original };
       if (meta.category && (!original.category || ['HTML 匯入', '作業系統基礎', '作業系統架構'].includes(original.category))) question.category = meta.category;
       if (!String(original.explanation || '').trim() && String(meta.explanation || '').trim()) question.explanation = meta.explanation;
-      if (!String(original.note || '').trim() && String(meta.note || '').trim()) question.note = meta.note;
+      if (!Object.hasOwn(original, 'note') && String(meta.note || '').trim()) question.note = meta.note;
       if (meta.clearSubmissionReview === true) delete question.submissionReview;
       return { ...row, question };
     });
@@ -68,7 +68,7 @@
       const question = { ...original };
       if (meta.category && (!original.category || original.category === 'HTML 匯入' || original.category === '作業系統基礎')) question.category = meta.category;
       if (!String(original.explanation || '').trim() && String(meta.explanation || '').trim()) question.explanation = meta.explanation;
-      if (!String(original.note || '').trim() && String(meta.note || '').trim()) question.note = meta.note;
+      if (!Object.hasOwn(original, 'note') && String(meta.note || '').trim()) question.note = meta.note;
       if (meta.clearSubmissionReview === true) delete question.submissionReview;
       return { ...row, question };
     });
@@ -80,7 +80,7 @@
       const question = { ...original };
       if (meta.category && (!original.category || ['HTML 匯入', '程序與 IPC'].includes(original.category))) question.category = meta.category;
       if (!String(original.explanation || '').trim() && String(meta.explanation || '').trim()) question.explanation = meta.explanation;
-      if (!String(original.note || '').trim() && String(meta.note || '').trim()) question.note = meta.note;
+      if (!Object.hasOwn(original, 'note') && String(meta.note || '').trim()) question.note = meta.note;
       if (meta.clearSubmissionReview === true) delete question.submissionReview;
       return { ...row, question };
     });
@@ -92,7 +92,7 @@
       const question = { ...original };
       if (meta.category && (!original.category || original.category === '執行緒與多執行緒')) question.category = meta.category;
       if (!String(original.explanation || '').trim() && String(meta.explanation || '').trim()) question.explanation = meta.explanation;
-      if (!String(original.note || '').trim() && String(meta.note || '').trim()) question.note = meta.note;
+      if (!Object.hasOwn(original, 'note') && String(meta.note || '').trim()) question.note = meta.note;
       if (meta.clearSubmissionReview === true) delete question.submissionReview;
       return { ...row, question };
     });
@@ -128,7 +128,6 @@
       if (row?.unit !== 'L9' || !row.question || aliases.has(row.question.id)) return;
       const original = row.question;
       const question = { ...original, stem: cleanHeading(original.stem) };
-      delete question.note;
       if (curation?.unit) {
         question.unitTitle = curation.unit.title;
         question.unitEn = curation.unit.en;
