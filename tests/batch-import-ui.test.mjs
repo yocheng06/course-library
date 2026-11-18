@@ -8,6 +8,11 @@ import { toLibraryQuestion } from "../assets/batch-model.mjs";
 
 const html = await readFile(new URL("../batch.html", import.meta.url), "utf8");
 const tick = () => new Promise((resolve) => setImmediate(resolve));
+// Image hashing runs outside the JS event loop; count elapsed time, not empty turns.
+async function waitForImageResult(ready) {
+  const deadline=Date.now()+3000;
+  while(!ready()&&Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,10));
+}
 const file = (name, raw) => ({
   name,
   size: Buffer.byteLength(raw),
@@ -75,7 +80,7 @@ test('image-folder selection passes verified image identity through preview, app
   assert.match(ui.$('importStatus').textContent,/已選取 1 個圖片檔/);
   const raw='<form id="challenge-quiz-form"><div class="question-block group-block"><div class="group-stem"><img src="quiz_files/chart.png"></div><div class="sub-question-block"><p class="question-text">1. 計算結果<input type="text" class="text-answer"></p></div></div></form>';
   await ui.choose([file('quiz.html',raw)]);
-  for(let i=0;i<50 && ui.$('importPreview').hidden;i++)await tick();
+  await waitForImageResult(()=>!ui.$('importPreview').hidden);
   assert.equal(ui.$('importPreview').hidden,false);
   assert.match(ui.$('importList').textContent,/已讀取題圖 1 張/);
   ui.fire('applyImport','click');
@@ -390,7 +395,7 @@ test('missing image prompt appears only when needed; selecting images retries wi
  const data=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jG3sAAAAASUVORK5CYII=','base64');
  ui.$('batchImageFolder').files=[{name:'chart.png',size:data.length,arrayBuffer:async()=>Uint8Array.from(data).buffer}];
  ui.fire('batchImageFolder','change');
- for(let i=0;i<60 && changes<2;i++)await tick();
+ await waitForImageResult(()=>changes>=2);
  assert.equal(changes,2);assert.equal(saved.length,1);assert.equal(saved[0].imageHashes[0].length,64);
  assert.equal(ui.$('batchImageHelp').hidden,true);
 });
