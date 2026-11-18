@@ -24,6 +24,7 @@ const paths = [
   "assets/topic-order.js",
   "assets/question-comparison.mjs",
   "assets/library-health.mjs",
+  "assets/explanation-quality.mjs",
   "assets/library-manager.mjs",
   "assets/unit-manager.mjs",
   "assets/system-backup.mjs",

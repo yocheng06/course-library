@@ -41,3 +41,6 @@ html[data-theme="dark"] .button.danger:not(.secondary):not(:disabled):hover { ba
 .management-tools[data-open-up] .management-tool-menu{top:auto;bottom:calc(100% + 8px)}
 .management-tool-menu .text-button{min-height:40px;padding:8px 10px}
 .management-tool-menu .muted{margin:4px 0;font-size:12px}
+
+/* Explanation review remains readable on narrow screens and in both themes. */
+.health-explanation pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;color:inherit;background:var(--soft);padding:12px;border-radius:8px;max-height:360px;overflow:auto}

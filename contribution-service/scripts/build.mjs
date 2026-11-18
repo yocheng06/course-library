@@ -102,6 +102,7 @@ const paths = [
   "assets/topic-order.js",
   "assets/question-comparison.mjs",
   "assets/library-health.mjs",
+  "assets/explanation-quality.mjs",
   "assets/corrections-review.mjs",
   "assets/builtin-review.mjs",
   "assets/learning-enhancements.css",
