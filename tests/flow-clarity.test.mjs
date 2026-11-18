@@ -35,7 +35,7 @@ test('sync differences count replacements and edits even when the total stays th
 });
 
 async function themePage(href, storage=store()) {
-  const {window,document}=parseHTML('<html><head></head><body><header class="heading"></header><a id="service" href="https://course-library-submissions.a0972711837.workers.dev/submit.html?course=os#pendingHeading">投稿</a><a id="other" href="https://example.org/">外站</a><a id="hash" href="#main">跳至內容</a><a id="download" download href="backup.json">下載</a></body></html>');
+  const {window,document}=parseHTML('<html><head></head><body><header class="heading"></header><a id="service" href="https://course-library-submissions.orange06.workers.dev/submit.html?course=os#pendingHeading">投稿</a><a id="other" href="https://example.org/">外站</a><a id="hash" href="#main">跳至內容</a><a id="download" download href="backup.json">下載</a></body></html>');
   const location=new URL(href);
   const context=vm.createContext({window,document,URL,location,localStorage:storage,history:{state:null,replaceState(state,unused,url){location.href=url;}}});
   vm.runInContext(await read('assets/theme.js'),context);

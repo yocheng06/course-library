@@ -40,6 +40,6 @@ test('GitHub submission frontend matches the service while its review page remai
   for (const path of ['submit.html','assets/contributions-submit.js','assets/contributions-review.js','assets/contributions-ui.js']) {
     assert.equal(await read(path), await read('contribution-service/frontend/' + path), path);
   }
-  assert.match(await read('review.html'), /course-library-submissions\.a0972711837\.workers\.dev\/review/);
+  assert.match(await read('review.html'), /course-library-submissions\.orange06\.workers\.dev\/review/);
   assert.match(await read('contribution-service/frontend/review.html'), /id="passwordLoginForm"/);
 });

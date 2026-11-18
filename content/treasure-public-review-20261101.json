@@ -22,7 +22,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/0-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/0-0",
             "alt": "下圖為使用 FIFO CPU 排程演算法的排程結果\n\n請回答以下問題\n\n請問平均等待時間(waiting time)是多少"
           }
         ],
@@ -161,7 +161,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/15-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/15-0",
             "alt": "假設有行程 A~E。其CPU時間、到達時間如下\n\n若可搶先(preemptive)使用SJF排程法時，平均迴轉(turnaround)時間為 ____________ ms (格式為浮點入如 1.0)"
           }
         ],
@@ -252,7 +252,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/1-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/1-0",
             "alt": "下圖為使用 FIFO CPU 排程演算法的排程結果\n\n請回答以下問題\n\n關於每一個行程的等待時間 選出正確的"
           }
         ],
@@ -337,7 +337,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/22-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/22-0",
             "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n在不可搶先(nonpreemptive)的情況下使用FCFS，在第一個行程載入之後，OS共執行了幾次 context switch? ____________"
           }
         ],
@@ -362,7 +362,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/23-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/23-0",
             "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，SJF 的平均迴轉(turnaround)時間 是多少ms ____________ (請用浮點數表示 如 1.2)"
           }
         ],
@@ -387,7 +387,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/24-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/24-0",
             "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，SJF 的平均等待(waiting)時間 是多少ms ____________ (請用浮點數表示 如 1.2)"
           }
         ],
@@ -412,7 +412,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/25-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/310b2ef0-f0cc-4f7a-a5ad-86421a1227f6/25-0",
             "alt": "已知有以下的四個行程 還有他們的到達時間與 cpu 運算需求\n\n若採用SJF 可搶先(preemptive) 請問行程安排的順序是? ____________ 格式 : P2_P3_P1_P4"
           }
         ],
@@ -611,7 +611,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/9-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/9-0",
             "alt": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\nP1 P2 P3 P4 排完之後 每個行程產生的不連續處理區塊數量分別是多少？ ____________ *答案格式範例:1,2,3,4 格式錯誤不給分"
           }
         ],
@@ -786,7 +786,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/1-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/1-0",
             "alt": "行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若使用 SJF排程法時，且不可搶先(non-preemptive)，平均迴轉時間為何? ____________ 格式: 1.0"
           }
         ],
@@ -811,7 +811,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/2-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/2-0",
             "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，FCFS 的平均迴轉(turnaround)時間 是多少ms ____________ (請用浮點數表示 如 1.2)"
           }
         ],
@@ -836,7 +836,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/3-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/3-0",
             "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，FCFS 的平均等待(waiting)時間 是多少ms ____________ (請用浮點數表示 如 1.2)"
           }
         ],
@@ -861,7 +861,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/4-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/4-0",
             "alt": "假設有行程 A~E。其CPU時間、到達時間如下\n\n若可搶先(preemptive)使用SJF排程法時，第一個行程載入之後，OS進行了幾次內文切換(context switch) ____________"
           }
         ],
@@ -892,7 +892,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/5-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/5-0",
             "alt": "假設有行程 A~E。其CPU時間、到達時間如下\n\n若可搶先(preemptive)使用SJF排程法時，哪一個行程被分成了兩次執行?"
           }
         ],
@@ -917,7 +917,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/6-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/6-0",
             "alt": "已知有以下的四個行程 還有他們的到達時間與 cpu 運算需求\n\n若採用FCFS 可搶先(preemptive) 請問行程安排的順序是? ____________ 格式 : P2_P3_P1_P4"
           }
         ],
@@ -942,7 +942,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/7-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/7-0",
             "alt": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n列出P1,P2,P3,P4, 每一個PROCESS最後完成的時間 ____________ *答案格式範例:5->12->18->20->30 格式錯誤不給分"
           }
         ],
@@ -973,7 +973,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/8-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/31668494-b954-40b4-b0ee-614fffc0d46c/8-0",
             "alt": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n請問其Average turnaround time 為多少(ms)"
           }
         ],
@@ -998,7 +998,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/0-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/0-0",
             "alt": "已知有以下的四個行程 還有他們的到達時間與 cpu 運算需求\n\n若採用SJF 可搶先(preemptive) 請問 平均等待時間是多少 ____________"
           }
         ],
@@ -1029,7 +1029,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/9-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/9-0",
             "alt": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n請問其Average Response time 為多少?(ms)"
           }
         ],
@@ -1054,7 +1054,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/10-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/10-0",
             "alt": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n請寫出全部的行程排程順序 ____________ *答案格式範例:P1->P2->P3->P2->P5->P9 格式錯誤不給分"
           }
         ],
@@ -1103,7 +1103,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/2-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/2-0",
             "alt": "假設有行程 A~E。其CPU BURST 與到達時間如：\n\n行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若可搶先(preemptive)使用SJF排程法時，平均迴轉時間為何? ____________ 格式 : 1.0"
           }
         ],
@@ -1128,7 +1128,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/3-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/3-0",
             "alt": "假設有行程 A~E。其CPU BURST 與到達時間如：\n\n行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若可搶先(preemptive)使用SJF排程法時，平均等待時間為何? ____________ 格式 : 1.0"
           }
         ],
@@ -1153,7 +1153,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/4-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/4-0",
             "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n在不可搶先(nonpreemptive)的情況下使用SJF，在第一個行程載入之後，OS共執行了幾次 context switch? ____________"
           }
         ],
@@ -1178,7 +1178,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/5-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/5-0",
             "alt": "下圖為使用 FIFO CPU 排程演算法的排程結果\n\n請回答以下問題\n\n請問平均回應時間(response time)是多少 ____________ (請填數字)"
           }
         ],
@@ -1208,7 +1208,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/6-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/70c0705f-a1d7-4e2e-b00f-a94d9b435d25/6-0",
             "alt": "下圖為使用 FIFO CPU 排程演算法的排程結果\n\n請回答以下問題\n\n請問平均迴轉時間(turnaround time)是多少"
           }
         ],
@@ -1275,7 +1275,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a/0-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a/0-0",
             "alt": "已知有以下四個PROCESSES 其到達時間與所需的CPU執行時間(ms)\n\nProcess Arrival TimeT Burst Time\n\nP1 0 6\n\nP2 1 5\n\nP3 2 8\n\nP4 3 1\n\n以上行程採用First- Come, First-Served (FCFS) Scheduling\n\n請問其Average waiting time 為多少?(ms)"
           }
         ],
@@ -1390,7 +1390,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a/1-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a/1-0",
             "alt": "行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若使用 SJF排程法時，且不可搶先(non-preemptive)，行程執行的順序為何? ____________ 格式 : ABCDE"
           }
         ],
@@ -1415,7 +1415,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a/2-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a/2-0",
             "alt": "行程 CPU Burst (ms) 到達時間\nA 2 5\nB 3 1\nC 2 4\nD 4 3\nE 6 0\n\n若使用 FCFS排程法時，且不可搶先(non-preemptive)，平均迴轉時間為何? ____________ 格式: 1.0"
           }
         ],
@@ -1464,7 +1464,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a/4-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/c8889cff-484a-4c3e-b8aa-2bb9e2f90d1a/4-0",
             "alt": "假設有行程 A~E。其CPU時間、到達時間如下\n\n若可搶先(preemptive)使用SJF排程法時，平均等待(waiting)時間為 ____________ ms (格式為浮點入如 1.0)"
           }
         ],
@@ -1591,7 +1591,7 @@
         "answerProvided": true,
         "images": [
           {
-            "src": "https://course-library-submissions.a0972711837.workers.dev/api/image/5a83ac61-ae48-436f-9af1-8829ff5c9658/1-0",
+            "src": "https://course-library-submissions.orange06.workers.dev/api/image/5a83ac61-ae48-436f-9af1-8829ff5c9658/1-0",
             "alt": "已知有以下的行程 與其CPU時間 與 到達時間\n\n若在不可搶先(nonpreemptive)的情況下，SJF 的的執行順序為合 ____________ (格式:CDEAB)"
           }
         ],

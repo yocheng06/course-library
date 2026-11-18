@@ -2,7 +2,7 @@
 
 作業系統與演算法課程題庫，提供分單元閱讀、搜尋、遮答練習、單元測驗與答案解析。
 
-**[開啟網站](https://yocheng06.github.io/course-library/)** · [批次查題](https://yocheng06.github.io/course-library/batch.html) · [投稿題庫](https://course-library-submissions.a0972711837.workers.dev/submit.html) · [題庫管理](https://course-library-submissions.a0972711837.workers.dev/review.html)
+**[開啟網站](https://yocheng06.github.io/course-library/)** · [批次查題](https://yocheng06.github.io/course-library/batch.html) · [投稿題庫](https://course-library-submissions.orange06.workers.dev/submit.html) · [題庫管理](https://course-library-submissions.orange06.workers.dev/review.html)
 
 最近正式 Release：**[v1.3.0](https://github.com/yocheng06/course-library/releases/tag/v1.3.0)** · [所有 Releases](https://github.com/yocheng06/course-library/releases) · [本版更新說明](docs/releases/v1.3.0.md)
 

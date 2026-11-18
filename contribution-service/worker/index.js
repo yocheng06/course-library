@@ -2078,6 +2078,7 @@ export default {
     try {
       response = await route(request, env);
     } catch (error) {
+      if(!(error instanceof HttpError)&&new URL(request.url).pathname==='/api/questions')console.error('question_api_failure',error?.name||'Error',String(error?.message||'unknown').slice(0,300));
       response = json(
         {
           error:

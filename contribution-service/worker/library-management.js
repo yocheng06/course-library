@@ -195,13 +195,15 @@ async function publicLibraryEtag(env, course) {
 }
 
 // Unit presentation settings are independent of question IDs and answer revisions.
-const unitSettingsReady=new WeakMap();
+const unitSettingsReady=new WeakSet();
 async function ensureUnitSettings(env){
-  if(!unitSettingsReady.has(env.DB))unitSettingsReady.set(env.DB,(async()=>{
+  // Never retain a request-owned D1 promise for another Worker request.
+  // Concurrent first requests can safely perform these idempotent statements.
+  if(!unitSettingsReady.has(env.DB)){
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS unit_settings (course TEXT PRIMARY KEY, revision INTEGER NOT NULL, data TEXT NOT NULL, updated_at INTEGER NOT NULL)').run();
     await env.DB.prepare('CREATE TABLE IF NOT EXISTS unit_settings_history (id TEXT PRIMARY KEY, course TEXT NOT NULL, revision INTEGER NOT NULL, before_data TEXT NOT NULL, after_data TEXT NOT NULL, actor TEXT NOT NULL, created_at INTEGER NOT NULL)').run();
-  })().catch(error=>{unitSettingsReady.delete(env.DB);throw error;}));
-  await unitSettingsReady.get(env.DB);
+    unitSettingsReady.add(env.DB);
+  }
 }
 async function unitConfiguration(env,course){
   await ensureUnitSettings(env);

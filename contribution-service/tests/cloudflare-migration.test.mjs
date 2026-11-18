@@ -73,3 +73,20 @@ test('Cloudflare service uses its configured origin and cannot trust forged Chat
   const originRejected=await worker.fetch(new Request(origin+'/api/submissions',{method:'POST',headers:{Origin:'https://evil.example'}}),env);assert.equal(originRejected.status,403);
   db.close();
 });
+import {renameSql} from '../scripts/prepare-service-rename.mjs';
+test('service rename changes only image hosting URLs, preserving answers, revisions, image bytes and second-factor state',()=>{
+ const db=new DatabaseSync(':memory:'),from='https://old.example',to='https://new.example';
+ db.exec("CREATE TABLE public_questions(id TEXT,revision INTEGER,data TEXT);CREATE TABLE admin_security(id INTEGER,enabled INTEGER,secret TEXT);CREATE TABLE image_objects(key TEXT,body BLOB);INSERT INTO admin_security VALUES(1,1,'encrypted-secret');INSERT INTO image_objects VALUES('picture',X'0001FF');");
+ const question={stem:'題目 [__1__]',answer:'48',images:[{src:from+'/api/image/id/0-0'}],staticImage:'https://yocheng06.github.io/static.png'};
+ db.prepare('INSERT INTO public_questions VALUES (?,?,?)').run('same-id',7,JSON.stringify(question));
+ const first=renameSql(db,from,to);assert.equal(first.counts['public_questions.data'],1);const row=db.prepare('SELECT * FROM public_questions').get();assert.equal(row.id,'same-id');assert.equal(row.revision,7);assert.deepEqual(JSON.parse(row.data),{...question,images:[{src:to+'/api/image/id/0-0'}]});assert.equal(db.prepare('SELECT enabled,secret FROM admin_security').get().secret,'encrypted-secret');assert.deepEqual([...db.prepare('SELECT body FROM image_objects').get().body],[0,1,255]);
+ assert.equal(renameSql(db,from,to).counts['public_questions.data'],0);db.close();
+});
+test('service rename stops before writing if a teacher answer would change and rejects unsafe target origins',()=>{
+ const db=new DatabaseSync(':memory:');db.exec('CREATE TABLE public_questions(id TEXT,data TEXT)');const original=JSON.stringify({stem:'Which address?',answer:'https://old.example/api/image/id/0-0'});db.prepare('INSERT INTO public_questions VALUES (?,?)').run('same-id',original);
+ assert.throws(()=>renameSql(db,'https://old.example','https://new.example'),/teacher answer/);assert.equal(db.prepare('SELECT data FROM public_questions').get().data,original);assert.throws(()=>renameSql(db,'https://old.example','https://new.example/path'));db.close();
+});
+test('standalone cache revision changes with the hosting origin and stays stable for repeat builds',async()=>{
+ const revision=async host=>{await buildCloudflare(host);return (await readFile(new URL('../dist/cloudflare/app.mjs',import.meta.url),'utf8')).match(/const LIBRARY_BUILD_REVISION="([a-f0-9]{64})";/)[1];};
+ const first=await revision('https://old-cache.example');assert.equal(await revision('https://old-cache.example'),first);assert.notEqual(await revision('https://new-cache.example'),first);
+});

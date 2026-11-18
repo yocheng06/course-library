@@ -1,6 +1,6 @@
 # Cloudflare 移植紀錄（2026-11-17）
 
-主站維持 GitHub Pages，投稿及管理服務改由站主自己的 Cloudflare Workers 提供，網址為 https://course-library-submissions.a0972711837.workers.dev 。題目、版本歷史與投稿題圖保存在 D1；未啟用 R2 訂閱。管理登入使用網站帳號密碼。
+主站維持 GitHub Pages，投稿及管理服務改由站主自己的 Cloudflare Workers 提供，網址為 https://course-library-submissions.orange06.workers.dev 。題目、版本歷史與投稿題圖保存在 D1；未啟用 R2 訂閱。管理登入使用網站帳號密碼。
 
 ## 資料與驗證
 

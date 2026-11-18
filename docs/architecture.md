@@ -10,7 +10,7 @@
 | 獨立投稿／管理服務 | `contribution-service/frontend/`、`worker/` | 投稿、編輯、可復原刪除、管理登入、歷史、題庫健檢、單元設定與題圖 API |
 | 服務位址設定 | `assets/contributions-config.js` | 主站使用的公開 API origin；不放登入憑證 |
 
-主站：[GitHub Pages](https://yocheng06.github.io/course-library/)。獨立服務：[投稿](https://course-library-submissions.a0972711837.workers.dev/submit.html)、[管理](https://course-library-submissions.a0972711837.workers.dev/review.html)。主站 `review.html` 導向服務；服務版管理介面由服務自身維護。
+主站：[GitHub Pages](https://yocheng06.github.io/course-library/)。獨立服務：[投稿](https://course-library-submissions.orange06.workers.dev/submit.html)、[管理](https://course-library-submissions.orange06.workers.dev/review.html)。主站 `review.html` 導向服務；服務版管理介面由服務自身維護。
 
 ## 2. 從題庫到畫面的資料流
 

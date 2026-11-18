@@ -1,6 +1,7 @@
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {createHash} from 'node:crypto';
 import {compactWorkerData} from './compact-worker-data.mjs';
 export const legacyOrigin='https://course-library-submissions-yocheng06.yocheng06.chatgpt.site';
 export function serviceOrigin(value){
@@ -12,10 +13,15 @@ export async function buildCloudflare(origin){
   origin=serviceOrigin(origin);
   const root=resolve(import.meta.dirname,'..'),out=resolve(root,'dist/cloudflare');
   await mkdir(out,{recursive:true});
-  const source=await readFile(resolve(root,'dist/server/index.js'),'utf8');
+  let source=await readFile(resolve(root,'dist/server/index.js'),'utf8');
   if(!source.includes(legacyOrigin))throw Error('找不到原服務網址，停止產生部署檔。');
   const config=await readFile(resolve(root,'frontend/assets/contributions-config.js'),'utf8');
   const configuredOrigin=serviceOrigin(config.match(/apiOrigin:\s*"([^"]+)"/)?.[1]);
+  // A hostname change must invalidate ETags even when teacher content and
+  // question revisions are unchanged, otherwise cached image URLs survive.
+  const revision=/const LIBRARY_BUILD_REVISION="([a-f0-9]{64})";/.exec(source);
+  if(!revision)throw Error('Missing library cache revision');
+  source=source.replace(revision[0],'const LIBRARY_BUILD_REVISION='+JSON.stringify(createHash('sha256').update(revision[1]+':'+origin).digest('hex'))+';');
   await writeFile(resolve(out,'app.mjs'),compactWorkerData(source.replaceAll(legacyOrigin,origin).replaceAll(configuredOrigin,origin)));
   await writeFile(resolve(out,'d1-image-store.mjs'),await readFile(resolve(root,'worker/d1-image-store.mjs'),'utf8'));
   // ChatGPT injected identity headers have no trustworthy issuer on a public
