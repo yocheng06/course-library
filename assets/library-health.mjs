@@ -1,4 +1,3 @@
-import {inspectExplanation,EXPLANATION_ISSUES} from './explanation-quality.mjs?v=explanation-quality-20261118';
 import {canonicalQuestion,comparisonMarkup} from './question-comparison.mjs?v=workflow-improvements-20261102';
 import {api,esc} from './contributions-ui.js?v=treasure-unit-20261030';
 import {COURSE_UNITS,unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
@@ -13,50 +12,38 @@ export function analyzeLibrary(items) {
   }
   return items.filter(i=>!i.deleted).map(item=>{
     const q=canonicalQuestion(item.question),issues=[];q.explanation=item.effectiveExplanation??q.explanation;
-    const explanation=inspectExplanation(q,q.explanation);issues.push(...explanation.issues);
+    if(!q.explanation.trim()||/^(?:原始題庫尚未提供本題詳細解析[。.]?|尚未提供解析[。.]?)$/.test(q.explanation.trim()))issues.push('缺解析');
     if(!q.answer.trim()||item.question.answerProvided===false)issues.push('缺答案');
     else if(q.options.length && !(globalThis.courseChoiceAnswers||globalThis.window?.courseChoiceAnswers).expectedChoiceKey(q.answer,q.options))issues.push('答案無法對應選項');
     const duplicates=[...new Map(keys(item).flatMap(key=>groups.get(key)||[]).filter(other=>other.id!==item.id).map(other=>[other.id,other])).values()];
     if(duplicates.length)issues.push('疑似重複');
-    return {...item,issues,explanationIssues:explanation.issues,explanationPreview:explanation.text,duplicates:duplicates.map(i=>i.id)};
+    return {...item,issues,duplicates:duplicates.map(i=>i.id)};
   });
 }
 
 export function setupLibraryHealth({container,openItem,onChanged=()=>{}}) {
-  let rows=[],visible=25,stamp=0,loadedCourse='',imageResults=new Map(),checking=false,complete=true,mode='all',invalidated=false;
-  container.innerHTML=`<div class="library-heading"><div><h2 data-health-heading>題庫健檢</h2><p data-health-description>只檢查資料完整性與版本差異，不判定老師答案對錯、不自動刪題。疑似重複可能是不同選項版本。</p></div><button type="button" class="button secondary" data-health-refresh>重新檢查題庫</button></div><div class="library-filters"><label>科目<select data-health-course>${Object.entries(COURSE_UNITS).map(([id,c])=>`<option value="${id}">${esc(c.name)}</option>`).join('')}</select></label><label>單元<select data-health-unit><option value="">全部單元</option></select></label><label>問題類型<select data-health-filter><option value="all">全部問題</option>${[...EXPLANATION_ISSUES,'缺答案','答案無法對應選項','疑似重複','圖片無法確認'].map(n=>`<option>${n}</option>`).join('')}</select></label><button type="button" class="button secondary" data-health-images>檢查題圖連結</button><button type="button" class="button secondary" data-health-stop hidden>停止檢查圖片</button></div><div class="library-selection-tools" data-health-quality-counts aria-label="解析品質分類"></div><p class="muted">檢查採文字規則，可能漏判或誤判；「只寫答案」未說明理由，「使用選項代號」在選項換序後可能造成誤解。請查看原題與解析再修改，系統不會自行更動內容。</p><p data-health-status role="status" aria-live="polite"></p><div data-health-rows></div><button type="button" class="button secondary" data-health-more hidden>載入更多</button>`;
+  let rows=[],visible=25,stamp=0,loadedCourse='',imageResults=new Map(),checking=false,complete=true;
+  container.innerHTML=`<div class="library-heading"><div><h2>題庫健檢</h2><p>只檢查資料完整性與版本差異，不判定老師答案對錯、不自動刪題。疑似重複可能是不同選項版本。</p></div><button type="button" class="button secondary" data-health-refresh>重新檢查題庫</button></div><div class="library-filters"><label>科目<select data-health-course>${Object.entries(COURSE_UNITS).map(([id,c])=>`<option value="${id}">${esc(c.name)}</option>`).join('')}</select></label><label>單元<select data-health-unit><option value="">全部單元</option></select></label><label>問題類型<select data-health-filter><option value="all">全部問題</option>${['缺解析','缺答案','答案無法對應選項','疑似重複','圖片無法確認'].map(n=>`<option>${n}</option>`).join('')}</select></label><button type="button" class="button secondary" data-health-images>檢查題圖連結</button><button type="button" class="button secondary" data-health-stop hidden>停止檢查圖片</button></div><p data-health-status role="status" aria-live="polite"></p><div data-health-rows></div><button type="button" class="button secondary" data-health-more hidden>載入更多</button>`;
   const $=sel=>container.querySelector(sel);
-  function scoped(){return rows.filter(r=>(mode!=='explanations'||r.explanationIssues.length)&&(!$('[data-health-unit]').value||r.unit===$('[data-health-unit]').value));}
-  function matching(){return scoped().filter(r=>(r.issues.length||imageResults.get(r.id)==='無法確認')).filter(r=>$('[data-health-filter]').value==='all'||($('[data-health-filter]').value==='圖片無法確認'?imageResults.get(r.id)==='無法確認':r.issues.includes($('[data-health-filter]').value)));}
+  function matching(){return rows.filter(r=>(!$('[data-health-unit]').value||r.unit===$('[data-health-unit]').value)&&(r.issues.length||imageResults.get(r.id)==='無法確認')).filter(r=>$('[data-health-filter]').value==='all'||($('[data-health-filter]').value==='圖片無法確認'?imageResults.get(r.id)==='無法確認':r.issues.includes($('[data-health-filter]').value)));}
   function render(){
-    const list=matching(),scope=scoped();
-    $('[data-health-quality-counts]').innerHTML=EXPLANATION_ISSUES.map(issue=>`<button type="button" class="button secondary" data-health-quality="${esc(issue)}" aria-pressed="${$('[data-health-filter]').value===issue}">${esc(issue)} ${scope.filter(row=>row.explanationIssues.includes(issue)).length} 題</button>`).join('');
-    $('[data-health-rows]').innerHTML=list.slice(0,visible).map(row=>`<article class="health-card" data-health-row="${esc(row.id)}"><h3>${esc(row.question.stem??row.question.q)}</h3><p>${esc(unitLabel(row.course,row.unit,row.unitTitle))} · ${esc(row.id)} · ${esc((mode==='explanations'?row.explanationIssues:row.issues).join('、'))}${imageResults.has(row.id)?' · 題圖：'+esc(imageResults.get(row.id)):''}</p><button type="button" class="button secondary" data-health-edit="${esc(row.id)}">編輯此題</button>${row.explanationIssues.length?`<details class="health-explanation"><summary>查看解析與檢查原因</summary><p>${esc(row.explanationIssues.join('、'))}；請確認是否已說明原因，並改用選項內容描述。</p><pre>${esc(row.explanationPreview||'（尚未提供解析）')}</pre></details>`:''}${mode!=='explanations'&&row.duplicates.length?`<details><summary>並排比較疑似重複版本（${row.duplicates.length}）</summary><label>對照題目<select data-health-compare="${esc(row.id)}"><option value="">選擇對照版本</option>${row.duplicates.map(id=>`<option value="${esc(id)}">${esc(id)}</option>`).join('')}</select></label><button type="button" class="button secondary" data-health-edit-target="${esc(row.id)}">編輯對照題</button><p>兩個版本目前都保留。若確定要移除其中一題，請進入該題編輯器；移除後仍可在「已移除」還原。</p><div data-health-comparison></div><div class="actions"><button type="button" class="button secondary" data-health-remove-other="${esc(row.id)}">保留本題、移除對照題</button><button type="button" class="button secondary" data-health-remove-this="${esc(row.id)}">保留對照題、移除本題</button></div></details>`:''}</article>`).join('')||'<p>目前篩選範圍沒有符合的問題。題圖需另外執行連結檢查。</p>';
+    const list=matching();
+    $('[data-health-rows]').innerHTML=list.slice(0,visible).map(row=>`<article class="health-card" data-health-row="${esc(row.id)}"><h3>${esc(row.question.stem??row.question.q)}</h3><p>${esc(unitLabel(row.course,row.unit,row.unitTitle))} · ${esc(row.id)} · ${esc(row.issues.join('、'))}${imageResults.has(row.id)?' · 題圖：'+esc(imageResults.get(row.id)):''}</p><button type="button" class="button secondary" data-health-edit="${esc(row.id)}">編輯此題</button>${row.duplicates.length?`<details><summary>並排比較疑似重複版本（${row.duplicates.length}）</summary><label>對照題目<select data-health-compare="${esc(row.id)}"><option value="">選擇對照版本</option>${row.duplicates.map(id=>`<option value="${esc(id)}">${esc(id)}</option>`).join('')}</select></label><button type="button" class="button secondary" data-health-edit-target="${esc(row.id)}">編輯對照題</button><p>兩個版本目前都保留。若確定要移除其中一題，請進入該題編輯器；移除後仍可在「已移除」還原。</p><div data-health-comparison></div><div class="actions"><button type="button" class="button secondary" data-health-remove-other="${esc(row.id)}">保留本題、移除對照題</button><button type="button" class="button secondary" data-health-remove-this="${esc(row.id)}">保留對照題、移除本題</button></div></details>`:''}</article>`).join('')||'<p>目前篩選範圍沒有符合的問題。題圖需另外執行連結檢查。</p>';
     $('[data-health-more]').hidden=list.length<=visible;
-    const counts=(mode==='explanations'?EXPLANATION_ISSUES:[...EXPLANATION_ISSUES,'缺答案','答案無法對應選項','疑似重複']).map(issue=>issue+' '+scope.filter(r=>r.issues.includes(issue)).length+' 題').join(' · ');
+    const counts=['缺解析','缺答案','答案無法對應選項','疑似重複'].map(issue=>issue+' '+rows.filter(r=>r.issues.includes(issue)).length+' 題').join(' · ');
     $('[data-health-stop]').hidden=!checking;
     $('[data-health-status]').textContent=`${complete?'':'題目超過單次上限，目前只顯示部分投稿。'}已檢查 ${rows.length} 題 · ${counts}。本篩選符合 ${list.length} 題，顯示 ${Math.min(visible,list.length)} 題。題圖已檢查 ${imageResults.size} 題、無法確認 ${[...imageResults.values()].filter(v=>v==='無法確認').length} 題${checking?'（檢查中）':''}。`;
-    if(mode==='explanations')$('[data-health-status]').textContent=$('[data-health-status]').textContent.split('題圖已檢查')[0];
   }
-  async function show({refresh=false,mode:nextMode=mode}={}){
-    const changed=mode!==nextMode;mode=nextMode;
-    $('[data-health-heading]').textContent=mode==='explanations'?'解析檢查':'題庫健檢';
-    $('[data-health-description]').textContent=mode==='explanations'?'依科目與單元找出需要補充或調整的解析；不判定老師答案對錯，也不會自動改題。':'只檢查資料完整性與版本差異，不判定老師答案對錯、不自動刪題。疑似重複可能是不同選項版本。';
-    const selectedFilter=$('[data-health-filter]').value;
-    const filters=mode==='explanations'?EXPLANATION_ISSUES:[...EXPLANATION_ISSUES,'缺答案','答案無法對應選項','疑似重複','圖片無法確認'];
-    $('[data-health-filter]').innerHTML='<option value="all">全部問題</option>'+filters.map(issue=>`<option>${esc(issue)}</option>`).join('');
-    if(filters.includes(selectedFilter))$('[data-health-filter]').value=selectedFilter;
-    if(changed){$('[data-health-filter]').value='all';visible=25;}
-    $('[data-health-images]').hidden=mode==='explanations';
-    const course=$('[data-health-course]').value,selectedUnit=loadedCourse===course?$('[data-health-unit]').value:'';
-    if(!refresh&&!invalidated&&loadedCourse===course){render();return;}
+  async function show({refresh=false}={}){
+    const course=$('[data-health-course]').value;
+    if(!refresh&&loadedCourse===course){render();return;}
     const request=++stamp;checking=false;$('[data-health-images]').disabled=false;
     $('[data-health-status]').textContent='正在檢查最新題庫；原有清單仍可查看…';$('[data-health-refresh]').disabled=true;
     try{
       const data=await api('/api/manage/health?course='+encodeURIComponent(course));if(request!==stamp)return;
-      rows=analyzeLibrary(data.items);complete=data.complete!==false;loadedCourse=course;invalidated=false;imageResults.clear();visible=25;
+      rows=analyzeLibrary(data.items);complete=data.complete!==false;loadedCourse=course;imageResults.clear();visible=25;
       const units=[...new Map(rows.map(r=>[r.unit,r.unitTitle||''])).entries()];
-      $('[data-health-unit]').innerHTML='<option value="">全部單元</option>'+units.map(([id,title])=>`<option value="${esc(id)}">${esc(unitLabel(course,id,title))}</option>`).join('');if(units.some(([id])=>id===selectedUnit))$('[data-health-unit]').value=selectedUnit;render();
+      $('[data-health-unit]').innerHTML='<option value="">全部單元</option>'+units.map(([id,title])=>`<option value="${esc(id)}">${esc(unitLabel(course,id,title))}</option>`).join('');render();
     }catch(error){if(request===stamp)$('[data-health-status]').textContent='檢查未完成：'+error.message+'。已載入的清單仍保留，可按重新檢查重試。';}
     finally{if(request===stamp)$('[data-health-refresh]').disabled=false;}
   }
@@ -79,7 +66,6 @@ export function setupLibraryHealth({container,openItem,onChanged=()=>{}}) {
     if(event.target.matches('[data-health-unit],[data-health-filter]')){visible=25;render();}
   });
   container.addEventListener('click',event=>{
-    const quality=event.target.closest('[data-health-quality]');if(quality){$('[data-health-filter]').value=quality.dataset.healthQuality;visible=25;render();return;}
     if(event.target.closest('[data-health-stop]')){stamp++;checking=false;$('[data-health-images]').disabled=false;render();return;}
     if(event.target.closest('[data-health-refresh]'))show({refresh:true});
     if(event.target.closest('[data-health-images]'))checkImages();
@@ -94,5 +80,5 @@ export function setupLibraryHealth({container,openItem,onChanged=()=>{}}) {
     const target=event.target.closest('[data-health-edit-target]');if(target){const id=target.closest('details').querySelector('[data-health-compare]').value;const row=rows.find(r=>r.id===id);if(row)openItem(row);else $('[data-health-status]').textContent='請先選擇要編輯的對照版本。';return;}
     const edit=event.target.closest('[data-health-edit]');if(edit)openItem(rows.find(r=>r.id===edit.dataset.healthEdit));
   });
-  return {show,invalidate(){invalidated=true;},clear(){stamp++;loadedCourse='';rows=[];imageResults.clear();container.replaceChildren();}};
+  return {show,invalidate(){loadedCourse='';},clear(){stamp++;rows=[];imageResults.clear();container.replaceChildren();}};
 }

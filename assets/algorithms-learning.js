@@ -5,8 +5,12 @@ function applyReviewedExplanations(q){const reviewed=window.courseCountingSort?.
 for(const unit of COURSES)if(unit.id==='L6'||unit.id==='L7')unit.questions=unit.questions.map(applyReviewedExplanations);
 function refreshCourseSummary(deletedIds=new Set()){
  const countQuestions=unit=>unit.questions.filter(q=>!deletedIds.has(q.bookmarkId)).length;
- window.courseQuestionTools.updateCourseSummary('algorithms',COURSES.map(unit=>({id:unit.id,label:`${unit.id} · ${meta[unit.id]?.short||unit.id}`,count:countQuestions(unit)})));
+ const total=COURSES.reduce((sum,unit)=>sum+countQuestions(unit),0);
+ document.querySelector('[data-course-total]').textContent=`${COURSES.length} 個單元 · ${total} 道題目`;
+ document.querySelector('meta[name="description"]').content=`整合演算法課程與${total}道題目，依章節閱讀與練習。可離線使用。`;
+ document.querySelector('[data-course-source-summary]').textContent=`收錄 ${COURSES.length} 份題庫：${COURSES.map(course=>course.id+' '+countQuestions(course)+' 題').join('、')}，共 ${total} 題。L6 相同題意與答案內容已核對合併；選項換序與原始文字保留供查題，不同輸入資料、執行階段與題型分開保留。已提供題庫答案的題目視為正常；選擇題與有標準答案的填空題可自動核對，答錯可重試，答對後顯示解析。`;
 }
+refreshCourseSummary();
 const $=id=>document.getElementById(id);
 const meta={
  L2:{title:'基礎與漸進分析',short:'基礎與漸進分析',en:'ALGORITHM FUNDAMENTALS',sub:'漸進符號 · 函數增長率 · 插入排序與合併排序',guide:'把 n 想成待整理的書本數量：O 看成長速度的上界，Ω 看下界，Θ 表示同階。它們不是「最壞／最好情況」的別名。學排序時，先問採用什麼方法，再比較資料變多後需要多少步驟。'},
@@ -16,7 +20,6 @@ const meta={
  L6:{title:'排序演算法',short:'排序演算法',en:'SORTING ALGORITHMS',sub:'Radix Sort · Bucket Sort · 比較排序下界 · Counting Sort',guide:'計數排序利用有限範圍的鍵值統計次數；桶排序把資料分配到區間；基數排序逐位整理，並需要穩定的子排序。先確認輸入條件，再比較時間與空間成本；決策樹可說明比較排序的下界。'},
  L7:{title:'中位數與順序統計量',short:'中位數與順序統計量',en:'MEDIANS & ORDER STATISTICS',sub:'選擇問題 · 最小與最大值 · Partition · Randomized-Select · Median of Medians',guide:'先確認目標是第幾小的元素，再看分割後要繼續處理哪一側。相同主題的題目依單選、多選、填空排列；本章 60 題已補上解析；答案沿用分享題庫，定義差異、缺少條件或來源答案疑義會在解析中說明。'}
 };
-refreshCourseSummary();
 let lesson='L2',chapter='全部',type='全部',page=1,totalPages=1,mode='study';
 const PAGE_SIZE=10, drafts=new Map(), revealed=new Set(), selections=new Map(), feedback=new Map();
 const practiceSequence=window.courseQuestionTools.createPracticeOrder();
@@ -41,7 +44,7 @@ function refreshFilters(){const entries=scopedEntries();window.courseQuestionToo
 function highlighted(value){return window.courseQuestionTools.highlightSearch(value,$('search').value);}
 function selectedItems(){return scopedEntries().filter(({q,id,unit,topicLabel})=>(!$('hideEnglish').checked||!window.courseQuestionTools.isEnglishOnlyQuestion(q))&&(!window.learningUI?.reviewOnly||window.learningUI.isSaved(id))&&(mode!=='practice'||window.coursePracticeProgress?.includes(id)!==false)&&(chapter==='全部'||(topicLabel??q.category)===chapter)&&(type==='全部'||kind(q)===type)&&($('qualitySelect').value!=='pending'||window.courseQuestionTools.qualityReasons(q,'algorithms').length>0)&&window.courseQuestionTools.matchesSearch(window.courseTopicOrder?.view(q,'algorithms',unit.id)||q, $('search').value));}
 function unitNumber(id){return id.replace(/^L/,'').padStart(2,'0')}
-function setupLesson(preserveCards=false){document.querySelectorAll('.community-course-link').forEach(link=>{link.href=`submit.html?course=algorithms&unit=${encodeURIComponent(lesson)}`;});const c=current(),m=meta[lesson];$('lessonPicker').innerHTML=COURSES.map(item=>`<option value="${item.id}">UNIT ${unitNumber(item.id)} · ${esc(meta[item.id].short)} · ${visibleQuestionCount(item)} 題</option>`).join('');$('lessonPicker').value=lesson;$('crumb').textContent='UNIT '+unitNumber(lesson)+' / '+m.short;$('eyebrow').textContent=m.en;$('lessonTitle').textContent=m.title;$('lessonSub').textContent=m.sub;$('lessonCount').textContent=visibleQuestionCount(c);$('guideText').textContent=m.guide;$('sourceLabel').textContent=`目前單元：${lesson} · ${m.short} · ${visibleQuestionCount(c)} 題`;refreshFilters();
+function setupLesson(preserveCards=false){document.querySelectorAll('.community-course-link').forEach(link=>{link.href=`submit.html?course=algorithms&unit=${encodeURIComponent(lesson)}`;});const c=current(),m=meta[lesson];$('lessonPicker').innerHTML=COURSES.map(item=>`<option value="${item.id}">UNIT ${unitNumber(item.id)} · ${esc(meta[item.id].short)} · ${visibleQuestionCount(item)} 題</option>`).join('');$('lessonPicker').value=lesson;$('crumb').textContent='UNIT '+unitNumber(lesson)+' / '+m.short;$('eyebrow').textContent=m.en;$('lessonTitle').textContent=m.title;$('lessonSub').textContent=m.sub;$('lessonCount').textContent=visibleQuestionCount(c);$('guideText').textContent=m.guide;$('sourceLabel').textContent='目前來源：'+c.source;refreshFilters();
  $('courseMenu').innerHTML=COURSES.map(item=>`<button class="course-nav ${item.id===lesson?'active':''}" data-lesson="${item.id}" aria-pressed="${item.id===lesson}"><span class="course-copy"><span class="unit-number">UNIT ${unitNumber(item.id)}</span><span class="unit-row"><strong>${esc(meta[item.id].short)}</strong><span class="unit-count">${visibleQuestionCount(item)} 題</span></span><small class="unit-en">${esc(meta[item.id].en)}</small></span></button>`).join('');
  $('lessonTabs').innerHTML=COURSES.map(item=>`<button class="lesson-tab ${item.id===lesson?'active':''}" data-lesson="${item.id}" aria-pressed="${item.id===lesson}"><span class="tabtop"><span>${item.id}</span><small>${visibleQuestionCount(item)} 題</small></span><strong>${esc(meta[item.id].short)}</strong></button>`).join('');
  render(preserveCards);}
@@ -167,7 +170,7 @@ window.courseLearning={
   if(!Array.isArray(rows))return;
   const order=new Map(rows.filter(r=>Number.isFinite(r.order)).map(r=>[r.id,r.order]));
   for(const row of rows)if(meta[row.id]&&row.managed&&typeof row.title==='string'){meta[row.id].title=row.title.slice(0,60);meta[row.id].short=row.title.slice(0,60);}
-  COURSES.sort((a,b)=>(order.get(a.id)??Number(a.id.slice(1)))-(order.get(b.id)??Number(b.id.slice(1))));refreshCourseSummary(builtinDeletedIds);setupLesson(true);
+  COURSES.sort((a,b)=>(order.get(a.id)??Number(a.id.slice(1)))-(order.get(b.id)??Number(b.id.slice(1))));setupLesson(true);
  },
  mergeCommunityQuestions,
  unitIds:()=>orderEntries(questionEntries.filter(entry=>entry.unit.id===lesson&&!builtinDeletedIds.has(entry.id))).map(entry=>entry.id),

@@ -2,7 +2,7 @@ import {setupManagementMenu} from './management-menu.mjs?v=menu-position-2026111
 import {setupAdminSecurity} from './admin-security.mjs?v=security-20261118';
 import {setupSystemPanel} from './system-backup.mjs?v=improvements-20261104';
 import {setupUnitManager} from './unit-manager.mjs?v=unit-drag-add-20261103';
-import {setupLibraryHealth} from './library-health.mjs?v=explanation-quality-20261118';
+import {setupLibraryHealth} from './library-health.mjs?v=admin-workflow-20261103';
 import { api, message, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
 import { setupLibraryManager } from './library-manager.mjs?v=bulk-resolve-20261118';
 import { setupImportRecords } from './import-records.mjs?v=treasure-unit-20261030';
@@ -23,12 +23,12 @@ function setActiveView(view) {
   for (const button of document.querySelectorAll('[data-view]')) {
     button.setAttribute('aria-current', button.dataset.view === view ? 'page' : 'false');
   }
-  $('libraryWorkspace').hidden = ['imports','health','explanations','units','system','security'].includes(view);
+  $('libraryWorkspace').hidden = ['imports','health','units','system','security'].includes(view);
   $('systemWorkspace').hidden = view !== 'system';
   $('securityWorkspace').hidden = view !== 'security';
   if(view!=='security')security?.clear();
   $('unitWorkspace').hidden = view !== 'units';
-  $('healthWorkspace').hidden = !['health','explanations'].includes(view);
+  $('healthWorkspace').hidden = view !== 'health';
   $('importWorkspace').hidden = view !== 'imports';
 }
 async function showView(view = currentView, { refresh = false } = {}) {
@@ -37,7 +37,7 @@ async function showView(view = currentView, { refresh = false } = {}) {
   if(view==='security')await security.show();
   else if(view==='system')await system.show();
   else if(view==='units') await units.show({refresh});
-  else if(['health','explanations'].includes(view)) await health.show({refresh,mode:view==='explanations'?'explanations':'all'});
+  else if(view==='health') await health.show({refresh});
   else if (view === 'imports') await imports.show({ refresh });
   else await library.show(view, { refresh });
 }
@@ -91,10 +91,10 @@ async function start() {
       library?.clear();
       imports?.clear();
       userId = session.userId || 'owner';
-      try{const saved=localStorage.getItem('course-library.manager-view.v1.'+userId);if(!requestedSecurity&&['all','modified','deleted','pending','health','explanations','imports','units','system','security'].includes(saved))currentView=saved;}catch{}
+      try{const saved=localStorage.getItem('course-library.manager-view.v1.'+userId);if(!requestedSecurity&&['all','modified','deleted','pending','health','imports','units','system','security'].includes(saved))currentView=saved;}catch{}
       library = setupLibraryManager({
         userId,
-        onChanged: () => { health?.invalidate();if (['health','explanations'].includes(currentView))return health.show({refresh:true});if (imports && currentView === 'imports') return imports.show({ refresh: true }); },
+        onChanged: () => { health?.invalidate();if (currentView==='health')return health.show({refresh:true});if (imports && currentView === 'imports') return imports.show({ refresh: true }); },
       });
       units=setupUnitManager({container:$('unitWorkspace'),onChanged:()=>{library.refresh();health?.invalidate();}});
       security=setupAdminSecurity({container:$('securityWorkspace'),api,message,downloadJSON});
@@ -106,7 +106,7 @@ async function start() {
       });
     }
     await showView(currentView);
-    if(['imports','health','explanations','units','system','security'].includes(currentView))void library.refresh();
+    if(['imports','health','units','system','security'].includes(currentView))void library.refresh();
   } catch (error) {
     $('authStatus').hidden = false;
     $('authStatus').textContent = '無法連線管理服務。請重新整理再試。';

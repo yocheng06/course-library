@@ -148,19 +148,6 @@
     return labels.length ? `<p class="search-match">命中：${labels.map(escape).join('、')}</p>` : '';
   }
 
-  function updateCourseSummary(course, units) {
-    const total=units.reduce((sum,unit)=>sum+unit.count,0);
-    const title=course==='os'?'作業系統':'演算法';
-    const countText=`${units.length} 個單元 · ${total} 道題目`;
-    const header=document.querySelector('[data-course-total]');if(header)header.textContent=countText;
-    const description=document.querySelector('meta[name="description"]');
-    if(description)description.content=`${title}課程題庫，目前載入 ${units.length} 個單元、${total} 題，依單元與主題閱讀、搜尋與練習。`;
-    const summary=document.querySelector('[data-course-source-summary]');
-    if(summary)summary.textContent=`目前載入 ${units.length} 個單元，共 ${total} 題；各單元題數如下，新增、修改或移除題目後會隨題庫同步更新。搜尋與篩選不會改變這裡的課程總題數。`;
-    const list=document.querySelector('[data-course-unit-counts]');
-    if(list)list.innerHTML=units.map(unit=>`<li>${escape(unit.label||unit.id)}：${unit.count} 題</li>`).join('');
-  }
-
   function createPracticeOrder(random = Math.random) {
     let signature = null;
     let indices = [];
@@ -390,5 +377,5 @@
     return /[a-z]/iu.test(text) && !/[\u3400-\u9fff]/u.test(text);
   }
 
-  window.courseQuestionTools = { isEnglishOnlyQuestion, questionType, answerType, questionImagesMarkup, hasProvidedAnswer, optionAnswerKeys, studyOptionMark, updateStudyOptionMarks, updateCourseSummary, matchesSearch, highlightSearch, searchMatchMarkup, createPracticeOrder, createOptionSession, explanationText, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
+  window.courseQuestionTools = { isEnglishOnlyQuestion, questionType, answerType, questionImagesMarkup, hasProvidedAnswer, optionAnswerKeys, studyOptionMark, updateStudyOptionMarks, matchesSearch, highlightSearch, searchMatchMarkup, createPracticeOrder, createOptionSession, explanationText, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
 })();

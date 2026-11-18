@@ -8,7 +8,7 @@
     <link rel="icon" href="assets/icons/course-mascot.png" />
     <link rel="stylesheet" href="assets/contributions.css?v=workflow-improvements-20261102" />
     <link rel="stylesheet" href="assets/theme.css?v=integrated-management-20261029" />
-    <link rel="stylesheet" href="assets/management.css?v=explanation-quality-20261118" />
+    <link rel="stylesheet" href="assets/management.css?v=menu-position-20261118" />
     <script src="assets/theme.js?v=orange06-20261118" defer></script>
   </head>
   <body>
@@ -58,7 +58,6 @@
             <button type="button" class="button secondary" data-view="pending" aria-current="false">待核對 <span class="count-badge" data-count="pending">—</span></button>
             <button type="button" class="button secondary" data-view="modified" aria-current="page">最近修改 <span class="count-badge" data-count="modified">—</span></button>
             <button type="button" class="button secondary" data-view="deleted" aria-current="false">已移除 <span class="count-badge" data-count="deleted">—</span></button>
-            <button type="button" class="button secondary" data-view="explanations" aria-current="false">解析檢查</button>
             <button type="button" class="button secondary" data-view="units" aria-current="false">管理單元</button>
             <button type="button" class="button secondary" data-view="imports" aria-current="false">匯入紀錄</button>
           </nav>
@@ -79,7 +78,7 @@
         <section id="unitWorkspace" hidden aria-label="單元名稱與順序管理"></section>
         <section id="securityWorkspace" class="panel" hidden aria-label="帳號安全"></section>
         <section id="systemWorkspace" class="panel" hidden aria-label="版本與完整備份"></section>
-        <section id="healthWorkspace" hidden aria-label="題庫健檢與解析檢查"></section>
+        <section id="healthWorkspace" hidden aria-label="題庫健檢"></section>
         <section id="importWorkspace" class="import-records" hidden aria-label="匯入紀錄管理"></section>
       </section>
       <p id="message" class="message" role="status" aria-live="polite" tabindex="-1"></p>
@@ -87,7 +86,7 @@
 
     <dialog id="questionDialog" class="question-dialog" aria-labelledby="questionDialogTitle"></dialog>
     <script src="assets/contributions-config.js?v=orange06-20261118"></script>
-    <script type="module" src="assets/contributions-review.js?v=explanation-quality-20261118"></script>
+    <script type="module" src="assets/contributions-review.js?v=bulk-resolve-20261118"></script>
     <noscript>請開啟 JavaScript 使用題庫管理功能。</noscript>
   </body>
 </html>

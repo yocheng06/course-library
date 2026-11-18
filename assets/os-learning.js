@@ -50,11 +50,8 @@ function ensureUnitLoaded(unitIndex) {
 }
 function ensureAllUnitsLoaded() { UNITS.forEach((_, index) => ensureUnitLoaded(index)); }
 function totalQuestionCount() { return UNITS.reduce((count, unit) => count + unit.questionCount, 0); }
-function refreshCourseSummary() {
-  window.courseQuestionTools.updateCourseSummary('os',UNITS.map(unit=>({id:unit.id,label:unit.id==='treasure'?unit.label:`L${unit.number} · ${unit.label}`,count:unit.questionCount})));
-}
 ensureUnitLoaded(0);
-refreshCourseSummary();
+document.querySelector('[data-course-total]').textContent = `${UNITS.length} 個單元 · ${totalQuestionCount()} 道題目`;
 const allUnits = () => $('searchScopeSelect').value === 'all';
 function orderEntries(entries) {
   if(window.courseTopicOrder)return window.courseTopicOrder.sort(entries,'os',entry=>entry.unitIndex,entry=>unitQuestionOrders.get(entry.unit.id)?.get(entry.q.id)??Number.MAX_SAFE_INTEGER);
@@ -357,7 +354,7 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
   if (replace) { active=Math.max(0,UNITS.findIndex(unit=>unit.id===activeUnitId)); ensureUnitLoaded(active); }
   window.learningUI?.refresh();
   if (!replace && !added && !updated && !communityAliases.size && !changedIds.size) return {added:0, openedLinkedQuestion:false};
-  refreshCourseSummary();
+  document.querySelector('[data-course-total]').textContent=`${UNITS.length} 個單元 · ${totalQuestionCount()} 道題目`;
   const linkedUnit = communityQuestionUnit.get(linkedQuestion) ?? questionUnitIndex.get(canonicalId(linkedQuestion));
   if (waitingForLinkedQuestion && openLinkedQuestion && linkedUnit !== undefined) ensureUnitLoaded(linkedUnit);
   const linked=waitingForLinkedQuestion && openLinkedQuestion && findEntry(linkedQuestion);
@@ -387,7 +384,7 @@ window.courseLearning={
   setUnitMetadata(rows){
     if(!Array.isArray(rows))return;
     for(const row of rows){const unit=UNITS.find(u=>u.id===row.id);if(!unit)continue;if(row.managed&&typeof row.title==='string')unit.label=row.title.slice(0,60);if(Number.isFinite(row.order))managedUnitOrder.set(row.id,row.order);}
-    refreshCourseSummary();refreshUnitNavigation();
+    refreshUnitNavigation();
   },
   mergeCommunityQuestions, course:'os',toolbar:document.querySelector('.toolbar'),sidebar:document.querySelector('.sidebar'),list:$('cards'),
   unitIds:()=>orderEntries(questionEntries.filter(e=>e.unitIndex===active&&!builtinDeletedIds.has(e.q.id))).map(e=>e.q.id),
