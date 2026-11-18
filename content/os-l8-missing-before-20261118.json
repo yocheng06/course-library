@@ -1,0 +1,674 @@
+[
+  {
+    "id": "community-4c3c7bd2-5b1f-480a-bbd6-12ad0ee2bb3c-3",
+    "category": "死結定義與影響",
+    "type": "單選題",
+    "stem": "What is a common example of a deadlock?",
+    "options": [
+      "The Dining Philosophers problem",
+      "A process requesting memory",
+      "A process waiting for an I/O operation to complete",
+      "File locking"
+    ],
+    "answer": "A",
+    "explanation": "",
+    "choiceKey": "A",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-4718445d-27e0-42d3-ada3-dc83dc590bf1-1",
+    "category": "死結定義與影響",
+    "type": "多選題",
+    "stem": "When a process terminates which resources are released?",
+    "options": [
+      "Resources it requested but did not get",
+      "Resources it may need in the future",
+      "Resources it has already released",
+      "All resources it currently holds"
+    ],
+    "answer": "D",
+    "explanation": "",
+    "choiceKey": "D",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": "",
+    "submissionReview": {
+      "status": "resolved",
+      "reason": "題幹相同，但題型不同",
+      "references": [
+        "os8-136"
+      ],
+      "createdAt": 1794986151763,
+      "resolvedAt": 1794999263981
+    }
+  },
+  {
+    "id": "community-4c3c7bd2-5b1f-480a-bbd6-12ad0ee2bb3c-4",
+    "category": "死結必要條件",
+    "type": "單選題",
+    "stem": "Which type of resources does the Mutual Exclusion condition apply to?",
+    "options": [
+      "Reusable resources",
+      "Non-shared resources",
+      "Shared resources",
+      "Preemptable resources"
+    ],
+    "answer": "B",
+    "explanation": "",
+    "choiceKey": "B",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-4bed67a9-1468-44a7-9499-515ba0ae34c5-3",
+    "category": "死結必要條件",
+    "type": "多選題",
+    "stem": "循環等待（Circular Wait）條件的定義是什麼？",
+    "options": [
+      "一個程序集合{P0, P1, ..., Pn}，其中P0等待P1佔用的資源",
+      "一個程序請求多個資源",
+      "一個程序集合{P0, P1, ..., Pn}，其中P0等待P1佔用的資源，P1等待P2佔用的資源，...，Pn-1等待Pn佔用的資源，Pn等待P0佔用的資源",
+      "一個程序被一個以上程序佔用"
+    ],
+    "answer": "C",
+    "explanation": "",
+    "choiceKey": "C",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-96504e6b-74ca-4db7-974a-986d3039390b-1",
+    "category": "死結必要條件",
+    "type": "多選題",
+    "stem": "死結（Deadlock）發生的四個必要條件包括哪些？",
+    "options": [
+      "資源分配圖,資源請求圖",
+      "互斥,佔用與等待",
+      "安全狀態,不安全狀態",
+      "無搶佔,循環等待"
+    ],
+    "answer": "B、D",
+    "explanation": "",
+    "choiceKey": "BD",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": "",
+    "submissionReview": {
+      "status": "resolved",
+      "reason": "題幹符合，但選項不同；請核對是否抄漏或為不同版本。",
+      "references": [
+        "os8-084"
+      ],
+      "createdAt": 1794984568219,
+      "resolvedAt": 1794999268864
+    }
+  },
+  {
+    "id": "community-1cb53fa9-7e80-41c0-b9ec-6445d6f13278-5",
+    "category": "資源分配圖",
+    "type": "多選題",
+    "stem": "資源分配圖中，哪些條件可以指示潛在的死結？",
+    "options": [
+      "沒有任何邊從程序指向資源",
+      "圖中存在循環",
+      "圖中沒有循環",
+      "圖中存在多個循環"
+    ],
+    "answer": "B、D",
+    "explanation": "",
+    "choiceKey": "BD",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-4718445d-27e0-42d3-ada3-dc83dc590bf1-2",
+    "category": "處理方法總覽",
+    "type": "多選題",
+    "stem": "以下哪兩種死結處理方法是基於「在死結發生前」的考量？",
+    "options": [
+      "死結避免",
+      "死結預防",
+      "死結偵測",
+      "死結恢復"
+    ],
+    "answer": "A、B",
+    "explanation": "",
+    "choiceKey": "AB",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-5e7c0500-88f9-465f-a5ba-978454671bc0-4",
+    "category": "死結預防",
+    "type": "單選題",
+    "stem": "以下哪一個條件在死結預防中是最難解決的？",
+    "options": [
+      "佔用與等待",
+      "互斥",
+      "循環等待",
+      "無搶佔"
+    ],
+    "answer": "B",
+    "explanation": "",
+    "choiceKey": "B",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-5e7c0500-88f9-465f-a5ba-978454671bc0-5",
+    "category": "死結預防",
+    "type": "填空題",
+    "stem": "To prevent deadlocks the ____________ condition can be broken by requiring a process to request all its resources before it starts.(Please answer in lowercase English, leaving a space between each word)",
+    "options": [],
+    "answer": "hold and wait",
+    "explanation": "",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-5e7c0500-88f9-465f-a5ba-978454671bc0-8",
+    "category": "死結避免",
+    "type": "多選題",
+    "stem": "Which of the following are deadlock avoidance algorithms?",
+    "options": [
+      "Wait-for graph algorithm, Resource-allocation graph algorithm",
+      "Banker's algorithm, Resource-allocation graph algorithm",
+      "All of the above",
+      "Banker's algorithm, Wait-for graph algorithm"
+    ],
+    "answer": "A、B",
+    "explanation": "",
+    "choiceKey": "AB",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-4c3c7bd2-5b1f-480a-bbd6-12ad0ee2bb3c-1",
+    "category": "死結避免",
+    "type": "多選題",
+    "stem": "死結避免（Deadlock Avoidance）演算法在運行時需要哪些資訊？",
+    "options": [
+      "系統中所有程序的當前狀態",
+      "每個程序當前佔用的資源",
+      "每個程序的最大資源需求",
+      "系統中可用的資源總量"
+    ],
+    "answer": "A、B、C、D",
+    "explanation": "",
+    "choiceKey": "ABCD",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-a5faa732-4516-4677-a412-00271530d54c-5",
+    "category": "死結避免",
+    "type": "多選題",
+    "stem": "死結避免演算法如何處理對新資源的請求？",
+    "options": [
+      "檢查滿足請求後系統是否仍在安全狀態，若是則滿足請求",
+      "拒絕所有可能導致不安全狀態的請求",
+      "延遲所有請求",
+      "立即滿足所有請求"
+    ],
+    "answer": "A、B",
+    "explanation": "",
+    "choiceKey": "AB",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-5e7c0500-88f9-465f-a5ba-978454671bc0-2",
+    "category": "死結避免",
+    "type": "填空題",
+    "stem": "____________ 是死結避免演算法的一種，專門用於處理每種資源類型只有單一實例的情況。(請用小寫英文回答 需要做字母連接的兩個文字用 - ,單字間留一個空白)",
+    "options": [],
+    "answer": "resource-allocation graph algorithm",
+    "explanation": "",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-a5faa732-4516-4677-a412-00271530d54c-1",
+    "category": "安全狀態",
+    "type": "多選題",
+    "stem": "Which of the following can cause a system to go from a safe state to an unsafe state?",
+    "options": [
+      "A process requests a new resource",
+      "A process requests a resource while in an unsafe state",
+      "A process releases a resource",
+      "A process terminates"
+    ],
+    "answer": "A",
+    "explanation": "",
+    "choiceKey": "A",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": "",
+    "submissionReview": {
+      "status": "resolved",
+      "reason": "題幹相同，但題型不同",
+      "references": [
+        "os8-030"
+      ],
+      "createdAt": 1794985869269,
+      "resolvedAt": 1794999265313
+    }
+  },
+  {
+    "id": "community-4c3c7bd2-5b1f-480a-bbd6-12ad0ee2bb3c-5",
+    "category": "安全狀態",
+    "type": "填空題",
+    "stem": "Deadlock ____________ is a method that allows a system to enter an unsafe state when a deadlock occurs and handles it afterwards.(Please answer in lowercase English)",
+    "options": [],
+    "answer": "detection",
+    "explanation": "",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-1cb53fa9-7e80-41c0-b9ec-6445d6f13278-3",
+    "category": "銀行家演算法",
+    "type": "單選題",
+    "stem": "Which problem does the \"resource preemption\" strategy in deadlock recovery typically need to solve?",
+    "options": [
+      "How to select the locked resource",
+      "How to select the terminated process",
+      "How to select the preempted process",
+      "How to select the allocated resource"
+    ],
+    "answer": "C",
+    "explanation": "",
+    "choiceKey": "C",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-4bed67a9-1468-44a7-9499-515ba0ae34c5-4",
+    "category": "銀行家演算法",
+    "type": "多選題",
+    "stem": "銀行家演算法（Banker's Algorithm）是一種死結避免方法，它的目標是確保系統始終處於何種狀態？",
+    "options": [
+      "不安全狀態",
+      "安全狀態",
+      "穩定狀態",
+      "資源充足狀態"
+    ],
+    "answer": "B",
+    "explanation": "",
+    "choiceKey": "B",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": "",
+    "submissionReview": {
+      "status": "resolved",
+      "reason": "題幹相同，但題型不同",
+      "references": [
+        "community-17f37eed-b93c-485f-9bdd-c7591a014917-12"
+      ],
+      "createdAt": 1794984181585,
+      "resolvedAt": 1794999270018
+    }
+  },
+  {
+    "id": "community-5e7c0500-88f9-465f-a5ba-978454671bc0-7",
+    "category": "銀行家演算法",
+    "type": "多選題",
+    "stem": "銀行家演算法可以處理哪些情況？",
+    "options": [
+      "單個程序",
+      "多個資源類型",
+      "單個資源類型",
+      "多個程序"
+    ],
+    "answer": "B、C、D",
+    "explanation": "",
+    "choiceKey": "BCD",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-a5faa732-4516-4677-a412-00271530d54c-2",
+    "category": "銀行家演算法",
+    "type": "多選題",
+    "stem": "The Banker's Algorithm is a deadlock avoidance method and its goal is to ensure that the system is always in what state?",
+    "options": [
+      "Safe state",
+      "Resource-sufficient state",
+      "Stable state",
+      "Unsafe state"
+    ],
+    "answer": "A",
+    "explanation": "",
+    "choiceKey": "A",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": "",
+    "submissionReview": {
+      "status": "resolved",
+      "reason": "題幹相同，但題型不同",
+      "references": [
+        "os8-041"
+      ],
+      "createdAt": 1794985869269,
+      "resolvedAt": 1794999266497
+    }
+  },
+  {
+    "id": "community-4c3c7bd2-5b1f-480a-bbd6-12ad0ee2bb3c-2",
+    "category": "銀行家演算法",
+    "type": "填空題",
+    "stem": "____________ is a deadlock avoidance algorithm specifically for situations where there is only a single instance of each resource type.(Please answer in lowercase English; use a hyphen (-) to connect words that need to be linked, and leave a space between individual words.)",
+    "options": [],
+    "answer": "resource-allocation graph algorithm",
+    "explanation": "",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-a5faa732-4516-4677-a412-00271530d54c-3",
+    "category": "銀行家演算法",
+    "type": "填空題",
+    "stem": "In the Banker's algorithm a process's \"Need\" matrix is the ____________ between its \"Max\" matrix and its \"Allocation\" matrix.(Please answer in lowercase English)",
+    "options": [],
+    "answer": "difference",
+    "explanation": "",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-1cb53fa9-7e80-41c0-b9ec-6445d6f13278-4",
+    "category": "死結偵測",
+    "type": "單選題",
+    "stem": "死結偵測（Deadlock Detection）的缺點是什麼？",
+    "options": [
+      "可能導致不必要的程序終止",
+      "可能會有較高的系統開銷",
+      "需要預先知道所有程序的最大資源需求",
+      "無法解決死結問題"
+    ],
+    "answer": "B",
+    "explanation": "",
+    "choiceKey": "B",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": "",
+    "submissionReview": {
+      "status": "resolved",
+      "reason": "題幹符合，但選項不同；請核對是否抄漏或為不同版本。",
+      "references": [
+        "os8-028"
+      ],
+      "createdAt": 1794983815803,
+      "resolvedAt": 1794999271250
+    }
+  },
+  {
+    "id": "community-5e7c0500-88f9-465f-a5ba-978454671bc0-3",
+    "category": "死結偵測",
+    "type": "單選題",
+    "stem": "What is a disadvantage of Deadlock Detection?",
+    "options": [
+      "It may lead to unnecessary process terminations",
+      "It cannot solve the deadlock problem",
+      "It requires prior knowledge of maximum resource needs",
+      "It can have a high system overhead"
+    ],
+    "answer": "D",
+    "explanation": "",
+    "choiceKey": "D",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-1cb53fa9-7e80-41c0-b9ec-6445d6f13278-2",
+    "category": "死結偵測",
+    "type": "多選題",
+    "stem": "死結偵測演算法的開銷取決於哪些因素？",
+    "options": [
+      "資源數量",
+      "程序數量",
+      "系統狀態",
+      "圖的複雜度"
+    ],
+    "answer": "A、B、C、D",
+    "explanation": "",
+    "choiceKey": "ABCD",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-5e7c0500-88f9-465f-a5ba-978454671bc0-6",
+    "category": "死結偵測",
+    "type": "填空題",
+    "stem": "____________ is a part of the deadlock detection algorithm that runs periodically to check for deadlocks in the system.(Please answer in lowercase English)",
+    "options": [],
+    "answer": "detection",
+    "explanation": "",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-1cb53fa9-7e80-41c0-b9ec-6445d6f13278-1",
+    "category": "死結恢復",
+    "type": "單選題",
+    "stem": "In the \"process termination\" strategy for deadlock recovery which type of process is usually prioritized for termination?",
+    "options": [
+      "The process that started most recently",
+      "The process that started first",
+      "The process that has the most overhead",
+      "The process that consumes the most resources"
+    ],
+    "answer": "C",
+    "explanation": "",
+    "choiceKey": "C",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-4bed67a9-1468-44a7-9499-515ba0ae34c5-5",
+    "category": "死結恢復",
+    "type": "單選題",
+    "stem": "以下哪一項不是死結恢復的方法？",
+    "options": [
+      "獲取更多資源",
+      "全部程序終止",
+      "部分程序終止",
+      "釋放搶佔資源"
+    ],
+    "answer": "A",
+    "explanation": "",
+    "choiceKey": "A",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-4bed67a9-1468-44a7-9499-515ba0ae34c5-1",
+    "category": "死結恢復",
+    "type": "多選題",
+    "stem": "In deadlock recovery which of the following strategies might lead to starvation?",
+    "options": [
+      "Process termination",
+      "Resource preemption",
+      "Resource release",
+      "Rollback"
+    ],
+    "answer": "A、B、D",
+    "explanation": "",
+    "choiceKey": "ABD",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-5e7c0500-88f9-465f-a5ba-978454671bc0-1",
+    "category": "死結恢復",
+    "type": "多選題",
+    "stem": "When a deadlock detection algorithm finds a deadlock which of the following can be used as subsequent recovery steps?",
+    "options": [
+      "Restarting the system",
+      "Resource preemption",
+      "Process termination",
+      "Ignoring the deadlock"
+    ],
+    "answer": "B、C",
+    "explanation": "",
+    "choiceKey": "BC",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  },
+  {
+    "id": "community-a5faa732-4516-4677-a412-00271530d54c-4",
+    "category": "死結恢復",
+    "type": "多選題",
+    "stem": "在死結恢復中，以下哪些因素可能會影響選擇被終止的犧牲程序？",
+    "options": [
+      "終止程序所需的開銷",
+      "程序已使用的資源數量",
+      "程序優先順序",
+      "程序已運行時間"
+    ],
+    "answer": "A、B、C、D",
+    "explanation": "",
+    "choiceKey": "ABCD",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": "",
+    "submissionReview": {
+      "status": "resolved",
+      "reason": "題幹符合，但選項不同；請核對是否抄漏或為不同版本。",
+      "references": [
+        "os8-036"
+      ],
+      "createdAt": 1794985869269,
+      "resolvedAt": 1794999267714
+    }
+  },
+  {
+    "id": "community-4bed67a9-1468-44a7-9499-515ba0ae34c5-2",
+    "category": "死結恢復",
+    "type": "填空題",
+    "stem": "In deadlock recovery , ____________ is the strategy of selecting and aborting one or more deadlocked processes to break the deadlock.(Please answer in lowercase English, leaving a space between each word)",
+    "options": [],
+    "answer": "process termination",
+    "explanation": "",
+    "imageKeys": [],
+    "answerProvided": true,
+    "images": [],
+    "translation": "",
+    "terms": [],
+    "note": ""
+  }
+]

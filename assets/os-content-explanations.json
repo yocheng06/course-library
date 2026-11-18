@@ -7101,6 +7101,285 @@
           "explanation": "PAE 擴大的是可使用的實體位址範圍。32 位元位址共有 2^32 bytes，也就是 4 GiB；支援 PAE 的系統可用較寬的實體位址管理超過此容量的 RAM。\n\n這不會讓每個 32 位元程序自動得到超過 4 GiB 的線性位址空間，單一程序要使用更多資料仍須配合作業系統提供的映射方式。Dynamic loading 是按需載入，inverted page table 是表結構，address binding 是建立位址對應，都不是這項實體位址擴充技術。填空填 pae。"
         }
       ]
+    },
+    "community-4c3c7bd2-5b1f-480a-bbd6-12ad0ee2bb3c-3": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"What is a common example of a deadlock?\",[\"The Dining Philosophers problem\",\"A process requesting memory\",\"A process waiting for an I/O operation to complete\",\"File locking\"],\"A\",[]]",
+          "sourceExplanation": "",
+          "explanation": "哲學家進餐是典型死結範例：若每人都先拿起一支筷子、再等待鄰座手上的另一支，所有人便可能互相等待而無法前進。\n\n只有「請求記憶體」或「等待 I/O」未必形成互等的環，事件完成後仍可能繼續。File locking 若程序以相反順序取得多把鎖，也能造成死結；因此檔案鎖並非不會死結，只是本題選定的典型案例是哲學家進餐，僅憑例子名稱無法證明唯一性。"
+        }
+      ]
+    },
+    "community-4718445d-27e0-42d3-ada3-dc83dc590bf1-1": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"When a process terminates which resources are released?\",[\"Resources it requested but did not get\",\"Resources it may need in the future\",\"Resources it has already released\",\"All resources it currently holds\"],\"D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "程序終止時，作業系統會回收它目前仍持有、可隨程序結束而釋放的資源，例如記憶體與開啟檔案的程序持有狀態。這些資源才可能重新交給其他程序。\n\n尚未取得的資源本來就不屬於它，未來可能需要的資源也尚未占用；已釋放的資源更不必再釋放一次。因此應選「目前持有的全部資源」。共享物件是否銷毀仍要看其他持有者，回收持有權不等於刪除所有共享資料。"
+        }
+      ]
+    },
+    "community-4c3c7bd2-5b1f-480a-bbd6-12ad0ee2bb3c-4": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"Which type of resources does the Mutual Exclusion condition apply to?\",[\"Reusable resources\",\"Non-shared resources\",\"Shared resources\",\"Preemptable resources\"],\"B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "互斥條件針對 non-shared／non-sharable resources：同一時刻只能由一個程序使用，其他程序必須等待。像一次只能處理一份工作的裝置，就不能任意讓兩個程序同時占用。\n\n可共享的唯讀資料不必因另一程序正在讀取而等待。Reusable 表示可重複使用，與是否能同時共享是不同分類；preemptable 表示可否收回資源，也不是互斥的定義。"
+        }
+      ]
+    },
+    "community-4bed67a9-1468-44a7-9499-515ba0ae34c5-3": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"循環等待（Circular Wait）條件的定義是什麼？\",[\"一個程序集合{P0, P1, ..., Pn}，其中P0等待P1佔用的資源\",\"一個程序請求多個資源\",\"一個程序集合{P0, P1, ..., Pn}，其中P0等待P1佔用的資源，P1等待P2佔用的資源，...，Pn-1等待Pn佔用的資源，Pn等待P0佔用的資源\",\"一個程序被一個以上程序佔用\"],\"C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "循環等待必須形成封閉的等待環：程序 0 等程序 1 持有的資源，程序 1 等程序 2，最後又有人等回程序 0。因為每個人都等環內下一個人，便可能全都停住。\n\n只寫程序 0 等程序 1 是單向等待，沒有完整環；一個程序請求多個資源也未必互等。「程序被其他程序占用」則混淆了程序與資源的角色。"
+        }
+      ]
+    },
+    "community-96504e6b-74ca-4db7-974a-986d3039390b-1": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"死結（Deadlock）發生的四個必要條件包括哪些？\",[\"資源分配圖,資源請求圖\",\"互斥,佔用與等待\",\"安全狀態,不安全狀態\",\"無搶佔,循環等待\"],\"B、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "四個必要條件是：互斥、佔用與等待、無搶佔、循環等待。逐項想成「資源不能共享」「拿著一部分再等別的」「不能強制收回」「等待關係成環」。\n\n例如兩個程序各拿一把鎖，再等對方那把鎖，就能看見這四項。資源分配圖是分析工具，安全／不安全狀態是配置狀態分類，都不是四個條件本身。預防策略只要確保至少一個條件永遠不成立，即可阻止這類死結。"
+        }
+      ]
+    },
+    "community-1cb53fa9-7e80-41c0-b9ec-6445d6f13278-5": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"資源分配圖中，哪些條件可以指示潛在的死結？\",[\"沒有任何邊從程序指向資源\",\"圖中存在循環\",\"圖中沒有循環\",\"圖中存在多個循環\"],\"B、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "圖中有一個或多個循環，都值得檢查是否有死結；多個循環只是存在循環的更複雜情況。沒有循環時，在標準資源分配圖模型中便沒有這種資源死結。\n\n注意「潛在」二字：每種資源只有一個實例時，循環可判定死結；有多個實例時，環外程序可能完成並釋放資源，所以有環不一定已死結。沒有程序指向資源的請求邊，則缺少正在等待資源的關係。"
+        }
+      ]
+    },
+    "community-4718445d-27e0-42d3-ada3-dc83dc590bf1-2": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"以下哪兩種死結處理方法是基於「在死結發生前」的考量？\",[\"死結避免\",\"死結預防\",\"死結偵測\",\"死結恢復\"],\"A、B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "預防與避免都在死結發生前處理。預防先限制資源使用規則，使四個必要條件至少一項不能成立；避免則在每次分配前檢查，確保分配後還有安全完成的順序。\n\n偵測是檢查死結是否已經發生，恢復是發生後終止程序、收回資源或回滾。記住時間順序：先設規則／先檢查屬預防與避免，事後找出並解除屬偵測與恢復。"
+        }
+      ]
+    },
+    "community-5e7c0500-88f9-465f-a5ba-978454671bc0-4": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"以下哪一個條件在死結預防中是最難解決的？\",[\"佔用與等待\",\"互斥\",\"循環等待\",\"無搶佔\"],\"B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "互斥往往最難普遍消除，因為有些資源本質上就不適合同時共享，例如需要完整、不可交錯處理的裝置操作。不能為了防止死結就強迫所有資源同時多人使用。\n\n相較之下，可用一次申請全部資源限制佔用與等待，用固定資源順序破壞循環等待；部分可保存狀態的資源也能允許搶佔。但「最難」取決於資源與系統情境，這裡強調的是互斥具有難以取消的本質限制。"
+        }
+      ]
+    },
+    "community-5e7c0500-88f9-465f-a5ba-978454671bc0-5": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"To prevent deadlocks the ____________ condition can be broken by requiring a process to request all its resources before it starts.(Please answer in lowercase English, leaving a space between each word)\",[],\"hold and wait\",[]]",
+          "sourceExplanation": "",
+          "explanation": "填 hold and wait（佔用與等待）。若程序在開始前一次取得所有需要的資源，就不會一邊拿著部分資源、一邊等待其他資源。\n\n例如先確認印表機與掃描器都能取得，再一起開始；不能先占印表機後等掃描器。代價是程序必須事先知道需求，也可能長時間占著暫時用不到的資源，降低利用率。此規則破壞的是佔用與等待，不是直接讓裝置變得可共享。"
+        }
+      ]
+    },
+    "community-5e7c0500-88f9-465f-a5ba-978454671bc0-8": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"Which of the following are deadlock avoidance algorithms?\",[\"Wait-for graph algorithm, Resource-allocation graph algorithm\",\"Banker's algorithm, Resource-allocation graph algorithm\",\"All of the above\",\"Banker's algorithm, Wait-for graph algorithm\"],\"A、B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "原答案選取含「Wait-for graph／Resource-allocation graph」與「Banker／Resource-allocation graph」的兩組，這裡保留其答案。理解時須分清：銀行家演算法可用於多實例資源的避免；帶 claim edges 的資源分配圖演算法可用於單實例資源的避免。\n\n一般教材的 wait-for graph 主要用於死結偵測，不能只因名稱有 graph 就當成避免演算法。因此第一組把偵測與避免混列，與標準分類有歧義；「以上皆是」也不能消除這個分類問題。作答與概念分類應分開核對。"
+        }
+      ]
+    },
+    "community-4c3c7bd2-5b1f-480a-bbd6-12ad0ee2bb3c-1": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"死結避免（Deadlock Avoidance）演算法在運行時需要哪些資訊？\",[\"系統中所有程序的當前狀態\",\"每個程序當前佔用的資源\",\"每個程序的最大資源需求\",\"系統中可用的資源總量\"],\"A、B、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "死結避免要模擬「這次真的分配後，大家還能否依序完成」。因此需知道程序／配置狀態、目前持有的 Allocation、各程序最大需求 Max，以及目前可用的 Available。\n\n先計算 Need = Max − Allocation，再以 Available 為 Work，找 Need ≤ Work 的程序；假設它完成並釋放持有資源，繼續找下一個。這四類資訊各有用途。可用量不是只看系統裝了多少資源，還要扣掉目前已被占用的部分。"
+        }
+      ]
+    },
+    "community-a5faa732-4516-4677-a412-00271530d54c-5": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"死結避免演算法如何處理對新資源的請求？\",[\"檢查滿足請求後系統是否仍在安全狀態，若是則滿足請求\",\"拒絕所有可能導致不安全狀態的請求\",\"延遲所有請求\",\"立即滿足所有請求\"],\"A、B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "先檢查請求是否超過剩餘需求與目前可用量，再暫時扣除 Available、增加 Allocation，執行安全性檢查。若仍有安全完成順序，就正式分配；若會變成不安全狀態，就撤回試分配，讓該請求等待。\n\n例如資源雖空閒，給出去後可能讓所有程序都差最後一份而無法保證完成，就先不給。「拒絕」在此指本次不核准，不一定永遠拒絕。不能立即滿足所有請求，也不必延遲所有安全請求。"
+        }
+      ]
+    },
+    "community-5e7c0500-88f9-465f-a5ba-978454671bc0-2": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"____________ 是死結避免演算法的一種，專門用於處理每種資源類型只有單一實例的情況。(請用小寫英文回答 需要做字母連接的兩個文字用 - ,單字間留一個空白)\",[],\"resource-allocation graph algorithm\",[]]",
+          "sourceExplanation": "",
+          "explanation": "填 resource-allocation graph algorithm。每種資源只有一個實例時，可用帶 claim edges（可能需求邊）的資源分配圖做死結避免。\n\n程序真正請求時，先模擬把請求改成分配；若因此形成不允許的循環，就暫不分配。只有目前的請求／分配邊而沒有未來需求資訊，不能直接當成這個避免模型。銀行家演算法則可處理每種資源有多個實例的情況；一般 wait-for graph 常用於偵測。"
+        }
+      ]
+    },
+    "community-a5faa732-4516-4677-a412-00271530d54c-1": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"Which of the following can cause a system to go from a safe state to an unsafe state?\",[\"A process requests a new resource\",\"A process requests a resource while in an unsafe state\",\"A process releases a resource\",\"A process terminates\"],\"A\",[]]",
+          "sourceExplanation": "",
+          "explanation": "程序提出新資源請求，而系統未經安全檢查就核准，可能把安全狀態推入不安全狀態。精確說，關鍵是「滿足該請求後的分配」，單純送出但尚未獲准的請求，不會改變持有量。\n\n釋放資源或程序完成通常增加可用量，不會因這個釋放動作讓安全性變差。「已在不安全狀態時請求」的起點本來就不安全，也不符合題目從安全轉為不安全的前提。不安全不代表已經死結，而是無法保證依最大需求完成。"
+        }
+      ]
+    },
+    "community-4c3c7bd2-5b1f-480a-bbd6-12ad0ee2bb3c-5": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"Deadlock ____________ is a method that allows a system to enter an unsafe state when a deadlock occurs and handles it afterwards.(Please answer in lowercase English)\",[],\"detection\",[]]",
+          "sourceExplanation": "",
+          "explanation": "填 detection（偵測）。這種處理方式不要求每次配置都先證明安全，而是允許系統運作，之後檢查是否出現死結，再搭配恢復策略處理。\n\n要注意題幹的時間用語：系統可能先進入不安全狀態，但不安全不一定已死結；偵測是判斷實際死結，解除它則由 recovery 負責。預防會限制必要條件，避免會先做安全檢查，與這種事後處理流程不同。"
+        }
+      ]
+    },
+    "community-1cb53fa9-7e80-41c0-b9ec-6445d6f13278-3": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"Which problem does the \\\"resource preemption\\\" strategy in deadlock recovery typically need to solve?\",[\"How to select the locked resource\",\"How to select the terminated process\",\"How to select the preempted process\",\"How to select the allocated resource\"],\"C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "資源搶佔首先要決定從哪個程序收回資源，也就是選擇被搶佔的犧牲程序。接著還要處理它如何回到可重試的狀態，以及避免同一程序反覆被選中。\n\n例如收回某程序的鎖後，可能需要回滾它尚未完成的工作，再重新執行。這不同於直接選擇終止程序；也不是只看某個資源名稱就足夠，必須考量受影響程序與復原成本。"
+        }
+      ]
+    },
+    "community-4bed67a9-1468-44a7-9499-515ba0ae34c5-4": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"銀行家演算法（Banker's Algorithm）是一種死結避免方法，它的目標是確保系統始終處於何種狀態？\",[\"不安全狀態\",\"安全狀態\",\"穩定狀態\",\"資源充足狀態\"],\"B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "銀行家演算法的目標是維持 safe state（安全狀態），也就是存在一種程序完成順序，即使各程序都提出宣告內的最大需求，仍能讓大家依序完成。\n\n檢查時以 Available 為 Work，找 Need ≤ Work 的程序，假設它完成後將 Allocation 加回 Work，再找下一個；若全部都能完成，就有安全序列。穩定、資源充足並不是此演算法的精確判準；目前資源夠滿足某一請求，也不表示分配後一定安全。"
+        }
+      ]
+    },
+    "community-5e7c0500-88f9-465f-a5ba-978454671bc0-7": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"銀行家演算法可以處理哪些情況？\",[\"單個程序\",\"多個資源類型\",\"單個資源類型\",\"多個程序\"],\"B、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "銀行家演算法可處理多個程序競爭單一或多種資源，也允許同一資源類型有多個實例。Allocation／Max／Need 的列對應程序，欄對應資源類型，單一類型時就是只有一欄。\n\n本題答案列出單一資源類型、多個資源類型與多個程序。注意只有一個程序也是矩陣模型可表示的退化情況，只是缺少多程序互等的核心情境；不能把未選「單個程序」解讀為演算法在數學上無法處理一列。"
+        }
+      ]
+    },
+    "community-a5faa732-4516-4677-a412-00271530d54c-2": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"The Banker's Algorithm is a deadlock avoidance method and its goal is to ensure that the system is always in what state?\",[\"Safe state\",\"Resource-sufficient state\",\"Stable state\",\"Unsafe state\"],\"A\",[]]",
+          "sourceExplanation": "",
+          "explanation": "銀行家演算法的目標是維持 safe state（安全狀態），也就是存在一種程序完成順序，即使各程序都提出宣告內的最大需求，仍能讓大家依序完成。\n\n檢查時以 Available 為 Work，找 Need ≤ Work 的程序，假設它完成後將 Allocation 加回 Work，再找下一個；若全部都能完成，就有安全序列。穩定、資源充足並不是此演算法的精確判準；目前資源夠滿足某一請求，也不表示分配後一定安全。"
+        }
+      ]
+    },
+    "community-4c3c7bd2-5b1f-480a-bbd6-12ad0ee2bb3c-2": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"____________ is a deadlock avoidance algorithm specifically for situations where there is only a single instance of each resource type.(Please answer in lowercase English; use a hyphen (-) to connect words that need to be linked, and leave a space between individual words.)\",[],\"resource-allocation graph algorithm\",[]]",
+          "sourceExplanation": "",
+          "explanation": "填 resource-allocation graph algorithm。每種資源只有一個實例時，可用帶 claim edges（可能需求邊）的資源分配圖做死結避免。\n\n程序真正請求時，先模擬把請求改成分配；若因此形成不允許的循環，就暫不分配。只有目前的請求／分配邊而沒有未來需求資訊，不能直接當成這個避免模型。銀行家演算法則可處理每種資源有多個實例的情況；一般 wait-for graph 常用於偵測。"
+        }
+      ]
+    },
+    "community-a5faa732-4516-4677-a412-00271530d54c-3": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"In the Banker's algorithm a process's \\\"Need\\\" matrix is the ____________ between its \\\"Max\\\" matrix and its \\\"Allocation\\\" matrix.(Please answer in lowercase English)\",[],\"difference\",[]]",
+          "sourceExplanation": "",
+          "explanation": "填 difference（差）。Need = Max − Allocation，對矩陣每個對應位置分別相減，表示程序最多還可能需要多少資源。\n\n例如最大需求為 (7, 5, 3)，目前持有 (2, 1, 1)，剩餘需求就是 (5, 4, 2)。不能把兩者相加，也不能用 Available 減 Allocation 取代，因為 Available 是整個系統目前剩下多少，不是該程序的最大需求。"
+        }
+      ]
+    },
+    "community-1cb53fa9-7e80-41c0-b9ec-6445d6f13278-4": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"死結偵測（Deadlock Detection）的缺點是什麼？\",[\"可能導致不必要的程序終止\",\"可能會有較高的系統開銷\",\"需要預先知道所有程序的最大資源需求\",\"無法解決死結問題\"],\"B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "偵測的直接成本是檢查程序與資源關係所需的時間與空間，執行越頻繁、資料越大，系統開銷可能越高。若檢查太少，又可能讓死結停留較久。\n\n最大需求資訊是避免演算法常用的前提，並非一般偵測必須預先知道。偵測本身負責找出問題，之後可以配合恢復，所以不能說它讓死結完全無法處理；終止程序造成損失屬恢復的代價，也不是每次偵測必然發生的結果。"
+        }
+      ]
+    },
+    "community-5e7c0500-88f9-465f-a5ba-978454671bc0-3": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"What is a disadvantage of Deadlock Detection?\",[\"It may lead to unnecessary process terminations\",\"It cannot solve the deadlock problem\",\"It requires prior knowledge of maximum resource needs\",\"It can have a high system overhead\"],\"D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "偵測的直接成本是檢查程序與資源關係所需的時間與空間，執行越頻繁、資料越大，系統開銷可能越高。若檢查太少，又可能讓死結停留較久。\n\n最大需求資訊是避免演算法常用的前提，並非一般偵測必須預先知道。偵測本身負責找出問題，之後可以配合恢復，所以不能說它讓死結完全無法處理；終止程序造成損失屬恢復的代價，也不是每次偵測必然發生的結果。"
+        }
+      ]
+    },
+    "community-1cb53fa9-7e80-41c0-b9ec-6445d6f13278-2": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"死結偵測演算法的開銷取決於哪些因素？\",[\"資源數量\",\"程序數量\",\"系統狀態\",\"圖的複雜度\"],\"A、B、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "開銷取決於要分析多少程序、資源與等待關係，以及當下系統狀態。程序／資源越多，矩陣可能越大；圖的頂點與邊越多，找循環需檢查的關係也可能越多。\n\n系統狀態會影響目前有多少等待邊、要檢查或恢復哪些程序；但最壞時間複雜度仍應依所用演算法與輸入規模分析，不能只用「狀態不好」取代計算。實務還要選擇檢查頻率，在及早發現與執行成本之間取捨。"
+        }
+      ]
+    },
+    "community-5e7c0500-88f9-465f-a5ba-978454671bc0-6": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"____________ is a part of the deadlock detection algorithm that runs periodically to check for deadlocks in the system.(Please answer in lowercase English)\",[],\"detection\",[]]",
+          "sourceExplanation": "",
+          "explanation": "填 detection。此處指週期性執行的死結偵測工作：讀取目前資源持有與等待狀態，判斷是否有一組程序無法彼此解開等待。\n\n例如每隔一段時間掃描等待關係；偵測到死結後，再由恢復程序決定搶佔、回滾或終止。Detection 是功能名稱，題幹沒有提供更特定的子演算法名稱；它不等於 prevention，也不會僅靠檢查就自動釋放資源。"
+        }
+      ]
+    },
+    "community-1cb53fa9-7e80-41c0-b9ec-6445d6f13278-1": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"In the \\\"process termination\\\" strategy for deadlock recovery which type of process is usually prioritized for termination?\",[\"The process that started most recently\",\"The process that started first\",\"The process that has the most overhead\",\"The process that consumes the most resources\"],\"C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "原答案保留「開銷最多的程序」。可把它理解為在某種以持續執行成本／資源負擔為主要權重的政策中，終止它可能減少系統負擔。\n\n但一般死結恢復的原則是選擇總恢復代價較小的犧牲者，不能普遍推成「開銷越大越先殺」。若 overhead 指已投入工作或重做成本，開銷大反而可能不適合終止。啟動早晚、占用資源量也只能作為成本因素，沒有單一固定優先規則；這題的用語需在此條件下理解。"
+        }
+      ]
+    },
+    "community-4bed67a9-1468-44a7-9499-515ba0ae34c5-5": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"以下哪一項不是死結恢復的方法？\",[\"獲取更多資源\",\"全部程序終止\",\"部分程序終止\",\"釋放搶佔資源\"],\"A\",[]]",
+          "sourceExplanation": "",
+          "explanation": "標準恢復方法包含終止全部或部分死結程序，以及從適合被收回的程序搶佔資源，必要時回滾其工作。目標是讓等待關係中的某一環被打破。\n\n單純讓死結程序再去「獲取更多資源」通常無法執行，因為它們正卡在等待；也沒有保證能消除互等。若外部額外提供新資源，在特定情境可能有幫助，但不屬本題列的標準恢復機制。"
+        }
+      ]
+    },
+    "community-4bed67a9-1468-44a7-9499-515ba0ae34c5-1": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"In deadlock recovery which of the following strategies might lead to starvation?\",[\"Process termination\",\"Resource preemption\",\"Resource release\",\"Rollback\"],\"A、B、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "若總是挑同一程序終止／重啟、搶佔資源或回滾，它可能反覆失去已完成的進度，長期無法完成；這就是本題要辨識的飢餓風險。\n\n例如某程序每次快完成就被回滾，其他程序一直前進，它卻永遠完成不了。終止導致飢餓的描述以工作會重啟／重試為前提，單次終止本身是結束而非持續等待。單純正常釋放資源不會必然造成這種反覆犧牲；可把被選次數或等待時間納入選擇以改善公平性。"
+        }
+      ]
+    },
+    "community-5e7c0500-88f9-465f-a5ba-978454671bc0-1": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"When a deadlock detection algorithm finds a deadlock which of the following can be used as subsequent recovery steps?\",[\"Restarting the system\",\"Resource preemption\",\"Process termination\",\"Ignoring the deadlock\"],\"B、C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "偵測到死結後，可用 process termination 終止程序，讓其持有資源回收；或用 resource preemption 收回適合搶佔的資源，必要時回滾並重試。兩者都直接改變造成互等的持有關係。\n\n忽略死結不會解除等待。重新啟動整個系統確實可能清除揮發性狀態，但代價大且影響所有工作，並非本題要求的程序／資源層級恢復步驟；不能把未選重啟解讀成重啟在任何情況都無法解除死結。"
+        }
+      ]
+    },
+    "community-a5faa732-4516-4677-a412-00271530d54c-4": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"在死結恢復中，以下哪些因素可能會影響選擇被終止的犧牲程序？\",[\"終止程序所需的開銷\",\"程序已使用的資源數量\",\"程序優先順序\",\"程序已運行時間\"],\"A、B、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "選犧牲程序時要估計終止造成的總代價：優先權影響重要程度，已執行時間影響可能損失的工作，持有資源量影響能釋放多少資源，終止與重做開銷則影響恢復成本，因此四項都可能納入。\n\n例如兩個程序都能打破同一等待環，終止快完成的高優先權工作，可能比終止可快速重跑的背景工作更昂貴。不是固定殺最早、最晚或拿最多資源的程序，而是依明確成本與公平性政策選擇。"
+        }
+      ]
+    },
+    "community-4bed67a9-1468-44a7-9499-515ba0ae34c5-2": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"In deadlock recovery , ____________ is the strategy of selecting and aborting one or more deadlocked processes to break the deadlock.(Please answer in lowercase English, leaving a space between each word)\",[],\"process termination\",[]]",
+          "sourceExplanation": "",
+          "explanation": "填 process termination（程序終止）。偵測到死結後，中止一個或多個參與死結的程序，回收其持有資源，讓剩餘程序能繼續。\n\n例如程序甲與乙各持一把鎖並互等，終止甲後回收它的鎖，乙便可能取得所需資源完成。可以一次終止全部，也可以逐個終止並重新檢查；代價是未完成工作會損失，可能需要重跑。資源搶佔是收回資源，不一定直接結束整個程序。"
+        }
+      ]
     }
   }
 }
