@@ -241,6 +241,7 @@
       if (initial === cached && validEnvelope(snapshot)) { try { apply(snapshot.data, 'snapshot'); } catch {} }
     }
   }
+  document.documentElement.dataset.questionReady = 'true';
   let latestData = initial?.data || null;
   let mutationVersion = 0;
   let latestEtag = /^(?:W\/)?".*"$/.test(initial?.etag || '') ? initial.etag : null;
