@@ -59,16 +59,17 @@
  }
  const identity=q=>JSON.stringify([String(q.type??''),String(q.stem??q.q??''),q.options??q.opts??[],String(q.answer??q.a??''),q.images??[]]);
  let reviewed;
- function text(q){
+ function recordFor(q){
   const source=String(q.explanation??q.ex??'');
   if(reviewed===undefined){try{reviewed=typeof document==='object'?JSON.parse(document.getElementById('course-content-explanations')?.textContent||'null'):null;}catch{reviewed=null;}}
   const versions=reviewed?.questions?.[q.id??q.bookmarkId]?.versions;
   const record=versions?.find(v=>v.identity===identity(q)&&[v.sourceExplanation,v.explanation].includes(source));
-  return record?.explanation??source;
+  return record;
  }
+ function text(q){return recordFor(q)?.explanation??String(q.explanation??q.ex??'');}
  function apply(q){
-  const explanation=text(q);if(explanation===String(q.explanation??q.ex??''))return q;
-  return {...q,...(Object.hasOwn(q,'ex')||Object.hasOwn(q,'a')?{ex:explanation}:{}),...(Object.hasOwn(q,'explanation')||Object.hasOwn(q,'answer')?{explanation}:{} )};
+  const record=recordFor(q),explanation=record?.explanation??String(q.explanation??q.ex??'');if(explanation===String(q.explanation??q.ex??'')&&(!record?.category||record.category===q.category))return q;
+  return {...q,...(record?.category?{category:record.category}:{}),...(Object.hasOwn(q,'ex')||Object.hasOwn(q,'a')?{ex:explanation}:{}),...(Object.hasOwn(q,'explanation')||Object.hasOwn(q,'answer')?{explanation}:{} )};
  }
- root.courseExplanationContent={rewrite,bare,identity,text,apply};
+ root.courseExplanationContent={rewrite,bare,identity,text,apply,category:q=>recordFor(q)?.category};
 })(typeof window==='object'?window:globalThis);
