@@ -1,3 +1,4 @@
+import {setupAdminSecurity} from './admin-security.mjs?v=security-20261118';
 import {setupSystemPanel} from './system-backup.mjs?v=improvements-20261104';
 import {setupUnitManager} from './unit-manager.mjs?v=unit-drag-add-20261103';
 import {setupLibraryHealth} from './library-health.mjs?v=admin-workflow-20261103';
@@ -7,10 +8,11 @@ import { setupImportRecords } from './import-records.mjs?v=treasure-unit-2026103
 
 const $ = id => document.getElementById(id);
 const origin = window.courseContributions.apiOrigin;
-let library = null, health = null, units = null, system = null;
+let library = null, health = null, units = null, system = null, security = null;
 let imports = null;
 let userId = '';
-let currentView = 'all';
+const requestedSecurity=new URLSearchParams(location.search).get('view')==='security';
+let currentView = requestedSecurity?'security':'all';
 let starting = false;
 
 function setActiveView(view) {
@@ -19,8 +21,10 @@ function setActiveView(view) {
   for (const button of document.querySelectorAll('[data-view]')) {
     button.setAttribute('aria-current', button.dataset.view === view ? 'page' : 'false');
   }
-  $('libraryWorkspace').hidden = ['imports','health','units','system'].includes(view);
+  $('libraryWorkspace').hidden = ['imports','health','units','system','security'].includes(view);
   $('systemWorkspace').hidden = view !== 'system';
+  $('securityWorkspace').hidden = view !== 'security';
+  if(view!=='security')security?.clear();
   $('unitWorkspace').hidden = view !== 'units';
   $('healthWorkspace').hidden = view !== 'health';
   $('importWorkspace').hidden = view !== 'imports';
@@ -28,7 +32,8 @@ function setActiveView(view) {
 async function showView(view = currentView, { refresh = false } = {}) {
   if (!library || !imports) return;
   setActiveView(view);
-  if(view==='system')await system.show();
+  if(view==='security')await security.show();
+  else if(view==='system')await system.show();
   else if(view==='units') await units.show({refresh});
   else if(view==='health') await health.show({refresh});
   else if (view === 'imports') await imports.show({ refresh });
@@ -81,16 +86,17 @@ async function start() {
     $('loginPanel').hidden = true;
     $('managementArea').hidden = false;
     if (userId !== session.userId || !library || !imports) {
-      health?.clear();units?.clear();system?.clear();
+      health?.clear();units?.clear();system?.clear();security?.clear();
       library?.clear();
       imports?.clear();
       userId = session.userId || 'owner';
-      try{const saved=localStorage.getItem('course-library.manager-view.v1.'+userId);if(['all','modified','deleted','pending','health','imports','units','system'].includes(saved))currentView=saved;}catch{}
+      try{const saved=localStorage.getItem('course-library.manager-view.v1.'+userId);if(!requestedSecurity&&['all','modified','deleted','pending','health','imports','units','system','security'].includes(saved))currentView=saved;}catch{}
       library = setupLibraryManager({
         userId,
         onChanged: () => { health?.invalidate();if (currentView==='health')return health.show({refresh:true});if (imports && currentView === 'imports') return imports.show({ refresh: true }); },
       });
       units=setupUnitManager({container:$('unitWorkspace'),onChanged:()=>{library.refresh();health?.invalidate();}});
+      security=setupAdminSecurity({container:$('securityWorkspace'),api,message,downloadJSON});
       system=setupSystemPanel({container:$('systemWorkspace'),api,downloadJSON,userId});
       health=setupLibraryHealth({container:$('healthWorkspace'),openItem:(row,options)=>library.openItem(row,options)});
       imports = setupImportRecords({
@@ -121,8 +127,10 @@ $('passwordLoginForm').addEventListener('submit', async event => {
     await api('/api/login', { method: 'POST', body: JSON.stringify({
       username: $('loginUsername').value,
       password: $('loginPassword').value,
+      code: $('loginCode').value,
     }) });
     $('loginPassword').value = '';
+    $('loginCode').value = '';
     message('');
     await start();
   } catch (error) { message(error.message, true); }
@@ -165,7 +173,7 @@ $('signOut').addEventListener('click', async () => {
     await api('/api/logout', { method: 'POST', body: '{}' });
     library?.clear();
     imports?.clear();
-    health?.clear();units?.clear();system?.clear();
+    health?.clear();units?.clear();system?.clear();security?.clear();
     location.reload();
   } catch (error) { message(error.message, true); button.disabled = false; }
 });

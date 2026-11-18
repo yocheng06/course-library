@@ -6,7 +6,7 @@
 
 最近正式 Release：**[v1.3.0](https://github.com/yocheng06/course-library/releases/tag/v1.3.0)** · [所有 Releases](https://github.com/yocheng06/course-library/releases) · [本版更新說明](docs/releases/v1.3.0.md)
 
-目前進度已更新至 **2026-11-17**；`main` 包含 v1.3.0 之後的更新。先看 [系統架構](docs/architecture.md)、[最新移植與驗證](docs/updates/2026-11-17-cloudflare.md)，或 [v1.3.0 以後的完整提交差異](https://github.com/yocheng06/course-library/compare/v1.3.0...main)。
+目前進度已更新至 **2026-11-18**；`main` 包含 v1.3.0 之後的更新。先看 [系統架構](docs/architecture.md)、[最新安全加強與驗證](docs/updates/2026-11-18-security.md)，或 [v1.3.0 以後的完整提交差異](https://github.com/yocheng06/course-library/compare/v1.3.0...main)。
 
 [測驗、備份與發布檢查改進](docs/improvements-20261104.md)：測驗語言與可調比例、手機篩選、完整備份、版本狀態及發布檢查。
 
@@ -27,6 +27,8 @@
 - 管理者可新增單元、改名稱、拖拉排序；保留固定 ID，閱讀、查題與投稿同步使用單元資訊。
 - 刪題經伺服器確認後立即更新畫面、題數及本機快取，再背景同步；舊同步結果不會覆蓋這次刪除。
 - CPU 排程解析提供計算表與時間線，支援橫向捲軸及「往前／往後」按鈕。
+
+- 管理登入可啟用手機驗證與一次性備援碼，並可登出其他所有裝置；安全細節及備份方式見 [管理安全說明](docs/updates/2026-11-18-security.md)。
 
 ## 使用方式
 

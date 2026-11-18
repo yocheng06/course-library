@@ -2534,3 +2534,73 @@ test('system status is owner-only and exposes version fingerprints without secre
  assert.equal(result.response.status,200);assert.match(result.data.build.sourceHash,/^[0-9a-f]{64}$/);assert.equal(typeof result.data.build.version,'string');assert(result.data.snapshots.os.generatedAt);
  assert(!JSON.stringify(result.data).includes(env.RATE_HASH_KEY));assert(!JSON.stringify(result.data).includes(env.REVIEWER_EMAIL));
 });
+import vm from 'node:vm';
+const securitySource=await readFile(new URL('../worker/admin-security.js',import.meta.url),'utf8');
+const securityTest=vm.runInNewContext(securitySource+';({securityTotp,securityCounter,securityBase32})',{crypto,TextEncoder,Uint8Array,DataView,Date,WeakSet,BigInt,sameSecret:(a,b)=>a===b});
+function securityDecode(s){let bits=0,value=0,out=[];for(const c of s){value=(value<<5)|'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'.indexOf(c);bits+=5;if(bits>=8){bits-=8;out.push((value>>>bits)&255);}}return Uint8Array.from(out);}
+const adminPassword='test-admin-password-123';
+async function enrollSecurity(env){
+ const start=await call(env,'/api/manage/security/enroll',{reviewer:true,method:'POST',body:{password:adminPassword}});assert.equal(start.response.status,200,JSON.stringify(start.data));
+ const secret=securityDecode(start.data.secret),counter=Math.floor(Date.now()/30000),code=await securityTest.securityTotp(secret,counter);
+ const confirmed=await call(env,'/api/manage/security/confirm',{reviewer:true,method:'POST',body:{code}});assert.equal(confirmed.response.status,200,JSON.stringify(confirmed.data));
+ return {secret,code,counter,codes:confirmed.data.recoveryCodes,cookie:confirmed.response.headers.get('set-cookie').split(';')[0]};
+}
+test('RFC 6238 SHA-1 vectors match and window validation rejects malformed and expired codes',async()=>{
+ const secret=new TextEncoder().encode('12345678901234567890');
+ for(const [time,expected] of [[59,'94287082'],[1111111109,'07081804'],[1111111111,'14050471'],[1234567890,'89005924'],[2000000000,'69279037'],[20000000000,'65353130']])assert.equal(await securityTest.securityTotp(secret,Math.floor(time/30),8),expected);
+ assert.equal(await securityTest.securityCounter(secret,'abc123',59000),null);
+ assert.equal(await securityTest.securityCounter(secret,await securityTest.securityTotp(secret,1),300000),null);
+});
+test('security settings require authenticated same-origin access and enrollment confirmation; secrets stay encrypted',async()=>{
+ const env=await setup();
+ assert.equal((await call(env,'/api/manage/security')).response.status,401);
+ assert.equal((await call(env,'/api/manage/security/enroll',{reviewer:true,method:'POST',siteOrigin:'https://evil.test',body:{password:adminPassword}})).response.status,403);
+ assert.equal((await call(env,'/api/manage/security/enroll',{reviewer:true,method:'POST',body:{password:'wrong'}})).response.status,401);
+ const start=await call(env,'/api/manage/security/enroll',{reviewer:true,method:'POST',body:{password:adminPassword}});assert.equal(start.response.status,200);
+ const pending=env.sql.prepare('SELECT * FROM admin_security').get();assert(!pending.pending_secret.includes(start.data.secret));assert.equal(pending.enabled,0);
+ env.sql.prepare('UPDATE admin_security SET pending_at=1').run();
+ const expired=await call(env,'/api/manage/security/confirm',{reviewer:true,method:'POST',body:{code:'123456'}});assert.equal(expired.response.status,409);
+ assert.equal((await call(env,'/api/manage/security',{reviewer:true})).data.enabled,false);
+});
+test('enabling TOTP revokes older sessions; passwords alone and replayed OTP/recovery codes cannot log in',async()=>{
+ const env=await setup(),e=await enrollSecurity(env);
+ assert.equal((await call(env,'/api/manage/security',{reviewer:true})).response.status,401);
+ const login=code=>call(env,'/api/login',{method:'POST',ip:'second-factor-login',body:{username:'reviewer',password:adminPassword,code}});
+ assert.equal((await login('')).response.status,401);
+ assert.equal((await login(e.code)).response.status,401);
+ const future=await securityTest.securityTotp(e.secret,e.counter+1);
+ const correct=await login(future);assert.equal(correct.response.status,200);
+ assert.equal((await login(future)).response.status,401);
+ const recovered=await login(e.codes[0]);assert.equal(recovered.response.status,200);
+ assert.equal((await login(e.codes[0])).response.status,401);
+ const status=await call(env,'/api/manage/security',{cookie:e.cookie});assert.equal(status.data.recoveryRemaining,7);assert(!JSON.stringify(status.data).includes(e.codes[1]));
+});
+test('logout invalidates a copied session token and revoke-all keeps only the freshly issued session',async()=>{
+ const env=await setup(),old=env.testCookie;
+ const revoke=await call(env,'/api/manage/security/revoke',{cookie:old,method:'POST',body:{password:adminPassword}});assert.equal(revoke.response.status,200);
+ const fresh=revoke.response.headers.get('set-cookie').split(';')[0];assert.equal((await call(env,'/api/manage/security',{cookie:old})).response.status,401);assert.equal((await call(env,'/api/manage/security',{cookie:fresh})).response.status,200);
+ assert.equal((await call(env,'/api/logout',{cookie:fresh,method:'POST'})).response.status,200);assert.equal((await call(env,'/api/manage/security',{cookie:fresh})).response.status,401);
+});
+test('disabling TOTP requires password plus a fresh second factor and consumes all old sessions',async()=>{
+ const env=await setup(),e=await enrollSecurity(env);
+ const disable=body=>call(env,'/api/manage/security/disable',{cookie:e.cookie,method:'POST',ip:'disable-proof',body});
+ assert.equal((await disable({password:adminPassword})).response.status,401);
+ const result=await disable({password:adminPassword,code:e.codes[0]});assert.equal(result.response.status,200);
+ assert.equal((await call(env,'/api/manage/security',{cookie:e.cookie})).response.status,401);
+ const fresh=result.response.headers.get('set-cookie').split(';')[0],status=await call(env,'/api/manage/security',{cookie:fresh});assert.equal(status.data.enabled,false);assert.equal(status.data.recoveryRemaining,0);
+});
+test('all responses restrict script execution, framing, sensitive permissions and insecure transport',async()=>{
+ const env=await setup();
+ for(const path of ['/review','/submit','/api/manage/export','/does-not-exist']){
+ const {response}=await call(env,path);assert.match(response.headers.get('content-security-policy'),/script-src 'self';/);assert(!response.headers.get('content-security-policy').includes("'unsafe-eval'"));assert.match(response.headers.get('content-security-policy'),/frame-ancestors 'none'/);assert.match(response.headers.get('strict-transport-security'),/max-age=31536000/);assert.match(response.headers.get('permissions-policy'),/camera=\(\)/);
+ }
+});
+test('simultaneous use of one recovery code succeeds only once, and a password hash alone cannot sign a valid session',async()=>{
+ const env=await setup(),e=await enrollSecurity(env);
+ const body={username:'reviewer',password:adminPassword,code:e.codes[0]};
+ const attempts=await Promise.all([call(env,'/api/login',{method:'POST',ip:'recovery-a',body}),call(env,'/api/login',{method:'POST',ip:'recovery-b',body})]);assert.deepEqual(attempts.map(r=>r.response.status).sort(),[200,401]);
+ const token=e.cookie.split('=')[1],payload=token.split('.')[0],account=env.sql.prepare('SELECT password_hash FROM admin_accounts').get();
+ const key=await crypto.subtle.importKey('raw',Uint8Array.from(account.password_hash.match(/../g),v=>parseInt(v,16)),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+ const signature=Buffer.from(await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(payload))).toString('base64url');
+ assert.equal((await call(env,'/api/manage/security',{cookie:'__Host-course-admin='+payload+'.'+signature})).response.status,401);
+});

@@ -116,3 +116,12 @@ export const unitSettingsHistory = sqliteTable('unit_settings_history', {
   beforeData:text('before_data').notNull(),afterData:text('after_data').notNull(),
   actor:text('actor').notNull(),createdAt:integer('created_at').notNull(),
 });
+export const adminSecurity = sqliteTable('admin_security', {
+  id:integer('id').primaryKey(),enabled:integer('enabled').notNull().default(0),
+  secret:text('secret'),pendingSecret:text('pending_secret'),pendingAt:integer('pending_at'),
+  version:integer('version').notNull().default(0),lastCounter:integer('last_counter').notNull().default(-1),
+  recoveryHashes:text('recovery_hashes').notNull().default('[]'),
+});
+export const adminRevokedSessions = sqliteTable('admin_revoked_sessions', {
+  tokenHash:text('token_hash').primaryKey(),expiresAt:integer('expires_at').notNull(),
+});

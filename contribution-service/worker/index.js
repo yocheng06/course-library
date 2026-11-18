@@ -27,6 +27,7 @@ const HIDDEN_FINGERPRINT_VERSION = "hidden-question-fingerprints-v1";
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const origins = new Set([SITE_ORIGIN, LIBRARY_ORIGIN]);
 const initializedAdminDatabases = new WeakSet();
+/* ADMIN_SECURITY */
 class HttpError extends Error {
   constructor(status, message, details = {}) {
     super(message);
@@ -208,7 +209,8 @@ function cookieValue(request, name) {
     .find((part) => part.startsWith(name + "="))
     ?.slice(name.length + 1);
 }
-async function createAdminCookie(account) {
+async function createAdminCookie(account, env) {
+  const security = await adminSecurity(env);
   const now = Date.now(),
     payload = base64url(
       new TextEncoder().encode(
@@ -217,12 +219,13 @@ async function createAdminCookie(account) {
           issuedAt: now,
           expiresAt: now + ADMIN_SESSION_MS,
           nonce: toHex(crypto.getRandomValues(new Uint8Array(16))),
+          securityVersion: security.version,
         }),
       ),
     ),
     key = await crypto.subtle.importKey(
       "raw",
-      fromHex(account.password_hash),
+      await crypto.subtle.digest('SHA-256', new TextEncoder().encode('admin-cookie-v2:'+env.RATE_HASH_KEY+':'+account.password_hash)),
       { name: "HMAC", hash: "SHA-256" },
       false,
       ["sign"],
@@ -236,7 +239,7 @@ async function createAdminCookie(account) {
 }
 async function authenticatedAdmin(request, env, account = undefined) {
   const token = cookieValue(request, ADMIN_COOKIE);
-  if (!token || token.length > 1024) return null;
+  if (!token || token.length > 1024 || !env.RATE_HASH_KEY) return null;
   account ??= await getAdminAccount(env);
   if (
     !account ||
@@ -251,7 +254,7 @@ async function authenticatedAdmin(request, env, account = undefined) {
   try {
     const key = await crypto.subtle.importKey(
         "raw",
-        fromHex(account.password_hash),
+        await crypto.subtle.digest('SHA-256', new TextEncoder().encode('admin-cookie-v2:'+env.RATE_HASH_KEY+':'+account.password_hash)),
         { name: "HMAC", hash: "SHA-256" },
         false,
         ["verify"],
@@ -263,11 +266,14 @@ async function authenticatedAdmin(request, env, account = undefined) {
         new TextEncoder().encode(payload),
       );
     if (!valid) return null;
+    const security=await adminSecurity(env);
+    if(await env.DB.prepare('SELECT token_hash FROM admin_revoked_sessions WHERE token_hash=?').bind(await hash(token)).first())return null;
     const claims = JSON.parse(
       new TextDecoder().decode(decodeBase64url(payload)),
     );
     if (
       claims.username !== account.username ||
+      claims.securityVersion !== security.version ||
       !Number.isSafeInteger(claims.issuedAt) ||
       !Number.isSafeInteger(claims.expiresAt) ||
       claims.issuedAt > Date.now() + 60000 ||
@@ -371,6 +377,8 @@ async function adminLogin(request, env) {
       username === account.username &&
       sameSecret(candidate, account.password_hash)
     ) {
+      const security=await adminSecurity(env);
+      if(security.enabled&&!await consumeSecondFactor(env,security,body.code))throw new HttpError(401,'帳密或驗證碼不正確；驗證碼只能用一次，也可輸入備援碼。',{secondFactorRequired:true});
       await env.DB.prepare("DELETE FROM rate_windows WHERE key=?")
         .bind(key)
         .run();
@@ -378,7 +386,7 @@ async function adminLogin(request, env) {
         isReviewer: true,
         userId: "admin:" + account.username,
       });
-      response.headers.set("set-cookie", await createAdminCookie(account));
+      response.headers.set("set-cookie", await createAdminCookie(account,env));
       return response;
     }
   }
@@ -467,7 +475,7 @@ async function setupAdmin(request, env) {
       isReviewer: true,
       userId: "admin:" + account.username,
     });
-  response.headers.set("set-cookie", await createAdminCookie(account));
+  response.headers.set("set-cookie", await createAdminCookie(account,env));
   return response;
 }
 function clearAdminCookie() {
@@ -1898,8 +1906,13 @@ async function route(request, env) {
     return setupAdmin(request, env);
   if (path === "/api/logout" && request.method === "POST") {
     requireOrigin(request, true);
+    if(await authenticatedAdmin(request,env)){
+      await env.DB.prepare('DELETE FROM admin_revoked_sessions WHERE expires_at<?').bind(Date.now()).run();
+      await env.DB.prepare('INSERT INTO admin_revoked_sessions(token_hash,expires_at) VALUES (?,?) ON CONFLICT(token_hash) DO NOTHING').bind(await hash(cookieValue(request,ADMIN_COOKIE)),Date.now()+ADMIN_SESSION_MS).run();
+    }
     return clearAdminCookie();
   }
+  if(path==='/api/manage/security'||path.startsWith('/api/manage/security/'))return manageAdminSecurity(request,env,path);
   if (path === "/api/session" && request.method === "GET") {
     const account = await getAdminAccount(env),
       authenticated = await authenticatedAdmin(request, env, account),
@@ -2077,6 +2090,9 @@ export default {
       );
     }
     const headers = new Headers(response.headers);
+    headers.set('content-security-policy',"default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; connect-src 'self' https://yocheng06.github.io; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; object-src 'none'; upgrade-insecure-requests");
+    headers.set('strict-transport-security','max-age=31536000');
+    headers.set('permissions-policy','camera=(), microphone=(), geolocation=(), payment=(), usb=()');
     headers.set("x-content-type-options", "nosniff");
     headers.set("referrer-policy", "strict-origin-when-cross-origin");
     headers.set("x-frame-options", "DENY");

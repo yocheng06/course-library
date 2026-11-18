@@ -108,6 +108,7 @@ const paths = [
   "assets/submission-inbox-ui.mjs",
   "assets/submission-inbox.mjs",
   "assets/contributions-review.js",
+  "assets/admin-security.mjs",
   "assets/library-manager.mjs",
   "assets/unit-manager.mjs",
   "assets/system-backup.mjs",
@@ -137,6 +138,8 @@ const healthExplanations=JSON.parse(await readFile(resolve(root,"content/health-
 let worker = await readFile(resolve(root, "worker/index.js"), "utf8");
 const builtinManagement=await readFile(resolve(root,"worker/builtin-management.js"),"utf8");
 const readLibraryManagement=await readFile(resolve(root,"worker/library-management.js"),"utf8");
+const readFileSecurity=await readFile(resolve(root,'worker/admin-security.js'),'utf8');
+worker=worker.replace('/* ADMIN_SECURITY */',()=>readFileSecurity);
 const searchModel=(await readFile(resolve(root,"worker/batch-model.js"),"utf8")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
 worker=worker.replace("/* BUILTIN_MANAGEMENT */",()=>"const builtinSearch=(()=>{"+searchModel+";return {choiceAliases,choiceCombinations,questionStemVersions,expandLibraryQuestion,buildIndex,matchQuestion,normalizeText,normalizeStem};})();\n"+builtinManagement);
 worker=worker.replace("/* LIBRARY_MANAGEMENT */",()=>readLibraryManagement);
