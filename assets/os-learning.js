@@ -97,14 +97,8 @@ function refreshFilters() {
   window.courseQuestionTools.populateSelect($('chapter'), entries.map(entry=>entry.topicLabel??entry.q.category), 'all', '全部主題');
   window.courseQuestionTools.populateSelect($('typeSelect'), entries.map(({q}) => kind(q)), 'all', '全部題型');
 }
-function highlighted(value) {
-  const text = String(value ?? ''), terms = [...new Set($('search').value.trim().split(/\s+/).filter(Boolean))];
-  if (!terms.length) return esc(text);
-  const re = new RegExp(terms.sort((a,b) => b.length-a.length).map(t => t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'gi');
-  let out = '', last = 0;
-  for (const m of text.matchAll(re)) { out += esc(text.slice(last,m.index))+'<mark>'+esc(m[0])+'</mark>'; last=m.index+m[0].length; }
-  return out + esc(text.slice(last));
-}
+function highlighted(value) { return window.courseQuestionTools.highlightSearch(value, $('search').value); }
+
 function matches() {
   return scopedEntries().filter(({q,topicLabel,unit}) => (!$('hideEnglish').checked || !window.courseQuestionTools.isEnglishOnlyQuestion(q)) && (!window.learningUI?.reviewOnly || window.learningUI.isSaved(q.id)) &&
     (mode !== 'practice' || window.coursePracticeProgress?.includes(q.id) !== false) &&

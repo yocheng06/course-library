@@ -25,6 +25,6 @@ test('reported radix question is excluded despite a generic array-format example
  assert.equal(tools.matchesSearch(radix,query),false);assert.equal(tools.searchMatchMarkup(radix,query),'');assert.ok(questions.some(q=>tools.matchesSearch(q,query)));
 });
 test('ordinary keyword and full-question searches retain existing formatting normalization',()=>{
- assert.equal(tools.matchesSearch(q({stem:'CPU 排程採用 Round Robin',answer:'time quantum'}),'CPU time quantum'),true);
+ assert.equal(tools.matchesSearch(q({stem:'CPU 排程採用 Round Robin',answer:'time quantum'}),'CPU time quantum'),false);
  assert.equal(tools.matchesSearch(q({stem:'在[__1__]頁表中，每個條目對應一個物理[__2__]。'}),'1. 在 ____________ 頁表中，每個條目對應一個物理 ____________ 。'),true);
 });

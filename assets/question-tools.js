@@ -31,27 +31,64 @@
   }
   const missingSource = question => !hasProvidedAnswer(question) && (Boolean(question.missingContext) || /追蹤/.test(question.type || '') || /樹中的「\?」|第6行與第10行|第 5 行/.test(question.q || ''));
 
-  // Keep the original question text; normalize presentation only for lookup.
-  const normalize = value => String(value ?? '').normalize('NFKC').toLowerCase()
-    .replace(/[\u200B\u2060\uFEFF]/g, '')
-    .replace(/(?:\\_){2,}/g, blank => blank.replaceAll('\\', ''))
-    .split(/\r?\n/).map(line => line
-      .replace(/^[ \t]*(?:\*\*)?(?:(?:beast|妖獸)\s*\d{1,4}\s*[.)、:。]|第\s*\d{1,4}\s*題\s*[:.)、]?|(?:question|q|題目)\s*\d{1,4}\s*[:.)、]?|\d{1,4}[.)、:](?!\d)|[a-h][.)、:](?=\s|$))(?:\*\*)?[ \t]*/iu, '')
-      .replace(/\[\s*_{2,}\s*\d+\s*_{2,}\s*\]|(?<![A-Za-z0-9_])_{2,}(?![A-Za-z0-9_])|(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/g, ' ')
-      .replace(/[，。？！、；：,?!;:"“”‘’()（）]/g, ' ')
-      .replace(/(?<!\d)\.|\.(?!\d)/g, ' ')
-      .replace(/([\p{Script=Han}])\s+(?=[\p{Script=Han}])/gu, '$1')
-      .replace(/\s+/g, ' ').trim()
-    ).join(' ').trim();
-  const searchTokens = query => [...new Set(normalize(query).trim().split(/\s+/).filter(Boolean))];
+  // Normalize presentation for lookup while retaining original character ranges for marking.
+  const prefixPattern = /^[ \t]*(?:\*\*)?(?:(?:beast|妖獸)\s*\d{1,4}\s*[.)、:。]|第\s*\d{1,4}\s*題\s*[:.)、]?|(?:question|q|題目)\s*\d{1,4}\s*[:.)、]?|\d{1,4}[.)、:](?!\d)|[a-h][.)、:](?=\s|$))(?:\*\*)?[ \t]*/gimu;
+  const blankPattern = /\[\s*_{2,}\s*\d+\s*_{2,}\s*\]|(?<![A-Za-z0-9_])_{2,}(?![A-Za-z0-9_])|(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/g;
+  function searchText(value, tracked = false, sequence = false) {
+    const original = String(value ?? '');
+    let text = '', ranges = tracked ? [] : null, offset = 0;
+    for (const character of original) {
+      const part = character.normalize('NFKC').toLowerCase();
+      text += part;
+      if (tracked) for (let i=0;i<part.length;i++) ranges.push([offset,offset+character.length]);
+      offset += character.length;
+    }
+    function replace(pattern, replacement) {
+      if (!tracked) { text = text.replace(pattern,replacement); return; }
+      let next = '', nextRanges = [], last = 0;
+      for (const match of text.matchAll(pattern)) {
+        const start=match.index,end=start+match[0].length;
+        next += text.slice(last,start)+replacement;
+        nextRanges.push(...ranges.slice(last,start));
+        for(let i=0;i<replacement.length;i++) nextRanges.push([ranges[start][0],ranges[end-1][1]]);
+        last=end;
+      }
+      next += text.slice(last);nextRanges.push(...ranges.slice(last));text=next;ranges=nextRanges;
+    }
+    if (sequence) {
+      replace(/、/g,',');replace(/\s*,\s*/g,',');
+    } else {
+      replace(/[\u200B\u2060\uFEFF]/g,'');
+      replace(/\\(?=_)/g,'');
+      replace(prefixPattern,'');replace(blankPattern,' ');
+      replace(/[，。？！、；：,?!;:"“”‘’()（）]/g,' ');
+      replace(/(?<!\d)\.|\.(?!\d)/g,' ');
+      replace(/(?<=[\p{Script=Han}])[^\S\r\n]+(?=[\p{Script=Han}])/gu,'');
+      replace(/\s+/g,' ');
+    }
+    replace(/^\s+|\s+$/g,'');
+    return {text,ranges};
+  }
+  const normalize = value => searchText(value).text;
   const searchableText = new WeakMap();
-  const sequenceText = value => String(value ?? '').normalize('NFKC').replace(/、/g, ',').replace(/\s*,\s*/g, ',');
+  const sequenceText = value => searchText(value,false,true).text;
   function sequencePattern(query) {
-    const text = sequenceText(query).trim();
+    const text = sequenceText(query);
     if (!/^[+-]?\d+(?:\.\d+)?(?:,[+-]?\d+(?:\.\d+)?)+$/.test(text)) return null;
     const literal = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    // Match whole numbers, never a digit inside a longer number or variable.
     return new RegExp('(?<![\\dA-Za-z_.+-])' + literal + '(?![\\dA-Za-z_+-]|\\.\\d)', 'u');
+  }
+  function highlightSearch(value, query) {
+    const original=String(value??''), sequence=sequencePattern(query), phrase=normalize(query);
+    if(!sequence&&!phrase)return escape(original);
+    const {text,ranges}=searchText(original,true,Boolean(sequence));
+    const pattern=sequence?new RegExp(sequence.source,'gu'):new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gu');
+    let html='',last=0;
+    for(const match of text.matchAll(pattern)) {
+      const start=ranges[match.index][0],end=ranges[match.index+match[0].length-1][1];
+      html+=escape(original.slice(last,start))+'<mark>'+escape(original.slice(start,end))+'</mark>';last=end;
+    }
+    return html+escape(original.slice(last));
   }
   function sequenceFields(question) {
     // Old aliases may contain generic array-format examples absent from the visible question.
@@ -92,28 +129,22 @@
   function matchesSearch(question, query) {
     const sequence = sequencePattern(query);
     if (sequence) return sequenceFields(question).some(field => field.values.some(value => sequence.test(sequenceText(value))));
-    const tokens = searchTokens(query);
-    if (!tokens.length) return true;
-    let text = searchableText.get(question);
-    if (text === undefined) {
-      text = normalize(searchFields(question).flatMap(field => field.values).filter(Boolean).join('\n'));
-      searchableText.set(question, text);
+    const phrase = normalize(query);
+    if (!phrase) return true;
+    let fields = searchableText.get(question);
+    if (!fields) {
+      fields = searchFields(question).map(field => ({label:field.label,values:field.values.filter(Boolean).map(normalize)}));
+      searchableText.set(question,fields);
     }
-    return tokens.every(token => text.includes(token));
+    return fields.some(field => field.values.some(text => text.includes(phrase)));
   }
 
   function searchMatchMarkup(question, query) {
-    const sequence = sequencePattern(query);
-    if (sequence) {
-      const labels = sequenceFields(question).filter(field => field.values.some(value => sequence.test(sequenceText(value)))).map(field => field.label);
-      return labels.length ? `<p class="search-match">命中：${labels.map(escape).join('、')}</p>` : '';
-    }
-    const tokens = searchTokens(query);
-    if (!tokens.length) return '';
-    const labels = searchFields(question).filter(field => {
-      const text = normalize(field.values.filter(Boolean).join('\n'));
-      return tokens.some(token => text.includes(token));
-    }).map(field => field.label);
+    const sequence = sequencePattern(query), phrase = normalize(query);
+    if (!sequence && !phrase) return '';
+    const fields = sequence ? sequenceFields(question) : searchFields(question);
+    const labels = fields.filter(field => field.values.some(value => sequence
+      ? sequence.test(sequenceText(value)) : normalize(value).includes(phrase))).map(field => field.label);
     return labels.length ? `<p class="search-match">命中：${labels.map(escape).join('、')}</p>` : '';
   }
 
@@ -346,5 +377,5 @@
     return /[a-z]/iu.test(text) && !/[\u3400-\u9fff]/u.test(text);
   }
 
-  window.courseQuestionTools = { isEnglishOnlyQuestion, questionType, answerType, questionImagesMarkup, hasProvidedAnswer, optionAnswerKeys, studyOptionMark, updateStudyOptionMarks, matchesSearch, searchMatchMarkup, createPracticeOrder, createOptionSession, explanationText, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
+  window.courseQuestionTools = { isEnglishOnlyQuestion, questionType, answerType, questionImagesMarkup, hasProvidedAnswer, optionAnswerKeys, studyOptionMark, updateStudyOptionMarks, matchesSearch, highlightSearch, searchMatchMarkup, createPracticeOrder, createOptionSession, explanationText, explanationMarkup, qualityReasons, qualityMarkup, missingSource, answerLabel, answerText, answerValueMarkup, incompleteReasons, incompleteMarkup, reviewMarkup, populateSelect, reportURL, focusResults, focusLinkedQuestion, renderQuestionCards };
 })();
