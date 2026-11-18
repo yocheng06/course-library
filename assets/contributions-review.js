@@ -1,3 +1,4 @@
+import {setupManagementMenu} from './management-menu.mjs?v=menu-position-20261118';
 import {setupAdminSecurity} from './admin-security.mjs?v=security-20261118';
 import {setupSystemPanel} from './system-backup.mjs?v=improvements-20261104';
 import {setupUnitManager} from './unit-manager.mjs?v=unit-drag-add-20261103';
@@ -7,6 +8,7 @@ import { setupLibraryManager } from './library-manager.mjs?v=admin-workflow-2026
 import { setupImportRecords } from './import-records.mjs?v=treasure-unit-20261030';
 
 const $ = id => document.getElementById(id);
+setupManagementMenu(document.querySelector('.management-tools'));
 const origin = window.courseContributions.apiOrigin;
 let library = null, health = null, units = null, system = null, security = null;
 let imports = null;

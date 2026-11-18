@@ -109,6 +109,7 @@ const paths = [
   "assets/submission-inbox.mjs",
   "assets/contributions-review.js",
   "assets/admin-security.mjs",
+  "assets/management-menu.mjs",
   "assets/library-manager.mjs",
   "assets/unit-manager.mjs",
   "assets/system-backup.mjs",
