@@ -9,7 +9,7 @@
   'os/scheduling':['排程基本觀念','評估指標','FCFS／SJF','RR 時間片','優先權／飢餓','多處理器','即時排程','Linux／Windows／Solaris','排程評估模型','進階排程'],
   'os/treasure':['FCFS／FIFO 計算','SJF／SRTF 計算','Round Robin 計算','優先權排程','Rate Monotonic 即時排程','EDF 即時排程','即時排程可行性'],
   'os/synchronization':['臨界區與核心','同步風險','硬體原子指令','Peterson’s Solution','同步工具','Semaphore','Monitor','經典同步案例','Bounded-Buffer','Readers-Writers','Dining Philosophers','系統實作','替代同步方法'],
-  'os/deadlocks':['死結定義與影響','資源類型','死結必要條件','資源分配圖','處理方法總覽','死結預防','死結避免','安全狀態','銀行家演算法','死結偵測','死結恢復','死結偵測與恢復','死結範例'],
+  'os/deadlocks':['死結定義與影響','死結範例','資源類型','死結必要條件','資源分配圖','處理方法總覽','死結預防','死結避免','安全狀態','銀行家演算法','死結偵測','死結恢復','死結偵測與恢復'],
   'os/L9':['記憶體保護','位址繫結','連續配置與碎片','非連續配置方式','分頁與 TLB','頁表結構','分段','載入、交換與連結','架構案例：ARM／Intel'],
   'algorithms/L2':['演算法分析 / RAM','漸進符號與定義','單調性','Floor / Ceiling / 模運算','函數增長率 / Log','Iterative Log / Fibonacci','Factorial / Stirling','Insertion Sort','Merge Sort'],
   'algorithms/L3':['基礎觀念','漸進符號','代入法','遞迴樹','大師定理','技術細節','特殊遞迴','綜合方法'],
