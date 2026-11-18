@@ -4,7 +4,7 @@ import {setupSystemPanel} from './system-backup.mjs?v=improvements-20261104';
 import {setupUnitManager} from './unit-manager.mjs?v=unit-drag-add-20261103';
 import {setupLibraryHealth} from './library-health.mjs?v=admin-workflow-20261103';
 import { api, message, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
-import { setupLibraryManager } from './library-manager.mjs?v=pending-tab-20261118';
+import { setupLibraryManager } from './library-manager.mjs?v=bulk-resolve-20261118';
 import { setupImportRecords } from './import-records.mjs?v=treasure-unit-20261030';
 
 const $ = id => document.getElementById(id);

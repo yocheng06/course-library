@@ -2314,6 +2314,7 @@ test('pending-review submissions preserve existing answers, deduplicate retries 
   assert.equal((await call(env,'/api/community/questions/'+id,{method:'POST',body:resolve})).response.status,400);
   const kept=await call(env,path,{method:'POST',reviewer:true,body:resolve});
   assert.equal(kept.response.status,200,JSON.stringify(kept.data));assert.equal(kept.data.item.question.submissionReview.status,'resolved');
+  for(const key of ['stem','type','options','answer','explanation','images'])assert.deepEqual(kept.data.item.question[key],published[key],key+' must be preserved when clearing review');
   assert.equal((await call(env,'/api/manage/library?course=os&state=pending',{reviewer:true})).data.total,0);
   assert.equal((await call(env,path+'/history',{reviewer:true})).data.items[0].action,'resolveReview');
 });

@@ -136,3 +136,33 @@ test('drag handles also support keyboard reordering without changing unit IDs',a
  const manager=setupUnitManager({container:ui.$('unitWorkspace')});await manager.show();const e=new ui.window.Event('keydown',{bubbles:true,cancelable:true});e.key='ArrowUp';ui.document.querySelector('[data-unit-drag="L3"]').dispatchEvent(e);
  assert.deepEqual([...ui.document.querySelectorAll('[data-unit-row]')].map(n=>n.dataset.unitRow),['L3','L2']);assert.equal(ui.document.querySelector('[data-unit-save]').disabled,false);
 });
+import vm from 'node:vm';
+import {readFile} from 'node:fs/promises';
+function reviewBank(count=3){return bank(count).map(row=>({...row,revision:1,pendingReview:true,question:{stem:row.stem,type:'單選題',category:'IPC',options:['單向通訊','雙向通訊'],answer:'A',answerProvided:true,images:[],submissionReview:{status:'pending',reason:'題幹相同，但題型不同',references:['process-1']}}}));}
+function reviewServer(rows,{fail=()=>false,stale=()=>false}={}){
+ const posts=[];globalThis.fetch=async(raw,options={})=>{const url=new URL(raw);let data;
+  if(options.method==='POST'){
+   const id=decodeURIComponent(url.pathname.split('/').at(-1)),row=rows.find(r=>r.id===id),body=JSON.parse(options.body);posts.push({id,body});assert.equal(body.action,'resolveReview');assert.equal(body.payload,undefined);
+   if(fail(id))return new Response(JSON.stringify({error:'暫時無法處理'}),{status:503});
+   assert.equal(body.revision,row.revision);row.revision++;row.hasHistory=true;row.pendingReview=false;row.question={...row.question,submissionReview:{...row.question.submissionReview,status:'resolved'}};data={item:row};
+  }else if(url.pathname.endsWith('/item')){const row=rows.find(r=>r.id===url.searchParams.get('id'));data={item:{...row,revision:row.revision+(stale(row.id)?1:0),published:!row.deleted}};}
+  else {const list=rows.filter(row=>url.searchParams.get('state')==='pending'?row.pendingReview&&!row.deleted:!row.deleted),start=Number(url.searchParams.get('cursor')||0);data={items:list.slice(start,start+25),total:list.length,nextCursor:start+25<list.length?String(start+25):null,units:[],counts:{all:rows.length,modified:rows.filter(r=>r.hasHistory).length,deleted:0,pending:rows.filter(r=>r.pendingReview).length}};}
+  return new Response(JSON.stringify(data));
+ };return {posts};
+}
+test('bulk pending confirmation includes unloaded selections, clears public warnings and preserves every option and teacher answer',async()=>{
+ const ui=dom(),rows=reviewBank(27),original=rows.map(row=>JSON.stringify({...row.question,submissionReview:undefined})),s=reviewServer(rows),manager=setupLibraryManager();await manager.show('pending');let confirms=0;globalThis.confirm=text=>{confirms++;assert.match(text,/題幹、選項與答案完全不變/);return true;};
+ ui.$('librarySelectMatching').click();await waitFor(()=>ui.$('librarySelectedCount').textContent.includes('已選 27 題'));assert.equal(ui.$('libraryResolveSelected').hidden,false);ui.$('libraryResolveSelected').click();
+ await waitFor(()=>s.posts.length===27&&ui.$('libraryOutcomeText').textContent.includes('27 題'));assert.equal(confirms,1);assert(rows.every(row=>!row.pendingReview&&!row.deleted&&row.revision===2));assert.equal(ui.document.querySelectorAll('[data-row]').length,0);assert.equal(ui.$('libraryUndo').hidden,true);
+ const context={window:{}};vm.runInNewContext(await readFile(new URL('../assets/question-tools.js',import.meta.url),'utf8'),context);
+ for(const [i,row] of rows.entries()){assert.equal(JSON.stringify({...row.question,submissionReview:undefined}),original[i]);assert.equal(row.question.options[0],'單向通訊');assert.equal(context.window.courseQuestionTools.qualityMarkup(row.question,'os'),'');assert.equal(context.window.courseQuestionTools.answerLabel(row.question),'題庫答案');assert.equal(context.window.courseQuestionTools.studyOptionMark(row.question,true).className,'correct');}
+});
+test('bulk pending resolution keeps failed selections and retries only uncompleted confirmations',async()=>{
+ const ui=dom(),rows=reviewBank(3);let failing=true;const s=reviewServer(rows,{fail:id=>failing&&id==='q1'}),manager=setupLibraryManager();await manager.show('pending');ui.$('librarySelectVisible').checked=true;ui.fire(ui.$('librarySelectVisible'),'change');ui.$('libraryResolveSelected').click();
+ await waitFor(()=>!ui.$('libraryRetry').hidden);assert.equal(s.posts.length,3);assert.match(ui.$('librarySelectedCount').textContent,/已選 1 題/);assert.equal(ui.$('libraryResolveSelected').hidden,false);assert.equal(rows.filter(r=>r.pendingReview).length,1);
+ failing=false;ui.$('libraryRetry').click();await waitFor(()=>s.posts.length===4&&ui.$('libraryRetry').hidden);assert.equal(s.posts.at(-1).id,'q1');assert(rows.every(r=>!r.pendingReview&&!r.deleted));assert.equal(ui.document.querySelectorAll('[data-row]').length,0);
+});
+test('cancelled bulk confirmation makes no writes, and changed revisions must be reviewed again',async()=>{
+ const ui=dom(),rows=reviewBank(1),s=reviewServer(rows,{stale:()=>true}),manager=setupLibraryManager();await manager.show('pending');ui.$('librarySelectVisible').checked=true;ui.fire(ui.$('librarySelectVisible'),'change');globalThis.confirm=()=>false;ui.$('libraryResolveSelected').click();await tick();assert.equal(s.posts.length,0);assert.equal(rows[0].pendingReview,true);
+ globalThis.confirm=()=>true;ui.$('libraryResolveSelected').click();await waitFor(()=>!ui.$('libraryRetry').hidden);assert.equal(s.posts.length,0);assert.match(ui.$('libraryError').textContent,/狀態已變更/);assert.match(ui.$('librarySelectedCount').textContent,/已選 1 題/);assert.equal(rows[0].question.answer,'A');
+});
