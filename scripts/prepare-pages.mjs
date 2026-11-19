@@ -18,23 +18,17 @@ function redirectPage({path, title}) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>前往新版${title}</title>
+  <title>${title}</title>
   <link rel="canonical" href="${destination}">
-</head>
-<body>
-  <main>
-    <h1>前往新版${title}</h1>
-    <p>若沒有自動跳轉，請<a id="destination" href="${destination}">開啟新版${title}</a>。</p>
-  </main>
   <script>
-    const link = document.getElementById('destination');
-    const destination = new URL(link.href);
+    const destination = new URL(${JSON.stringify(destination)});
     destination.search = location.search;
     destination.hash = location.hash;
-    link.href = destination.href;
     location.replace(destination.href);
   </script>
-</body>
+  <noscript><meta http-equiv="refresh" content="0;url=${destination}"></noscript>
+</head>
+<body><noscript><a href="${destination}">${title}</a></noscript></body>
 </html>
 `;
 }
