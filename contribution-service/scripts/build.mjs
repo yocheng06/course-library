@@ -109,6 +109,7 @@ const paths = [
   "assets/submission-inbox.mjs",
   "assets/contributions-review.js",
   "assets/admin-security.mjs",
+  "assets/edit-moderation.mjs",
   "assets/management-menu.mjs",
   "assets/library-manager.mjs",
   "assets/unit-manager.mjs",
@@ -141,6 +142,8 @@ const builtinManagement=await readFile(resolve(root,"worker/builtin-management.j
 const readLibraryManagement=await readFile(resolve(root,"worker/library-management.js"),"utf8");
 const readFileSecurity=await readFile(resolve(root,'worker/admin-security.js'),'utf8');
 worker=worker.replace('/* ADMIN_SECURITY */',()=>readFileSecurity);
+const editModeration=await readFile(resolve(root,'worker/edit-moderation.js'),'utf8');
+worker=worker.replace('/* EDIT_MODERATION */',()=>editModeration);
 const searchModel=(await readFile(resolve(root,"worker/batch-model.js"),"utf8")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
 worker=worker.replace("/* BUILTIN_MANAGEMENT */",()=>"const builtinSearch=(()=>{"+searchModel+";return {choiceAliases,choiceCombinations,questionStemVersions,expandLibraryQuestion,buildIndex,matchQuestion,normalizeText,normalizeStem};})();\n"+builtinManagement);
 worker=worker.replace("/* LIBRARY_MANAGEMENT */",()=>readLibraryManagement);

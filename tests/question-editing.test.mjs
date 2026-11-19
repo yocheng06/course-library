@@ -15,7 +15,7 @@ async function page({id='basics-1',course='os',server,shown,failPost=false}={}) 
  window.courseContributions={apiOrigin:'https://example.com'};
  window.addEventListener('online',()=>online++);
  const context=vm.createContext({document,window,URL,URLSearchParams,AbortSignal,Event:window.Event,Blob,setTimeout,fetch:async(url,opts={})=>{
-  requests.push({url,opts});if(failPost&&opts.method==='POST')return {ok:false,json:async()=>({error:'Conflict'})};return {ok:true,json:async()=>({item:structuredClone(server)})};
+  requests.push({url,opts});if(failPost&&opts.method==='POST')return {ok:false,json:async()=>({error:'Conflict'})};return {ok:true,json:async()=>opts.method==='POST'&&JSON.parse(opts.body).action==='request-delete'?{queued:true}:{item:structuredClone(server)}};
  }});
  vm.runInContext(source,context);
  const dialog=document.querySelector('dialog'),form=dialog.querySelector('form');
@@ -39,7 +39,7 @@ test('both courses expose the original-question editor and save through the vers
   assert.equal(body.question.stem,question.stem);assert.equal(ui.online(),1);
  }
 });
-test('delete controls remove either question type through a recoverable versioned endpoint',async()=>{
+test('removal controls submit suggestions for either question type',async()=>{
  for(const {id,course,server} of [
   {id:'sample-1',course:'os',server:{id:'sample-1',unit:'L2',revision:4,sourceHash:'hash',question}},
   {id:'community-11111111-1111-4111-8111-111111111111-1',course:'os',server:{revision:3,unit:'L9',unitTitle:'第9單元',question}},
@@ -51,11 +51,11 @@ test('delete controls remove either question type through a recoverable versione
   const request=ui.requests.find(r=>r.opts.method==='POST');
   const body=JSON.parse(request.opts.body);
   assert.match(request.url,/\/api\/community\/(builtin-questions|questions)\//);
-  assert.equal(body.action,'delete');
+  assert.equal(body.action,'request-delete');
   assert.equal(body.revision,server.revision);
   if(server.sourceHash)assert.equal(body.sourceHash,server.sourceHash);
-  assert.match(ui.document.querySelector('[data-status]').textContent,/站主可在/);
-  assert.equal(ui.online(),1);
+  assert.match(ui.document.querySelector('[data-status]').textContent,/送交站主審核/);
+  assert.equal(ui.online(),0);
  }
 });
 test('community editor retains source-checked display blanks and explanation, but never overwrites a newer server version',async()=>{
@@ -81,14 +81,14 @@ test('a stale local draft is not reapplied over the latest server revision',asyn
 });
 
 
-test('local deletion notification is sent only after a successful server response',async()=>{
+test('removal suggestions never remove the question from the page',async()=>{
  const shown={...question,id:'sample-1'},server={id:'sample-1',unit:'basics',revision:4,sourceHash:'hash',question};
  for(const failPost of [false,true]){
   const ui=await page({id:shown.id,server,shown,failPost});
   ui.fire(ui.document.querySelector('[data-delete-question]'),'click');await tick();
-  assert.equal(ui.deletions.length,failPost?0:1);
-  if(!failPost){assert.equal(ui.deletions[0].id,shown.id);assert.equal(ui.deletions[0].unit,'basics');assert.equal(ui.deletions[0].question.stem,shown.stem);}
-  else assert.match(ui.document.querySelector('[data-status]').textContent,/未能刪除/);
+  assert.equal(ui.deletions.length,0);
+  if(!failPost){assert.equal(JSON.parse(ui.requests.at(-1).opts.body).action,'request-delete');assert.match(ui.document.querySelector('[data-status]').textContent,/送交站主審核/);}
+  else assert.match(ui.document.querySelector('[data-status]').textContent,/未能送出/);
  }
 });
 

@@ -33,7 +33,8 @@
       <label hidden>網站<input name="website" tabindex="-1" autocomplete="off"></label>
       <button type="submit" class="plain"></button>
     </form>
-    <button type="button" data-delete-question class="plain danger" hidden>刪除此題</button>
+    <button type="button" data-delete-question class="plain danger" hidden>建議移除此題</button>
+    <button type="button" data-report-question class="plain" hidden>回報題目問題</button>
     <p data-status role="status" aria-live="polite"></p>
     <button type="button" data-download-draft class="plain" hidden>下載舊草稿</button>
     <button type="button" data-download-receipt class="plain" hidden>下載勘誤收據</button>
@@ -51,7 +52,18 @@
     deleteButton = dialog.querySelector('[data-delete-question]');
   const drafts = new Map();
   let active = null, opener = null, pending = false, receipt = null,
-    mode = 'report', currentItem = null;
+    mode = 'report', currentItem = null, editPolicy = 'direct';
+  const reportButton = dialog.querySelector('[data-report-question]');
+  function browserId() {
+    try {
+      const key = 'course-library.edit-browser.v1';
+      const stored = localStorage.getItem(key);
+      if (stored) return stored;
+      const id = crypto.randomUUID();
+      localStorage.setItem(key, id);
+      return id;
+    } catch { return undefined; }
+  }
   const labels = {pending:'待站主審核',confirmed:'已確認需更正',resolved:'已處理',rejected:'不採納'};
 
   async function api(path, options = {}) {
@@ -73,7 +85,7 @@
     const editing = mode === 'edit';
     dialog.querySelector('#correction-title').textContent = editing ? '修改題目' : '回報題目問題';
     dialog.querySelector('[data-help]').textContent = editing
-      ? '所有單元的題目都可免登入修改並立即公開。每次修改保留前後版本；刪除會先移出公開題庫，站主可在題庫管理中還原。'
+      ? '可免登入提出修正。改題時會記錄連線 IP 與瀏覽器代號，僅站主可查閱，保留 30 天。'
       : '免登入回報原有題庫題目，由站主處理；回報不會直接更改公開內容。請勿填寫個人資料。';
     dialog.querySelector('[data-edit-fields]').hidden = !editing;
     dialog.querySelector('[data-report-fields]').hidden = editing;
@@ -83,7 +95,8 @@
     form.elements.answer.required = editing;
     form.elements.detail.required = !editing;
     form.elements.detail.minLength = editing ? 0 : 5;
-    submitButton.textContent = editing ? '直接儲存並公開' : '送出勘誤';
+    submitButton.textContent = editing ? (editPolicy === 'review' ? '送交站主審核' : '直接儲存並公開') : '送出勘誤';
+    reportButton.hidden = !editing;
     deleteButton.hidden = !editing || !currentItem || currentItem.deleted === true;
   }
   function fillEdit(item) {
@@ -124,6 +137,7 @@
     active = button.dataset.correction;
     receipt = null;
     currentItem = null;
+    editPolicy = 'direct';
     dialog.querySelector('[data-question-label]').textContent =
       `${config.questionDetails(active).unit}・第 ${config.questionDetails(active).number} 題（${active}）`;
     dialog.querySelector('[data-download-receipt]').hidden = true;
@@ -141,15 +155,19 @@
       try {
         const path = communityId(active) ? '/api/community/questions/' + encodeURIComponent(active) : '/api/community/builtin-questions/' + config.course + '/' + encodeURIComponent(active);
         const result = await api(path);
+        editPolicy = result.editPolicy || 'direct';
         fillEdit(result.item);
+        setMode('edit');
+        if (editPolicy === 'paused' && !result.item.deleted) setMode('report');
         form.hidden = result.item.deleted === true;
         deleteButton.hidden = result.item.deleted === true;
         const staleDraft = drafts.has(active) && drafts.get(active).revision !== result.item.revision;
         dialog.querySelector('[data-download-draft]').hidden = !staleDraft;
         status.textContent = result.item.deleted === true
           ? '此題已從公開題庫移除；站主可在題庫管理的「已刪除」範圍還原。'
+          : editPolicy === 'paused' ? '目前暫停公開改題，仍可回報或建議移除。'
           : staleDraft ? '題目已有新版本，已載入最新內容；舊草稿保留，可下載對照。' : '';
-        if (!result.item.deleted) form.elements.stem.focus();
+        if (!result.item.deleted) (mode === 'edit' ? form.elements.stem : form.elements.detail).focus();
       } catch (error) {
         status.textContent = error.message;
       } finally {
@@ -169,7 +187,7 @@
     const item = currentItem, old = item.question;
     if (!communityId(active)) {
       return api('/api/community/builtin-questions/' + config.course + '/' + encodeURIComponent(active), {
-        method:'POST',body:JSON.stringify({action:'update',revision:item.revision,sourceHash:item.sourceHash,note:form.elements.note.value,question:{
+        method:'POST',body:JSON.stringify({action:'update',revision:item.revision,sourceHash:item.sourceHash,browserId:browserId(),note:form.elements.note.value,question:{
           ...old,category:form.elements.category.value,type:form.elements.type.value,stem:form.elements.stem.value,
           options:form.elements.options.value.split(/\r?\n/).map(value=>value.trim()).filter(Boolean),
           answer:form.elements.answer.value,explanation:form.elements.explanation.value,images:old.images || [],
@@ -197,7 +215,7 @@
     };
     return api('/api/community/questions/' + encodeURIComponent(active), {
       method: 'POST',
-      body: JSON.stringify({action:'update',revision:item.revision,payload,note:form.elements.note.value,confirmSimilar}),
+      body: JSON.stringify({action:'update',revision:item.revision,payload,browserId:browserId(),note:form.elements.note.value,confirmSimilar}),
     });
   }
   form.addEventListener('submit', async event => {
@@ -209,19 +227,20 @@
     try {
       if (mode === 'edit') {
         if (!currentItem) throw new Error('題目尚未載入，請關閉後重新開啟。');
+        let saved;
         try {
-          await saveCommunityEdit();
+          saved = await saveCommunityEdit();
         } catch (error) {
           const similar = error.details?.code === 'similar_questions';
           const list = (error.details?.possibleDuplicates || []).map(item => item.reference).join('、');
-          if (!similar || !window.confirm(`修改後與其他題目可能相同${list ? `（${list}）` : ''}。仍要直接公開這次修正嗎？`)) throw error;
-          await saveCommunityEdit(true);
+          if (!similar || !window.confirm(`修改後與其他題目可能相同${list ? `（${list}）` : ''}。仍要送出這次修正嗎？`)) throw error;
+          saved = await saveCommunityEdit(true);
         }
         drafts.delete(active);
         form.hidden = true;
         deleteButton.hidden = true;
-        status.textContent = '題目已儲存並公開。修改前版本已保留，站主可以管理及還原。';
-        window.dispatchEvent(new Event('online'));
+        status.textContent = saved?.queued ? '修改建議已送交站主審核。' : '題目已儲存並公開。修改前版本已保留。';
+        if (!saved?.queued) window.dispatchEvent(new Event('online'));
       } else {
         receipt = await api('/api/corrections', {
           method: 'POST',
@@ -241,45 +260,37 @@
       submitButton.disabled = false;
     }
   });
+  reportButton.addEventListener('click', () => {
+    if (pending || !currentItem) return;
+    setMode('report');
+    deleteButton.hidden = currentItem.deleted === true;
+    form.elements.detail.focus();
+  });
   deleteButton.addEventListener('click', async () => {
     if (pending || !active || !currentItem || currentItem.deleted) return;
-    const details = config.questionDetails(active);
-    if (!window.confirm(`確定刪除「${details.unit}・第 ${details.number} 題」嗎？\n\n這題會先移出公開題庫，不會永久刪除；站主可在題庫管理中還原。`)) return;
     pending = true;
-    submitButton.disabled = true;
-    deleteButton.disabled = true;
-    status.textContent = '正在刪除題目…';
+    submitButton.disabled = deleteButton.disabled = true;
+    status.textContent = '正在送出移除建議…';
     try {
       const path = communityId(active)
         ? '/api/community/questions/' + encodeURIComponent(active)
         : '/api/community/builtin-questions/' + config.course + '/' + encodeURIComponent(active);
-      await api(path, {
+      const result = await api(path, {
         method: 'POST',
         body: JSON.stringify({
-          action: 'delete',
-          revision: currentItem.revision,
-          ...(currentItem.sourceHash ? {sourceHash:currentItem.sourceHash} : {}),
-          note: '使用者刪除此題；站主可從管理頁還原。',
+          action: 'request-delete', revision: currentItem.revision,
+          ...(currentItem.sourceHash ? { sourceHash: currentItem.sourceHash } : {}),
+          browserId: browserId(), note: form.elements.note.value,
         }),
       });
-      // The server has committed the deletion; update the page before re-fetching.
-      window.dispatchEvent(new window.CustomEvent('course-question-deleted', {detail:{
-        course:config.course, id:active, unit:currentItem.unit,
-        question:config.questionForEdit(active),
-      }}));
-      drafts.delete(active);
-      form.hidden = true;
+      if (!result.queued) throw new Error('目前服務不支援移除建議。');
       deleteButton.hidden = true;
-      status.textContent = communityId(active)
-        ? '題目已移出公開題庫；站主可在投稿題目管理的「已下架」範圍重新上架。'
-        : '題目已移出公開題庫；站主可在內建題目管理的「已刪除」範圍還原。';
-      window.dispatchEvent(new Event('online'));
+      status.textContent = '移除建議已送交站主審核。';
     } catch (error) {
-      status.textContent = `未能刪除：${error.message}。題目與你的編輯內容仍保留。`;
+      status.textContent = `未能送出：${error.message}`;
     } finally {
       pending = false;
-      submitButton.disabled = false;
-      deleteButton.disabled = false;
+      submitButton.disabled = deleteButton.disabled = false;
     }
   });
   lookup.addEventListener('submit', async event => {

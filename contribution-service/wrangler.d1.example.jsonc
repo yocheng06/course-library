@@ -4,6 +4,7 @@
   "main": "dist/cloudflare/index.mjs",
   "compatibility_date": "2026-11-17",
   "workers_dev": true,
+  "triggers": {"crons": ["17 3 * * *"]},
   "vars": {"PUBLIC_ORIGIN": "https://course-library-submissions.YOUR-SUBDOMAIN.workers.dev"},
   "build": {"command": "node scripts/build.mjs && node scripts/build-cloudflare.mjs --origin https://course-library-submissions.YOUR-SUBDOMAIN.workers.dev"},
   "d1_databases": [{"binding": "DB", "database_name": "course-library", "database_id": "REPLACE_WITH_NEW_DATABASE_ID", "migrations_dir": "drizzle"}]

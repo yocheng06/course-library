@@ -1971,7 +1971,7 @@ test('new algorithm units are discoverable immediately and their name is locked 
  assert.equal((await call(env,'/api/units?course=invalid')).response.status,400);
 });
 
-test('publicly deleted community questions appear in the owner hidden list and can be restored',async()=>{
+test('owner-approved community removals appear in the owner hidden list and can be restored',async()=>{
  const env=await setup(),body=payload();
  body.title='可還原刪除測試';
  body.questions[0].stem='社群題目可還原刪除測試：'+crypto.randomUUID();
@@ -1979,14 +1979,14 @@ test('publicly deleted community questions appear in the owner hidden list and c
  assert.equal(posted.response.status,201);assert.equal(posted.data.status,'approved');
  const id='community-'+posted.data.id+'-1',publicPath='/api/community/questions/'+id;
  assert.equal((await call(env,publicPath)).response.status,200);
- const deleted=await call(env,publicPath,{method:'POST',body:{action:'delete',revision:1,note:'誤收錄重複題'}});
+ const deleted=await approveRemoval(env,publicPath,{revision:1,note:'誤收錄重複題'});
  assert.equal(deleted.response.status,200,JSON.stringify(deleted.data));assert.equal(deleted.data.item.published,false);assert.equal(deleted.data.item.revision,2);
  assert.equal((await call(env,publicPath)).response.status,404);
  assert.ok(!(await call(env,'/api/questions?course=os')).data.questions.some(row=>row.question.id===id));
  const reposted=await call(env,'/api/submissions',{method:'POST',body});
   assert.equal(reposted.response.status,201,JSON.stringify(reposted.data));assert.equal(reposted.data.status,'approved');
   const repostId='community-'+reposted.data.id+'-1';
-  const repostDeleted=await call(env,'/api/community/questions/'+repostId,{method:'POST',body:{action:'delete',revision:1}});
+  const repostDeleted=await approveRemoval(env,'/api/community/questions/'+repostId,{revision:1});
   assert.equal(repostDeleted.response.status,200,JSON.stringify(repostDeleted.data));
  const hidden=(await call(env,'/api/manage/questions?course=os&state=hidden',{reviewer:true})).data.items.find(row=>row.id===id);
  assert.ok(hidden);assert.equal(hidden.published,false);
@@ -2033,7 +2033,7 @@ test('built-in management lists every canonical question privately and saves dur
  const history2=(await call(env,path+'/history',{reviewer:true})).data.items;assert.equal(history2[0].action,'reset');assert.equal(history2[0].before.answer,'B');
 });
 
-test('anonymous users can update or recoverably delete built-in questions; only the owner can restore them',async()=>{
+test('anonymous users can update built-in questions and request removal; only the owner can remove or restore',async()=>{
  const env=await setup();
  for(const course of ['os','algorithms']){
   const catalog=(await call(env,'/api/manage/builtin-questions?course='+course,{reviewer:true})).data.items;
@@ -2055,7 +2055,7 @@ test('anonymous users can update or recoverably delete built-in questions; only 
   assert.equal((await call(env,historyPath)).response.status,401);
   const history=(await call(env,historyPath,{reviewer:true})).data.items;
   assert.equal(history.length,1);assert.equal(history[0].before.stem,row.question.stem);assert.equal(history[0].after.explanation,question.explanation);
-  const deleted=await call(env,route,{method:'POST',body:{action:'delete',revision:1,sourceHash:row.sourceHash,note:'清除誤收錄重複題'}});
+  const deleted=await approveRemoval(env,route,{revision:1,sourceHash:row.sourceHash,note:'清除誤收錄重複題'});
   assert.equal(deleted.response.status,200,JSON.stringify(deleted.data));assert.equal(deleted.data.item.deleted,true);assert.equal(deleted.data.item.revision,2);
   const tombstone=(await call(env,'/api/questions?course='+course)).data.overrides.find(r=>r.deleted&&(r.question.id||r.question.bookmarkId)===row.id);
   assert.ok(tombstone);assert.equal(tombstone.question.id||tombstone.question.bookmarkId,row.id);
@@ -2210,7 +2210,7 @@ test('unified community management restores previous and original versions with 
  assert.equal(reset.response.status,200,JSON.stringify(reset.data));assert.equal(reset.data.item.question.answer,original.question.answer);
  assert.equal((await call(env,endpoint,{method:'POST',reviewer:true,body:{action:'resetOriginal',revision:4}})).response.status,409);
  assert.equal((await call(env,'/api/community/questions/'+id,{method:'POST',body:{action:'resetOriginal',revision:5}})).response.status,400);
- assert.equal((await call(env,'/api/community/questions/'+id,{method:'POST',body:{action:'delete',revision:5}})).response.status,200);
+ assert.equal((await approveRemoval(env,'/api/community/questions/'+id,{revision:5})).response.status,200);
  const removed=(await call(env,'/api/manage/library?course=os&state=deleted',{reviewer:true})).data;
  assert.ok(removed.items.some(row=>row.id===id&&row.deleted&&row.hasHistory));
  assert.ok(removed.units.some(row=>row.id==='L9'));
@@ -2248,7 +2248,7 @@ test('public conditional synchronization responds 304 only for the current conte
  await call(env,endpoint,{method:'POST',reviewer:true,body:{action:'update',revision:0,sourceHash:row.sourceHash,note:'etag 測試',question:{...row.question,explanation:'etag changed'}}});
  const changed=await conditional(etag);assert.equal(changed.status,200);assert.notEqual(changed.headers.get('etag'),etag);
  const nextTag=changed.headers.get('etag');assert.equal((await conditional(nextTag)).status,304);
- await call(env,'/api/community/builtin-questions/os/basics-1',{method:'POST',body:{action:'delete',revision:1,sourceHash:row.sourceHash}});
+ await approveRemoval(env,'/api/community/builtin-questions/os/basics-1',{revision:1,sourceHash:row.sourceHash});
  const deleted=await conditional(nextTag);assert.equal(deleted.status,200);assert.notEqual(deleted.headers.get('etag'),nextTag);
  const preflight=await worker.fetch(new Request(origin+'/api/questions?course=os',{method:'OPTIONS',headers:{origin:'https://yocheng06.github.io'}}),env);
  assert.match(preflight.headers.get('access-control-allow-headers'),/If-None-Match/);
@@ -2432,7 +2432,7 @@ test("reported queue deletion permits replacement and conflict indices retain or
  const env=await setup();
  const route='/api/community/builtin-questions/os/process-19';
  const row=(await call(env,route)).data.item;
- const deleted=await call(env,route,{method:'POST',body:{action:'delete',revision:row.revision,sourceHash:row.sourceHash,note:'原題誤判為填空'}});
+ const deleted=await approveRemoval(env,route,{revision:row.revision,sourceHash:row.sourceHash,note:'原題誤判為填空'});
  assert.equal(deleted.response.status,200,JSON.stringify(deleted.data));
  const queue={category:'程序與 IPC',type:'多選題',stem:'以下哪些是作業系統中的佇列？',options:['作業佇列','交換佇列','就緒佇列','設備佇列'],answer:'A、C、D',images:[]};
  const parent={category:'程序與 IPC',type:'多選題',stem:'以下哪些原因可能導致父程序終止子程序？',options:['分配給子程序的任務不再需要','子程序陷入無限迴圈','父程序正在退出，且作業系統不允許子程序繼續','子程序超出分配的資源'],answer:'A、C、D',images:[]};
@@ -2458,7 +2458,7 @@ test("one shared IP can repeatedly edit community questions beyond the old hourl
   assert.equal(saved.response.status,200,JSON.stringify(saved.data));
   assert.equal(saved.data.item.revision,i+2);
  }
- const deleted=await call(env,path,{method:"POST",body:{action:"delete",revision:26,note:"測試可還原刪題"}});
+ const deleted=await approveRemoval(env,path,{revision:26,note:"測試可還原刪題"});
  assert.equal(deleted.response.status,200,JSON.stringify(deleted.data));
  assert.equal(env.sql.prepare("SELECT count(*) AS n FROM question_history WHERE question_id=?").get(id).n,26);
  assert.equal(env.sql.prepare("SELECT count(*) AS n FROM rate_windows").get().n,0);
@@ -2604,4 +2604,53 @@ test('simultaneous use of one recovery code succeeds only once, and a password h
  const key=await crypto.subtle.importKey('raw',Uint8Array.from(account.password_hash.match(/../g),v=>parseInt(v,16)),{name:'HMAC',hash:'SHA-256'},false,['sign']);
  const signature=Buffer.from(await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(payload))).toString('base64url');
  assert.equal((await call(env,'/api/manage/security',{cookie:'__Host-course-admin='+payload+'.'+signature})).response.status,401);
+});
+
+const moderationPath = '/api/manage/edit-moderation';
+async function approveRemoval(env, path, body) {
+  const direct = await call(env,path,{method:'POST',body:{...body,action:'delete'}});
+  assert.equal(direct.response.status,403);
+  const queued = await call(env,path,{method:'POST',body:{...body,action:'request-delete'}});
+  assert.equal(queued.response.status,202,JSON.stringify(queued.data));
+  const stillPublic = await call(env,path);
+  assert.equal(stillPublic.data.item.revision,body.revision);
+  const panel = await call(env,moderationPath,{reviewer:true});
+  const proposal = panel.data.pending.find(row=>path.endsWith('/'+row.question_id) && row.action==='request-delete');
+  assert.ok(proposal);
+  return call(env,moderationPath,{reviewer:true,method:'POST',body:{action:'approve',id:proposal.id}});
+}
+
+test('edit mode and source audit are owner-only, and queued revisions are checked again on approval',async()=>{
+  const env=await setup(), path='/api/community/builtin-questions/os/basics-1';
+  const read=()=>call(env,path);
+  const manage=(body)=>call(env,moderationPath,{reviewer:true,...(body?{method:'POST',body}:{})});
+  const initial=(await read()).data.item;
+  const body={action:'update',revision:initial.revision,sourceHash:initial.sourceHash,browserId:crypto.randomUUID(),
+    question:{...initial.question,explanation:'待審解析'}};
+  assert.equal((await call(env,moderationPath)).response.status,401);
+  assert.equal((await call(env,moderationPath,{method:'POST',body:{action:'policy',mode:'review'}})).response.status,401);
+  assert.equal((await manage({action:'policy',mode:'review'})).response.status,200);
+  assert.equal((await read()).data.editPolicy,'review');
+  const proposed=await call(env,path,{method:'POST',body,ip:'192.0.2.17'});
+  assert.equal(proposed.response.status,202);
+  assert.deepEqual(proposed.data,{queued:true});
+  assert.equal((await read()).data.item.question.explanation,initial.question.explanation);
+  const [proposal]=(await manage()).data.pending;
+  assert.equal(proposal.ip,'192.0.2.17');
+  assert.ok(proposal.browser && proposal.browser!==body.browserId);
+  const second=await call(env,path,{method:'POST',body:{...body,question:{...body.question,explanation:'另一份待審解析'}}});
+  assert.equal(second.response.status,202);
+  assert.equal((await manage({action:'policy',mode:'paused'})).response.status,200);
+  assert.equal((await call(env,path,{method:'POST',body})).response.status,403);
+  assert.equal((await manage({action:'approve',id:proposal.id})).response.status,200);
+  assert.equal((await read()).data.item.question.explanation,'待審解析');
+  const {audit,pending}=(await manage()).data;
+  assert.equal(audit[0].ip,proposal.ip);
+  assert.equal(audit[0].browser,proposal.browser);
+  assert.equal((await manage({action:'approve',id:pending[0].id})).response.status,409);
+  assert.equal((await manage({action:'reject',id:pending[0].id})).response.status,200);
+  env.sql.prepare('UPDATE edit_audit SET source_at=0').run();
+  await worker.scheduled(null,env);
+  assert.equal((await manage()).data.audit[0].ip,null);
+  assert.equal((await manage()).data.audit[0].browser,null);
 });

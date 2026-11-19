@@ -230,14 +230,14 @@ async function getPublicBuiltin(env, course, id) {
   const base = builtinBase(course, id);
   return json({ item: builtinRow(base, (await latestBuiltinEdits(env, course)).get(base.id)) });
 }
-async function saveBuiltin(request, env, course, id, { publicEdit = false } = {}) {
+async function saveBuiltin(request, env, course, id, { publicEdit = false, review = null } = {}) {
   const actor = publicEdit ? '匿名使用者' : await owner(request, env);
-  requireOrigin(request, !publicEdit);
+  requireOrigin(request, !publicEdit || Boolean(review));
   const base = builtinBase(course, id),
-    body = await readBody(request, 100000);
+    body = review ? JSON.parse(review.payload) : await readBody(request, 100000);
   if (
     !body ||
-    !(publicEdit ? ["update", "delete"] : ["update", "delete", "reset", "rollback"]).includes(body.action) ||
+    !(publicEdit ? ["update", "delete", "request-delete"] : ["update", "delete", "reset", "rollback"]).includes(body.action) ||
     !Number.isInteger(body.revision) ||
     body.revision < 0 ||
     (body.note !== undefined && typeof body.note !== "string") ||
@@ -260,6 +260,10 @@ async function saveBuiltin(request, env, course, id, { publicEdit = false } = {}
     current && current.action !== "reset"
       ? JSON.parse(current.data)
       : base.question;
+  const moderation = publicEdit ? await publicEditContext(request, env, body, review) : null;
+  if (moderation && !review && body.action === "request-delete")
+    return enqueueEdit(env, moderation, course, base.id, "builtin", body, previous, previous);
+  if (review && body.action === "request-delete") body.action = "delete";
   let raw, storedAction = body.action;
   if (body.action === "delete") raw = previous;
   else if (body.action === "reset") raw = base.question;
@@ -273,7 +277,9 @@ async function saveBuiltin(request, env, course, id, { publicEdit = false } = {}
       storedAction = "reset";
     } else raw = normalizeBuiltinEdit(base, previous, target);
   } else raw = normalizeBuiltinEdit(base, previous, body.question);
-  const result = await env.DB.prepare(
+  if (moderation?.mode === "review" && !review)
+    return enqueueEdit(env, moderation, course, base.id, "builtin", body, previous, raw);
+  const write = env.DB.prepare(
     "INSERT INTO builtin_question_edits (id,course,question_id,revision,data,previous_data,base_hash,action,note,actor,created_at) SELECT ?,?,?,?,?,?,?,?,?,?,? WHERE ?=COALESCE((SELECT MAX(revision) FROM builtin_question_edits WHERE course=? AND question_id=?),0)",
   )
     .bind(
@@ -291,8 +297,10 @@ async function saveBuiltin(request, env, course, id, { publicEdit = false } = {}
       body.revision,
       course,
       base.id,
-    )
-    .run();
+    );
+  const [result] = moderation
+    ? await env.DB.batch([write, ...editAuditStatements(env, moderation, review, course, base.id, body, previous, raw)])
+    : [await write.run()];
   if (!result.meta.changes)
     throw new HttpError(409, "這道題已被更新，請重新載入。");
   return json({

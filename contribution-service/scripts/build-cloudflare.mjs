@@ -30,7 +30,9 @@ export async function buildCloudflare(origin){
   const wrapper=`import service from './app.mjs';
 import {createD1ImageStore} from './d1-image-store.mjs';
 const expectedOrigin=${JSON.stringify(origin)};
-export default {async fetch(request,env,ctx){
+export default {async scheduled(event,env,ctx){
+  return service.scheduled(event,env,ctx);
+},async fetch(request,env,ctx){
   if(env.PUBLIC_ORIGIN!==expectedOrigin||new URL(request.url).origin!==expectedOrigin)
     return new Response('服務網址尚未完成設定。',{status:503});
   const headers=new Headers(request.headers);

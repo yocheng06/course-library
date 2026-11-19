@@ -17,6 +17,7 @@ for (const entry of DUPLICATE_CATALOG) {
 }
 /* BUILTIN_MANAGEMENT */
 /* LIBRARY_MANAGEMENT */
+/* EDIT_MODERATION */
 const SITE_ORIGIN =
   "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site";
 const LIBRARY_ORIGIN = "https://yocheng06.github.io";
@@ -1506,11 +1507,11 @@ async function getCommunityQuestion(env, id) {
     throw new HttpError(404, "找不到這道公開投稿題目。");
   return json({ item: publicationRow(row) });
 }
-async function editPublication(request, env, id, { publicEdit = false } = {}) {
+async function editPublication(request, env, id, { publicEdit = false, review = null } = {}) {
   const actor = publicEdit ? "匿名投稿者" : await owner(request, env);
-  requireOrigin(request, !publicEdit);
+  requireOrigin(request, !publicEdit || Boolean(review));
   if (!publicEdit) await ensureReviewedContent(env);
-  const body = await readBody(request),
+  const body = review ? JSON.parse(review.payload) : await readBody(request),
     row = await env.DB.prepare("SELECT * FROM public_questions WHERE id=?")
       .bind(id)
       .first();
@@ -1533,13 +1534,18 @@ async function editPublication(request, env, id, { publicEdit = false } = {}) {
     );
   if (
     publicEdit
-      ? !["update", "delete"].includes(body.action)
+      ? !["update", "delete", "request-delete"].includes(body.action)
       : !["update", "hide", "restore", "restoreVersion", "rollback", "resetOriginal", "resolveReview", "mergeReview"].includes(body.action)
   )
     throw new HttpError(400, "操作不正確。");
   const note = body.note ?? "";
   if (typeof note !== "string" || note.length > 2000)
     throw new HttpError(400, "修改說明格式不正確。");
+  const moderation = publicEdit ? await publicEditContext(request, env, body, review) : null;
+  const before = JSON.parse(row.data);
+  if (moderation && !review && body.action === "request-delete")
+    return enqueueEdit(env, moderation, row.course, id, "community", body, before, before);
+  if (review && body.action === "request-delete") body.action = "delete";
   let raw = JSON.parse(row.data),
     course = row.course,
     unit = row.unit,
@@ -1719,6 +1725,10 @@ async function editPublication(request, env, id, { publicEdit = false } = {}) {
       row.revision,
     ),
   ];
+  if (moderation?.mode === "review" && !review)
+    return enqueueEdit(env, moderation, row.course, id, "community", body, before, raw);
+  if (moderation) statements.push(...editAuditStatements(env, moderation, review, course, id, body, before, raw));
+
   let result;
   try {
     result = await env.DB.batch(statements);
@@ -1874,6 +1884,7 @@ async function route(request, env) {
       },
     });
   }
+  if (path === '/api/manage/edit-moderation') return manageEditModeration(request, env);
   if (path === '/api/corrections') return correction(request,env,url);
   const correctionMatch = /^\/api\/corrections\/([0-9a-f-]{36})$/.exec(path);
   if (correctionMatch) {
@@ -1885,9 +1896,9 @@ async function route(request, env) {
   const publicBuiltinMatch = /^\/api\/community\/builtin-questions\/(os|algorithms)\/([A-Za-z0-9_-]{1,160})$/.exec(path);
   if (publicBuiltinMatch) {
     const [, course, id] = publicBuiltinMatch;
-    if (request.method === 'GET') return getPublicBuiltin(env, course, id);
+    if (request.method === 'GET') return withEditPolicy(env, await getPublicBuiltin(env, course, id));
     if (request.method === 'POST') return saveBuiltin(request, env, course, id, { publicEdit: true });
-    throw new HttpError(405, '公開題目只能修改或刪除；刪除後可由站主還原。');
+    throw new HttpError(405, '公開題目可提交修改或移除建議。');
   }
   const communityQuestionMatch =
     /^\/api\/community\/questions\/community-([0-9a-f-]{36})-([1-9]\d*)$/.exec(path);
@@ -1895,10 +1906,10 @@ async function route(request, env) {
     if (!uuid.test(communityQuestionMatch[1]))
       throw new HttpError(400, "投稿題目編號不正確。");
     const id = `community-${communityQuestionMatch[1]}-${communityQuestionMatch[2]}`;
-    if (request.method === "GET") return getCommunityQuestion(env, id);
+    if (request.method === "GET") return withEditPolicy(env, await getCommunityQuestion(env, id));
     if (request.method === "POST")
       return editPublication(request, env, id, { publicEdit: true });
-    throw new HttpError(405, "公開投稿題目只能直接修改或刪除；刪除後可由站主重新上架。");
+    throw new HttpError(405, "公開投稿題目可提交修改或移除建議。");
   }
   if (path === "/api/login" && request.method === "POST")
     return adminLogin(request, env);
@@ -2073,6 +2084,7 @@ async function route(request, env) {
   throw new HttpError(404, "找不到這個頁面。");
 }
 export default {
+  async scheduled(_event, env) { await purgeEditSources(env); },
   async fetch(request, env) {
     let response;
     try {
