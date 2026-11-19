@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-11-19T07:25:09.493Z",
+  "source": "https://course-library-submissions.orange06.workers.dev/api/questions",
+  "scope": "目前公開題庫；含內建題、公開投稿、修改覆蓋及目前顯示的解析與主題。排除管理帳號、已移除題目及私人修改歷史。",
+  "courses": [
+    {
+      "course": "os",
+      "file": "os-questions.json",
+      "questions": 1164,
+      "units": [
+        {
+          "id": "basics",
+          "label": "L2 · 作業系統基礎",
+          "number": 2,
+          "questionCount": 97
+        },
+        {
+          "id": "architecture",
+          "label": "L3 · 作業系統架構",
+          "number": 3,
+          "questionCount": 209
+        },
+        {
+          "id": "process",
+          "label": "L4 · 程序與 IPC",
+          "number": 4,
+          "questionCount": 99
+        },
+        {
+          "id": "threads",
+          "label": "L5 · 執行緒與多執行緒",
+          "number": 5,
+          "questionCount": 84
+        },
+        {
+          "id": "scheduling",
+          "label": "L6 · CPU 排程",
+          "number": 6,
+          "questionCount": 132
+        },
+        {
+          "id": "treasure",
+          "label": "挖寶單元",
+          "number": 6.5,
+          "questionCount": 70
+        },
+        {
+          "id": "synchronization",
+          "label": "L7 · 程序同步",
+          "number": 7,
+          "questionCount": 165
+        },
+        {
+          "id": "deadlocks",
+          "label": "L8 · 死結",
+          "number": 8,
+          "questionCount": 167
+        },
+        {
+          "id": "L9",
+          "label": "L9 · 記憶體管理",
+          "number": 9,
+          "questionCount": 141
+        }
+      ],
+      "sha256": "2a4a965d29da54585dd5121efc7ae4e4f3e84430eefbd4bb8120a363606dbb1d",
+      "rawSnapshot": "assets/course-snapshots/os.json"
+    },
+    {
+      "course": "algorithms",
+      "file": "algorithms-questions.json",
+      "questions": 433,
+      "units": [
+        {
+          "id": "L2",
+          "label": "L2 · 基礎與漸進分析",
+          "questionCount": 71
+        },
+        {
+          "id": "L3",
+          "label": "L3 · 遞迴關係式",
+          "questionCount": 60
+        },
+        {
+          "id": "L4",
+          "label": "L4 · Heap 與 Heapsort",
+          "questionCount": 61
+        },
+        {
+          "id": "L5",
+          "label": "L5 · 快速排序",
+          "questionCount": 60
+        },
+        {
+          "id": "L6",
+          "label": "L6 · 排序演算法",
+          "questionCount": 61
+        },
+        {
+          "id": "L7",
+          "label": "L7 · 中位數與順序統計量",
+          "questionCount": 60
+        },
+        {
+          "id": "L8",
+          "label": "L8 · 作業系統基礎",
+          "questionCount": 60
+        }
+      ],
+      "sha256": "7fb742feb36fffd714c237023fabcd07018fa208d1422fb37334f9308ce1bf91",
+      "rawSnapshot": "assets/course-snapshots/algorithms.json"
+    }
+  ]
+}
