@@ -18,6 +18,7 @@ for (const entry of DUPLICATE_CATALOG) {
 /* BUILTIN_MANAGEMENT */
 /* LIBRARY_MANAGEMENT */
 /* EDIT_MODERATION */
+/* VISITOR_ACCESS */
 const SITE_ORIGIN =
   "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site";
 const LIBRARY_ORIGIN = "https://yocheng06.github.io";
@@ -1884,6 +1885,14 @@ async function route(request, env) {
       },
     });
   }
+  if (path === '/course-library' && ['GET','HEAD'].includes(request.method))
+    return Response.redirect(SITE_ORIGIN + libraryPrefix, 308);
+  if (path.startsWith(libraryPrefix)) return serveProtectedLibrary(request, env, url);
+  if (path === '/api/manage/visitor-access') return manageVisitorAccess(request, env);
+  if (env.LIBRARY_ASSETS && (path === '/api/questions' || path.startsWith('/api/image/') || path.startsWith('/api/community/') || path === '/api/submissions')) {
+    await ensureVisitorTables(env);
+    await enforceVisitorBlock(env, await visitorIdentity(request, env));
+  }
   if (path === '/api/manage/edit-moderation') return manageEditModeration(request, env);
   if (path === '/api/corrections') return correction(request,env,url);
   const correctionMatch = /^\/api\/corrections\/([0-9a-f-]{36})$/.exec(path);
@@ -2084,7 +2093,7 @@ async function route(request, env) {
   throw new HttpError(404, "找不到這個頁面。");
 }
 export default {
-  async scheduled(_event, env) { await purgeEditSources(env); },
+  async scheduled(_event, env) { await purgeEditSources(env); await purgeVisitorRecords(env); },
   async fetch(request, env) {
     let response;
     try {
@@ -2103,12 +2112,12 @@ export default {
       );
     }
     const headers = new Headers(response.headers);
-    headers.set('content-security-policy',"default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; connect-src 'self' https://yocheng06.github.io; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; object-src 'none'; upgrade-insecure-requests");
+    if (!headers.has('content-security-policy')) headers.set('content-security-policy',"default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; connect-src 'self' https://yocheng06.github.io; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; object-src 'none'; upgrade-insecure-requests");
     headers.set('strict-transport-security','max-age=31536000');
     headers.set('permissions-policy','camera=(), microphone=(), geolocation=(), payment=(), usb=()');
     headers.set("x-content-type-options", "nosniff");
     headers.set("referrer-policy", "strict-origin-when-cross-origin");
-    headers.set("x-frame-options", "DENY");
+    if (!headers.has("x-frame-options")) headers.set("x-frame-options", "DENY");
     const origin = request.headers.get("origin");
     if (origins.has(origin)) {
       headers.set("access-control-allow-origin", origin);

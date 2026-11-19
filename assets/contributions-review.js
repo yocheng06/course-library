@@ -1,3 +1,4 @@
+import {setupVisitorAccess} from './visitor-access.mjs?v=visitor-access-20261120';
 import {setupEditModeration} from './edit-moderation.mjs?v=edit-moderation-20261119';
 import {setupManagementMenu} from './management-menu.mjs?v=menu-position-20261118';
 import {setupAdminSecurity} from './admin-security.mjs?v=security-20261118';
@@ -12,7 +13,7 @@ const $ = id => document.getElementById(id);
 setupManagementMenu(document.querySelector('.management-tools'));
 const origin = window.courseContributions.apiOrigin;
 let library = null, health = null, units = null, system = null, security = null;
-let imports = null, moderation = null;
+let imports = null, moderation = null, visitorAccess = null;
 let userId = '';
 const requestedSecurity=new URLSearchParams(location.search).get('view')==='security';
 let currentView = requestedSecurity?'security':'all';
@@ -24,11 +25,13 @@ function setActiveView(view) {
   for (const button of document.querySelectorAll('[data-view]')) {
     button.setAttribute('aria-current', button.dataset.view === view ? 'page' : 'false');
   }
-  $('libraryWorkspace').hidden = ['imports','health','units','system','security','moderation'].includes(view);
+  $('libraryWorkspace').hidden = ['imports','health','units','system','security','moderation','visitors'].includes(view);
   $('systemWorkspace').hidden = view !== 'system';
   $('securityWorkspace').hidden = view !== 'security';
   $('moderationWorkspace').hidden = view !== 'moderation';
   if (view !== 'moderation') moderation?.clear();
+  $('visitorWorkspace').hidden = view !== 'visitors';
+  if (view !== 'visitors') visitorAccess?.clear();
   if(view!=='security')security?.clear();
   $('unitWorkspace').hidden = view !== 'units';
   $('healthWorkspace').hidden = view !== 'health';
@@ -39,6 +42,7 @@ async function showView(view = currentView, { refresh = false } = {}) {
   setActiveView(view);
   if(view==='security')await security.show();
   else if(view==='moderation')await moderation.show();
+  else if(view==='visitors')await visitorAccess.show();
   else if(view==='system')await system.show();
   else if(view==='units') await units.show({refresh});
   else if(view==='health') await health.show({refresh});
@@ -91,17 +95,18 @@ async function start() {
     $('loginPanel').hidden = true;
     $('managementArea').hidden = false;
     if (userId !== session.userId || !library || !imports) {
-      health?.clear();units?.clear();system?.clear();security?.clear();moderation?.clear();
+      health?.clear();units?.clear();system?.clear();security?.clear();moderation?.clear();visitorAccess?.clear();
       library?.clear();
       imports?.clear();
       userId = session.userId || 'owner';
-      try{const saved=localStorage.getItem('course-library.manager-view.v1.'+userId);if(!requestedSecurity&&['all','modified','deleted','pending','health','imports','units','system','security','moderation'].includes(saved))currentView=saved;}catch{}
+      try{const saved=localStorage.getItem('course-library.manager-view.v1.'+userId);if(!requestedSecurity&&['all','modified','deleted','pending','health','imports','units','system','security','moderation','visitors'].includes(saved))currentView=saved;}catch{}
       library = setupLibraryManager({
         userId,
         onChanged: () => { health?.invalidate();if (currentView==='health')return health.show({refresh:true});if (imports && currentView === 'imports') return imports.show({ refresh: true }); },
       });
       units=setupUnitManager({container:$('unitWorkspace'),onChanged:()=>{library.refresh();health?.invalidate();}});
       security=setupAdminSecurity({container:$('securityWorkspace'),api,message,downloadJSON});
+      visitorAccess=setupVisitorAccess({container:$('visitorWorkspace'),api});
       moderation=setupEditModeration({container:$('moderationWorkspace'),api,onChanged:()=>{void library.refresh();health?.invalidate();}});
       system=setupSystemPanel({container:$('systemWorkspace'),api,downloadJSON,userId});
       health=setupLibraryHealth({container:$('healthWorkspace'),openItem:(row,options)=>library.openItem(row,options)});
@@ -111,7 +116,7 @@ async function start() {
       });
     }
     await showView(currentView);
-    if(['imports','health','units','system','security','moderation'].includes(currentView))void library.refresh();
+    if(['imports','health','units','system','security','moderation','visitors'].includes(currentView))void library.refresh();
   } catch (error) {
     $('authStatus').hidden = false;
     $('authStatus').textContent = '無法連線管理服務。請重新整理再試。';
@@ -180,7 +185,7 @@ $('signOut').addEventListener('click', async () => {
     await api('/api/logout', { method: 'POST', body: '{}' });
     library?.clear();
     imports?.clear();
-    health?.clear();units?.clear();system?.clear();security?.clear();moderation?.clear();
+    health?.clear();units?.clear();system?.clear();security?.clear();moderation?.clear();visitorAccess?.clear();
     location.reload();
   } catch (error) { message(error.message, true); button.disabled = false; }
 });

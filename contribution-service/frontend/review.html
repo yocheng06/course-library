@@ -69,6 +69,7 @@
               <button type="button" class="text-button" id="exportImportDrafts">下載匯入紀錄草稿</button>
               <button type="button" class="text-button" id="exportBackup">完整備份與檢查</button><button type="button" class="text-button" data-view="system">版本與同步狀態</button>
               <p class="muted">備份可含題目、歷史、單元與實際題圖，並檢查完整性。</p>
+              <button type="button" class="text-button" data-view="visitors">訪客與封鎖</button>
               <button type="button" class="text-button" data-view="moderation">改題安全</button>
               <button type="button" class="text-button" data-view="security">帳號安全</button>
               <button type="button" class="text-button" id="signOut">登出</button>
@@ -77,6 +78,7 @@
         </div>
         <section id="libraryWorkspace" aria-labelledby="libraryTitle"></section>
         <section id="unitWorkspace" hidden aria-label="單元名稱與順序管理"></section>
+        <section id="visitorWorkspace" class="panel" hidden aria-label="訪客與封鎖"></section>
         <section id="moderationWorkspace" class="panel" hidden aria-label="改題安全"></section>
         <section id="securityWorkspace" class="panel" hidden aria-label="帳號安全"></section>
         <section id="systemWorkspace" class="panel" hidden aria-label="版本與完整備份"></section>
@@ -88,7 +90,7 @@
 
     <dialog id="questionDialog" class="question-dialog" aria-labelledby="questionDialogTitle"></dialog>
     <script src="assets/contributions-config.js?v=orange06-20261118"></script>
-    <script type="module" src="assets/contributions-review.js?v=edit-moderation-20261119"></script>
+    <script type="module" src="assets/contributions-review.js?v=visitor-access-20261120"></script>
     <noscript>請開啟 JavaScript 使用題庫管理功能。</noscript>
   </body>
 </html>

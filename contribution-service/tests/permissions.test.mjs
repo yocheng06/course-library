@@ -2654,3 +2654,53 @@ test('edit mode and source audit are owner-only, and queued revisions are checke
   assert.equal((await manage()).data.audit[0].ip,null);
   assert.equal((await manage()).data.audit[0].browser,null);
 });
+
+test('the controlled library logs visits privately and enforces IP and browser blocks before fetching content', async()=>{
+  const env=await setup();
+  const reads=[];
+  env.LIBRARY_ASSETS={fetch:async request=>{
+    reads.push(new URL(request.url).pathname);
+    const type=request.url.includes('.json')?'application/json':'text/html';
+    return new Response('library asset',{headers:{'content-type':type,'cache-control':'public, max-age=60',etag:'"asset"'}});
+  }};
+  const browserIP='192.0.2.20';
+  const panel='/api/manage/visitor-access';
+  const manage=(body)=>call(env,panel,{reviewer:true,...(body?{method:'POST',body}:{})});
+  assert.equal((await call(env,panel,{ip:browserIP})).response.status,401);
+  assert.equal((await call(env,panel,{ip:browserIP,method:'POST',body:{action:'block',kind:'ip',target:browserIP,days:1}})).response.status,401);
+
+  const home=(await call(env,'/course-library/',{ip:browserIP})).response;
+  assert.equal(home.status,200);
+  assert.equal(reads.at(-1),'/course-library/home.html');
+  const visitorCookie=home.headers.get('set-cookie').split(';')[0];
+  assert.match(home.headers.get('set-cookie'),/Secure; HttpOnly/);
+  assert.equal(home.headers.get('cache-control'),'private, no-store');
+  const first=(await manage()).data.visitors[0];
+  assert.equal(first.ip,browserIP);
+  assert.equal(first.last_path,'index.html');
+  assert.ok(!visitorCookie.includes(first.browser));
+
+  const block={action:'block',kind:'browser',target:first.browser,days:1};
+  assert.equal((await manage(block)).response.status,200);
+  const count=reads.length;
+  for(const path of ['/course-library/','/course-library/os.html','/course-library/assets/batch-library.json','/api/questions?course=os','/api/community/builtin-questions/os/basics-1']){
+    assert.equal((await call(env,path,{ip:'192.0.2.21',cookie:visitorCookie})).response.status,403,path);
+  }
+  assert.equal(reads.length,count);
+  assert.equal((await call(env,'/course-library/os.html',{ip:browserIP})).response.status,200);
+  assert.equal((await manage({...block,action:'unblock'})).response.status,200);
+  assert.equal((await call(env,'/course-library/os.html',{ip:browserIP,cookie:visitorCookie})).response.status,200);
+
+  const ipBlock={action:'block',kind:'ip',target:browserIP,days:1};
+  assert.equal((await manage(ipBlock)).response.status,200);
+  assert.equal((await call(env,'/course-library/',{ip:browserIP})).response.status,403);
+  assert.equal((await call(env,'/course-library/',{ip:'192.0.2.21',cookie:visitorCookie})).response.status,200);
+  env.sql.prepare('UPDATE library_blocks SET expires_at=0').run();
+  assert.equal((await call(env,'/course-library/',{ip:browserIP})).response.status,200);
+  assert.deepEqual((await manage()).data.blocks,[]);
+  assert.equal((await call(env,'/course-library/home.html',{ip:browserIP})).response.status,404);
+  assert.equal((await call(env,'/assets/batch-library.json',{ip:browserIP})).response.status,404);
+  env.sql.prepare('UPDATE library_visitors SET last_at=0').run();
+  await worker.scheduled(null,env);
+  assert.deepEqual((await manage()).data.visitors,[]);
+});
