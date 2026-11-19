@@ -16,6 +16,7 @@
   'algorithms/L4':['Heap 基礎','Heap 索引','Heap Property','Max-Heapify','Build-Max-Heap','Heapsort','Priority Queue','Heap 效率','Heap 應用'],
   'algorithms/L5':['核心概念','Pivot 與 Partition','遞迴與複雜度','特性與優化'],
   'algorithms/L6':['線性排序與穩定性','比較排序與決策樹','計數排序','基數排序','桶排序'],
+  'algorithms/L8':["集合與實作比較","堆疊","佇列","鏈結串列基礎","雙向鏈結串列","鏈結串列操作","環狀串列與哨兵","動態配置與垃圾回收"],
   'algorithms/L7':['順序統計量與中位數','最小值與最大值','第二小元素','Partition 分割操作','Randomized-Select','確定性 Select 與中位數的中位數']
  };
  const aliases={
@@ -43,7 +44,7 @@
  };
  const cache=new WeakMap(),views=new WeakMap();
  function topic(question,course,unit){
-  const key=course+'/'+unit,raw=String((course==='os'&&['synchronization','L9'].includes(unit)?(typeof window==='object'?window:globalThis).courseExplanationContent?.category(question):null)??question.category??'').trim(),stem=String(question.stem??question.q??'');
+  const key=course+'/'+unit,raw=String(((course==='os'&&['synchronization','L9'].includes(unit)||course==='algorithms'&&unit==='L8')?(typeof window==='object'?window:globalThis).courseExplanationContent?.category(question):null)??question.category??'').trim(),stem=String(question.stem??question.q??'');
   const old=cache.get(question);if(old?.key===key&&old.raw===raw&&old.stem===stem)return old.result;
   const names=catalogs[key]??[],alias=aliases[key]?.[raw];let label=alias||raw;
   if(!alias&&generic.has(raw)){
