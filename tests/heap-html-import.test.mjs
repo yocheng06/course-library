@@ -7,7 +7,7 @@ import {COURSE_UNITS,normalizeUnit,normalizeBatch} from '../contribution-service
 import {parseBatchInput,prepareImport} from '../assets/batch-import.mjs';
 const raw=await readFile(new URL('fixtures/heap-practice-structure.html',import.meta.url),'utf8');
 const source=await readFile(new URL('../contribution-service/frontend/assets/contributions-submit.js',import.meta.url),'utf8');
-const context={COURSE_UNITS,normalizeUnit,URL,btoa,globalThis:{courseChoiceAnswers:globalThis.courseChoiceAnswers}};
+const context={COURSE_UNITS,normalizeUnit,URL,btoa,importScopeChosen:false,globalThis:{courseChoiceAnswers:globalThis.courseChoiceAnswers}};
 vm.runInNewContext(source.slice(source.indexOf('function normalizedImagePath('),source.indexOf('async function parseCoursePracticeHtmlPair('))+'\nthis.p={parseCoursePracticeHtml,parseCoursePracticeResultsHtml,combineCoursePracticeHtml};',context);
 const compact=v=>v.replace(/\s+/g,' ').trim();
 async function parse(){const {document}=parseHTML(raw);return {document,payload:await context.p.parseCoursePracticeHtml(document,raw,'practice.html')};}
@@ -55,4 +55,20 @@ test('base URL supports missing actions, while an explicit practice action takes
  }
  const html='<html><head><base href="https://example.test/course/Physics26/practice.php?realm_id=9"></head><body><form id="practice-quiz-form">'+body+'</form></body></html>';
  await assert.rejects(context.p.parseCoursePracticeHtml(parseHTML(html).document,html,'test.html'),/無法辨識課程/);
+});
+
+test('a form action without a realm can use the base or the saved practice URL for the same course',async()=>{
+ const action='https://example.test/course/OS26B/process_practice.php';
+ const page=(saved,base='')=>`<!doctype html>
+<!-- saved from url=(0073)${saved} -->
+<html><head>${base}</head><body><form id="practice-quiz-form" action="${action}">
+ <div class="question-block"><div class="question-text">排程測試<input type="text" class="text-answer"></div></div>
+</form></body></html>`;
+ const parse=html=>context.p.parseCoursePracticeHtml(parseHTML(html).document,html,'practice.html');
+ const saved=await parse(page('https://example.test/course/OS26B/practice.php?realm_id=6&difficulty=3'));
+ assert.equal(saved.course,'os');
+ assert.equal(saved.unit,normalizeUnit('os','6'));
+ const base=await parse(page('https://example.test/course/OS26B/practice.php?realm_id=6','<base href="https://example.test/course/OS26B/practice.php?realm_id=9">'));
+ assert.equal(base.unit,'L9');
+ await assert.rejects(parse(page('https://example.test/course/Alg26/practice.php?realm_id=6')),/無法判斷單元/);
 });

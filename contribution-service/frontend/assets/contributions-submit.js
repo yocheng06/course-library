@@ -467,14 +467,19 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
   const challenge = form.id === "challenge-quiz-form";
   const action = form.getAttribute("action") || "";
   const coursePath = /\/course\/([a-z0-9_-]+)\/(?:process_)?(?:practice|challenge)\.php(?:[?#]|$)/i;
-  // Newer downloaded pages omit form action but retain their source in <base>.
-  const sourceUrl = [action, doc.querySelector("base[href]")?.getAttribute("href") || ""]
-    .find(value => coursePath.test(value));
-  const courseCode = sourceUrl?.match(coursePath)?.[1];
+  // Saved pages can put the course in the form action and the unit in the original URL.
+  const savedUrl = /^\s*(?:<!doctype[^>]*>\s*)?<!--\s*saved from url=\(\d+\)(https?:\/\/[^\s<>]+)\s*-->/i.exec(raw)?.[1];
+  const sources = [action, doc.querySelector("base[href]")?.getAttribute("href"), savedUrl]
+    .map(url => ({url, code: url?.match(coursePath)?.[1]}))
+    .filter(source => source.code);
+  const courseCode = sources[0]?.code;
   if (!courseCode) throw new Error("找到測驗表單，但無法辨識課程代碼；請下載題庫 JSON 匯入。");
   const course = /^OS/i.test(courseCode) ? "os" : /^Alg(?:\d[A-Za-z0-9_-]*)?$/i.test(courseCode) ? "algorithms" : null;
   if (!course) throw new Error(`目前無法辨識課程「${courseCode}」；請先選擇網站科目並使用題庫 JSON 匯入。`);
-  const realmId = /[?&]realm_id=(\d+)(?:[&#]|$)/i.exec(sourceUrl)?.[1],
+  const realmId = sources
+      .filter(source => source.code.toLowerCase() === courseCode.toLowerCase())
+      .map(source => /[?&]realm_id=(\d+)(?:[&#]|$)/i.exec(source.url)?.[1])
+      .find(Boolean),
     title = doc.title.replace(/\s+/g, " ").trim() || name.replace(/\.(?:html?)$/i, "");
   let unit;
   try {
@@ -586,7 +591,7 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
     });
   }
   if (!questions.length) throw new Error("這份測驗 HTML 裡找不到可匯入的題目區塊。");
-  const hostname = (() => { try { return new URL(action).hostname; } catch { return "來源網站"; } })();
+  const hostname = (() => { try { return new URL(sources[0].url).hostname; } catch { return "來源網站"; } })();
   return {
     __htmlQuestionImport: true,
     course,
