@@ -33,11 +33,16 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
     $("importMapping").hidden = true;
     mapping = null;
   }
-  function preview(batch, source, original = "") {
+  function preview(batch, source, original = "", {retry, allowAutomatic = true} = {}) {
     pending = { ...batch, source, original };
     $("applyImport").hidden = false;
     const missingImages=batch.questions.some(q=>q.stem.includes('[題圖未轉錄]') && !validImageHashes(q.imageHashes));
     if($("batchImageHelp"))$("batchImageHelp").hidden=!missingImages;
+    const needsReview = batch.questions.some(q=>q.issues.some(issue=>issue!=='題目含未提供的圖片或無法辨識的文字。' || !q.stem.includes('[題圖未轉錄]')));
+    if (autoApply && allowAutomatic && source === "files" && !needsReview) {
+      applyPending(true, retry?.before, retry?.mode ?? "replace");
+      return;
+    }
     $("importModeField").hidden = source === "paste";
     $("applyImport").textContent =
       source === "paste" ? "使用整理後的文字" : "匯入下方文字區";
@@ -82,8 +87,6 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
       .join("、");
     status(`已讀取 ${sources}。尚未更動目前文字。`);
     $("importPreviewHeading").focus();
-    // Existing text always requires an explicit append/replace choice.
-    if(autoApply && source==='files' && !$("batchText").value.trim() && !batch.questions.some(q=>q.issues.some(issue=>issue!=='題目含未提供的圖片或無法辨識的文字。' || !q.stem.includes('[題圖未轉錄]')))) applyPending(true);
   }
   function showMapping(error, source, original = "") {
     if (!error.mapping) return;
@@ -138,10 +141,11 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
       const batch=await readBatchFiles(files,{document,imageFiles});
       if(generation!==current)return;
       if($("batchText").value!==original){status("讀檔期間文字已變更，請重新選檔；目前文字已保留。",true);return;}
-      if(retry && retryBase && original===retryBase.applied) {
-        preview(batch,"files");
-        if(pending)applyPending(true,retryBase.before);
-      } else preview(batch,"files");
+      const retryingAppliedText = retry && original === retryBase?.applied;
+      preview(batch, "files", "", {
+        retry: retryingAppliedText ? retryBase : null,
+        allowAutomatic: !retry || !retryBase || retryingAppliedText,
+      });
     } catch(error) {
       if(generation===current){status(`無法匯入：${error.message} 目前文字已保留。`,true);showMapping(error,"files");}
     } finally {if(generation===current)$("importTools").removeAttribute("aria-busy");}
@@ -238,7 +242,7 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
     status("已取消匯入，目前文字已保留。");
     $("chooseBatchFiles").focus();
   });
-  function applyPending(autoCompare=false, existingOverride) {
+  function applyPending(autoCompare=false, existingOverride, modeOverride) {
     if (!pending) return;
     try {
       if (
@@ -247,7 +251,7 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
       )
         throw new Error("貼上內容已變更，請重新按「辨識貼上格式」。");
       const mode =
-        pending.source === "paste" ? "replace" : $("importMode").value;
+        modeOverride ?? (pending.source === "paste" ? "replace" : $("importMode").value);
       const result = prepareImport(
         existingOverride ?? $("batchText").value,
         pending.questions,
@@ -256,7 +260,7 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
       );
       const before=existingOverride ?? $("batchText").value;
       $("batchText").value = result.text;
-      retryBase={before,applied:result.text};
+      retryBase={before,applied:result.text,mode};
       close();
       onApply(result,{autoCompare:autoApply || autoCompare});
       status(

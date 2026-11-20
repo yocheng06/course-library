@@ -39,11 +39,11 @@ function dom() {
         option.toggleAttribute("selected", option.value === value);
     },
   });
-  let focused = null;
+  let focused = null, scrolled = null;
   window.HTMLElement.prototype.focus = function () {
     focused = this.id;
   };
-  window.HTMLElement.prototype.scrollIntoView = function () {};
+  window.HTMLElement.prototype.scrollIntoView = function () { scrolled = this.id; };
   const $ = (id) => document.getElementById(id);
   const fire = (id, event) =>
     $(id).dispatchEvent(
@@ -54,7 +54,7 @@ function dom() {
     fire("batchFiles", "change");
     await tick();
   };
-  return { document, window, $, fire, choose, focused: () => focused };
+  return { document, window, $, fire, choose, focused: () => focused, scrolled: () => scrolled };
 }
 
 test('large saved HTML previews without changing text, and an oversized retry retains the draft',async()=>{
@@ -338,9 +338,14 @@ test("full page: imported/pasted structured questions use bank answers, update d
   assert.equal(pending.items[0].answer, "");
   assert.equal(context.location.href, "submit.html?v=draft-transfer-20261020#pendingHeading");
   await ui.choose([file("more.txt", "2. 未收錄填空 ______")]);
-  ui.fire("applyImport", "click");
-  assert.equal(ui.$("staleNotice").hidden, false);
-  assert.equal(ui.$("copyAnswers").disabled, true);
+  assert.equal(ui.$("importPreview").hidden, true);
+  assert.equal(ui.$("staleNotice").hidden, true);
+  assert.match(ui.$("resultRows").textContent, /未收錄填空/);
+  await ui.choose([file("questions-again.json", JSON.stringify([rawQuestion]))]);
+  assert.match(ui.$("resultRows").textContent, /A\. 短程排程器/);
+  assert.doesNotMatch(ui.$("resultRows").textContent, /未收錄填空/);
+  assert.equal(ui.focused(), "resultsHeading");
+  assert.equal(ui.scrolled(), "results");
   ui.$("batchText").value = JSON.stringify([rawQuestion]);
   ui.fire("batchText", "input");
   ui.fire("batchForm", "submit");
@@ -363,7 +368,7 @@ test("full page: imported/pasted structured questions use bank answers, update d
 });
 
 
-test('automatic fresh-file lookup preserves existing text and requires an explicit append choice',async()=>{
+test('automatic file lookup replaces existing text only after a successful import',async()=>{
  const ui=dom(),applied=[];
  setupBatchImport({document:ui.document,autoApply:true,onApply:(result,options)=>applied.push({result,options})});
  assert.equal(ui.$('batchImageHelp').hidden,true);
@@ -371,10 +376,13 @@ test('automatic fresh-file lookup preserves existing text and requires an explic
  assert.equal(applied.length,1);assert.equal(applied[0].options.autoCompare,true);
  assert.equal(ui.$('importPreview').hidden,true);assert.match(ui.$('batchText').value,/CPU/);
  const original=ui.$('batchText').value;
- await ui.choose([file('next.txt','2. 另一題 ____')]);
+ await ui.choose([file('invalid.json','{')]);
  assert.equal(applied.length,1);assert.equal(ui.$('batchText').value,original);
- assert.equal(ui.$('importPreview').hidden,false);
- ui.fire('applyImport','click');assert.equal(applied.length,2);assert.equal(applied[1].result.questions.length,2);
+ await ui.choose([file('next.txt','2. 另一題 ____')]);
+ assert.equal(applied.length,2);assert.equal(applied[1].options.autoCompare,true);
+ assert.equal(ui.$('importPreview').hidden,true);
+ assert.equal(applied[1].result.questions.length,1);
+ assert.doesNotMatch(ui.$('batchText').value,/CPU/);
 });
 
 test('automatic import never overwrites edits made while reading a file',async()=>{
@@ -398,4 +406,10 @@ test('missing image prompt appears only when needed; selecting images retries wi
  await waitForImageResult(()=>changes>=2);
  assert.equal(changes,2);assert.equal(saved.length,1);assert.equal(saved[0].imageHashes[0].length,64);
  assert.equal(ui.$('batchImageHelp').hidden,true);
+ ui.$('batchText').value='1. 已手動修改的題目 ____';
+ ui.fire('batchImageFolder','change');
+ await waitForImageResult(()=>!ui.$('importPreview').hidden);
+ assert.equal(ui.$('importPreview').hidden,false);
+ assert.equal(changes,2);
+ assert.equal(ui.$('batchText').value,'1. 已手動修改的題目 ____');
 });

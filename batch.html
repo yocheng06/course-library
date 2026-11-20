@@ -73,6 +73,7 @@
           <input id="batchImageFolder" type="file" webkitdirectory multiple hidden aria-label="選取 HTML 附帶的圖片資料夾">
           <p class="muted">圖片與題幹、選項符合才帶入答案；圖片只在這台裝置讀取，每張限 1 MB。</p></div>
           <p id="importHelp" class="muted">
+            選檔後會用這次的題目取代目前文字並查答案。
             支援 TXT／Markdown、JSON、CSV／TSV、HTML，可一次選多個檔案。合計最多
             30 題、20 MB；完整下載的 HTML 也可匯入，檔案在這台裝置讀取。
           </p>
@@ -338,7 +339,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=orange06-20261118"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=legacy-fill-records-20261113"
+      src="assets/batch-ui.mjs?v=next-file-lookup-20261120"
     ></script>
   </body>
 </html>
