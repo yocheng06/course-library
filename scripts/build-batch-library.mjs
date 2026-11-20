@@ -7,6 +7,7 @@ import {
 } from "../assets/batch-model.mjs";
 import { unitLabel } from "../assets/contribution-model.js";
 import { parseOSCourseHTML } from "./course-data.mjs";
+import { fingerprintLibraryImages } from "../assets/batch-images.mjs";
 const root = resolve(import.meta.dirname, ".."),
   entries = [];
 const searchAliases = JSON.parse(
@@ -66,7 +67,18 @@ for (const entry of entries) {
   const old = unique.get(key);
   if (!old || entry.preferred) unique.set(key, entry);
 }
-const payload = { schemaVersion: 1, courses, entries: [...unique.values()] };
+const publicSnapshots = Object.fromEntries(await Promise.all(Object.keys(courses).map(async course => {
+  const {schema, course: snapshotCourse, generatedAt, data} = JSON.parse(
+    await readFile(resolve(root, "assets/course-snapshots", course + ".json"), "utf8"),
+  );
+  if (schema !== 1 || snapshotCourse !== course || !Number.isFinite(Date.parse(generatedAt)) ||
+      !["questions", "overrides", "aliases", "units"].every(field => Array.isArray(data?.[field])))
+    throw new Error(course + ": invalid bundled public snapshot");
+  // With no API origin this uses recorded hashes, without downloading images.
+  await fingerprintLibraryImages(data);
+  return [course, {generatedAt, data}];
+})));
+const payload = { schemaVersion: 1, courses, entries: [...unique.values()], publicSnapshots };
 await writeFile(
   resolve(root, "assets/batch-library.json"),
   JSON.stringify(payload) + "\n",

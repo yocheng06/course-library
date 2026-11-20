@@ -51,7 +51,11 @@ export async function fingerprintLibraryImages(data, {apiOrigin=globalThis.windo
     delete q.imageHashes;
     delete q.imageFingerprintFailed;
     if (Array.isArray(q.images) && q.images.length && q.images.length <= 8 && !q.missingContext) {
-      const hashes = await Promise.all(q.images.map(image => libraryDigest(typeof image === 'string' ? image : image?.src || '', apiOrigin)));
+      const recorded = Array.isArray(q.imageKeys) && q.imageKeys.length === q.images.length
+        ? q.imageKeys.map(key => typeof key === 'string' && /^sha256:[a-f0-9]{64}$/.test(key) ? key.slice(7) : null)
+        : [];
+      const hashes = await Promise.all(q.images.map((image, index) =>
+        recorded[index] || libraryDigest(typeof image === 'string' ? image : image?.src || '', apiOrigin)));
       if (validImageHashes(hashes)) q.imageHashes = hashes;
       else q.imageFingerprintFailed = true;
     }

@@ -1,7 +1,7 @@
 import './sync-summary.js?v=flow-clarity-20261103';
 import {createUnitCatalog} from './unit-catalog.mjs?v=admin-units-20261103';
 import {comparisonMarkup,mismatchLabel} from './question-comparison.mjs?v=workflow-improvements-20261102';
-import {fingerprintLibraryImages, inheritQuestionImages, validImageHashes} from "./batch-images.mjs?v=image-bank-retry-20261031";
+import {fingerprintLibraryImages, inheritQuestionImages, validImageHashes} from "./batch-images.mjs?v=complete-batch-snapshot-20261120";
 import {unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
 import {
   buildIndex,
@@ -107,7 +107,7 @@ function markChanged() {
   $("copyAnswers").disabled = stale || loading || !index || !results.length;
   const unmatchedCount = results.filter((r) => r.status === "unmatched").length;
   if (transferButton) {
-    transferButton.disabled = stale || loading || !index || !unmatchedCount || !!courseSuggestion || !snapshotCourse;
+    transferButton.disabled = stale || loading || !index || !snapshotCoverage || !unmatchedCount || !!courseSuggestion || !snapshotCourse;
     transferButton.textContent = `轉入投稿草稿${unmatchedCount ? `（${unmatchedCount} 題）` : ""}`;
   }
   $("inputCount").textContent =
@@ -119,11 +119,12 @@ function markChanged() {
     );
   } catch {}
 }
-function statusLabel(row) { return labels[row.status]; }
+function statusLabel(row) { return row.status === "unmatched" && !snapshotCoverage ? "待同步" : labels[row.status]; }
 let snapshotCoverage = false;
 let snapshotUnit = "all";
 let restoreUnit = null;
 const publicFlights = new Map(), publicData = new Map(), publicEtags = new Map(), syncedAt = new Map(), syncFailures = new Set();
+const publicDates = new Map();
 let baseLibrary, basePromise;
 function libraryStatus() {
   const course = $("course").value;
@@ -142,7 +143,7 @@ function libraryStatus() {
     (publicFlights.has(course)
       ? "正在確認最新變更，現在可先使用已載入題庫。"
       : syncFailures.has(course)
-        ? "同步失敗，"+(invalidPublicData[course]?"線上題庫資料不完整；":"")+(publicData.has(course)&&!invalidPublicData[course]?"目前使用上次題庫快取":"目前僅比對隨站內建版本")+"；尚未確認最新修改及下架狀態。請按「重新同步題庫」重試。"
+        ? "同步失敗，"+(invalidPublicData[course]?"線上題庫資料不完整；":"")+(publicData.has(course)?"目前使用已保存的公開題庫版本":"目前僅比對隨站內建版本")+"；尚未確認最新修改及下架狀態。請按「重新同步題庫」重試。"
       : coverage[course]
       ? "已同步內建題修改與公開投稿題庫。" + (syncChanges.get(course) || "") + (syncedAt.has(course) ? " 最後同步：" + new Date(syncedAt.get(course)).toLocaleTimeString("zh-TW") : "")
       : syncing
@@ -185,6 +186,7 @@ function restorePublicCache(course) {
     const time = Date.parse(cached.generatedAt);
     if (!Number.isFinite(time) || time > Date.now() + 300000) return;
     publicData.set(course, cached.data);
+    publicDates.set(course, time);
     if (/^(?:W\/)?".*"$/.test(cached.etag || "")) publicEtags.set(course, cached.etag);
   } catch {}
 }
@@ -230,11 +232,22 @@ function rebuildLibraryIndex() {
 }
 async function getBaseLibrary() {
   if (baseLibrary) return baseLibrary;
-  if (!basePromise) basePromise = fetch("assets/batch-library.json?v=solaris-choices-20261120", {signal:AbortSignal.timeout(12000)})
+  if (!basePromise) basePromise = fetch("assets/batch-library.json?v=complete-batch-snapshot-20261120", {signal:AbortSignal.timeout(12000)})
     .then(async response => {
       if (!response.ok) throw Error("library");
       const data = await response.json();
       if (data.schemaVersion !== 1 || !Array.isArray(data.entries) || !data.courses?.os || !data.courses?.algorithms) throw Error("library");
+      for (const course of courses) {
+        restorePublicCache(course);
+        const bundled = data.publicSnapshots?.[course];
+        const time = Date.parse(bundled?.generatedAt || "");
+        if (Number.isFinite(time) && time <= Date.now() + 300000 && time >= (publicDates.get(course) ?? 0) &&
+            Array.isArray(bundled.data?.questions) && Array.isArray(bundled.data?.overrides)) {
+          publicData.set(course, bundled.data);
+          publicDates.set(course, time);
+          publicEtags.delete(course);
+        }
+      }
       return baseLibrary = data;
     }).catch(error => { basePromise = null; throw error; });
   return basePromise;
@@ -244,6 +257,7 @@ async function loadLibrary(course = $("course").value, force = false) {
   if (publicFlights.has(course)) return publicFlights.get(course);
   if (!force && coverage[course] && Date.now() - syncedAt.get(course) < 60000) return;
   restorePublicCache(course);
+  const requestedData = publicData.get(course), requestedEtag = publicEtags.get(course);
   const firstLoad = !index;
   loading = firstLoad;
   if (firstLoad) $("libraryStatus").textContent = "正在載入內建題庫……";
@@ -253,9 +267,9 @@ async function loadLibrary(course = $("course").value, force = false) {
   const task = (async () => {
     const publicRequest = fetch(window.courseContributions.apiOrigin + "/api/questions?course=" + course, {
       signal:AbortSignal.timeout(6000),
-      headers:publicEtags.has(course) ? {"If-None-Match":publicEtags.get(course)} : {},
+      headers:requestedEtag ? {"If-None-Match":requestedEtag} : {},
     }).then(async response => {
-      if (response.status === 304 && publicData.has(course)) return {data:publicData.get(course),etag:publicEtags.get(course)};
+      if (response.status === 304 && requestedEtag && requestedData) return {data:requestedData,etag:requestedEtag};
       if (!response.ok) throw Error("public");
       const data = await response.json();
       if (!Array.isArray(data.questions) || !Array.isArray(data.overrides || [])) throw Error("public-data");
@@ -264,8 +278,10 @@ async function loadLibrary(course = $("course").value, force = false) {
     }).then(value => ({value}), error => ({error}));
     try {
       await getBaseLibrary();
-      if (publicData.has(course)) await fingerprintLibraryImages(publicData.get(course));
-      if (!index) rebuildLibraryIndex();
+      const fallback = publicData.get(course);
+      const previousFallback = fallback && JSON.stringify(fallback);
+      if (fallback) await fingerprintLibraryImages(fallback);
+      if (!index || fallback && previousFallback !== JSON.stringify(fallback)) rebuildLibraryIndex();
       loading = false;
       $("compare").disabled = false;
       libraryStatus();
@@ -275,13 +291,20 @@ async function loadLibrary(course = $("course").value, force = false) {
       if (result.error) throw result.error;
       const {data,etag} = result.value;
       await fingerprintLibraryImages(data);
-      const changed = JSON.stringify(publicData.get(course)) !== JSON.stringify(data);
-      publicData.set(course,data);
+      const previous = publicData.get(course);
+      const changed = JSON.stringify(previous) !== JSON.stringify(data);
+      if (changed) {
+        publicData.set(course,data);
+        rebuildLibraryIndex();
+        if (invalidPublicData[course]) {
+          if (previous) publicData.set(course, previous); else publicData.delete(course);
+          rebuildLibraryIndex();
+          throw Error("public-data");
+        }
+      } else if (invalidPublicData[course]) throw Error("public-data");
       if (etag) publicEtags.set(course,etag); else publicEtags.delete(course);
       coverage[course] = true;
-      invalidPublicData[course] = false;
-      if (changed) rebuildLibraryIndex();
-      if (invalidPublicData[course]) throw Error("public-data");
+      publicDates.set(course, Date.now());
       syncChanges.set(course,globalThis.courseSyncSummary.describe(before,globalThis.courseSyncSummary.snapshot(index.entries.filter(entry=>entry.course===course))));
       syncFailures.delete(course);syncedAt.set(course,Date.now());
       try { localStorage.setItem(publicCacheKey(course), JSON.stringify({schema:1,course,generatedAt:new Date().toISOString(),data,etag})); } catch {}
@@ -328,7 +351,7 @@ function unitNames(row) {
 }
 function candidateComparison(row) {
   if(row.status==='matched')return '';
-  return `<p class="mismatch-reason"><strong>未收錄原因：${esc(mismatchLabel(row))}</strong></p>`+(row.references||[]).map(ref=>{
+  return `<p class="mismatch-reason"><strong>${snapshotCoverage ? "未收錄原因" : "快照比對結果"}：${esc(mismatchLabel(row))}</strong></p>`+(row.references||[]).map(ref=>{
     const candidate=index?.entries.find(e=>e.course===ref.course&&e.id===ref.id&&e.stem===ref.stem);
     return candidate?`<details class="candidate-comparison"><summary>並排核對 ${esc(ref.id)}</summary>${comparisonMarkup(row.question,candidate,{rightTitle:'候選版本 '+ref.id,reason:row.reason})}</details>`:'';
   }).join('');
@@ -365,8 +388,8 @@ function renderResults() {
     .join("");
   $("emptyResults").hidden = shown.length > 0;
 }
-const incompleteCoverage = "部分公開題庫尚未完成同步，結果可能包含快取或內建版本。請重新同步後再核對未收錄題目。";
-async function compare({waitForManualSync = false} = {}) {
+const incompleteCoverage = "部分公開題庫尚未完成同步，目前使用可取得的題庫版本。尚未找到答案的題目會標示為待同步。";
+async function compare({waitForManualSync = false, forceSync = false} = {}) {
   const selected = scope();
   const automatic = selected.course === "auto";
   if (!automatic && !waitForManualSync && (!index || loading)) return;
@@ -380,9 +403,9 @@ async function compare({waitForManualSync = false} = {}) {
     const chosenCourse = automatic ? courseHint || importedCourse : selected.course;
     const searchedCourses = chosenCourse ? [chosenCourse] : courses;
     if (automatic || waitForManualSync) {
-      if (!searchedCourses.every(course => !publicFlights.has(course) && coverage[course] && Date.now() - syncedAt.get(course) < 60000)) {
+      if (forceSync || !searchedCourses.every(course => !publicFlights.has(course) && coverage[course] && Date.now() - syncedAt.get(course) < 60000)) {
         message("正在準備題庫並查詢答案……");
-        await Promise.all(searchedCourses.map(course => loadLibrary(course)));
+        await Promise.all(searchedCourses.map(course => loadLibrary(course, forceSync)));
       }
       if (request !== comparisonRequest || currentSnapshot() !== expected) return;
     }
@@ -409,12 +432,12 @@ async function compare({waitForManualSync = false} = {}) {
         : null;
     const scopeHint = courseSuggestion
       ? `目前比對科目為「${names[snapshotCourse]}」，這批有 ${otherMatches} 題在「${names[otherCourse]}」找到一致原題。請切換科目後重新比對。`
-      : !snapshotCourse && count("unmatched")
+      : snapshotCoverage && !snapshotCourse && count("unmatched")
         ? "要轉入投稿草稿時，請在更多設定選擇投稿科目後重新比對。"
         : "請展開有疑義的項目，核對題幹與選項是否完整。";
     $("courseMismatchText").textContent = courseSuggestion ? scopeHint : "";
     $("switchCourse").textContent = `改用${names[otherCourse]}比對`;
-    const unmatchedLabel = "未收錄";
+    const unmatchedLabel = snapshotCoverage ? "未收錄" : "待同步";
     $("resultCount").textContent =
       `共 ${results.length} 題・${snapshotScopeLabel}・已收錄 ${count("matched")}・${unmatchedLabel} ${count("unmatched")}`;
     $("expandScope").hidden = !results.some((r) => r.outsideScope);
@@ -483,7 +506,7 @@ $("copyAnswers").addEventListener("click", () => {
   copy(text);
 });
 transferButton?.addEventListener("click", () => {
-  if (isStale() || loading || !index || courseSuggestion || !snapshotCourse) return;
+  if (isStale() || loading || !index || !snapshotCoverage || courseSuggestion || !snapshotCourse) return;
   try {
     stageUnmatched(results, { course: snapshotCourse, unit: snapshotUnit }, localStorage);
     location.href = window.courseTheme?.href("submit.html?v=draft-transfer-20261020#pendingHeading") || "submit.html?v=draft-transfer-20261020#pendingHeading";
@@ -529,7 +552,14 @@ $("course").addEventListener("change", () => {
   markChanged();
 });
 $("unit").addEventListener("change", markChanged);
-$("reloadLibrary").addEventListener("click", () => loadLibrary($("course").value, true));
+function refreshLibrary() {
+  if (snapshot && snapshot === currentSnapshot()) return compare({waitForManualSync:true, forceSync:true});
+  return loadLibrary($("course").value, true);
+}
+$("reloadLibrary").addEventListener("click", refreshLibrary);
+window.addEventListener?.("online", () => {
+  if (!snapshotCoverage && snapshot === currentSnapshot()) void refreshLibrary();
+});
 $("clearInput").addEventListener("click", () => {
   imageQuestions = [];
   importedCourse = null;

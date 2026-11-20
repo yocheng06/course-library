@@ -20,3 +20,4 @@ for(const {file,html,pattern,snapshot} of snapshots){
  await writeFile(new URL('assets/course-snapshots/'+snapshot.course+'.json',root),json+'\n');
  console.log(file+': '+snapshot.data.questions.length+' public questions; all curation blocks retained');
 }
+await import('./build-batch-library.mjs');

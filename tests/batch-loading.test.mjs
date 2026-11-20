@@ -102,9 +102,21 @@ test('the Solaris bilingual option version remains searchable when public sync i
   const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>realBank}:{ok:false});
   ui.$('batchText').value='8. 【多選題】Solaris作業系統的排程有哪六個類別？\nA. 時程共享(Time sharing)\nB. 互動式(Interactive)\nC. 即時(Real time)\nD. 系統(System)';
   ui.fire('batchForm','submit');
-  assert.match(ui.$('resultCount').textContent,/已收錄 1・未收錄 0/);
+  assert.match(ui.$('resultCount').textContent,/已收錄 1・待同步 0/);
   assert.match(ui.$('resultRows').textContent,/A\. 時程共享.*B\. 互動式.*C\. 即時.*D\. 系統/);
   assert.ok(ui.$('resultRows').querySelector('a[href="os.html?question=os6-091"]'));
+});
+
+test('the L7 paired-comparison fill question matches its recorded answer without public sync', async () => {
+  const realBank=JSON.parse(await readFile(new URL('../assets/batch-library.json',import.meta.url),'utf8'));
+  const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>realBank}:{ok:false},{automatic:true});
+  ui.$('batchText').value='1. 同時尋找最大與最小值時,配對比較法總共需要 ____________ 次比較 (請用小寫英文與分數型態回答)';
+  ui.fire('batchForm','submit');
+  await tick();
+  assert.match(ui.$('resultCount').textContent,/已收錄 1・待同步 0/);
+  assert.equal(ui.$('resultRows').querySelector('.answer-text').textContent,'3n/2');
+  assert.ok(ui.$('resultRows').querySelector('a[href="algorithms.html?question=L7-2514"]'));
+  assert.equal(ui.$('coverageNotice').hidden,false);
 });
 
 test('reported RR result transcript matches in the real page and copies the recorded answer with its condition',async()=>{
@@ -150,7 +162,8 @@ test("built-in lookup and copying work while public sync waits, then new data in
   ui.fire("batchForm", "submit");
   assert(ui.$("resultRows").textContent.includes("A. 短程排程器"));
   assert.equal(ui.$("copyAnswers").disabled, false);
-  assert.equal(ui.$("transferUnmatched").disabled, false);
+  assert.equal(ui.$("transferUnmatched").disabled, true);
+  assert.match(ui.$("resultCount").textContent, /已收錄 1・待同步 1/);
   ui.fire("copyAnswers", "click"); await tick();
   assert.equal(ui.copied.length, 1);
   assert.match(ui.copied[0], /公開題庫尚未完成同步/);
@@ -193,6 +206,50 @@ test("public failures retain built-in results and concurrent reloads do not star
   assert.equal(ui.$("copyAnswers").disabled, false);
   assert.match(ui.$("libraryStatus").textContent, /目前僅比對隨站內建版本/);
   assert.equal(ui.$("coverageNotice").hidden, false);
+});
+
+test("the bundled lookup includes both complete course snapshots and their recorded image hashes", async () => {
+  const read = async path => JSON.parse(await readFile(new URL('../'+path,import.meta.url),'utf8'));
+  const library = await read('assets/batch-library.json');
+  const withoutDerivedHashes = value => JSON.parse(JSON.stringify(value,(key,data) =>
+    ['imageHashes','imageFingerprintFailed'].includes(key) ? undefined : data));
+  for (const course of ['os','algorithms']) {
+    const original = await read('assets/course-snapshots/'+course+'.json');
+    const bundled = library.publicSnapshots[course];
+    assert.equal(bundled.generatedAt,original.generatedAt);
+    assert.deepEqual(withoutDerivedHashes(bundled.data),withoutDerivedHashes(original.data));
+    for (const {question:q} of [...bundled.data.questions,...bundled.data.overrides]) {
+      if (!q.missingContext && q.images?.length && q.imageKeys?.length===q.images.length &&
+          q.imageKeys.every(key=>/^sha256:[a-f0-9]{64}$/.test(key))) {
+        assert.deepEqual(q.imageHashes,q.imageKeys.map(key=>key.slice(7)));
+      }
+    }
+  }
+});
+
+test("an incomplete sync preserves bundled public versions and retry refreshes the same answer table", async () => {
+  const known = {id:'community-00000000-0000-4000-8000-000000000022-1',type:'填空題',stem:'快照公開題目的答案 ____________',options:[],answer:'known'};
+  const missing = {...known,id:'community-00000000-0000-4000-8000-000000000023-1',stem:'稍後才同步的答案 ____________',answer:'new'};
+  const old = [{unit:'scheduling',question:known}];
+  const current = [...old,{unit:'scheduling',question:missing}];
+  const bank = {...base,publicSnapshots:{os:{generatedAt:new Date().toISOString(),data:{questions:old,overrides:[]}}}};
+  let apiCalls=0;
+  const ui=await page(async url=>{
+    if(String(url).startsWith('assets/'))return {ok:true,json:async()=>bank};
+    if(++apiCalls<=2)return response([{unit:'scheduling',question:{...missing,options:null}}]);
+    return response(current);
+  });
+  ui.$('batchText').value='1. '+known.stem+'\n\n2. '+missing.stem;
+  ui.fire('batchForm','submit');
+  assert.match(ui.$('resultRows').textContent,/known/);
+  assert.match(ui.$('resultCount').textContent,/已收錄 1・待同步 1/);
+  ui.fire('reloadLibrary','click');await tick();
+  assert.match(ui.$('resultCount').textContent,/已收錄 1・待同步 1/);
+  assert.equal(ui.$('transferUnmatched').disabled,true);
+  ui.fire('reloadLibrary','click');await tick();
+  assert.equal(apiCalls,3);
+  assert.match(ui.$('resultCount').textContent,/已收錄 2・未收錄 0/);
+  assert.equal(ui.$('coverageNotice').hidden,true);
 });
 
 for (const [name, malformed] of [
@@ -239,14 +296,16 @@ test('approved questions from future units join lookup and unit selection instea
  assert.match(ui.$('resultRows').textContent,/verified-answer/);assert.doesNotMatch(ui.$('libraryStatus').textContent,/不完整/);
 });
 
-test('online built-in edits replace static answers, stale results cannot copy, and reset restores base answers',async()=>{
+test('manual sync automatically replaces the answer table when a public edit is reset',async()=>{
  let edited=true;
  const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>structuredClone(base)}:{ok:true,json:async()=>({questions:[],overrides:String(url).endsWith('course=os')&&edited?[{unit:'scheduling',question:{id:'os-test',stem,options:['A. 短程排程器','B. 長程排程器'],answer:'B',choiceKey:'B',answerProvided:true}}]:[]})});
  ui.$('batchText').value=`1. ${stem}\nA. 短程排程器\nB. 長程排程器`;ui.fire('batchForm','submit');
  assert.ok(ui.$('resultRows').textContent.includes('B. 長程排程器'));
  ui.fire('copyAnswers','click');await tick();assert.match(ui.copied[0],/B\. 長程排程器/);
- edited=false;ui.fire('reloadLibrary','click');await tick();assert.equal(ui.$('copyAnswers').disabled,true);
- ui.fire('batchForm','submit');assert.ok(ui.$('resultRows').textContent.includes('A. 短程排程器'));
+ edited=false;ui.fire('reloadLibrary','click');await tick();
+ assert.equal(ui.$('staleNotice').hidden,true);
+ assert.ok(ui.$('resultRows').textContent.includes('A. 短程排程器'));
+ ui.fire('copyAnswers','click');await tick();assert.match(ui.copied.at(-1),/A\. 短程排程器/);
 });
 
 test('an incorporated community question uses its built-in edit instead of an old publication with the same ID',async()=>{

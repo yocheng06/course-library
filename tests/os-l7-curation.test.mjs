@@ -8,7 +8,7 @@ test('all 165 L7 question versions receive content-based explanations and preser
  assert.deepEqual(orderingIssues(entries,h.window.courseTopicOrder,'os'),[]);
  const sourceHtml=readFileSync(new URL('../os.html',import.meta.url),'utf8');
  const oldHtml=execFileSync('git',['-c','safe.directory='+process.cwd().replaceAll('\\','/'),'show','HEAD:os.html'],{encoding:'utf8',maxBuffer:16*1024*1024});
- const data=html=>[...parseHTML(html).document.querySelectorAll('script[type="application/json"]')].filter(s=>s.id!=='course-content-explanations').map(s=>[s.id,JSON.parse(s.textContent)]);
+ const data=html=>[...parseHTML(html).document.querySelectorAll('script[type="application/json"]')].filter(s=>!['course-content-explanations','course-community-snapshot'].includes(s.id)).map(s=>[s.id,JSON.parse(s.textContent)]);
  assert.deepEqual(data(sourceHtml),data(oldHtml));
 });
 test('L7 worked examples distinguish lock state, waiting counts, and reader group ownership',async()=>{
