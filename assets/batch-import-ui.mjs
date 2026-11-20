@@ -160,6 +160,7 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
   });
   $("batchFiles").addEventListener("change", async event=>{
     const files=[...event.target.files];event.target.value='';if(!files.length)return;
+    $("batchFileNames").textContent = `已選檔案：${files.map(file => file.name).join("、")}`;
     retainedFiles=files;retryBase=null;
     await readFiles(files);
   });
@@ -276,6 +277,7 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
   $("clearInput").addEventListener("click", () => {
     generation++;
     retainedFiles=[];retryBase=null;imageFiles=[];
+    $("batchFileNames").textContent = "尚未選檔";
     if($("batchImageHelp"))$("batchImageHelp").hidden=true;
     close();
     $("importTools").removeAttribute("aria-busy");

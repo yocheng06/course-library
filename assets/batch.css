@@ -48,6 +48,17 @@ body[data-course="os"] .button.secondary {
 .import-tools {
   margin: 8px 0 18px;
 }
+.batch-file-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+#batchFileNames {
+  min-width: 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
 .import-tools p,
 .import-preview p {
   font-size: 14px;

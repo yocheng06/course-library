@@ -14,7 +14,7 @@
       rel="stylesheet"
       href="assets/contributions.css?v=workflow-improvements-20261102"
     />
-    <link rel="stylesheet" href="assets/batch.css?v=workflow-improvements-20261102" />
+    <link rel="stylesheet" href="assets/batch.css?v=batch-file-names-20261120" />
     <link
       rel="stylesheet"
       href="assets/ui-consistency.css?v=flow-clarity-20261103"
@@ -57,14 +57,17 @@
           </div>
         </details>
         <div id="importTools" class="import-tools">
-          <button
-            id="chooseBatchFiles"
-            class="button secondary"
-            type="button"
-            aria-describedby="importHelp"
-          >
-            選檔並查答案
-          </button>
+          <div class="batch-file-picker">
+            <button
+              id="chooseBatchFiles"
+              class="button secondary"
+              type="button"
+              aria-describedby="importHelp batchFileNames"
+            >
+              選檔並查答案
+            </button>
+            <span id="batchFileNames" class="muted" aria-live="polite">尚未選檔</span>
+          </div>
           <input
             id="batchFiles"
             type="file"
@@ -343,7 +346,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=orange06-20261118"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=solaris-choices-20261120"
+      src="assets/batch-ui.mjs?v=batch-file-names-20261120"
     ></script>
   </body>
 </html>

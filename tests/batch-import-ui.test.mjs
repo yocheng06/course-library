@@ -376,17 +376,24 @@ test('automatic file lookup replaces existing text only after a successful impor
  const ui=dom(),applied=[];
  setupBatchImport({document:ui.document,autoApply:true,onApply:(result,options)=>applied.push({result,options})});
  assert.equal(ui.$('batchImageHelp').hidden,true);
+ assert.equal(ui.$('batchFileNames').textContent,'尚未選檔');
  await ui.choose([file('first.json',JSON.stringify([rawQuestion]))]);
+ assert.equal(ui.$('batchFileNames').textContent,'已選檔案：first.json');
  assert.equal(applied.length,1);assert.equal(applied[0].options.autoCompare,true);
  assert.equal(ui.$('importPreview').hidden,true);assert.match(ui.$('batchText').value,/CPU/);
  const original=ui.$('batchText').value;
  await ui.choose([file('invalid.json','{')]);
  assert.equal(applied.length,1);assert.equal(ui.$('batchText').value,original);
- await ui.choose([file('next.txt','2. 另一題 ____')]);
+ await ui.choose([file('next.txt','2. 另一題 ____'),file('補充.html','<p>3. 附加的題目 ____</p>')]);
  assert.equal(applied.length,2);assert.equal(applied[1].options.autoCompare,true);
  assert.equal(ui.$('importPreview').hidden,true);
- assert.equal(applied[1].result.questions.length,1);
+ assert.equal(applied[1].result.questions.length,2);
+ assert.equal(ui.$('batchFileNames').textContent,'已選檔案：next.txt、補充.html');
+ await ui.choose([]);
+ assert.equal(ui.$('batchFileNames').textContent,'已選檔案：next.txt、補充.html');
  assert.doesNotMatch(ui.$('batchText').value,/CPU/);
+ ui.fire('clearInput','click');
+ assert.equal(ui.$('batchFileNames').textContent,'尚未選檔');
 });
 
 test('automatic import never overwrites edits made while reading a file',async()=>{
