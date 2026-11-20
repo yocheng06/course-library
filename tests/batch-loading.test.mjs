@@ -92,7 +92,9 @@ test("automatic lookup uses the HTML course, then searches both courses for a fi
   assert.ok(rows[0].querySelector('a[href="os.html?question=os-test"]'));
   assert.ok(rows[0].querySelector('a[href="algorithms.html?question=alg-conflict"]'));
   assert.match(rows[1].textContent,/theta/);
-  assert.match(rows[1].textContent,/演算法・L2/);
+  assert.equal(rows[1].querySelector(".answer-text").textContent,"theta");
+  assert.doesNotMatch(rows[1].textContent,/收錄來源/);
+  assert.ok(rows[1].querySelector('a[href="algorithms.html?question=alg-only"]'));
 });
 
 test('the Solaris bilingual option version remains searchable when public sync is unavailable',async()=>{

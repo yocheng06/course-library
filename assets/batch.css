@@ -287,10 +287,6 @@ th:nth-child(3) {
   line-height: 1.7;
   white-space: normal;
 }
-.source-unit {
-  font-size: 13px;
-  font-weight: 400;
-}
 .result-badge {
   display: inline-block;
   padding: 3px 7px;
