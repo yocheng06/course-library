@@ -9,9 +9,10 @@ import {
   expandLibraryQuestion,
   applyBuiltinOverrides,
   MAX_TEXT,
-} from "./batch-model.mjs?v=legacy-fill-records-20261113";
-import { parseBatchInput } from "./batch-import.mjs?v=rr-format-records-20261101";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=next-file-lookup-20261120";
+  normalizeText,
+} from "./batch-model.mjs?v=automatic-scope-20261120";
+import { parseBatchInput } from "./batch-import.mjs?v=automatic-scope-20261120";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=automatic-scope-20261120";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 function ensureTransferButton() {
@@ -46,9 +47,11 @@ const esc = (value) =>
 let unitStorage;try{unitStorage=globalThis.localStorage;}catch{}
 const unitCatalog=createUnitCatalog(unitStorage), syncChanges=new Map();
 const names = { os: "作業系統", algorithms: "演算法" };
+const courses = Object.keys(names);
 const labels = { matched: "已收錄", unmatched: "未收錄" };
 const draftKey = "course-library.batch-draft.v1";
 let imageQuestions = [];
+let importedCourse = null, comparisonRequest = 0;
 let library,
   index,
   coverage = { os: false, algorithms: false },
@@ -61,7 +64,7 @@ let library,
   snapshotGeneration = -1,
   courseSuggestion = null;
 const selectedCourse = new URL(location.href).searchParams.get("course");
-if (names[selectedCourse]) $("course").value = selectedCourse;
+if (Object.hasOwn(names, selectedCourse)) $("course").value = selectedCourse;
 function message(text, error = false) {
   $("message").textContent = text;
   $("message").classList.toggle("error", error);
@@ -71,13 +74,14 @@ function scope() {
   return { course: $("course").value, unit: $("unit").value };
 }
 function currentSnapshot() {
-  return JSON.stringify({ ...scope(), text: $("batchText").value, imageQuestions });
+  return JSON.stringify({ ...scope(), scopePreference: 1, text: $("batchText").value, imageQuestions, importedCourse });
 }
 function units() {
   const previous = $("unit").value;
+  const course = $("course").value;
   $("unit").innerHTML =
     '<option value="all">全部單元</option>' +
-    unitCatalog.list($("course").value)
+    (names[course] ? unitCatalog.list(course) : [])
       .map((u) => `<option value="${esc(u.id)}">${esc(u.name)}</option>`)
       .join("");
   if ([...$("unit").options].some((o) => o.value === previous))
@@ -87,7 +91,8 @@ function units() {
       $("unit").value = restoreUnit;
     restoreUnit = null;
   }
-  document.body.dataset.course = $("course").value;
+  $("unit").disabled = course === "auto";
+  document.body.dataset.course = names[course] ? course : "os";
 }
 function isStale() {
   return (
@@ -102,7 +107,7 @@ function markChanged() {
   $("copyAnswers").disabled = stale || loading || !index || !results.length;
   const unmatchedCount = results.filter((r) => r.status === "unmatched").length;
   if (transferButton) {
-    transferButton.disabled = stale || loading || !index || !unmatchedCount || !!courseSuggestion;
+    transferButton.disabled = stale || loading || !index || !unmatchedCount || !!courseSuggestion || !snapshotCourse;
     transferButton.textContent = `轉入投稿草稿${unmatchedCount ? `（${unmatchedCount} 題）` : ""}`;
   }
   $("inputCount").textContent =
@@ -110,7 +115,7 @@ function markChanged() {
   try {
     localStorage.setItem(
       draftKey,
-      JSON.stringify({ ...scope(), text: $("batchText").value, imageQuestions }),
+      currentSnapshot(),
     );
   } catch {}
 }
@@ -122,6 +127,13 @@ const publicFlights = new Map(), publicData = new Map(), publicEtags = new Map()
 let baseLibrary, basePromise;
 function libraryStatus() {
   const course = $("course").value;
+  if (course === "auto") {
+    $("libraryStatus").textContent = publicFlights.size
+      ? "正在同步這次查詢所需的題庫。"
+      : "查詢時會依題目判斷科目，並比對全部單元。";
+    $("libraryStatus").dataset.syncState = publicFlights.size ? "syncing" : "ready";
+    return;
+  }
   const count = new Set(
     (index?.entries || []).filter((e) => e.course === course).map((e) => e.id),
   ).size;
@@ -227,9 +239,10 @@ async function getBaseLibrary() {
     }).catch(error => { basePromise = null; throw error; });
   return basePromise;
 }
-async function loadLibrary() {
-  const course = $("course").value;
+async function loadLibrary(course = $("course").value, force = false) {
+  if (course === "auto") return Promise.all(courses.map(name => loadLibrary(name, force)));
   if (publicFlights.has(course)) return publicFlights.get(course);
+  if (!force && coverage[course] && Date.now() - syncedAt.get(course) < 60000) return;
   restorePublicCache(course);
   const firstLoad = !index;
   loading = firstLoad;
@@ -282,7 +295,7 @@ async function loadLibrary() {
       syncing = publicFlights.size > 0;
       loading = !index;
       $("compare").disabled = !index;
-      $("reloadLibrary").disabled = publicFlights.has($("course").value);
+      $("reloadLibrary").disabled = $("course").value === "auto" ? publicFlights.size > 0 : publicFlights.has($("course").value);
       if (index) libraryStatus();
       markChanged();
     }
@@ -292,21 +305,23 @@ async function loadLibrary() {
   return task;
 }
 
-function sourceURL(id) {
+function sourceURL(ref) {
   return (
-    (snapshotCourse === "os" ? "os.html" : "algorithms.html") +
+    (ref.course === "os" ? "os.html" : "algorithms.html") +
     "?question=" +
-    encodeURIComponent(id)
+    encodeURIComponent(ref.id)
   );
 }
 let snapshotCourse = "os";
+let snapshotScopeLabel = names.os;
 function unitNames(row) {
   return [
     ...new Set(
       row.references.map(
-        (ref) =>
-          library.courses[snapshotCourse].units.find((u) => u.id === ref.unit)
-            ?.name || ref.unit,
+        (ref) => {
+          const unit = library.courses[ref.course]?.units.find((u) => u.id === ref.unit)?.name || ref.unit;
+          return names[ref.course] ? `${names[ref.course]}・${unit}` : unit;
+        },
       ),
     ),
   ].join("、");
@@ -314,9 +329,30 @@ function unitNames(row) {
 function candidateComparison(row) {
   if(row.status==='matched')return '';
   return `<p class="mismatch-reason"><strong>未收錄原因：${esc(mismatchLabel(row))}</strong></p>`+(row.references||[]).map(ref=>{
-    const candidate=index?.entries.find(e=>e.id===ref.id&&e.stem===ref.stem)||index?.entries.find(e=>e.id===ref.id);
+    const candidate=index?.entries.find(e=>e.course===ref.course&&e.id===ref.id&&e.stem===ref.stem);
     return candidate?`<details class="candidate-comparison"><summary>並排核對 ${esc(ref.id)}</summary>${comparisonMarkup(row.question,candidate,{rightTitle:'候選版本 '+ref.id,reason:row.reason})}</details>`:'';
   }).join('');
+}
+function combineCourseMatches(questions) {
+  const [os, algorithms] = courses.map(course => matchRecordedQuestions(questions, index, {course}));
+  return os.map((first, i) => {
+    const rows = [first, algorithms[i]];
+    const matched = rows.filter(row => row.status === "matched");
+    if (!matched.length) {
+      const candidate = rows.find(row => row.exactConflict) || rows.find(row => row.references.length) || first;
+      return {...candidate, references: rows.flatMap(row => row.references)};
+    }
+    const signature = row => JSON.stringify([row.choiceKey || normalizeText(row.answer), [...new Set(row.conditions.map(normalizeText))].sort()]);
+    if (!rows.some(row => row.exactConflict) && new Set(matched.map(signature)).size === 1) {
+      return {...matched[0], references: matched.flatMap(row => row.references)};
+    }
+    return {
+      question: first.question, status: "unmatched", answer: "", exactConflict: true,
+      reason: "兩科都找到符合的題目，但答案或成立條件無法確認一致，請核對下方原題。",
+      references: rows.flatMap(row => row.references.map(ref =>
+        row.status === "matched" ? {...ref, candidateAnswer: row.answer} : ref)),
+    };
+  });
 }
 function renderResults() {
   const filter = $("resultFilter").value;
@@ -324,30 +360,47 @@ function renderResults() {
   $("resultRows").innerHTML = shown
     .map(
       (row) =>
-        `<tr><th scope="row">${esc(row.question.number)}</th><td class="answer-text">${esc(row.answer || "尚無可確認答案")}${row.conditions?.length ? `<p class="answer-condition"><strong>成立條件</strong><br>${row.conditions.map(esc).join("<br>")}</p>` : ""}${row.outsideScope ? `<p class="source-unit">收錄單元：${esc(unitNames(row))}</p>` : ""}</td><td><span class="result-badge ${row.status}">${esc(statusLabel(row))}</span></td><td><details class="question-detail"><summary>${esc(row.question.stem.slice(0, 90) || "缺少題幹")}</summary><p>${esc(row.question.stem)}</p>${row.question.options.length ? "<ul>" + row.question.options.map((o) => `<li>${esc(o.label)}. ${esc(o.text)}</li>`).join("") + "</ul>" : ""}<p>${esc(row.reason)}</p>${candidateComparison(row)}${row.references.length ? '<ul class="source-links">' + row.references.map((ref) => `<li><a href="${sourceURL(ref.id)}" target="_blank" rel="noopener">${esc(ref.id)}・開啟${row.status === "matched" ? "收錄" : "候選"}原題 ↗</a>${ref.candidateAnswer!==undefined?`<p>此版本答案：${esc(ref.candidateAnswer||"尚未提供")}</p>`:""}</li>`).join("") + "</ul>" : ""}</details></td></tr>`,
+        `<tr><th scope="row">${esc(row.question.number)}</th><td class="answer-text">${esc(row.answer || "尚無可確認答案")}${row.conditions?.length ? `<p class="answer-condition"><strong>成立條件</strong><br>${row.conditions.map(esc).join("<br>")}</p>` : ""}${row.status === "matched" && row.references.length ? `<p class="source-unit">收錄來源：${esc(unitNames(row))}</p>` : ""}</td><td><span class="result-badge ${row.status}">${esc(statusLabel(row))}</span></td><td><details class="question-detail"><summary>${esc(row.question.stem.slice(0, 90) || "缺少題幹")}</summary><p>${esc(row.question.stem)}</p>${row.question.options.length ? "<ul>" + row.question.options.map((o) => `<li>${esc(o.label)}. ${esc(o.text)}</li>`).join("") + "</ul>" : ""}<p>${esc(row.reason)}</p>${candidateComparison(row)}${row.references.length ? '<ul class="source-links">' + row.references.map((ref) => `<li><a href="${sourceURL(ref)}" target="_blank" rel="noopener">${esc(names[ref.course])}・${esc(ref.id)}・開啟${row.status === "matched" ? "收錄" : "候選"}原題 ↗</a>${ref.candidateAnswer!==undefined?`<p>此版本答案：${esc(ref.candidateAnswer||"尚未提供")}</p>`:""}</li>`).join("") + "</ul>" : ""}</details></td></tr>`,
     )
     .join("");
   $("emptyResults").hidden = shown.length > 0;
 }
-$("batchForm").addEventListener("submit", (event) => {
-  event.preventDefault();
-  if (!index || loading) return;
+const incompleteCoverage = "部分公開題庫尚未完成同步，結果可能包含快取或內建版本。請重新同步後再核對未收錄題目。";
+async function compare({waitForManualSync = false} = {}) {
+  const selected = scope();
+  const automatic = selected.course === "auto";
+  if (!automatic && !waitForManualSync && (!index || loading)) return;
+  const request = ++comparisonRequest;
+  const expected = currentSnapshot();
   try {
-    const { questions: rawParsed, warnings } = parseBatchInput(
+    const {questions: rawParsed, warnings, courseHint} = parseBatchInput(
       $("batchText").value,
     );
     const parsed = inheritQuestionImages(rawParsed,imageQuestions);
+    const chosenCourse = automatic ? courseHint || importedCourse : selected.course;
+    const searchedCourses = chosenCourse ? [chosenCourse] : courses;
+    if (automatic || waitForManualSync) {
+      if (!searchedCourses.every(course => !publicFlights.has(course) && coverage[course] && Date.now() - syncedAt.get(course) < 60000)) {
+        message("正在準備題庫並查詢答案……");
+        await Promise.all(searchedCourses.map(course => loadLibrary(course)));
+      }
+      if (request !== comparisonRequest || currentSnapshot() !== expected) return;
+    }
+    if (!index) throw new Error("題目已保留，題庫尚未載入；請重新同步後查題。");
     $("resultImageHelp").hidden=!parsed.some(q=>q.stem.includes('[題圖未轉錄]') && !validImageHashes(q.imageHashes));
-    if (parsed.some(q=>validImageHashes(q.imageHashes)) && publicFlights.has($("course").value)) throw new Error("題庫圖片仍在同步，請等同步完成後再比對；題目與圖片資料已保留。");
-    results = matchRecordedQuestions(parsed, index, scope());
+    if (parsed.some(q=>validImageHashes(q.imageHashes)) && searchedCourses.some(course=>publicFlights.has(course))) throw new Error("題庫圖片仍在同步，請等同步完成後再比對；題目與圖片資料已保留。");
+    results = chosenCourse
+      ? matchRecordedQuestions(parsed, index, {course:chosenCourse,unit:selected.unit})
+      : combineCourseMatches(parsed);
     snapshot = currentSnapshot();
     snapshotGeneration = libraryGeneration;
-    snapshotCourse = $("course").value;
-    snapshotUnit = $("unit").value;
-    snapshotCoverage = coverage[snapshotCourse];
+    snapshotCoverage = searchedCourses.every(course => coverage[course]);
+    snapshotCourse = chosenCourse || null;
+    snapshotUnit = selected.unit;
+    snapshotScopeLabel = automatic ? (chosenCourse ? `${names[chosenCourse]}・全部單元` : "自動比對兩科・全部單元") : names[chosenCourse];
     const count = (status) => results.filter((r) => r.status === status).length;
-    const otherCourse = snapshotCourse === "os" ? "algorithms" : "os";
-    const otherMatches = matchRecordedQuestions(parsed, index, {
+    const otherCourse = chosenCourse === "os" ? "algorithms" : "os";
+    const otherMatches = automatic ? 0 : matchRecordedQuestions(parsed, index, {
       course: otherCourse,
     }).filter((r) => r.status === "matched").length;
     courseSuggestion =
@@ -356,16 +409,17 @@ $("batchForm").addEventListener("submit", (event) => {
         : null;
     const scopeHint = courseSuggestion
       ? `目前比對科目為「${names[snapshotCourse]}」，這批有 ${otherMatches} 題在「${names[otherCourse]}」找到一致原題。請切換科目後重新比對。`
-      : "請展開有疑義的項目，核對題幹與選項是否完整。";
+      : !snapshotCourse && count("unmatched")
+        ? "要轉入投稿草稿時，請在更多設定選擇投稿科目後重新比對。"
+        : "請展開有疑義的項目，核對題幹與選項是否完整。";
     $("courseMismatchText").textContent = courseSuggestion ? scopeHint : "";
     $("switchCourse").textContent = `改用${names[otherCourse]}比對`;
     const unmatchedLabel = "未收錄";
     $("resultCount").textContent =
-      `共 ${results.length} 題・${names[snapshotCourse]}・已收錄 ${count("matched")}・${unmatchedLabel} ${count("unmatched")}`;
+      `共 ${results.length} 題・${snapshotScopeLabel}・已收錄 ${count("matched")}・${unmatchedLabel} ${count("unmatched")}`;
     $("expandScope").hidden = !results.some((r) => r.outsideScope);
     $("coverageNotice").hidden = snapshotCoverage;
-    $("coverageNotice").textContent =
-      "公開投稿題庫尚未同步。本次結果只涵蓋內建題庫，「未收錄」僅代表本次尚未找到完整符合的版本，請重新同步後核對。";
+    $("coverageNotice").textContent = incompleteCoverage;
     $("resultFilter").querySelector('[value="unmatched"]').textContent =
       unmatchedLabel;
     $("staleNotice").textContent =
@@ -382,9 +436,14 @@ $("batchForm").addEventListener("submit", (event) => {
     $("resultsHeading").focus({ preventScroll: true });
     $("results").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
+    if (request !== comparisonRequest || currentSnapshot() !== expected) return;
     message(error.message, true);
     if (error.mapping) importUI.showError(error);
   }
+}
+$("batchForm").addEventListener("submit", event => {
+  event.preventDefault();
+  void compare();
 });
 async function copy(text) {
   try {
@@ -405,8 +464,8 @@ async function copy(text) {
 $("copyAnswers").addEventListener("click", () => {
   if (isStale() || loading || !index) return;
   const text =
-    `${names[snapshotCourse]}・答案總表\n` +
-    (!snapshotCoverage ? "注意：投稿題庫未同步，僅比對內建題庫。\n" : "") +
+    `${snapshotScopeLabel}・答案總表\n` +
+    (!snapshotCoverage ? `注意：${incompleteCoverage}\n` : "") +
     (courseSuggestion
       ? `注意：這批有 ${courseSuggestion.count} 題在${names[courseSuggestion.course]}找到一致原題，請切換科目重新比對；以下僅為${names[snapshotCourse]}範圍結果。\n`
       : "") +
@@ -415,7 +474,7 @@ $("copyAnswers").addEventListener("click", () => {
         (r) =>
           `${r.question.number}｜${r.answer || "尚無可確認答案"}｜${statusLabel(r)}` +
           (r.references.some(ref=>ref.candidateAnswer!==undefined)?'\n  候選版本：'+r.references.map(ref=>ref.id+'：'+(ref.candidateAnswer||'尚未提供')).join('；'):'') +
-          (r.outsideScope ? `（${unitNames(r)}）` : "") +
+          (r.status === "matched" && r.references.length ? `（${unitNames(r)}）` : "") +
           (r.conditions?.length
             ? `\n  成立條件：${r.conditions.join("；")}`
             : ""),
@@ -424,7 +483,7 @@ $("copyAnswers").addEventListener("click", () => {
   copy(text);
 });
 transferButton?.addEventListener("click", () => {
-  if (isStale() || loading || !index || courseSuggestion) return;
+  if (isStale() || loading || !index || courseSuggestion || !snapshotCourse) return;
   try {
     stageUnmatched(results, { course: snapshotCourse, unit: snapshotUnit }, localStorage);
     location.href = window.courseTheme?.href("submit.html?v=draft-transfer-20261020#pendingHeading") || "submit.html?v=draft-transfer-20261020#pendingHeading";
@@ -458,18 +517,22 @@ $("copyTranscription").addEventListener("click", () =>
   ),
 );
 $("resultFilter").addEventListener("change", renderResults);
-$("batchText").addEventListener("input", markChanged);
+$("batchText").addEventListener("input", () => {
+  importedCourse = null;
+  markChanged();
+});
 $("course").addEventListener("change", () => {
   restoreUnit = null;
   units();
   if (index) libraryStatus();
-  if (!coverage[$("course").value] || Date.now() - (syncedAt.get($("course").value) || 0) > 60000) loadLibrary();
+  if ($("course").value !== "auto") loadLibrary();
   markChanged();
 });
 $("unit").addEventListener("change", markChanged);
-$("reloadLibrary").addEventListener("click", loadLibrary);
+$("reloadLibrary").addEventListener("click", () => loadLibrary($("course").value, true));
 $("clearInput").addEventListener("click", () => {
   imageQuestions = [];
+  importedCourse = null;
   $("batchText").value = "";
   markChanged();
   $("batchText").focus();
@@ -484,10 +547,11 @@ try {
   ) {
     $("batchText").value = draft.text;
     imageQuestions = Array.isArray(draft.imageQuestions) ? draft.imageQuestions.filter(q=>validImageHashes(q.imageHashes)).slice(0,30) : [];
-    if (!names[selectedCourse] && names[draft.course])
+    importedCourse = Object.hasOwn(names, draft.importedCourse) ? draft.importedCourse : null;
+    if (!Object.hasOwn(names, selectedCourse) && draft.scopePreference === 1 && Object.hasOwn(names, draft.course))
       $("course").value = draft.course;
     if (
-      (!names[selectedCourse] || selectedCourse === draft.course) &&
+      $("course").value === draft.course &&
       typeof draft.unit === "string"
     )
       restoreUnit = draft.unit;
@@ -495,16 +559,19 @@ try {
 } catch {}
 units();
 const importUI = setupBatchImport({ document, autoApply:true, getImageQuestions:()=>imageQuestions, onApply:(result,{autoCompare=false}={})=>{
-  imageQuestions=result.questions.filter(q=>validImageHashes(q.imageHashes));markChanged();
-  if(autoCompare) {
-    const expected=currentSnapshot();
-    // Wait for the current course's image fingerprints and public questions too.
-    Promise.resolve(loadLibrary()).then(()=>{
-      if(currentSnapshot()!==expected)return;
-      if(!index){message("題目已保留，題庫尚未載入；請重新同步後查題。",true);return;}
-      $("batchForm").dispatchEvent(new Event("submit",{bubbles:true,cancelable:true}));
-    }).catch(()=>message("題目已保留，請重新同步題庫後查題。",true));
-  }
+  imageQuestions=result.questions.filter(q=>validImageHashes(q.imageHashes));
+  importedCourse=result.courseHint || null;
+  markChanged();
+  if(autoCompare) void compare({waitForManualSync:true});
 } });
 markChanged();
-loadLibrary();
+if ($("course").value === "auto") {
+  void getBaseLibrary().then(() => {
+    if (!index) rebuildLibraryIndex();
+    $("compare").disabled = false;
+    libraryStatus();
+    markChanged();
+  }).catch(() => {
+    if (!index) $("libraryStatus").textContent = "無法載入內建題庫，請重新同步。";
+  });
+} else loadLibrary();

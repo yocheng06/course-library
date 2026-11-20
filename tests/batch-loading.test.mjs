@@ -21,7 +21,7 @@ const base = {
   }, true)],
 };
 
-async function page(fetch, {storage = new Map()} = {}) {
+async function page(fetch, {storage = new Map(), automatic = false} = {}) {
   const { document, window } = parseHTML(await readFile(new URL("../batch.html", import.meta.url), "utf8"));
   Object.defineProperty(window.HTMLSelectElement.prototype, "value", {
     configurable: true,
@@ -33,7 +33,7 @@ async function page(fetch, {storage = new Map()} = {}) {
   const copied = [];
   const context = vm.createContext({
     document, window: { courseContributions: { apiOrigin: "https://example.invalid" } },
-    location: { href: "https://example.invalid/batch.html" },
+    location: { href: "https://example.invalid/batch.html" + (automatic ? "" : "?course=os") },
     localStorage: { getItem: key => storage.get(key), setItem(key,value) { storage.set(key,value); } }, fetch,
     navigator: { clipboard: { writeText: async (text) => copied.push(text) } },
     URL, AbortSignal, TextDecoder, TextEncoder, Uint8Array, crypto:webcrypto, atob, console, Event: window.Event,
@@ -54,6 +54,46 @@ async function page(fetch, {storage = new Map()} = {}) {
   const fire = (id, event) => $(id).dispatchEvent(new window.Event(event, { bubbles: true, cancelable: true }));
   return { $, fire, copied, context };
 }
+
+test("automatic lookup uses the HTML course, then searches both courses for a file without course information", async () => {
+  const algoStem = "演算法的查詢測試題";
+  const bank = {...base, entries: [...base.entries,
+    toLibraryQuestion("algorithms", "L2", {id:"alg-conflict", stem, options:["短程排程器","長程排程器"],answer:"B"}, true),
+    toLibraryQuestion("algorithms", "L2", {id:"alg-only", stem:algoStem+" ______",options:[],answer:"theta"}, true),
+  ]};
+  const requests = [];
+  const ui = await page(async url => {
+    if (String(url).startsWith("assets/")) return {ok:true,json:async()=>bank};
+    requests.push(new URL(url).searchParams.get("course"));
+    return response();
+  }, {automatic:true});
+  assert.equal(ui.$("course").value, "auto");
+  assert.equal(ui.$("unit").disabled, true);
+  assert.deepEqual(requests, []);
+  const choose = async (name, text) => {
+    ui.$("batchFiles").files = [{name,size:Buffer.byteLength(text),arrayBuffer:async()=>new TextEncoder().encode(text).buffer}];
+    ui.fire("batchFiles", "change");
+    for (let i=0;i<4;i++) await tick();
+  };
+  const raw = `<!doctype html>
+<!-- saved from url=(0065)https://example.invalid/course/Alg26/practice.php?realm_id=2 -->
+<form id="practice-quiz-form"><div class="question-block"><p class="question-text">${stem}</p>
+  <label><input type="radio">短程排程器</label><label><input type="radio">長程排程器</label></div></form>`;
+  await choose("practice.html",raw);
+  assert.deepEqual(requests, ["algorithms"]);
+  assert.match(ui.$("resultCount").textContent,/演算法・全部單元・已收錄 1/);
+  assert.equal(ui.$("resultRows").querySelector(".answer-text").firstChild.textContent,"B. 長程排程器");
+  await choose("mixed.txt",`1. ${stem}\nA. 短程排程器\nB. 長程排程器\n\n2. ${algoStem} ______`);
+  assert.deepEqual(requests, ["algorithms","os"]);
+  assert.match(ui.$("resultCount").textContent,/自動比對兩科・全部單元・已收錄 1・未收錄 1/);
+  const rows = ui.$("resultRows").querySelectorAll("tr");
+  assert.match(rows[0].textContent,/尚無可確認答案/);
+  assert.match(rows[0].textContent,/兩科都找到符合/);
+  assert.ok(rows[0].querySelector('a[href="os.html?question=os-test"]'));
+  assert.ok(rows[0].querySelector('a[href="algorithms.html?question=alg-conflict"]'));
+  assert.match(rows[1].textContent,/theta/);
+  assert.match(rows[1].textContent,/演算法・L2/);
+});
 
 test('reported RR result transcript matches in the real page and copies the recorded answer with its condition',async()=>{
   const realBank=JSON.parse(await readFile(new URL('../assets/batch-library.json',import.meta.url),'utf8'));
@@ -101,7 +141,7 @@ test("built-in lookup and copying work while public sync waits, then new data in
   assert.equal(ui.$("transferUnmatched").disabled, false);
   ui.fire("copyAnswers", "click"); await tick();
   assert.equal(ui.copied.length, 1);
-  assert.match(ui.copied[0], /僅比對內建題庫/);
+  assert.match(ui.copied[0], /公開題庫尚未完成同步/);
   pending[0](response([{ unit: "scheduling", question: {
     id: "community-00000000-0000-4000-8000-000000000001-1",
     stem: "新增的公開投稿題目？", options: ["A. verified-answer", "B. other-answer"], answer: "A", answerProvided: true,
@@ -115,7 +155,7 @@ test("built-in lookup and copying work while public sync waits, then new data in
   // Programmatic stale actions must obey the same guards as disabled buttons.
   ui.fire("copyAnswers", "click"); ui.fire("transferUnmatched", "click"); await tick();
   assert.equal(ui.copied.length, 1);
-  assert.equal(ui.context.location.href, "https://example.invalid/batch.html");
+  assert.equal(ui.context.location.href, "https://example.invalid/batch.html?course=os");
   ui.fire("batchForm", "submit");
   assert.equal(ui.$("staleNotice").hidden, true);
   assert(ui.$("resultRows").textContent.includes("verified-answer"));

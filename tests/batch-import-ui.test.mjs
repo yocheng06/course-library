@@ -330,6 +330,10 @@ test("full page: imported/pasted structured questions use bank answers, update d
   ui.fire("transferUnmatched", "click");
   assert.equal(storage.has("course-library.submission-inbox.v1"), false);
   ui.fire("batchForm", "submit");
+  assert.equal(ui.$("transferUnmatched").disabled, true);
+  ui.$("course").value="os";
+  ui.fire("course","change");
+  ui.fire("batchForm", "submit");
   assert.equal(ui.$("transferUnmatched").disabled, false);
   ui.fire("transferUnmatched", "click");
   const pending = JSON.parse(storage.get("course-library.submission-inbox.v1"));

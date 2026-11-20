@@ -4,7 +4,7 @@ import {
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=rr-format-records-20261101";
+} from "./batch-import.mjs?v=automatic-scope-20261120";
 
 export function setupBatchImport({ document, onApply, getImageQuestions = () => [], autoApply = false }) {
   const $ = (id) => document.getElementById(id);
@@ -259,6 +259,7 @@ export function setupBatchImport({ document, onApply, getImageQuestions = () => 
         { document, imageQuestions:getImageQuestions() },
       );
       const before=existingOverride ?? $("batchText").value;
+      if (mode === "replace" || !before.trim()) result.courseHint = pending.courseHint;
       $("batchText").value = result.text;
       retryBase={before,applied:result.text,mode};
       close();

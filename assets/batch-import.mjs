@@ -5,7 +5,7 @@ import {
   normalizeText,
   MAX_TEXT,
   MAX_QUESTIONS,
-} from "./batch-model.mjs?v=rr-format-records-20261101";
+} from "./batch-model.mjs?v=automatic-scope-20261120";
 import JSON5 from "./vendor/json5.mjs?v=2.2.3";
 
 // Saved exam HTML includes page assets/markup well beyond the question text.
@@ -694,13 +694,21 @@ function bankShape(value, depth = 0) {
       ))
   );
 }
-function htmlQuestions(raw, doc, warnings = []) {
+function htmlQuestions(raw, doc, warnings, metadata) {
   if (!doc?.createElement) fail("目前無法讀取 HTML，請改用文字或 JSON 格式。");
   // A detached template is inert: never attach imported nodes to the live page,
   // execute scripts, instantiate custom elements, or load image/iframe URLs.
   const template = doc.createElement("template");
   template.innerHTML = raw.replace(/^\s*<!doctype[^>]*>/i, "");
   const root = template.content;
+  const form = root.querySelector("#practice-quiz-form,#challenge-quiz-form");
+  if (form) {
+    const savedURL = /^\s*(?:<!doctype[^>]*>\s*)?<!--\s*saved from url=\(\d+\)(https?:\/\/[^\s<>]+)\s*-->/i.exec(raw)?.[1];
+    const courses = new Set([form.getAttribute("action"), root.querySelector("base[href]")?.getAttribute("href"), savedURL]
+      .map(url => /\/course\/(OS(?:\d[a-z0-9_-]*)?|Alg(?:\d[a-z0-9_-]*)?)\/(?:process_)?(?:practice|challenge)\.php(?:[?#]|$)/i.exec(url || "")?.[1])
+      .filter(Boolean).map(code => /^os/i.test(code) ? "os" : "algorithms"));
+    if (courses.size === 1) metadata.courseHint = [...courses][0];
+  }
   const embedded = root.querySelector(
     "script#course-data, script#question-data, script#quiz-data",
   );
@@ -717,8 +725,7 @@ function htmlQuestions(raw, doc, warnings = []) {
   }
   // Saved quiz pages use `const questions = []` for page controls, not bank
   // data. Their rendered form is the authoritative source of questions.
-  const savedQuizForm = root.querySelector("#practice-quiz-form,#challenge-quiz-form");
-  for (const script of savedQuizForm ? [] : root.querySelectorAll("script")) {
+  for (const script of form ? [] : root.querySelectorAll("script")) {
     const source = script.textContent;
     if (script.getAttribute("type")?.toLowerCase() === "application/json") {
       let data;
@@ -1195,6 +1202,7 @@ export function parseBatchInput(
     }
   }
   const format = detectFormat(raw, name);
+  const metadata = {};
   let questions;
   if (format === "json") {
     const data = readJSON(raw, warnings);
@@ -1211,7 +1219,7 @@ export function parseBatchInput(
         questionsFromRows(rows, warnings, "Markdown 表格 "),
       ),
     );
-  else if (format === "html") questions = htmlQuestions(raw, doc, warnings);
+  else if (format === "html") questions = htmlQuestions(raw, doc, warnings, metadata);
   else questions = parseQuestions(normalizeTranscript(raw, warnings));
   bounded(questions);
   for (const q of questions) {
@@ -1227,6 +1235,7 @@ export function parseBatchInput(
   // when explicitly applying the import, with a visible count of changed numbers.
   const text = questionsToText(questions);
   return {
+    ...metadata,
     questions: parseQuestions(text).map((q,i)=>({...q,...(questions[i]?.imageSources?.length ? {imageSources:questions[i].imageSources} : {})})),
     text,
     format,
@@ -1394,6 +1403,8 @@ export async function readBatchFiles(files, options = {}) {
   const questions = bounded(parsed.flatMap((file) => file.questions));
   return {
     questions,
+    ...(parsed[0].courseHint && parsed.every(file => file.courseHint === parsed[0].courseHint)
+      ? {courseHint: parsed[0].courseHint} : {}),
     files: parsed.map(({ name, format, questions, warnings }) => ({
       name,
       format,
