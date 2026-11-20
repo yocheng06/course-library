@@ -189,9 +189,11 @@
     const anchor = [...config.list.children].find(card => { const r=card.getBoundingClientRect();return r.bottom>0 && r.top<innerHeight; });
     const anchorTop = anchor?.getBoundingClientRect().top;
     const scroll = {x:scrollX,y:scrollY}, menu = config.sidebar.querySelector('.course-menu'), menuScroll = menu?.scrollTop;
-    const result = config.mergeCommunityQuestions(entries, {openLinkedQuestion:linkedSubmission && !interacted, aliases, overrides, replace:true});
+    config.mergeCommunityQuestions(entries, {aliases, overrides, replace:true});
     config.setUnitMetadata?.(unitMetadata);
-    if (!result.openedLinkedQuestion) {
+    // Ordering and metadata can move the linked card to a different page.
+    const openedLinkedQuestion = linkedId && !interacted && config.openQuestionById?.(linkedId);
+    if (!openedLinkedQuestion) {
       if (menu) menu.scrollTop = menuScroll;
       if (!focused?.isConnected && selector) {
         const replacement = document.querySelector(selector);
@@ -202,7 +204,6 @@
       if (currentAnchor) window.scrollBy(0, currentAnchor.getBoundingClientRect().top - anchorTop);
       else window.scrollTo(scroll.x,scroll.y);
     }
-    return result;
   }
   function validData(data) {
     if (!data || !['questions','aliases','overrides'].every(key => Array.isArray(data[key]))) return false;
@@ -240,6 +241,7 @@
       if (initial === cached && validEnvelope(snapshot)) { try { apply(snapshot.data, 'snapshot'); } catch {} }
     }
   }
+  if (source === 'builtin' && linkedId && !interacted) config.openQuestionById?.(linkedId);
   document.documentElement.dataset.questionReady = 'true';
   let latestData = initial?.data || null;
   let mutationVersion = 0;
@@ -293,7 +295,7 @@
       const serverTime = Date.parse(response.headers?.get('date'));
       const generatedAt = new Date(Number.isFinite(serverTime) ? serverTime : Date.now()).toISOString();
       try { localStorage.setItem(cacheKey, JSON.stringify({schema:1, course:config.course, generatedAt, data, etag:latestEtag})); } catch {}
-      if (linkedSubmission && !config.validId(linkedId)) showNotice('這個投稿題目連結暫時沒有可用內容，已顯示原有題庫。',true);
+      if (linkedId && !interacted && !config.validId(linkedId)) showNotice('這個題目連結目前找不到可顯示的題目。',true);
       else if (notice) {
         notice.remove();
         notice = null;

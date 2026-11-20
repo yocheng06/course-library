@@ -3,6 +3,38 @@ import {loadCourse,orderingIssues} from '../scripts/audit-topic-order-20261102.m
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
 const live={os:JSON.parse(await read('content/os-public-topic-order-20261102.json')),algorithms:JSON.parse(await read('content/algorithms-public-topic-order-20261102.json'))};
 function assertOrder(h,course){const entries=h.config.examEntries(true);assert.deepEqual(orderingIssues(entries,h.window.courseTopicOrder,course),[]);return entries;}
+test('the Solaris builtin deep link opens its question after CPU scheduling curation',async()=>{
+ const id='os6-091',h=await loadCourse('os',{linkedQuestion:id});
+ assert.equal(h.config.examUnitId(),'scheduling');
+ assert.equal(h.config.currentPage(),Math.ceil(h.config.questionDetails(id).number/20));
+ assert.ok(h.config.list.querySelector(`[data-id="${id}"]`));
+ assert.equal(h.scrolledQuestions.at(-1),id);
+});
+
+for(const course of ['os','algorithms'])test(course+' preserves a question link across synchronization until the user interacts',async()=>{
+ const size=course==='os'?20:10;
+ const empty={questions:[],aliases:[],overrides:[]};
+ const probe=await loadCourse(course,{live:empty});
+ const unit=course==='os'?'scheduling':'L4';
+ const entries=Array.from(probe.config.examEntries([unit]));
+ const target=entries[size], earlier=entries[0];
+ const overrides=[{unit,deleted:true,question:course==='os'?{id:earlier.id}:{bookmarkId:earlier.id}}];
+ const updated={...empty,overrides};
+ const h=await loadCourse(course,{live:empty,linkedQuestion:target.id});
+ assert.equal(h.config.currentPage(),2);
+ h.respond(updated);await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(h.config.currentPage(),1);
+ assert.ok(h.config.list.querySelector(`[data-id="${target.id}"]`));
+ assert.equal(h.scrolledQuestions.at(-1),target.id);
+
+ const moved=await loadCourse(course,{live:empty,linkedQuestion:target.id});
+ moved.document.dispatchEvent(new moved.window.Event('wheel'));
+ moved.config.resetPage();moved.config.render();
+ const scrollCount=moved.scrolledQuestions.length;
+ moved.respond(updated);await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(moved.scrolledQuestions.length,scrollCount);
+});
+
 for(const course of ['os','algorithms'])test(course+' all current units group every topic, then single/multiple/fill, while preserving question contents',async()=>{
  const previous=await loadCourse(course,{live:live[course],ordering:false}),before=JSON.parse(JSON.stringify(previous.config.examEntries(true)));
  const h=await loadCourse(course,{live:live[course]}),entries=assertOrder(h,course),tools=h.window.courseTopicOrder;

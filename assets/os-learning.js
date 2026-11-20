@@ -252,12 +252,22 @@ $('cards').addEventListener('change',e=>{
   const answerButton=card.querySelector('[data-show-answer]');if(answerButton){answerButton.textContent='顯示答案與解析';answerButton.setAttribute('aria-expanded','false');}
 });
 const linkedQuestion = new URLSearchParams(location.search).get('question');
-const linkedUnitIndex = questionUnitIndex.get(linkedQuestion) ?? questionUnitIndex.get(canonicalId(linkedQuestion));
-if (linkedUnitIndex !== undefined) ensureUnitLoaded(linkedUnitIndex);
-const linkedEntry = findEntry(linkedQuestion);
-switchUnit(linkedEntry?.unitIndex ?? 0);
-if (linkedEntry) { page=Math.floor((questionDisplayNumber(linkedEntry)-1)/pageSize)+1; render(); window.courseQuestionTools.focusLinkedQuestion(linkedEntry.q.id); }
-let waitingForLinkedQuestion = !linkedEntry && /^community-/.test(linkedQuestion || '');
+function openQuestionById(id) {
+  if (!id) return false;
+  const target = canonicalId(id);
+  const unit = questionUnitIndex.get(target) ?? communityQuestionUnit.get(target);
+  if (unit !== undefined) ensureUnitLoaded(unit);
+  const entry = findEntry(id);
+  if (!entry) return false;
+  if (entry.unitIndex !== active || !$('cards').children.length) switchUnit(entry.unitIndex);
+  const index = matches().findIndex(item => item.q.id === entry.q.id);
+  if (index < 0) return false;
+  page = Math.floor(index / pageSize) + 1;
+  render(true);
+  window.courseQuestionTools.focusLinkedQuestion(entry.q.id);
+  return true;
+}
+if (!openQuestionById(linkedQuestion)) switchUnit(0);
 function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases = [], overrides = [], replace = false} = {}) {
   if(!Array.isArray(overrides))throw new Error('Invalid built-in updates');
   const next=new Map(), nextDeleted=new Set();
@@ -355,15 +365,8 @@ function mergeCommunityQuestions(entries, {openLinkedQuestion = false, aliases =
   window.learningUI?.refresh();
   if (!replace && !added && !updated && !communityAliases.size && !changedIds.size) return {added:0, openedLinkedQuestion:false};
   document.querySelector('[data-course-total]').textContent=`${UNITS.length} 個單元 · ${totalQuestionCount()} 道題目`;
-  const linkedUnit = communityQuestionUnit.get(linkedQuestion) ?? questionUnitIndex.get(canonicalId(linkedQuestion));
-  if (waitingForLinkedQuestion && openLinkedQuestion && linkedUnit !== undefined) ensureUnitLoaded(linkedUnit);
-  const linked=waitingForLinkedQuestion && openLinkedQuestion && findEntry(linkedQuestion);
-  if (linked) {
-    waitingForLinkedQuestion=false; switchUnit(linked.unitIndex);
-    page=Math.floor((questionDisplayNumber(linked)-1)/pageSize)+1; render();
-    window.courseQuestionTools.focusLinkedQuestion(linked.q.id);
-  } else { refreshUnitNavigation(); refreshFilters(); render(true); }
-  return {added, openedLinkedQuestion:Boolean(linked)};
+  refreshUnitNavigation(); refreshFilters(); render(true);
+  return {added, openedLinkedQuestion:openLinkedQuestion && openQuestionById(linkedQuestion)};
 }
 window.courseLearning={
   setUnitQuestionOrder:(unitId,ids)=>{
@@ -386,7 +389,7 @@ window.courseLearning={
     for(const row of rows){const unit=UNITS.find(u=>u.id===row.id);if(!unit)continue;if(row.managed&&typeof row.title==='string')unit.label=row.title.slice(0,60);if(Number.isFinite(row.order))managedUnitOrder.set(row.id,row.order);}
     refreshUnitNavigation();
   },
-  mergeCommunityQuestions, course:'os',toolbar:document.querySelector('.toolbar'),sidebar:document.querySelector('.sidebar'),list:$('cards'),
+  mergeCommunityQuestions, openQuestionById, course:'os',toolbar:document.querySelector('.toolbar'),sidebar:document.querySelector('.sidebar'),list:$('cards'),
   unitIds:()=>orderEntries(questionEntries.filter(e=>e.unitIndex===active&&!builtinDeletedIds.has(e.q.id))).map(e=>e.q.id),
   scopeIds:()=>scopedEntries().map(({q})=>q.id), allUnits,
   scopeLabel:()=>allUnits()?`作業系統 · 全部 ${UNITS.length} 個單元`:`目前單元 · ${UNITS[active].label}`,

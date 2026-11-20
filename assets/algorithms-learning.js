@@ -100,11 +100,21 @@ $('list').addEventListener('input',e=>{
 $('list').addEventListener('change',e=>{const input=e.target,id=input.dataset.choice;if(!id)return;const k=Number(input.dataset.index);let chosen=selections.get(id)||[];chosen=input.type==='radio'?[k]:input.checked?[...new Set([...chosen,k])]:chosen.filter(i=>i!==k);selections.set(id,chosen);const card=input.closest('.card');card.querySelectorAll('.option').forEach(label=>label.classList.toggle('chosen',label.querySelector('input').checked));const clear=card.querySelector('[data-clear-response]');if(clear)clear.disabled=chosen.length===0;revealed.delete(id);feedback.delete(id);card.querySelector('[data-answer]').hidden=true;card.querySelector('.practice-feedback')?.remove();window.coursePractice.clearMarks(card);const b=card.querySelector('[data-reveal]');b.textContent='檢查答案';b.setAttribute('aria-expanded','false');const answerButton=card.querySelector('[data-show-answer]');if(answerButton){answerButton.textContent='顯示答案與解析';answerButton.setAttribute('aria-expanded','false');}});
 $('lessonPicker').addEventListener('change',e=>changeLesson(e.target.value));
 const linkedQuestion=new URLSearchParams(location.search).get('question');
-const linkedEntry=findEntry(linkedQuestion);
-if(linkedEntry)lesson=linkedEntry.unit.id;
-setupLesson();
-if(linkedEntry){page=Math.floor((questionDisplayNumber(linkedEntry)-1)/PAGE_SIZE)+1;render();window.courseQuestionTools.focusLinkedQuestion(linkedEntry.id);}
-let waitingForLinkedQuestion=!linkedEntry && /^community-/.test(linkedQuestion||'');
+function openQuestionById(id) {
+ const entry = id && findEntry(id);
+ if (!entry) return false;
+ if (entry.unit.id !== lesson || !$('list').children.length) {
+  lesson = entry.unit.id;
+  setupLesson();
+ }
+ const index = selectedItems().findIndex(item => item.id === entry.id);
+ if (index < 0) return false;
+ page = Math.floor(index / PAGE_SIZE) + 1;
+ render(true);
+ window.courseQuestionTools.focusLinkedQuestion(entry.id);
+ return true;
+}
+if (!openQuestionById(linkedQuestion)) setupLesson();
 function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],overrides=[],replace=false}={}){
  if(!Array.isArray(overrides))throw new Error('Invalid built-in updates');
  const next=new Map(),nextDeleted=new Set();
@@ -156,10 +166,8 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],ov
  window.learningUI?.refresh();
  if(!replace&&!added&&!updated&&!communityAliases.size&&!changedIds.size)return {added:0,openedLinkedQuestion:false};
  refreshCourseSummary(builtinDeletedIds);
- const linked=waitingForLinkedQuestion&&openLinkedQuestion&&findEntry(linkedQuestion);
- if(linked){waitingForLinkedQuestion=false;lesson=linked.unit.id;setupLesson();page=Math.floor((questionDisplayNumber(linked)-1)/PAGE_SIZE)+1;render();window.courseQuestionTools.focusLinkedQuestion(linked.id);}
- else setupLesson(true);
- return {added,openedLinkedQuestion:Boolean(linked)};
+ setupLesson(true);
+ return {added,openedLinkedQuestion:openLinkedQuestion && openQuestionById(linkedQuestion)};
 }
 window.courseLearning={
  examUnits:()=>COURSES.map(unit=>({id:unit.id,label:`${unit.id} · ${meta[unit.id].short}`})),
@@ -172,7 +180,7 @@ window.courseLearning={
   for(const row of rows)if(meta[row.id]&&row.managed&&typeof row.title==='string'){meta[row.id].title=row.title.slice(0,60);meta[row.id].short=row.title.slice(0,60);}
   COURSES.sort((a,b)=>(order.get(a.id)??Number(a.id.slice(1)))-(order.get(b.id)??Number(b.id.slice(1))));setupLesson(true);
  },
- mergeCommunityQuestions,
+ mergeCommunityQuestions, openQuestionById,
  unitIds:()=>orderEntries(questionEntries.filter(entry=>entry.unit.id===lesson&&!builtinDeletedIds.has(entry.id))).map(entry=>entry.id),
  scopeIds:()=>scopedEntries().map(entry=>entry.id),allUnits,
  scopeLabel:()=>allUnits()?`演算法 · 全部 ${COURSES.length} 個單元`:`目前單元 · ${meta[lesson].short}`,
