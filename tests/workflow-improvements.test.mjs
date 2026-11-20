@@ -72,10 +72,22 @@ test('private health endpoint enforces owner authentication and uses latest edit
  allowed=true;const data=await context.health({},env,new URL('https://example.invalid?course=os'));
  assert.deepEqual(Array.from(data.items,r=>r.id),['one','community-new']);assert.equal(data.items[0].question.answer,'B');assert.equal(data.complete,true);
 });
-for(const course of ['os','algorithms'])test(course+' reader keeps a visible sync status and manual retry after success or failure',async()=>{
- const h=await loadCourse(course),node=h.document.getElementById('courseSyncStatus');assert.match(node.textContent,/同步/);assert.equal(h.document.documentElement.dataset.questionSync,'syncing');
- h.respond({questions:[],aliases:[],overrides:[]});await tick();await tick();assert.equal(h.document.documentElement.dataset.questionSync,'synced');assert.match(node.textContent,/最後同步/);assert.ok(node.querySelector('button'));
- const broken=await loadCourse(course);broken.respond({bad:true});await tick();await tick();assert.equal(broken.document.documentElement.dataset.questionSync,'failed');assert.match(broken.document.getElementById('courseSyncStatus').textContent,/仍可使用/);
+for(const course of ['os','algorithms'])test(course+' reader syncs silently and offers a retry when sync fails',async()=>{
+ const h=await loadCourse(course);
+ assert.equal(h.document.documentElement.dataset.questionSync,'syncing');
+ assert.equal(h.document.getElementById('courseSyncStatus'),null);
+ h.respond({questions:[],aliases:[],overrides:[]});await tick();await tick();
+ assert.equal(h.document.documentElement.dataset.questionSync,'synced');
+ assert.equal(h.document.getElementById('courseSyncStatus'),null);
+ const broken=await loadCourse(course);broken.respond({bad:true});await tick();await tick();
+ assert.equal(broken.document.documentElement.dataset.questionSync,'failed');
+ const notice=broken.document.getElementById('courseSyncStatus');
+ assert.match(notice.textContent,/仍可使用/);
+ assert.equal(notice.querySelector('button').textContent,'重新同步');
+ notice.querySelector('button').dispatchEvent(new broken.window.Event('click'));
+ broken.respond({questions:[],aliases:[],overrides:[]});await tick();await tick();
+ assert.equal(broken.document.documentElement.dataset.questionSync,'synced');
+ assert.equal(broken.document.getElementById('courseSyncStatus'),null);
 });
 
 test('health image checking reports inaccessible links separately without claiming permanent breakage',async()=>{

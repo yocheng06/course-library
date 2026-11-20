@@ -73,7 +73,7 @@ test('empty imports stay hidden, populated/restored previews appear, and clearin
   document.querySelector('[data-clear]').click();assert.equal(document.querySelector('.group-preview').hidden,true);assert.equal(document.querySelector('.flow-steps li[aria-current]').textContent,'選檔');
 });
 
-for(const course of ['os','algorithms'])test(course+' toolbar keeps topic/type visible and status in a closed native disclosure; live sync reports actual differences',async()=>{
+for(const course of ['os','algorithms'])test(course+' toolbar retains its filters and live sync silently adds new questions',async()=>{
   const {document}=parseHTML(await read(course+'.html'));
   assert.ok(document.querySelector('.primary-filters select[aria-label="選擇主題"]'));
   assert.ok(document.querySelector('.primary-filters #typeSelect'));
@@ -83,5 +83,6 @@ for(const course of ['os','algorithms'])test(course+' toolbar keeps topic/type v
   const q=course==='os'?{id,stem:'新增同步測試題',answer:'answer',options:[],type:'填空題'}:{bookmarkId:id,q:'新增同步測試題',a:'answer',opts:[],type:'填空題'};
   const data={questions:[],aliases:[],overrides:[]};
   const h=await loadCourse(course,{live:data});h.respond({...data,questions:[{unit,question:q}]});await tick();await tick();
-  assert.match(h.document.getElementById('courseSyncStatus').textContent,/新增 1 題/);
+  assert.equal(h.config.validId(id),true);
+  assert.equal(h.document.getElementById('courseSyncStatus'),null);
 });
