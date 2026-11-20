@@ -95,6 +95,16 @@ test("automatic lookup uses the HTML course, then searches both courses for a fi
   assert.match(rows[1].textContent,/演算法・L2/);
 });
 
+test('the Solaris bilingual option version remains searchable when public sync is unavailable',async()=>{
+  const realBank=JSON.parse(await readFile(new URL('../assets/batch-library.json',import.meta.url),'utf8'));
+  const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>realBank}:{ok:false});
+  ui.$('batchText').value='8. 【多選題】Solaris作業系統的排程有哪六個類別？\nA. 時程共享(Time sharing)\nB. 互動式(Interactive)\nC. 即時(Real time)\nD. 系統(System)';
+  ui.fire('batchForm','submit');
+  assert.match(ui.$('resultCount').textContent,/已收錄 1・未收錄 0/);
+  assert.match(ui.$('resultRows').textContent,/A\. 時程共享.*B\. 互動式.*C\. 即時.*D\. 系統/);
+  assert.ok(ui.$('resultRows').querySelector('a[href="os.html?question=os6-091"]'));
+});
+
 test('reported RR result transcript matches in the real page and copies the recorded answer with its condition',async()=>{
   const realBank=JSON.parse(await readFile(new URL('../assets/batch-library.json',import.meta.url),'utf8'));
   const transcript=await readFile(new URL('fixtures/rr-large-quantum-result-20261101.txt',import.meta.url),'utf8');

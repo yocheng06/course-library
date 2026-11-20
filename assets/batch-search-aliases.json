@@ -1,4 +1,16 @@
 {
+  "os6-091": [
+    {
+      "stem": "Solaris作業系統的排程有哪六個類別？",
+      "options": [
+        "時程共享（Time sharing）",
+        "互動式（Interactive）",
+        "即時（Real time）",
+        "系統(System)"
+      ],
+      "answer": "A、B、C、D"
+    }
+  ],
   "os7-083": [
     {
       "stem": "In the bounded-buffer problem, wait(empty) and wait(mutex) are both used in the ______ process.",

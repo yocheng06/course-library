@@ -230,7 +230,7 @@ function rebuildLibraryIndex() {
 }
 async function getBaseLibrary() {
   if (baseLibrary) return baseLibrary;
-  if (!basePromise) basePromise = fetch("assets/batch-library.json?v=rr-format-records-20261101", {signal:AbortSignal.timeout(12000)})
+  if (!basePromise) basePromise = fetch("assets/batch-library.json?v=solaris-choices-20261120", {signal:AbortSignal.timeout(12000)})
     .then(async response => {
       if (!response.ok) throw Error("library");
       const data = await response.json();
