@@ -9,6 +9,7 @@ import {analyzeLibrary,setupLibraryHealth} from '../assets/library-health.mjs';
 import {compareQuestions,comparisonMarkup,blankCount,mismatchLabel} from '../assets/question-comparison.mjs';
 import {normalizeStem,questionStemVersions} from '../assets/batch-model.mjs';
 import {loadCourse} from '../scripts/audit-topic-order-20261102.mjs';
+import {setupEditModeration} from '../assets/edit-moderation.mjs';
 const tick=()=>new Promise(r=>setImmediate(r));
 const question=(patch={})=>({category:'HTML 匯入',stem:'中斷的類型？',type:'單選題',options:['A. Timer','B. Disk'],answer:'A',explanation:'Timer 是計時器中斷',images:[],...patch});
 const row=(id,patch={})=>({id,source:'builtin',course:'os',unit:'basics',revision:0,question:question(patch)});
@@ -20,6 +21,26 @@ function dom(html){
  const fire=(selector,type='click')=>document.querySelector(selector).dispatchEvent(new window.Event(type,{bubbles:true}));
  return {window,document,storage,fire};
 }
+test('recent public edits can be selected and rolled back while obsolete revisions remain unselectable',async()=>{
+ const h=dom('<section id="moderation"></section>'),container=h.document.getElementById('moderation');
+ const make=(id,can_rollback)=>({id,course:'os',question_id:'題目 '+id,action:'update',revision:2,created_at:1,changes_json:'{}',can_rollback});
+ const updates=[];let refreshed=0;
+ const ui=setupEditModeration({container,api:async(_path,options)=>{
+  if(!options)return {mode:'direct',pending:[],audit:[make('one',!updates.includes('one')),make('two',true),make('old',false)]};
+  const body=JSON.parse(options.body);assert.equal(body.action,'rollback');updates.push(body.id);
+  if(body.id==='two')throw new Error('版本已更新');
+ },onChanged:()=>refreshed++});
+ await ui.show();
+ assert.equal(container.querySelector('[data-rollback-id="old"]'),null);
+ assert.equal(container.querySelector('[data-action="rollback-selected"]').disabled,true);
+ for(const box of container.querySelectorAll('[data-rollback-id]')){box.checked=true;h.fire(`[data-rollback-id="${box.dataset.rollbackId}"]`,'change');}
+ assert.match(container.querySelector('[data-action="rollback-selected"]').textContent,/2 筆/);
+ h.fire('[data-action="rollback-selected"]');await tick();
+ assert.deepEqual(updates,['one','two']);
+ assert.equal(refreshed,1);
+ assert.match(container.querySelector('[data-rollback-feedback]').textContent,/已退回 1 筆.*版本已更新/);
+});
+
 test('topic inference is shared with the reader, preserves custom topics, and bulk edits persist into the actual submission body',async()=>{
  const noCategory=question();delete noCategory.category;assert.equal(groupImport([noCategory],{course:'os',unit:'basics',title:'測試題庫'})[0].payload.questions[0].category,'中斷');
  const a=groupImport([question(),question({stem:'雲端服務模型？'}),question({stem:'第三題？',category:'老師自訂主題'})],{course:'os',unit:'basics',title:'測試題庫'})[0];

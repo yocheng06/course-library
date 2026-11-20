@@ -19,7 +19,7 @@ function ensureEditModeration(env) {
 
 async function getEditMode(env) {
   await ensureEditModeration(env);
-  return (await env.DB.prepare("SELECT mode FROM edit_policy WHERE id=1").first())?.mode ?? "review";
+  return (await env.DB.prepare("SELECT mode FROM edit_policy WHERE id=1").first())?.mode ?? "direct";
 }
 
 async function withEditPolicy(env, response) {
@@ -87,6 +87,32 @@ async function purgeEditSources(env) {
   ]);
 }
 
+// The revision is checked again by the normal rollback write. An audit entry
+// can only undo its own edit, even if another edit arrives after selection.
+const canRollbackAudit = `a.action='update' AND (
+  EXISTS (SELECT 1 FROM builtin_question_edits b WHERE b.course=a.course
+    AND b.question_id=a.question_id AND b.revision=a.revision AND b.action='update'
+    AND b.revision=(SELECT MAX(h.revision) FROM builtin_question_edits h
+      WHERE h.course=a.course AND h.question_id=a.question_id))
+  OR EXISTS (SELECT 1 FROM public_questions p WHERE p.id=a.question_id AND p.course=a.course
+    AND p.revision=a.revision AND p.is_published=1))`;
+
+async function rollbackAuditedEdit(request, env, id) {
+  const row = await env.DB.prepare(`SELECT a.course,a.question_id,a.revision
+    FROM edit_audit a WHERE a.id=? AND ${canRollbackAudit}`).bind(id).first();
+  if (!row) throw new HttpError(409, "這筆修改已不是最新公開版本，請重新載入並核對修改歷史。");
+  const base = builtinReference(row.course, row.question_id);
+  const rollback = new Request(request.url, {
+    method: "POST",
+    headers: request.headers,
+    body: JSON.stringify({
+      action: "rollback", revision: row.revision, note: "站主退回公開修改（保留版本歷史）",
+      ...(base ? {sourceHash: base.sourceHash} : {}),
+    }),
+  });
+  return base ? saveBuiltin(rollback, env, row.course, base.id) : editPublication(rollback, env, row.question_id);
+}
+
 async function manageEditModeration(request, env) {
   await owner(request, env);
   await ensureEditModeration(env);
@@ -94,7 +120,9 @@ async function manageEditModeration(request, env) {
     await purgeEditSources(env);
     const [pending, audit] = await Promise.all([
       env.DB.prepare("SELECT id,course,question_id,action,revision,changes_json,ip,browser,created_at FROM edit_requests WHERE status='pending' ORDER BY created_at ASC LIMIT 50").all(),
-      env.DB.prepare("SELECT id,course,question_id,action,revision,changes_json,ip,browser,created_at FROM edit_audit ORDER BY created_at DESC LIMIT 50").all(),
+      env.DB.prepare(`SELECT a.id,a.course,a.question_id,a.action,a.revision,a.changes_json,a.ip,a.browser,a.created_at,
+        CASE WHEN ${canRollbackAudit} THEN 1 ELSE 0 END AS can_rollback
+        FROM edit_audit a ORDER BY a.created_at DESC LIMIT 50`).all(),
     ]);
     return json({ mode: await getEditMode(env), pending: pending.results, audit: audit.results });
   }
@@ -105,8 +133,9 @@ async function manageEditModeration(request, env) {
     await env.DB.prepare("INSERT INTO edit_policy (id,mode) VALUES (1,?) ON CONFLICT(id) DO UPDATE SET mode=excluded.mode").bind(body.mode).run();
     return json({ mode: body.mode });
   }
-  if (!body || !["approve", "reject"].includes(body.action) || typeof body.id !== "string" || !uuid.test(body.id))
+  if (!body || !["approve", "reject", "rollback"].includes(body.action) || typeof body.id !== "string" || !uuid.test(body.id))
     throw new HttpError(400, "審核操作不正確。");
+  if (body.action === "rollback") return rollbackAuditedEdit(request, env, body.id);
   const now = Date.now();
   if (body.action === "reject") {
     const result = await env.DB.prepare("UPDATE edit_requests SET status='rejected',payload='',changes_json='{}',ip=NULL,browser=NULL WHERE id=? AND status='pending' AND claim_until<=?")

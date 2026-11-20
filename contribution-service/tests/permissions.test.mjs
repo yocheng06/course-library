@@ -2626,8 +2626,8 @@ async function approveRemoval(env, path, body) {
   return call(env,moderationPath,{reviewer:true,method:'POST',body:{action:'approve',id:proposal.id}});
 }
 
-test('edits require review by default, and ownership and queued revisions are checked',async()=>{
-  const env=await setup({ editMode: null }), path='/api/community/builtin-questions/os/basics-1';
+test('the explicit review mode checks ownership and queued revisions',async()=>{
+  const env=await setup({ editMode: "review" }), path='/api/community/builtin-questions/os/basics-1';
   const read=()=>call(env,path);
   const manage=(body)=>call(env,moderationPath,{reviewer:true,...(body?{method:'POST',body}:{})});
   const initial=(await read()).data.item;
@@ -2659,6 +2659,48 @@ test('edits require review by default, and ownership and queued revisions are ch
   await worker.scheduled(null,env);
   assert.equal((await manage()).data.audit[0].ip,null);
   assert.equal((await manage()).data.audit[0].browser,null);
+});
+
+test('anonymous edits publish by default and only the owner can undo the audited current version', async () => {
+  const env = await setup({editMode: null});
+  const builtinId = 'basics-1', builtinPath = '/api/community/builtin-questions/os/' + builtinId;
+  const readAudit = async () => (await call(env, moderationPath, {reviewer:true})).data.audit;
+  const undo = (id, reviewer=true) => call(env, moderationPath, {reviewer, method:'POST', body:{action:'rollback', id}});
+  const initial = await call(env, builtinPath);
+  assert.equal(initial.data.editPolicy, 'direct');
+  const changeBuiltin = (item, explanation) => call(env, builtinPath, {
+    method:'POST', body:{action:'update',revision:item.revision,sourceHash:item.sourceHash,question:{...item.question,explanation}},
+  });
+  const first = await changeBuiltin(initial.data.item, '第一筆公開修改');
+  assert.equal(first.response.status, 200, JSON.stringify(first.data));
+  const originalAudit = (await readAudit()).find(row => row.question_id === builtinId);
+  assert.equal(originalAudit.can_rollback, 1);
+  assert.equal((await undo(originalAudit.id, false)).response.status, 401);
+  const second = await changeBuiltin(first.data.item, '第二筆公開修改');
+  assert.equal(second.response.status, 200);
+  assert.equal((await undo(originalAudit.id)).response.status, 409);
+  const currentAudit = (await readAudit()).find(row => row.question_id === builtinId && row.can_rollback);
+  assert.notEqual(currentAudit.id, originalAudit.id);
+  const restored = await undo(currentAudit.id);
+  assert.equal(restored.response.status, 200, JSON.stringify(restored.data));
+  assert.equal(restored.data.item.question.explanation, '第一筆公開修改');
+  assert.equal(restored.data.item.revision, second.data.item.revision + 1);
+  assert.equal((await undo(currentAudit.id)).response.status, 409);
+
+  const original = payload();
+  const sent = await call(env,'/api/submissions',{method:'POST',body:original});
+  assert.equal(sent.response.status,201);
+  const communityId = 'community-' + sent.data.id + '-1';
+  const path = '/api/community/questions/' + communityId;
+  const edit = await call(env,path,{method:'POST',body:{action:'update',revision:1,
+    payload:{...original,questions:[{...original.questions[0],explanation:'同學直接修改解析'}]}}});
+  assert.equal(edit.response.status,200,JSON.stringify(edit.data));
+  const communityAudit = (await readAudit()).find(row => row.question_id === communityId);
+  assert.equal(communityAudit.can_rollback,1);
+  const restoredCommunity = await undo(communityAudit.id);
+  assert.equal(restoredCommunity.response.status,200,JSON.stringify(restoredCommunity.data));
+  assert.equal((await call(env,path)).data.item.question.explanation,original.questions[0].explanation);
+  assert.equal(env.sql.prepare('SELECT COUNT(*) AS total FROM question_history WHERE question_id=?').get(communityId).total,2);
 });
 
 test('the controlled library logs visits privately and enforces IP and browser blocks before fetching content', async()=>{
@@ -2715,7 +2757,7 @@ test('the Cloudflare library serves legacy builtin images locally and accepts th
   const cloudOrigin = 'https://course-library-protected.example';
   const built = await buildCloudflare(cloudOrigin, { protectedLibrary: true });
   const protectedWorker = (await import(pathToFileURL(built.entry))).default;
-  const env = await setup({ editMode: null });
+  const env = await setup({ editMode: "review" });
   env.PUBLIC_ORIGIN = cloudOrigin;
   env.LIBRARY_ASSETS = { fetch: async request => {
     const { pathname } = new URL(request.url);
