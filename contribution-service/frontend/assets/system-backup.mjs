@@ -16,10 +16,12 @@ export function imageReferences(data){
 }
 function validData(data){return data?.schemaVersion===1&&['questions','submissions','history','builtinQuestions','builtinEdits','unitSettings','unitSettingsHistory'].every(k=>Array.isArray(data[k]));}
 export function imageURL(ref,origin){
-  const main='https://yocheng06.github.io/course-library/';
-  const url=new URL(ref,ref.startsWith('assets/')?main:origin);
-  if(url.origin===new URL(origin).origin&&/^\/api\/image\/[a-zA-Z0-9/_-]+$/.test(url.pathname))return url.href;
-  if(url.origin==='https://yocheng06.github.io'&&/^\/course-library\/assets\/questions\/[a-zA-Z0-9/_.-]+$/.test(url.pathname)&&!url.pathname.includes('/../'))return url.href;
+  const service=new URL(origin);
+  const url=new URL(ref,ref.startsWith('assets/')?new URL('/course-library/',service):service);
+  if(url.origin===service.origin&&/^\/api\/image\/[a-zA-Z0-9/_-]+$/.test(url.pathname))return url.href;
+  if([service.origin,'https://yocheng06.github.io'].includes(url.origin)&&/^\/course-library\/assets\/questions\/[a-zA-Z0-9/_.-]+$/.test(url.pathname)){
+    return new URL(url.pathname+url.search,service).href;
+  }
   throw new Error('題圖來源不在本站備份範圍：'+ref);
 }
 export async function createPackage(data,{origin,fetchImage=fetch,onProgress=()=>{}}={}){
@@ -70,7 +72,7 @@ export function setupSystemPanel({container,api,downloadJSON,userId='owner'}){
   const find=s=>container.querySelector(s),status=find('[data-system-status]'),facts=find('[data-system-facts]');let busy=false;
   const fact=(label,value)=>{const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;facts.append(dt,dd);};
   async function show(){facts.replaceChildren();status.textContent='正在檢查版本與 API…';
-    const results=await Promise.allSettled([api('/api/manage/system'),fetch('https://yocheng06.github.io/course-library/assets/site-version.json',{cache:'no-store',signal:AbortSignal.timeout(8000)}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})]);
+    const results=await Promise.allSettled([api('/api/manage/system'),fetch('/course-library/assets/site-version.json',{cache:'no-store',signal:AbortSignal.timeout(8000)}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})]);
     const server=results[0].status==='fulfilled'?results[0].value:null,site=results[1].status==='fulfilled'?results[1].value:null;
     fact('主站版本',site?.version||'無法取得主站版本');fact('主站提交版本',site?.sourceRevision||'未提供（可能為分支式發布）');fact('API 版本',server?.build?.version||'無法連線');fact('API 建置指紋',server?.build?.sourceHash||'未提供');
     fact('API 檢查時間',server?.checkedAt||'未完成');

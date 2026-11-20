@@ -2,7 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFile, readdir } from "node:fs/promises";
+import { pathToFileURL } from "node:url";
 import worker from "../dist/server/index.js";
+import { buildCloudflare } from "../scripts/build-cloudflare.mjs";
 import {
   normalizeBatch,
   uniqueQuestions,
@@ -10,7 +12,7 @@ import {
 } from "../worker/model.js";
 const origin =
   "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site";
-async function setup({ provisionAdmin = true } = {}) {
+async function setup({ provisionAdmin = true, editMode = "direct" } = {}) {
   const sql = new DatabaseSync(":memory:");
   for (const file of (
     await readdir(new URL("../drizzle/", import.meta.url))
@@ -91,6 +93,10 @@ async function setup({ provisionAdmin = true } = {}) {
     );
     assert.equal(response.status, 200);
     env.testCookie = response.headers.get("set-cookie").split(";")[0];
+  }
+  if (editMode) {
+    sql.exec("CREATE TABLE edit_policy (id INTEGER PRIMARY KEY CHECK(id=1), mode TEXT NOT NULL)");
+    sql.prepare("INSERT INTO edit_policy (id,mode) VALUES (1,?)").run(editMode);
   }
   return env;
 }
@@ -2620,8 +2626,8 @@ async function approveRemoval(env, path, body) {
   return call(env,moderationPath,{reviewer:true,method:'POST',body:{action:'approve',id:proposal.id}});
 }
 
-test('edit mode and source audit are owner-only, and queued revisions are checked again on approval',async()=>{
-  const env=await setup(), path='/api/community/builtin-questions/os/basics-1';
+test('edits require review by default, and ownership and queued revisions are checked',async()=>{
+  const env=await setup({ editMode: null }), path='/api/community/builtin-questions/os/basics-1';
   const read=()=>call(env,path);
   const manage=(body)=>call(env,moderationPath,{reviewer:true,...(body?{method:'POST',body}:{})});
   const initial=(await read()).data.item;
@@ -2629,8 +2635,8 @@ test('edit mode and source audit are owner-only, and queued revisions are checke
     question:{...initial.question,explanation:'待審解析'}};
   assert.equal((await call(env,moderationPath)).response.status,401);
   assert.equal((await call(env,moderationPath,{method:'POST',body:{action:'policy',mode:'review'}})).response.status,401);
-  assert.equal((await manage({action:'policy',mode:'review'})).response.status,200);
   assert.equal((await read()).data.editPolicy,'review');
+  assert.equal((await manage()).data.mode,'review');
   const proposed=await call(env,path,{method:'POST',body,ip:'192.0.2.17'});
   assert.equal(proposed.response.status,202);
   assert.deepEqual(proposed.data,{queued:true});
@@ -2703,4 +2709,38 @@ test('the controlled library logs visits privately and enforces IP and browser b
   env.sql.prepare('UPDATE library_visitors SET last_at=0').run();
   await worker.scheduled(null,env);
   assert.deepEqual((await manage()).data.visitors,[]);
+});
+
+test('the Cloudflare library serves legacy builtin images locally and accepts their new URLs in edit requests', async () => {
+  const cloudOrigin = 'https://course-library-protected.example';
+  const built = await buildCloudflare(cloudOrigin, { protectedLibrary: true });
+  const protectedWorker = (await import(pathToFileURL(built.entry))).default;
+  const env = await setup({ editMode: null });
+  env.PUBLIC_ORIGIN = cloudOrigin;
+  env.LIBRARY_ASSETS = { fetch: async request => {
+    const { pathname } = new URL(request.url);
+    assert.equal(pathname, '/course-library/assets/questions/algorithms-l4/l4-047.png');
+    const bytes = await readFile(new URL('../dist/cloudflare/library-assets' + pathname, import.meta.url));
+    return new Response(bytes, { headers: { 'content-type': 'image/png' } });
+  }};
+  const route = cloudOrigin + '/api/community/builtin-questions/algorithms/L4-047';
+  const read = await protectedWorker.fetch(new Request(route), env);
+  assert.equal(read.status, 200);
+  const { item, editPolicy } = await read.json();
+  assert.equal(editPolicy, 'review');
+  const image = cloudOrigin + '/course-library/assets/questions/algorithms-l4/l4-047.png';
+  assert.equal(item.availableImages[0], image);
+  const response = await protectedWorker.fetch(new Request(image), env);
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('cache-control'), 'private, no-store');
+  assert.ok((await response.arrayBuffer()).byteLength > 0);
+  const body = {
+    action: 'update', revision: item.revision, sourceHash: item.sourceHash,
+    question: { ...item.question, explanation: '新版圖址核對', images: [image] },
+  };
+  const edit = await protectedWorker.fetch(new Request(route, {
+    method: 'POST', headers: { origin: cloudOrigin, 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  }), env);
+  assert.equal(edit.status, 202, await edit.text());
 });

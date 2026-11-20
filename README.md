@@ -40,15 +40,15 @@
 
 ## 架構總覽
 
-主站是 **GitHub Pages 靜態網站**；投稿與管理則由獨立的 **Cloudflare Worker + D1（含題圖）** 服務處理。閱讀時先用 GitHub 隨附快照或上次瀏覽器快取，背景再讀公開 API。測驗與待複習保存在瀏覽器，公開題目與修改歷史保存在後端，兩者不同步。
+學習頁、批次查題、投稿和管理由 **Cloudflare Worker + D1（含題圖）** 提供。舊 GitHub Pages 網址負責轉址。閱讀時先用網站隨附快照或上次瀏覽器快取，背景再讀公開 API。測驗與待複習保存在瀏覽器，公開題目與修改歷史保存在後端。
 
 ```mermaid
 flowchart LR
-  U[使用者瀏覽器] --> P["GitHub Pages<br/>閱讀／練習／測驗／批次查題"]
-  P --> S[內嵌題庫與公開快照]
-  P <--> L["localStorage<br/>測驗／待複習／快取"]
-  P --> A["獨立投稿管理服務<br/>Cloudflare Worker"]
+  U[使用者瀏覽器] --> P["舊 GitHub Pages 轉址"]
+  P --> A["Cloudflare Worker<br/>閱讀／批次查題／投稿／管理"]
   U --> A
+  A --> S[內嵌題庫與快照]
+  U <--> L["localStorage<br/>測驗／待複習／快取"]
   A --> D[("D1<br/>公開題目／版本／單元設定")]
   A --> I[("D1 image_objects<br/>投稿題圖")]
 ```

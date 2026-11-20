@@ -22,6 +22,22 @@ for (const entry of DUPLICATE_CATALOG) {
 const SITE_ORIGIN =
   "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site";
 const LIBRARY_ORIGIN = "https://yocheng06.github.io";
+const PROTECTED_IMAGE_PREFIX = "";
+const LEGACY_IMAGE_PREFIX = LIBRARY_ORIGIN + "/course-library/assets/questions/";
+function moveBuiltinImage(value, from, to) {
+  if (!from || typeof value !== "string" || !value.startsWith(from)) return value;
+  const path = value.slice(from.length);
+  return /^[a-z0-9_-]+(?:\/[a-z0-9_-]+)*\.(?:png|jpe?g|webp|gif)$/i.test(path)
+    ? to + path
+    : value;
+}
+function remapImageFields(key, value, from, to) {
+  if (key === "src") return moveBuiltinImage(value, from, to);
+  if ((key === "images" || key === "availableImages") && Array.isArray(value)) {
+    return value.map(image => moveBuiltinImage(image, from, to));
+  }
+  return value;
+}
 const ADMIN_COOKIE = "__Host-course-admin";
 const ADMIN_SESSION_MS = 8 * 60 * 60 * 1000;
 const ADMIN_PASSWORD_ITERATIONS = 100000;
@@ -38,7 +54,10 @@ class HttpError extends Error {
   }
 }
 function json(value, status = 200) {
-  return new Response(JSON.stringify(value), {
+  const mapImages = PROTECTED_IMAGE_PREFIX
+    ? (key, entry) => remapImageFields(key, entry, LEGACY_IMAGE_PREFIX, PROTECTED_IMAGE_PREFIX)
+    : undefined;
+  return new Response(JSON.stringify(value, mapImages), {
     status,
     headers: {
       "content-type": "application/json;charset=utf-8",
@@ -519,7 +538,10 @@ async function readBody(request, maxBytes = 9 * 1024 * 1024) {
     offset += chunk.length;
   }
   try {
-    return JSON.parse(new TextDecoder().decode(body));
+    const restoreImageReferences = PROTECTED_IMAGE_PREFIX
+      ? (key, value) => remapImageFields(key, value, PROTECTED_IMAGE_PREFIX, LEGACY_IMAGE_PREFIX)
+      : undefined;
+    return JSON.parse(new TextDecoder().decode(body), restoreImageReferences);
   } catch {
     throw new HttpError(400, "投稿資料不是有效的 JSON。");
   }

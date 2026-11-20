@@ -23,6 +23,10 @@ export async function buildCloudflare(origin,{protectedLibrary=false}={}){
   const revision=/const LIBRARY_BUILD_REVISION="([a-f0-9]{64})";/.exec(source);
   if(!revision)throw Error('Missing library cache revision');
   source=source.replace(revision[0],'const LIBRARY_BUILD_REVISION='+JSON.stringify(createHash('sha256').update(revision[1]+':'+origin).digest('hex'))+';');
+  if(protectedLibrary) {
+    source=source.replace('const PROTECTED_IMAGE_PREFIX = "";',
+      'const PROTECTED_IMAGE_PREFIX = '+JSON.stringify(origin+'/course-library/assets/questions/')+';');
+  }
   await writeFile(resolve(out,'app.mjs'),compactWorkerData(source.replaceAll(legacyOrigin,origin).replaceAll(configuredOrigin,origin)));
   await writeFile(resolve(out,'d1-image-store.mjs'),await readFile(resolve(root,'worker/d1-image-store.mjs'),'utf8'));
   // ChatGPT injected identity headers have no trustworthy issuer on a public

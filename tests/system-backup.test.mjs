@@ -21,6 +21,8 @@ test('owner backup detects missing images, corruption, changed data and duplicat
 });
 test('backup fetching is limited to service images and known static course images',()=>{
  assert.equal(imageReferences(data()).length,1);
- assert.match(imageURL('assets/questions/scheduling/test.png',origin),/^https:\/\/yocheng06.github.io/);
+ assert.equal(imageURL('assets/questions/scheduling/test.png',origin),origin+'/course-library/assets/questions/scheduling/test.png');
+ assert.equal(imageURL('https://yocheng06.github.io/course-library/assets/questions/scheduling/test.png',origin),
+   origin+'/course-library/assets/questions/scheduling/test.png');
  for(const ref of ['https://evil.test/picture.png','file:///tmp/image.png',origin+'/api/manage/export'])assert.throws(()=>imageURL(ref,origin),/來源/);
 });

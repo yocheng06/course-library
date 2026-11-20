@@ -19,7 +19,7 @@ function ensureEditModeration(env) {
 
 async function getEditMode(env) {
   await ensureEditModeration(env);
-  return (await env.DB.prepare("SELECT mode FROM edit_policy WHERE id=1").first())?.mode ?? "direct";
+  return (await env.DB.prepare("SELECT mode FROM edit_policy WHERE id=1").first())?.mode ?? "review";
 }
 
 async function withEditPolicy(env, response) {
