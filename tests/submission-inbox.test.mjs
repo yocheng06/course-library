@@ -5,7 +5,7 @@ import vm from 'node:vm';
 import { parseHTML } from 'linkedom';
 import { INBOX_KEY, stageUnmatched, readInbox, writeInbox } from '../assets/submission-inbox.mjs';
 const draftKey='course-library-submission-draft-v1';
-const storage=()=>{const data=new Map();return {data,getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v)};};
+const storage=()=>{const data=new Map();return {data,getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)};};
 const question=n=>({number:n,type:'單選題',stem:`未收錄原題 ${n}？`,options:[{label:'A',text:'第二個值'},{label:'B',text:'第一個值'}]});
 const rows=(count=7)=>Array.from({length:count},(_,i)=>({status:'unmatched',question:question(i+4)}));
 test('10 questions: only 7 unmatched transfer with order intact and blank answers',()=>{
@@ -25,7 +25,7 @@ test('invalid storage, storage quota and oversized queues preserve previous data
  assert.throws(()=>stageUnmatched(rows(),{course:'os',unit:'all'},{getItem:()=>null,setItem(){throw Error('quota');}}),/quota/);
  const valid=storage();stageUnmatched(rows(),{course:'os',unit:'all'},valid);const item=readInbox(valid)[0];assert.throws(()=>writeInbox(valid,Array.from({length:201},()=>item)),/200/);assert.equal(readInbox(valid).length,7);
 });
-async function page(s){
+async function page(s,{confirm=()=>true}={}){
  const {document,window}=parseHTML(await readFile(new URL('../submit.html',import.meta.url),'utf8'));
  Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){const o=this.querySelector('option[selected]')||this.querySelector('option');return o?.getAttribute('value')??o?.textContent??'';},set(v){for(const o of this.querySelectorAll('option'))o.toggleAttribute('selected',(o.getAttribute('value')??o.textContent)===v);}});
  const $=id=>document.getElementById(id);
@@ -35,7 +35,7 @@ async function page(s){
  }}prepareForms();
  window.HTMLElement.prototype.focus=function(){};window.HTMLElement.prototype.scrollIntoView=function(){};
  const requests=[];
- const globals={document,localStorage:s,location:{href:'https://example.invalid/submit.html',hash:'#pendingHeading'},URL,AbortSignal,AbortController,Event:window.Event,TextDecoder,Uint8Array,console,setTimeout,clearTimeout,crypto,btoa,
+ const globals={document,localStorage:s,location:{href:'https://example.invalid/submit.html',hash:'#pendingHeading'},URL,AbortSignal,AbortController,Event:window.Event,TextDecoder,Uint8Array,console,setTimeout,clearTimeout,crypto,btoa,confirm,
  DOMParser:class{parseFromString(html){return parseHTML(html).document;}},
  FormData:class{constructor(form){this.form=form;}*[Symbol.iterator](){for(const field of this.form.querySelectorAll('[name]'))yield [field.name,field.value];}},addEventListener(){},
  fetch:async(url,opts)=>{requests.push({url,opts});return {ok:true,json:async()=>({id:'11111111-1111-1111-1111-111111111111',acceptedCount:1,receivedCount:1,status:'pending',questions:[]})};}};
@@ -128,6 +128,53 @@ test('separate HTML pickers produce a paired preview and switching modes preserv
  assert.equal(form.hidden,false);assert.equal(form.elements.stem.value,'保留手動編輯的原題 ___');
  assert.equal(ui.$('unit').value,originalUnit);
  ui.fire(ui.$('showHtmlImport'),'click');assert.equal(ui.$('unit').value,'process');
+});
+
+test('new HTML pairs replace completed previews directly and protect unfinished drafts',async()=>{
+ const store=storage(),groupKey='course-library-grouped-submissions-v1';
+ let allow=false;const confirmations=[];
+ const ui=await page(store,{confirm:prompt=>{confirmations.push(prompt);return allow;}});
+ const wait=()=>new Promise(resolve=>setImmediate(resolve));
+ const saved=()=>JSON.parse(store.getItem(groupKey)).groups[0];
+ const pick=(id,text)=>{
+  Object.defineProperty(ui.$(id),'files',{configurable:true,value:[{name:id+'.html',size:text.length,text:async()=>text}]});
+  ui.fire(ui.$(id),'change');
+ };
+ async function pair(label,answer){
+  pick('questionHtmlFile','<form id="practice-quiz-form" action="https://example.com/course/OS26B/process_practice.php?realm_id=4"><div class="question-block"><p class="question-text">Beast 1.</p><div class="question-text">'+label+'<input type="text" class="text-answer"></div></div></form>');
+  assert.equal(ui.$('answerHtmlName').textContent,'尚未選取');
+  pick('answerHtmlFile','<div class="question-result"><p>題目：'+label+'[__1__]</p><p>正確答案：'+answer+'</p></div>');
+  await wait();
+ }
+ await pair('第一份題目','first');
+ const first=saved().requestId;
+ pick('questionHtmlFile','<p>不支援的題目檔</p>');
+ pick('answerHtmlFile','<p>不支援的答案檔</p>');
+ await wait();
+ assert.equal(saved().requestId,first);
+ assert.equal(confirmations.length,0);
+ await pair('取消取代的題目','discarded');
+ assert.equal(saved().requestId,first);
+ assert.equal(confirmations.length,1);
+ allow=true;
+ await pair('取代後的題目','second');
+ assert.notEqual(saved().requestId,first);
+ assert.equal(saved().payload.questions[0].answer,'second');
+ const consent=ui.document.querySelector('[data-consent]');
+ consent.checked=true;ui.fire(consent,'change');ui.fire(ui.document.querySelector('[data-send]'),'click');await wait();
+ assert.ok(saved().result.id);
+ await pair('下次匯入的題目','third');
+ assert.equal(confirmations.length,2);
+ assert.equal(saved().payload.questions[0].answer,'third');
+ assert.equal(ui.document.querySelector('[data-consent]').checked,false);
+ assert.equal(ui.requests.filter(r=>r.opts?.method==='POST').length,1);
+ assert.ok([...store.data.values()].some(value=>value.includes('11111111-1111-1111-1111-111111111111')));
+ pick('answerHtmlFile','先選但尚未配對的舊檔');
+ ui.fire(ui.document.querySelector('[data-clear]'),'click');
+ assert.equal(ui.$('answerHtmlName').textContent,'尚未選取');
+ assert.equal(store.getItem(groupKey),null);
+ await pair('清空後的題目','fourth');
+ assert.equal(saved().payload.questions[0].answer,'fourth');
 });
 
 test('selecting treasure sends paired HTML questions to treasure instead of the original chapter',async()=>{
