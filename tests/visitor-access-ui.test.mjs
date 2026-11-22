@@ -22,7 +22,8 @@ test('filters recent visits and uses the selected record to block, extend and un
   const ip = '192.0.2.20';
   const visitors = [
     {browser, ip, last_path: 'os.html', last_at: Date.now()},
-    {browser: 'b'.repeat(64), ip: '192.0.2.21', last_path: 'batch.html', last_at: Date.now() - 86400000},
+    {browser, ip: '192.0.2.21', last_path: 'algorithms.html', last_at: Date.now() - 1800000},
+    {browser: 'a'.repeat(8) + 'b'.repeat(56), ip, last_path: 'batch.html', last_at: Date.now() - 86400000},
   ];
   let blocks = [];
   const requests = [];
@@ -46,8 +47,14 @@ test('filters recent visits and uses the selected record to block, extend and un
   try {
     await manager.show();
     assert.equal($('[data-visitor-view=blocks]').hidden, true);
+    assert.equal($('[data-visitor-count]').textContent, '2');
+    assert.deepEqual([...container.querySelectorAll('[data-visitor-list] strong code')].map(node => node.textContent), ['AAAAAAAAA','AAAAAAAAB']);
+    assert.match($('[data-visitor-list] summary').textContent, /2 個 IP/);
+    assert.equal(container.querySelectorAll('[data-visitor-list] > li').length, 2);
     search(ip);
-    assert.equal(container.querySelectorAll('[data-visitor-list] li').length, 1);
+    assert.equal(container.querySelectorAll('[data-visitor-list] > li').length, 2);
+    search('192.0.2.21');
+    assert.equal(container.querySelectorAll('[data-visitor-list] > li').length, 1);
     search('批次查題');
     $('[data-visitor-period]').value = '1';
     event('[data-visitor-period]', 'change');
@@ -58,7 +65,13 @@ test('filters recent visits and uses the selected record to block, extend and un
     assert.equal($('[data-ip-warning]').hidden, true);
     $('[data-block-kind]').value = 'ip';
     event('[data-block-kind]', 'change');
-    assert.equal($('[data-block-target]').textContent, ip);
+    assert.equal($('[data-ip-field]').hidden, false);
+    assert.equal($('[data-block-ip]').value, '');
+    assert.deepEqual([...$('[data-block-ip]').options].map(option => option.value), ['', ip, '192.0.2.21']);
+    submit();
+    await settle();
+    assert.equal(requests.length, 0);
+    assert.match($('[data-block-target]').textContent, /AAAAAAAAA/);
     assert.equal($('[data-ip-warning]').hidden, false);
     $('[data-block-kind]').value = 'browser';
     event('[data-block-kind]', 'change');

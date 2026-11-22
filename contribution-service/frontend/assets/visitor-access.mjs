@@ -4,7 +4,7 @@ const endpoint = '/api/manage/visitor-access';
 const hour = 3600000;
 const kindLabel = kind => kind === 'ip' ? 'IP' : '瀏覽器';
 const timestamp = time => new Date(time).toLocaleString('zh-TW');
-const targetLabel = (kind, target) => kind === 'browser' ? target.slice(0, 12) + '…' : target;
+const browserCode = (browser, length = 8) => browser.slice(0, length).toUpperCase();
 const pageNames = {
   'index.html': '課程首頁',
   'os.html': '作業系統',
@@ -13,6 +13,22 @@ const pageNames = {
   'music-player.html': '音樂播放器',
 };
 const durationOptions = '<option value="1">1 小時</option><option value="24">24 小時</option><option value="168">7 天</option><option value="720">30 天</option>';
+
+function groupVisitors(records) {
+  const byBrowser = new Map();
+  for (const visit of records) {
+    if (!byBrowser.has(visit.browser)) byBrowser.set(visit.browser, []);
+    byBrowser.get(visit.browser).push(visit);
+  }
+  const browsers = [...byBrowser.keys()];
+  return [...byBrowser].map(([browser, connections]) => {
+    connections.sort((a, b) => b.last_at - a.last_at);
+    let length = 8;
+    while (length < browser.length && browsers.some(other =>
+      other !== browser && other.startsWith(browser.slice(0, length)))) length++;
+    return {browser, code: browserCode(browser, length), connections, latest: connections[0]};
+  }).sort((a, b) => b.latest.last_at - a.latest.last_at);
+}
 
 function remainingTime(expiresAt) {
   const minutes = Math.max(0, Math.ceil((expiresAt - Date.now()) / 60000));
@@ -35,6 +51,7 @@ export function setupVisitorAccess({container, api}) {
   const $ = selector => container.querySelector(selector);
   const activeBlocks = () => blocks.filter(block => block.expires_at > Date.now());
   const blockFor = (kind, target) => activeBlocks().find(block => block.kind === kind && block.target === target);
+  const browserLabel = browser => visitors.find(visitor => visitor.browser === browser)?.code || browserCode(browser);
 
   function mount() {
     container.innerHTML = `<div class="visitor-heading">
@@ -59,7 +76,7 @@ export function setupVisitorAccess({container, api}) {
         <ul class="visitor-list" data-block-list></ul>
         <p class="muted" data-block-empty hidden>目前沒有封鎖。</p>
       </div>
-      <p class="visitor-scope muted">紀錄僅來自<a href="/course-library/">受控題庫</a>，最近訪客最多顯示 100 筆。</p>
+      <p class="visitor-scope muted">以<a href="/course-library/">受控題庫</a>最近 100 筆連線依瀏覽器合併。換瀏覽器或清除網站資料後，可能會取得新代號。</p>
       <dialog class="visitor-dialog" aria-labelledby="visitorDialogTitle" data-visitor-dialog></dialog>`;
     $('[data-visitor-dialog]').addEventListener('cancel', event => {
       if (saving) event.preventDefault();
@@ -91,20 +108,27 @@ export function setupVisitorAccess({container, api}) {
     const period = Number($('[data-visitor-period]').value);
     const since = period ? Date.now() - period * hour : 0;
     const matches = visitors.map((visitor, index) => ({visitor, index})).filter(({visitor}) =>
-      visitor.last_at >= since && (!query || [visitor.ip, visitor.browser, visitor.last_path, pageNames[visitor.last_path]]
-        .some(text => (text || '').toLowerCase().includes(query))));
-    $('[data-visitor-results]').textContent = `顯示 ${matches.length}／${visitors.length} 筆`;
+      visitor.connections.some(connection => connection.last_at >= since && (!query ||
+        [connection.ip, visitor.browser, connection.last_path, pageNames[connection.last_path]]
+          .some(text => (text || '').toLowerCase().includes(query)))));
+    $('[data-visitor-results]').textContent = `顯示 ${matches.length}／${visitors.length} 個瀏覽器`;
     $('[data-visitor-empty]').hidden = matches.length > 0 || loading;
     $('[data-visitor-list]').innerHTML = matches.map(({visitor, index}) => {
       const browserBlock = blockFor('browser', visitor.browser);
-      const ipBlock = blockFor('ip', visitor.ip);
-      const status = [browserBlock && '瀏覽器已封鎖', ipBlock && 'IP 已封鎖'].filter(Boolean).join('、');
-      const canBlock = (visitor.browser && !browserBlock) || (visitor.ip && !ipBlock);
+      const ips = visitor.connections.filter(connection => connection.ip);
+      const blockedIPs = ips.filter(connection => blockFor('ip', connection.ip)).length;
+      const status = [browserBlock && '瀏覽器已封鎖', blockedIPs > 0 && `${blockedIPs} 個 IP 已封鎖`].filter(Boolean).join('、');
+      const canBlock = !browserBlock || blockedIPs < ips.length;
+      const {latest} = visitor;
       return `<li class="visitor-row">
         <div>
-          <strong>${esc(pageNames[visitor.last_path] || visitor.last_path)}</strong>
-          <p class="muted">${esc(timestamp(visitor.last_at))}</p>
-          <details><summary>訪客資料</summary><p>瀏覽器代號 ${esc(visitor.browser || '無資料')}<br>來源 IP ${esc(visitor.ip || '無資料')}</p></details>
+          <strong>瀏覽器 <code>${esc(visitor.code)}</code></strong>
+          <p class="muted">最後出現 ${esc(timestamp(latest.last_at))} · ${esc(pageNames[latest.last_path] || latest.last_path)}</p>
+          <details>
+            <summary>查看連線資料（${ips.length} 個 IP）</summary>
+            <p>完整瀏覽器代號 <code>${esc(visitor.browser)}</code></p>
+            <ul>${visitor.connections.map(connection => `<li>${esc(connection.ip || '無 IP 資料')} · 最後出現 ${esc(timestamp(connection.last_at))}</li>`).join('')}</ul>
+          </details>
         </div>
         <div class="visitor-row-actions">
           ${status ? `<span class="state-badge pending">${esc(status)}</span>` : '<span class="state-badge">未封鎖</span>'}
@@ -119,7 +143,7 @@ export function setupVisitorAccess({container, api}) {
       const index = blocks.indexOf(block);
       return `<li class="visitor-row">
         <div>
-          <strong>${kindLabel(block.kind)} 封鎖</strong>
+          <strong>${block.kind === 'browser' ? `瀏覽器 <code>${esc(browserLabel(block.target))}</code> 封鎖` : 'IP 封鎖'}</strong>
           <span class="state-badge pending" data-expires-at="${esc(block.expires_at)}">${remainingTime(block.expires_at)}</span>
           <p class="muted">到期時間 ${esc(timestamp(block.expires_at))}</p>
           ${block.note ? `<p class="visitor-note">${esc(block.note)}</p>` : ''}
@@ -143,7 +167,8 @@ export function setupVisitorAccess({container, api}) {
     try {
       const data = await api(endpoint);
       if (request !== generation) return;
-      ({visitors, blocks} = data);
+      visitors = groupVisitors(data.visitors);
+      blocks = data.blocks;
       $('[data-access-status]').textContent = message;
     } catch (error) {
       if (request === generation) $('[data-access-status]').textContent = message ? message + ' ' + error.message : error.message;
@@ -164,10 +189,11 @@ export function setupVisitorAccess({container, api}) {
   }
 
   function updateTarget() {
-    const kind = $('[data-block-kind]').value;
-    const target = pending.visitor[kind];
-    $('[data-block-target]').textContent = targetLabel(kind, target);
-    $('[data-ip-warning]').hidden = kind !== 'ip';
+    const selectingIP = $('[data-block-kind]').value === 'ip';
+    $('[data-block-target]').hidden = selectingIP;
+    $('[data-ip-field]').hidden = !selectingIP;
+    $('[data-block-ip]').disabled = !selectingIP;
+    $('[data-ip-warning]').hidden = !selectingIP;
   }
 
   function openDialog(action, index) {
@@ -175,13 +201,16 @@ export function setupVisitorAccess({container, api}) {
     if (action === 'block') {
       const visitor = visitors[index];
       const canBrowser = visitor.browser && !blockFor('browser', visitor.browser);
-      const canIP = visitor.ip && !blockFor('ip', visitor.ip);
+      const availableIPs = visitor.connections.filter(connection => connection.ip && !blockFor('ip', connection.ip));
+      const canIP = availableIPs.length > 0;
       if (!canBrowser && !canIP) return;
       pending = {action, visitor};
       dialog.innerHTML = `<form>
         <h3 id="visitorDialogTitle">封鎖訪客</h3>
         <label>封鎖對象<select data-block-kind><option value="browser" ${canBrowser ? 'selected' : 'disabled'}>瀏覽器</option><option value="ip" ${canBrowser ? '' : 'selected'} ${canIP ? '' : 'disabled'}>IP</option></select></label>
-        <p data-block-target class="visitor-target"></p>
+        <p data-block-target class="visitor-target">瀏覽器 <code>${esc(visitor.code)}</code></p>
+        <label data-ip-field hidden>選擇 IP<select data-block-ip required>${availableIPs.length > 1 ? '<option value="">請選擇要封鎖的 IP</option>' : ''}${availableIPs.map(connection =>
+          `<option value="${esc(connection.ip)}">${esc(connection.ip)} · ${esc(timestamp(connection.last_at))}</option>`).join('')}</select></label>
         <p class="notice" data-ip-warning hidden>共用這個 IP 的同學也會受影響，例如使用同一個校園網路的人。</p>
         <label>封鎖期限<select data-block-hours>${durationOptions}</select></label>
         <label>備註（選填）<textarea data-block-note maxlength="200" rows="2" placeholder="例如：短時間內大量連線"></textarea></label>
@@ -195,7 +224,7 @@ export function setupVisitorAccess({container, api}) {
       pending = {action, block};
       dialog.innerHTML = `<form>
         <h3 id="visitorDialogTitle">延長${kindLabel(block.kind)}封鎖</h3>
-        <p class="visitor-target">${esc(targetLabel(block.kind, block.target))}</p>
+        <p class="visitor-target">${esc(block.kind === 'browser' ? browserLabel(block.target) : block.target)}</p>
         <p>目前到期時間 ${esc(timestamp(block.expires_at))}</p>
         <label>從目前到期時間延長<select data-block-hours>${durationOptions}</select></label>
         <p role="alert" data-visitor-dialog-error></p>
@@ -258,7 +287,8 @@ export function setupVisitorAccess({container, api}) {
     if (saving || !event.target.closest('[data-visitor-dialog]') || !pending) return;
     const {action, visitor, block} = pending;
     const kind = block?.kind ?? $('[data-block-kind]').value;
-    const target = block?.target ?? visitor[kind];
+    const target = block?.target ?? (kind === 'ip' ? $('[data-block-ip]').value : visitor.browser);
+    if (!target) return;
     const durationHours = Number($('[data-block-hours]').value);
     save({action, kind, target, durationHours, ...(visitor ? {note: $('[data-block-note]').value.trim()} : {})});
   });
