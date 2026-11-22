@@ -377,13 +377,22 @@ function combineCourseMatches(questions) {
     };
   });
 }
+function renderAnswer(row) {
+  if (row.choiceKey?.length > 1) {
+    return row.question.options
+      .filter(({ label }) => row.choiceKey.includes(label))
+      .map(({ label, text }) => esc(label + ". " + text))
+      .join("<br>");
+  }
+  return esc(row.answer || "尚無可確認答案");
+}
 function renderResults() {
   const filter = $("resultFilter").value;
   const shown = results.filter((r) => filter === "all" || r.status === filter);
   $("resultRows").innerHTML = shown
     .map(
       (row) =>
-        `<tr><th scope="row">${esc(row.question.number)}</th><td class="answer-text">${esc(row.answer || "尚無可確認答案")}${row.conditions?.length ? `<p class="answer-condition"><strong>成立條件</strong><br>${row.conditions.map(esc).join("<br>")}</p>` : ""}</td><td><span class="result-badge ${row.status}">${esc(statusLabel(row))}</span></td><td><details class="question-detail"><summary>${esc(row.question.stem.slice(0, 90) || "缺少題幹")}</summary><p>${esc(row.question.stem)}</p>${row.question.options.length ? "<ul>" + row.question.options.map((o) => `<li>${esc(o.label)}. ${esc(o.text)}</li>`).join("") + "</ul>" : ""}<p>${esc(row.reason)}</p>${candidateComparison(row)}${row.references.length ? '<ul class="source-links">' + row.references.map((ref) => `<li><a href="${sourceURL(ref)}" target="_blank" rel="noopener">${esc(names[ref.course])}・${esc(ref.id)}・開啟${row.status === "matched" ? "收錄" : "候選"}原題 ↗</a>${ref.candidateAnswer!==undefined?`<p>此版本答案：${esc(ref.candidateAnswer||"尚未提供")}</p>`:""}</li>`).join("") + "</ul>" : ""}</details></td></tr>`,
+        `<tr><th scope="row">${esc(row.question.number)}</th><td class="answer-text">${renderAnswer(row)}${row.conditions?.length ? `<p class="answer-condition"><strong>成立條件</strong><br>${row.conditions.map(esc).join("<br>")}</p>` : ""}</td><td><span class="result-badge ${row.status}">${esc(statusLabel(row))}</span></td><td><details class="question-detail"><summary>${esc(row.question.stem.slice(0, 90) || "缺少題幹")}</summary><p>${esc(row.question.stem)}</p>${row.question.options.length ? "<ul>" + row.question.options.map((o) => `<li>${esc(o.label)}. ${esc(o.text)}</li>`).join("") + "</ul>" : ""}<p>${esc(row.reason)}</p>${candidateComparison(row)}${row.references.length ? '<ul class="source-links">' + row.references.map((ref) => `<li><a href="${sourceURL(ref)}" target="_blank" rel="noopener">${esc(names[ref.course])}・${esc(ref.id)}・開啟${row.status === "matched" ? "收錄" : "候選"}原題 ↗</a>${ref.candidateAnswer!==undefined?`<p>此版本答案：${esc(ref.candidateAnswer||"尚未提供")}</p>`:""}</li>`).join("") + "</ul>" : ""}</details></td></tr>`,
     )
     .join("");
   $("emptyResults").hidden = shown.length > 0;

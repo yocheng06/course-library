@@ -104,6 +104,9 @@ test('the Solaris bilingual option version remains searchable when public sync i
   ui.fire('batchForm','submit');
   assert.match(ui.$('resultCount').textContent,/已收錄 1・待同步 0/);
   assert.match(ui.$('resultRows').textContent,/A\. 時程共享.*B\. 互動式.*C\. 即時.*D\. 系統/);
+  const answer = ui.$('resultRows').querySelector('.answer-text');
+  assert.equal(answer.querySelectorAll('br').length, 3);
+  assert.match(answer.innerHTML, /<br>C\. 即時/);
   assert.ok(ui.$('resultRows').querySelector('a[href="os.html?question=os6-091"]'));
 });
 
