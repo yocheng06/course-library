@@ -2792,6 +2792,64 @@ test('the controlled library logs visits privately and enforces IP and browser b
   assert.equal(env.sql.prepare('SELECT COUNT(*) AS total FROM library_visitor_devices').get().total,0);
 });
 
+test('visitor nicknames, retained search and block history stay scoped to the owner', async () => {
+  const env=await setup();
+  env.LIBRARY_ASSETS={fetch:async()=>new Response('library asset',{headers:{'content-type':'text/html'}})};
+  const panel='/api/manage/visitor-access';
+  const manage=body=>call(env,panel,{reviewer:true,...(body?{method:'POST',body}:{})});
+  assert.equal((await manage()).response.status,200);
+  const now=Date.now();
+  const day=86400000;
+  const oldBrowser='abcde123'.padEnd(64,'a');
+  const expiredBrowser='abcde124'.padEnd(64,'a');
+  const insert=env.sql.prepare('INSERT INTO library_visitors (browser,ip,last_path,last_at) VALUES (?,?,?,?)');
+  insert.run(oldBrowser,'198.51.100.40','os.html',now-2*day);
+  insert.run(oldBrowser,'198.51.100.41','batch.html',now-day);
+  insert.run(expiredBrowser,'198.51.100.40','os.html',now-31*day);
+  for(let i=1;i<=100;i++) insert.run(i.toString(16).padStart(64,'0'),'198.51.100.1','index.html',now-i*1000);
+  env.sql.prepare('INSERT INTO library_visitor_devices VALUES (?,?,?,?)').run(oldBrowser,'Android 手機','Chrome','SM-S9260');
+
+  for(const body of [{action:'nickname',target:oldBrowser,nickname:'我的手機'},{action:'search',query:'198.51.100.40'},{action:'history'}]){
+    assert.equal((await call(env,panel,{method:'POST',body})).response.status,401);
+  }
+  assert.equal((await manage({action:'nickname',target:oldBrowser,nickname:' 我的手機 '})).response.status,200);
+  assert.equal((await manage({action:'nickname',target:expiredBrowser,nickname:'不應儲存'})).response.status,404);
+  assert.ok(!(await manage()).data.visitors.some(row=>row.browser===oldBrowser));
+  for(const query of ['198.51.100.40','我的手機','ABCDe123','作業系統','Galaxy S24+']){
+    const search=await manage({action:'search',query});
+    assert.equal(search.response.status,200,JSON.stringify(search.data));
+    assert.equal(search.data.visitors.length,2);
+    assert.ok(search.data.visitors.every(row=>row.browser===oldBrowser&&row.nickname==='我的手機'));
+  }
+  assert.deepEqual((await manage({action:'search',query:'我的手機',period:1})).data.visitors,[]);
+  const page1=(await manage({action:'search'})).data;
+  const page2=(await manage({action:'search',offset:25})).data;
+  assert.equal(page1.visitors.length,25);
+  assert.equal(page1.hasMore,true);
+  assert.ok(!page2.visitors.some(row=>page1.visitors.some(first=>first.browser===row.browser)));
+
+  const block={action:'block',kind:'browser',target:oldBrowser,durationHours:1,note:'測試封鎖'};
+  const initial=(await manage(block)).data.expires_at;
+  assert.equal((await manage({...block,action:'extend'})).data.expires_at,initial+3600000);
+  assert.equal((await manage({...block,action:'unblock'})).response.status,200);
+  const history=(await manage({action:'history'})).data.events;
+  assert.deepEqual(history.map(row=>row.action),['unblock','extend','block']);
+  assert.ok(history.every(row=>row.nickname==='我的手機'&&row.note==='測試封鎖'));
+  assert.ok(!(await manage()).data.blocks.length);
+  assert.equal((await manage({action:'nickname',target:oldBrowser,nickname:''})).response.status,200);
+  assert.equal((await manage({action:'search',query:'我的手機'})).data.visitors.length,0);
+
+  await manage(block);
+  env.sql.prepare('UPDATE library_blocks SET expires_at=? WHERE target=?').run(now-1000,oldBrowser);
+  await worker.scheduled(null,env);
+  await worker.scheduled(null,env);
+  const expired=(await manage({action:'history'})).data.events.filter(row=>row.action==='expire');
+  assert.equal(expired.length,1);
+  assert.equal(expired[0].event_at,now-1000);
+  env.sql.prepare('UPDATE library_block_history SET event_at=?').run(now-31*day);
+  assert.deepEqual((await manage({action:'history'})).data.events,[]);
+});
+
 test('the Cloudflare library serves legacy builtin images locally and accepts their new URLs in edit requests', async () => {
   const cloudOrigin = 'https://course-library-protected.example';
   const built = await buildCloudflare(cloudOrigin, { protectedLibrary: true });

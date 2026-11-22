@@ -2,9 +2,14 @@ import {esc} from './contributions-ui.js?v=treasure-unit-20261030';
 
 const endpoint = '/api/manage/visitor-access';
 const hour = 3600000;
+const pageSize = 25;
 const kindLabel = kind => kind === 'ip' ? 'IP' : '瀏覽器';
 const timestamp = time => new Date(time).toLocaleString('zh-TW');
 const browserCode = (browser, length = 8) => browser.slice(0, length).toUpperCase();
+const modelNames = new Map([['SM-S9260', 'Galaxy S24+'], ['SM-S926B', 'Galaxy S24+']]);
+const modelLabel = model => modelNames.has(model.toUpperCase()) ? `${modelNames.get(model.toUpperCase())}（${model}）` : model;
+const historyLabels = {block:'已封鎖', extend:'已延長', unblock:'已解除', expire:'自動到期'};
+const periodLabels = {0:'近 30 天', 1:'近 1 小時', 24:'近 24 小時', 168:'近 7 天'};
 const pageNames = {
   'index.html': '課程首頁',
   'os.html': '作業系統',
@@ -47,11 +52,23 @@ export function setupVisitorAccess({container, api}) {
   let loading = false;
   let saving = false;
   let timer;
+  let archive = null;
+  let archiveRequest = 0;
+  let history = {offset: 0, events: [], hasMore: false};
+  let historyRequest = 0;
 
   const $ = selector => container.querySelector(selector);
   const activeBlocks = () => blocks.filter(block => block.expires_at > Date.now());
   const blockFor = (kind, target) => activeBlocks().find(block => block.kind === kind && block.target === target);
-  const browserLabel = browser => visitors.find(visitor => visitor.browser === browser)?.code || browserCode(browser);
+  const listedVisitors = () => archive?.visitors || visitors;
+  const browserLabel = browser => listedVisitors().find(visitor => visitor.browser === browser)?.code || browserCode(browser);
+  const post = body => api(endpoint, {method:'POST', body:JSON.stringify(body)});
+
+  function pager(kind, offset, hasMore) {
+    return `<button type="button" class="button secondary" data-visitor-action="page-${kind}" data-offset="${Math.max(0, offset-pageSize)}" ${offset === 0 ? 'disabled' : ''}>上一頁</button>
+      <span>第 ${offset / pageSize + 1} 頁</span>
+      <button type="button" class="button secondary" data-visitor-action="page-${kind}" data-offset="${offset+pageSize}" ${hasMore ? '' : 'disabled'}>下一頁</button>`;
+  }
 
   function mount() {
     container.innerHTML = `<div class="visitor-heading">
@@ -61,22 +78,34 @@ export function setupVisitorAccess({container, api}) {
       <nav class="visitor-tabs" aria-label="訪客與封鎖檢視">
         <button type="button" class="button secondary" data-visitor-action="tab" data-tab="visitors">最近訪客 <span data-visitor-count></span></button>
         <button type="button" class="button secondary" data-visitor-action="tab" data-tab="blocks">封鎖中 <span data-block-count></span></button>
+        <button type="button" class="button secondary" data-visitor-action="tab" data-tab="history">封鎖紀錄</button>
       </nav>
       <p data-access-status role="status" aria-live="polite" tabindex="-1"></p>
       <div data-visitor-view="visitors">
         <form class="visitor-filters" role="search" aria-label="搜尋最近訪客">
           <label>搜尋訪客<input type="search" data-visitor-search maxlength="100" placeholder="IP、瀏覽器代號、頁面或設備"></label>
           <label>最後出現<select data-visitor-period><option value="0">全部時間</option><option value="1">近 1 小時</option><option value="24">近 24 小時</option><option value="168">近 7 天</option></select></label>
+          <div class="visitor-search-actions">
+            <button type="submit" class="button secondary">搜尋 30 天紀錄</button>
+            <button type="button" class="text-button" data-visitor-action="recent" hidden>返回最近訪客</button>
+          </div>
         </form>
         <p class="muted" data-visitor-results></p>
         <ul class="visitor-list" data-visitor-list></ul>
         <p class="muted" data-visitor-empty hidden>沒有符合的訪客。</p>
+        <nav class="visitor-pager" aria-label="訪客搜尋分頁" data-visitor-pager hidden></nav>
+      </div>
+      <div data-visitor-view="history" hidden>
+        <p class="muted">封鎖、延長、解除與到期紀錄保留 30 天。</p>
+        <ul class="visitor-list" data-history-list></ul>
+        <p class="muted" data-history-empty hidden>目前沒有封鎖紀錄。</p>
+        <nav class="visitor-pager" aria-label="封鎖紀錄分頁" data-history-pager hidden></nav>
       </div>
       <div data-visitor-view="blocks" hidden>
         <ul class="visitor-list" data-block-list></ul>
         <p class="muted" data-block-empty hidden>目前沒有封鎖。</p>
       </div>
-      <p class="visitor-scope muted">以<a href="/course-library/">受控題庫</a>最近 100 筆連線依瀏覽器合併。換瀏覽器或清除網站資料後，可能會取得新代號。</p>
+      <p class="visitor-scope muted" data-recent-scope>以<a href="/course-library/">受控題庫</a>最近 100 筆連線依瀏覽器合併。換瀏覽器或清除網站資料後，可能會取得新代號。</p>
       <dialog class="visitor-dialog" aria-labelledby="visitorDialogTitle" data-visitor-dialog></dialog>`;
     $('[data-visitor-dialog]').addEventListener('cancel', event => {
       if (saving) event.preventDefault();
@@ -107,12 +136,19 @@ export function setupVisitorAccess({container, api}) {
     const query = $('[data-visitor-search]').value.trim().toLowerCase();
     const period = Number($('[data-visitor-period]').value);
     const since = period ? Date.now() - period * hour : 0;
-    const matches = visitors.map((visitor, index) => ({visitor, index})).filter(({visitor}) =>
-      visitor.connections.some(connection => connection.last_at >= since && (!query ||
+    const matches = listedVisitors().map((visitor, index) => ({visitor, index})).filter(({visitor}) =>
+      archive || visitor.connections.some(connection => connection.last_at >= since && (!query ||
         [connection.ip, visitor.browser, connection.last_path, pageNames[connection.last_path],
-          connection.device, connection.browser_name, connection.model]
+          connection.device, connection.browser_name, modelLabel(connection.model || ''), connection.nickname]
           .some(text => (text || '').toLowerCase().includes(query)))));
-    $('[data-visitor-results]').textContent = `顯示 ${matches.length}／${visitors.length} 個瀏覽器`;
+    $('[data-visitor-action=recent]').hidden = !archive;
+    $('[data-recent-scope]').hidden = tab !== 'visitors' || !!archive;
+    $('[data-visitor-results]').textContent = archive
+      ? `30 天紀錄 · ${periodLabels[archive.period]}${archive.query ? ' · '+archive.query : ''} · 本頁 ${matches.length} 個瀏覽器`
+      : `顯示 ${matches.length}／${visitors.length} 個瀏覽器`;
+    const archivePager = $('[data-visitor-pager]');
+    archivePager.hidden = !archive || (!archive.offset && !archive.hasMore);
+    if (archive) archivePager.innerHTML = pager('archive', archive.offset, archive.hasMore);
     $('[data-visitor-empty]').hidden = matches.length > 0 || loading;
     $('[data-visitor-list]').innerHTML = matches.map(({visitor, index}) => {
       const browserBlock = blockFor('browser', visitor.browser);
@@ -124,18 +160,19 @@ export function setupVisitorAccess({container, api}) {
       const deviceLabel = [latest.device, latest.browser_name].filter(Boolean).join(' · ');
       return `<li class="visitor-row">
         <div>
-          <strong>瀏覽器 <code>${esc(visitor.code)}</code></strong>
+          <strong>${esc(latest.nickname || '瀏覽器')} <code>${esc(visitor.code)}</code></strong>
           ${deviceLabel ? `<p class="muted">${esc(deviceLabel)}</p>` : ''}
           <p class="muted">最後出現 ${esc(timestamp(latest.last_at))} · ${esc(pageNames[latest.last_path] || latest.last_path)}</p>
           <details>
             <summary>查看連線資料（${ips.length} 個 IP）</summary>
             <p>完整瀏覽器代號 <code>${esc(visitor.browser)}</code></p>
-            <p>設備型號 ${esc(latest.model || '瀏覽器未提供')}</p>
+            <p>設備型號 ${esc(modelLabel(latest.model || '') || '瀏覽器未提供')}</p>
             <ul>${visitor.connections.map(connection => `<li>${esc(connection.ip || '無 IP 資料')} · 最後出現 ${esc(timestamp(connection.last_at))}</li>`).join('')}</ul>
           </details>
         </div>
         <div class="visitor-row-actions">
           ${status ? `<span class="state-badge pending">${esc(status)}</span>` : '<span class="state-badge">未封鎖</span>'}
+          <button type="button" class="text-button" data-visitor-action="nickname" data-index="${index}">${latest.nickname ? '改名' : '命名'}</button>
           ${canBlock ? `<button type="button" class="button secondary" data-visitor-action="block" data-index="${index}">封鎖…</button>` : ''}
           ${status ? '<button type="button" class="text-button" data-visitor-action="tab" data-tab="blocks">查看封鎖</button>' : ''}
         </div>
@@ -159,6 +196,24 @@ export function setupVisitorAccess({container, api}) {
         </div>
       </li>`;
     }).join('');
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const target = event => event.kind === 'browser' ? browserLabel(event.target) : 'IP';
+    $('[data-history-list]').innerHTML = history.events.map(event => `<li class="visitor-row">
+      <div>
+        <strong>${esc(event.nickname || kindLabel(event.kind))}${event.kind === 'browser' ? ` <code>${esc(target(event))}</code>` : ''}</strong>
+        <span class="state-badge">${esc(historyLabels[event.action] || event.action)}</span>
+        <p class="muted">${esc(timestamp(event.event_at))} · ${event.action === 'unblock' ? '原到期時間' : '到期時間'} ${esc(timestamp(event.expires_at))}</p>
+        ${event.note ? `<p class="visitor-note">${esc(event.note)}</p>` : ''}
+        <details><summary>查看封鎖對象</summary><p>${esc(event.target)}</p></details>
+      </div>
+    </li>`).join('');
+    $('[data-history-empty]').hidden = history.events.length > 0 || history.loading || tab !== 'history';
+    const navigation = $('[data-history-pager]');
+    navigation.hidden = !history.offset && !history.hasMore;
+    navigation.innerHTML = pager('history', history.offset, history.hasMore);
   }
 
   async function show(message = '') {
@@ -173,7 +228,13 @@ export function setupVisitorAccess({container, api}) {
       if (request !== generation) return;
       visitors = groupVisitors(data.visitors);
       blocks = data.blocks;
-      $('[data-access-status]').textContent = message;
+      let refreshed = true;
+      if (tab === 'visitors' && archive) refreshed = await loadArchive(archive);
+      if (tab === 'history') refreshed = await loadHistory(history.offset);
+      if (request !== generation) return;
+      const status = $('[data-access-status]');
+      if (refreshed) status.textContent = message;
+      else if (message) status.textContent = `${message} ${status.textContent}`;
     } catch (error) {
       if (request === generation) $('[data-access-status]').textContent = message ? message + ' ' + error.message : error.message;
     } finally {
@@ -186,10 +247,52 @@ export function setupVisitorAccess({container, api}) {
     }
   }
 
+  async function loadArchive({query, period, offset}) {
+    const request = ++archiveRequest;
+    const status = $('[data-access-status]');
+    status.textContent = '正在搜尋訪客紀錄…';
+    try {
+      const result = await post({action:'search', query, period, offset});
+      if (request !== archiveRequest) return;
+      archive = {query, period, offset, hasMore:result.hasMore, visitors:groupVisitors(result.visitors)};
+      if (tab === 'visitors') status.textContent = '';
+      render();
+      return true;
+    } catch (error) {
+      if (request === archiveRequest && tab === 'visitors') status.textContent = error.message;
+      return false;
+    }
+  }
+
+  async function loadHistory(offset) {
+    const request = ++historyRequest;
+    const status = $('[data-access-status]');
+    history.loading = true;
+    status.textContent = '正在讀取封鎖紀錄…';
+    renderHistory();
+    try {
+      const result = await post({action:'history', offset});
+      if (request !== historyRequest) return;
+      history = {offset, events:result.events, hasMore:result.hasMore};
+      if (tab === 'history') status.textContent = '';
+      return true;
+    } catch (error) {
+      if (request === historyRequest && tab === 'history') status.textContent = error.message;
+      return false;
+    } finally {
+      if (request === historyRequest) {
+        history.loading = false;
+        renderHistory();
+      }
+    }
+  }
+
   function selectTab(next) {
     tab = next;
     render();
     $('[data-visitor-action=tab][data-tab="' + next + '"]').focus({preventScroll: true});
+    if (next === 'history') loadHistory(history.offset);
+    else $('[data-access-status]').textContent = '';
   }
 
   function updateTarget() {
@@ -202,8 +305,20 @@ export function setupVisitorAccess({container, api}) {
 
   function openDialog(action, index) {
     const dialog = $('[data-visitor-dialog]');
-    if (action === 'block') {
-      const visitor = visitors[index];
+    if (action === 'nickname') {
+      const visitor = listedVisitors()[index];
+      if (!visitor) return;
+      pending = {action, visitor};
+      dialog.innerHTML = `<form>
+        <h3 id="visitorDialogTitle">瀏覽器暱稱</h3>
+        <p>代號 <code>${esc(visitor.code)}</code></p>
+        <label>暱稱<input data-nickname maxlength="40" value="${esc(visitor.latest.nickname || '')}" placeholder="例如：我的手機"></label>
+        <p class="muted">清空後儲存即可移除暱稱。</p>
+        <p role="alert" data-visitor-dialog-error></p>
+        <div class="actions"><button type="submit" class="button">儲存暱稱</button><button type="button" class="button secondary" data-visitor-action="cancel">取消</button></div>
+      </form>`;
+    } else if (action === 'block') {
+      const visitor = listedVisitors()[index];
       const canBrowser = visitor.browser && !blockFor('browser', visitor.browser);
       const availableIPs = visitor.connections.filter(connection => connection.ip && !blockFor('ip', connection.ip));
       const canIP = availableIPs.length > 0;
@@ -212,7 +327,7 @@ export function setupVisitorAccess({container, api}) {
       dialog.innerHTML = `<form>
         <h3 id="visitorDialogTitle">封鎖訪客</h3>
         <label>封鎖對象<select data-block-kind><option value="browser" ${canBrowser ? 'selected' : 'disabled'}>瀏覽器</option><option value="ip" ${canBrowser ? '' : 'selected'} ${canIP ? '' : 'disabled'}>IP</option></select></label>
-        <p data-block-target class="visitor-target">瀏覽器 <code>${esc(visitor.code)}</code></p>
+        <p data-block-target class="visitor-target">${esc(visitor.latest.nickname || '瀏覽器')} <code>${esc(visitor.code)}</code></p>
         <label data-ip-field hidden>選擇 IP<select data-block-ip required>${availableIPs.length > 1 ? '<option value="">請選擇要封鎖的 IP</option>' : ''}${availableIPs.map(connection =>
           `<option value="${esc(connection.ip)}">${esc(connection.ip)} · ${esc(timestamp(connection.last_at))}</option>`).join('')}</select></label>
         <p class="notice" data-ip-warning hidden>共用這個 IP 的同學也會受影響，例如使用同一個校園網路的人。</p>
@@ -246,11 +361,11 @@ export function setupVisitorAccess({container, api}) {
     const enabled = controls.filter(node => !node.disabled);
     enabled.forEach(node => node.disabled = true);
     try {
-      await api(endpoint, {method: 'POST', body: JSON.stringify(body)});
+      await post(body);
       if (request !== generation) return;
       if (dialog.open) dialog.close();
       pending = null;
-      const messages = {block: '已封鎖。', extend: '已延長封鎖。', unblock: '已解除封鎖。'};
+      const messages = {block:'已封鎖。', extend:'已延長封鎖。', unblock:'已解除封鎖。', nickname:'已更新暱稱。'};
       await show(messages[body.action]);
     } catch (error) {
       if (request !== generation) return;
@@ -268,6 +383,14 @@ export function setupVisitorAccess({container, api}) {
     const {visitorAction: action, tab: next, index} = button.dataset;
     if (action === 'refresh') return show();
     if (action === 'tab') return selectTab(next);
+    if (action === 'page-archive') return loadArchive({...archive, offset:Number(button.dataset.offset)});
+    if (action === 'page-history') return loadHistory(Number(button.dataset.offset));
+    if (action === 'recent') {
+      archiveRequest++;
+      archive = null;
+      $('[data-access-status]').textContent = '';
+      return render();
+    }
     if (action === 'cancel') {
       pending = null;
       return $('[data-visitor-dialog]').close();
@@ -288,8 +411,13 @@ export function setupVisitorAccess({container, api}) {
   });
   container.addEventListener('submit', event => {
     event.preventDefault();
-    if (saving || !event.target.closest('[data-visitor-dialog]') || !pending) return;
+    if (saving) return;
+    if (event.target.matches('.visitor-filters')) {
+      return loadArchive({query:$('[data-visitor-search]').value.trim(), period:Number($('[data-visitor-period]').value), offset:0});
+    }
+    if (!event.target.closest('[data-visitor-dialog]') || !pending) return;
     const {action, visitor, block} = pending;
+    if (action === 'nickname') return save({action, target:visitor.browser, nickname:$('[data-nickname]').value.trim()});
     const kind = block?.kind ?? $('[data-block-kind]').value;
     const target = block?.target ?? (kind === 'ip' ? $('[data-block-ip]').value : visitor.browser);
     if (!target) return;
@@ -301,11 +429,15 @@ export function setupVisitorAccess({container, api}) {
     show,
     clear() {
       generation++;
+      archiveRequest++;
+      historyRequest++;
       clearInterval(timer);
       container.replaceChildren();
       visitors = [];
       blocks = [];
       pending = null;
+      archive = null;
+      history = {offset:0, events:[], hasMore:false};
       loading = false;
       tab = 'visitors';
     },

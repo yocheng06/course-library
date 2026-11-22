@@ -21,19 +21,28 @@ test('filters recent visits and uses the selected record to block, extend and un
   const browser = 'a'.repeat(64);
   const ip = '192.0.2.20';
   const visitors = [
-    {browser, ip, last_path: 'os.html', last_at: Date.now(), device:'Android 手機', browser_name:'Chrome', model:'Pixel 9'},
+    {browser, ip, last_path: 'os.html', last_at: Date.now(), device:'Android 手機', browser_name:'Chrome', model:'SM-S9260'},
     {browser, ip: '192.0.2.21', last_path: 'algorithms.html', last_at: Date.now() - 1800000},
     {browser: 'a'.repeat(8) + 'b'.repeat(56), ip, last_path: 'batch.html', last_at: Date.now() - 86400000},
   ];
   let blocks = [];
+  const historyEvents = [];
   const requests = [];
   const manager = setupVisitorAccess({container, api: async (_endpoint, options) => {
     if (!options) return {visitors, blocks};
     const body = JSON.parse(options.body);
     requests.push(body);
+    if (body.action === 'nickname') {
+      for (const visit of visitors.filter(visit=>visit.browser === body.target)) visit.nickname = body.nickname;
+    }
+    if (body.action === 'search') return {visitors:visitors.filter(visit=>visit.browser === browser),hasMore:true};
+    if (body.action === 'history') return {events:historyEvents,hasMore:false};
     if (body.action === 'block') blocks = [{...body, expires_at: Date.now() + body.durationHours * 3600000}];
     if (body.action === 'extend') blocks = blocks.map(block => ({...block, expires_at: block.expires_at + body.durationHours * 3600000}));
-    if (body.action === 'unblock') blocks = [];
+    if (body.action === 'unblock') {
+      historyEvents.push({...blocks[0],action:'unblock',nickname:visitors[0].nickname,event_at:Date.now()});
+      blocks = [];
+    }
     return {ok: true};
   }});
   const event = (selector, name) => $(selector).dispatchEvent(new window.Event(name, {bubbles: true, cancelable: true}));
@@ -52,9 +61,9 @@ test('filters recent visits and uses the selected record to block, extend and un
     assert.match($('[data-visitor-list] summary').textContent, /2 個 IP/);
     assert.equal(container.querySelectorAll('[data-visitor-list] > li').length, 2);
     assert.match($('[data-visitor-list] > li').textContent, /Android 手機 · Chrome/);
-    assert.match($('[data-visitor-list] > li details').textContent, /設備型號 Pixel 9/);
+    assert.match($('[data-visitor-list] > li details').textContent, /設備型號 Galaxy S24\+（SM-S9260）/);
     assert.equal($('[data-visitor-list] > li details').hasAttribute('open'), false);
-    search('Pixel 9');
+    search('Galaxy S24+');
     assert.equal(container.querySelectorAll('[data-visitor-list] > li').length, 1);
     search(ip);
     assert.equal(container.querySelectorAll('[data-visitor-list] > li').length, 2);
@@ -65,6 +74,23 @@ test('filters recent visits and uses the selected record to block, extend and un
     event('[data-visitor-period]', 'change');
     assert.equal($('[data-visitor-empty]').hidden, false);
     search('作業系統');
+    $('[data-visitor-action=nickname]').click();
+    $('[data-nickname]').value = '我的手機 <img>';
+    submit();
+    await settle();
+    assert.deepEqual(requests.pop(), {action:'nickname', target:browser, nickname:'我的手機 <img>'});
+    search('我的手機');
+    assert.match($('[data-visitor-list] strong').textContent, /我的手機 <img>/);
+    assert.equal($('[data-visitor-list] img'), null);
+    event('.visitor-filters', 'submit');
+    await settle();
+    assert.deepEqual(requests.pop(), {action:'search', query:'我的手機', period:1, offset:0});
+    assert.match($('[data-visitor-results]').textContent, /30 天紀錄/);
+    $('[data-visitor-action=page-archive][data-offset="25"]').click();
+    await settle();
+    assert.equal(requests.pop().offset, 25);
+    $('[data-visitor-action=recent]').click();
+    assert.doesNotMatch($('[data-visitor-results]').textContent, /30 天紀錄/);
     $('[data-visitor-action=block]').click();
     assert.equal($('[data-block-kind]').value, 'browser');
     assert.equal($('[data-ip-warning]').hidden, true);
@@ -98,6 +124,11 @@ test('filters recent visits and uses the selected record to block, extend and un
     await settle();
     assert.deepEqual(requests[2], {action:'unblock', kind:'browser', target:browser});
     assert.equal($('[data-block-empty]').hidden, false);
+    $('[data-visitor-action=tab][data-tab=history]').click();
+    await settle();
+    assert.deepEqual(requests[3], {action:'history', offset:0});
+    assert.match($('[data-history-list]').textContent, /我的手機 <img>.*已解除/s);
+    assert.equal($('[data-history-list] img'), null);
   } finally {
     manager.clear();
     delete globalThis.window;

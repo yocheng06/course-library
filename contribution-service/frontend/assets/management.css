@@ -332,3 +332,20 @@ html[data-theme=dark] .state-badge.pending {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.visitor-search-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+.visitor-pager:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 12px;
+}
+.visitor-pager span {
+  font-size: 14px;
+}

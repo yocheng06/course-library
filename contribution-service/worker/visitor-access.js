@@ -4,6 +4,11 @@ const libraryPrefix = "/course-library/";
 const visitorRetention = 30 * 86400000;
 const visitorBlockHour = 3600000;
 const visitorBlockDurations = new Set([1, 24, 168, 720]);
+const visitorPageSize = 25;
+const visitSelect = "v.browser,v.ip,v.last_path,v.last_at,d.device,d.browser_name,d.model,a.nickname";
+const visitDetails = " LEFT JOIN library_visitor_devices d ON d.browser=v.browser LEFT JOIN library_visitor_aliases a ON a.browser=v.browser";
+const visitPageNames = "CASE v.last_path WHEN 'index.html' THEN '課程首頁' WHEN 'os.html' THEN '作業系統' WHEN 'algorithms.html' THEN '演算法' WHEN 'batch.html' THEN '批次查題' WHEN 'music-player.html' THEN '音樂播放器' ELSE '' END";
+const visitModelNames = "CASE upper(d.model) WHEN 'SM-S9260' THEN 'galaxy s24+' WHEN 'SM-S926B' THEN 'galaxy s24+' ELSE '' END";
 const studyDocuments = new Set(["", "index.html", "os.html", "algorithms.html", "batch.html", "music-player.html"]);
 const ipFormat = /^[0-9a-f.:]{3,45}$/i;
 
@@ -13,8 +18,11 @@ function ensureVisitorTables(env) {
       env.DB.prepare("CREATE TABLE IF NOT EXISTS library_visitors (browser TEXT NOT NULL, ip TEXT NOT NULL, last_path TEXT NOT NULL, last_at INTEGER NOT NULL, PRIMARY KEY(browser,ip))"),
       env.DB.prepare("CREATE INDEX IF NOT EXISTS library_visitors_recent ON library_visitors(last_at)"),
       env.DB.prepare("CREATE TABLE IF NOT EXISTS library_visitor_devices (browser TEXT PRIMARY KEY, device TEXT NOT NULL, browser_name TEXT NOT NULL, model TEXT NOT NULL)"),
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS library_visitor_aliases (browser TEXT PRIMARY KEY, nickname TEXT NOT NULL)"),
       env.DB.prepare("CREATE TABLE IF NOT EXISTS library_blocks (kind TEXT NOT NULL, target TEXT NOT NULL, created_at INTEGER NOT NULL, expires_at INTEGER NOT NULL, PRIMARY KEY(kind,target))"),
       env.DB.prepare("CREATE TABLE IF NOT EXISTS library_block_notes (kind TEXT NOT NULL, target TEXT NOT NULL, note TEXT NOT NULL, PRIMARY KEY(kind,target))"),
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS library_block_history (id INTEGER PRIMARY KEY, action TEXT NOT NULL, kind TEXT NOT NULL, target TEXT NOT NULL, nickname TEXT NOT NULL, note TEXT NOT NULL, expires_at INTEGER NOT NULL, event_at INTEGER NOT NULL)"),
+      env.DB.prepare("CREATE INDEX IF NOT EXISTS library_block_history_recent ON library_block_history(event_at DESC,id DESC)"),
     ]).catch(error => { visitorTables.delete(env.DB); throw error; });
     visitorTables.set(env.DB, ready);
   }
@@ -134,9 +142,67 @@ async function purgeVisitorRecords(env) {
   await env.DB.batch([
     env.DB.prepare("DELETE FROM library_visitors WHERE last_at<=?").bind(now - visitorRetention),
     env.DB.prepare("DELETE FROM library_visitor_devices WHERE NOT EXISTS (SELECT 1 FROM library_visitors v WHERE v.browser=library_visitor_devices.browser)"),
+    env.DB.prepare("DELETE FROM library_block_history WHERE event_at<=?").bind(now - visitorRetention),
+    visitorBlockHistory(env, "expire", "b.expires_at", "b.expires_at",
+      "b.expires_at>? AND b.expires_at<=?", now - visitorRetention, now),
     env.DB.prepare("DELETE FROM library_blocks WHERE expires_at<=?").bind(now),
     env.DB.prepare("DELETE FROM library_block_notes WHERE NOT EXISTS (SELECT 1 FROM library_blocks b WHERE b.kind=library_block_notes.kind AND b.target=library_block_notes.target)"),
+    env.DB.prepare("DELETE FROM library_visitor_aliases WHERE NOT EXISTS (SELECT 1 FROM library_visitors v WHERE v.browser=library_visitor_aliases.browser) AND NOT EXISTS (SELECT 1 FROM library_blocks b WHERE b.kind='browser' AND b.target=library_visitor_aliases.browser)"),
   ]);
+}
+
+function visitorBlockHistory(env, action, eventTime, expiry, condition, ...args) {
+  // SQL expressions and conditions are selected by the caller. Targets and input stay bound.
+  return env.DB.prepare(
+    "INSERT INTO library_block_history (action,kind,target,nickname,note,expires_at,event_at) " +
+    `SELECT ?,b.kind,b.target,COALESCE(a.nickname,''),COALESCE(n.note,''),${expiry},${eventTime} ` +
+    "FROM library_blocks b LEFT JOIN library_block_notes n ON n.kind=b.kind AND n.target=b.target " +
+    "LEFT JOIN library_visitor_aliases a ON b.kind='browser' AND a.browser=b.target " +
+    `WHERE ${condition}`,
+  ).bind(action, ...args);
+}
+
+function visitorOffset(value = 0) {
+  if (!Number.isSafeInteger(value) || value < 0 || value > 1000000)
+    throw new HttpError(400, "紀錄頁數不正確。");
+  return value;
+}
+
+async function searchVisitorRecords(env, {query = '', period = 0, offset = 0}) {
+  if (typeof query !== "string" || query.length > 100 || ![0, 1, 24, 168].includes(period))
+    throw new HttpError(400, "訪客搜尋條件不正確。");
+  const q = query.trim().toLowerCase();
+  const cutoff = Date.now() - (period ? period * visitorBlockHour : visitorRetention);
+  const page = await env.DB.prepare(
+    "SELECT v.browser,MAX(v.last_at) AS recent FROM library_visitors v" + visitDetails +
+    " WHERE v.last_at>=? AND (?='' OR instr(lower(v.ip),?) OR instr(v.browser,?) OR instr(lower(a.nickname),?) " +
+    "OR instr(lower(v.last_path),?) OR instr(" + visitPageNames + ",?) OR instr(lower(d.device),?) " +
+    "OR instr(lower(d.browser_name),?) OR instr(lower(d.model),?) OR instr(" + visitModelNames + ",?)) " +
+    "GROUP BY v.browser ORDER BY recent DESC,v.browser LIMIT ? OFFSET ?",
+  ).bind(cutoff, q, q, q, q, q, q, q, q, q, q, visitorPageSize + 1, visitorOffset(offset)).all();
+  const browsers = page.results.slice(0, visitorPageSize).map(row => row.browser);
+  if (!browsers.length) return json({visitors: [], hasMore: false});
+  const connections = await env.DB.prepare(
+    "SELECT " + visitSelect + " FROM library_visitors v" + visitDetails +
+    " WHERE v.browser IN (" + browsers.map(() => "?").join(",") + ") ORDER BY v.last_at DESC,v.browser,v.ip",
+  ).bind(...browsers).all();
+  return json({visitors: connections.results, hasMore: page.results.length > visitorPageSize});
+}
+
+async function saveVisitorNickname(env, {target, nickname}) {
+  if (typeof target !== "string" || !/^[a-f0-9]{64}$/.test(target) || typeof nickname !== "string" || nickname.length > 40)
+    throw new HttpError(400, "瀏覽器代號或暱稱不正確，暱稱最多 40 個字。");
+  if (!nickname.trim()) {
+    await env.DB.prepare("DELETE FROM library_visitor_aliases WHERE browser=?").bind(target).run();
+    return json({ok: true});
+  }
+  const saved = await env.DB.prepare(
+    "INSERT INTO library_visitor_aliases (browser,nickname) SELECT ?,? " +
+    "WHERE EXISTS (SELECT 1 FROM library_visitors WHERE browser=?) " +
+    "ON CONFLICT(browser) DO UPDATE SET nickname=excluded.nickname RETURNING browser",
+  ).bind(target, nickname.trim(), target).first();
+  if (!saved) throw new HttpError(404, "找不到這筆訪客紀錄，請重新載入。");
+  return json({ok: true});
 }
 
 async function manageVisitorAccess(request, env) {
@@ -146,7 +212,7 @@ async function manageVisitorAccess(request, env) {
   await purgeVisitorRecords(env);
   if (request.method === "GET") {
     const [visitors, blocks] = await Promise.all([
-      env.DB.prepare("SELECT v.browser,v.ip,v.last_path,v.last_at,d.device,d.browser_name,d.model FROM library_visitors v LEFT JOIN library_visitor_devices d ON d.browser=v.browser ORDER BY v.last_at DESC LIMIT 100").all(),
+      env.DB.prepare("SELECT " + visitSelect + " FROM library_visitors v" + visitDetails + " ORDER BY v.last_at DESC,v.browser,v.ip LIMIT 100").all(),
       env.DB.prepare("SELECT b.kind,b.target,b.expires_at,COALESCE(n.note,'') AS note FROM library_blocks b LEFT JOIN library_block_notes n ON n.kind=b.kind AND n.target=b.target WHERE b.expires_at>? ORDER BY b.expires_at").bind(Date.now()).all(),
     ]);
     return json({ visitors: visitors.results, blocks: blocks.results });
@@ -155,12 +221,21 @@ async function manageVisitorAccess(request, env) {
   requireOrigin(request, true);
   const body = await readBody(request, 4096);
   const { action, kind, target, days, durationHours, note } = body ?? {};
+  if (action === "search") return searchVisitorRecords(env, body);
+  if (action === "nickname") return saveVisitorNickname(env, body);
+  if (action === "history") {
+    const {results} = await env.DB.prepare(
+      "SELECT action,kind,target,nickname,note,expires_at,event_at FROM library_block_history ORDER BY event_at DESC,id DESC LIMIT ? OFFSET ?",
+    ).bind(visitorPageSize + 1, visitorOffset(body.offset)).all();
+    return json({events: results.slice(0, visitorPageSize), hasMore: results.length > visitorPageSize});
+  }
   const column = { ip: "ip", browser: "browser" };
   if (!Object.hasOwn(column, kind) || typeof target !== "string" ||
       !(kind === "ip" ? ipFormat : /^[a-f0-9]{64}$/).test(target))
     throw new HttpError(400, "封鎖對象不正確。");
   if (action === "unblock") {
     await env.DB.batch([
+      visitorBlockHistory(env, "unblock", "?", "b.expires_at", "b.kind=? AND b.target=?", Date.now(), kind, target),
       env.DB.prepare("DELETE FROM library_blocks WHERE kind=? AND target=?").bind(kind, target),
       env.DB.prepare("DELETE FROM library_block_notes WHERE kind=? AND target=?").bind(kind, target),
     ]);
@@ -175,10 +250,15 @@ async function manageVisitorAccess(request, env) {
   const now = Date.now();
   const duration = hours * visitorBlockHour;
   if (action === "extend") {
-    const block = await env.DB.prepare("UPDATE library_blocks SET expires_at=expires_at+? WHERE kind=? AND target=? AND expires_at>? RETURNING expires_at")
-      .bind(duration, kind, target, now).first();
-    if (!block) throw new HttpError(404, "這筆封鎖已到期或已解除。");
-    return json({ ok: true, ...block });
+    const [logged] = await env.DB.batch([
+      visitorBlockHistory(env, "extend", "?", "b.expires_at+?",
+        "b.kind=? AND b.target=? AND b.expires_at>?", duration, now, kind, target, now),
+      env.DB.prepare("UPDATE library_blocks SET expires_at=expires_at+? WHERE kind=? AND target=? AND expires_at>?")
+        .bind(duration, kind, target, now),
+    ]);
+    if (!logged.meta.changes) throw new HttpError(404, "這筆封鎖已到期或已解除。");
+    const block = await env.DB.prepare("SELECT expires_at FROM library_blocks WHERE kind=? AND target=?").bind(kind, target).first();
+    return json({ ok: true, expires_at: block?.expires_at ?? null });
   }
 
   if (note !== undefined && (typeof note !== "string" || note.length > 200))
@@ -194,6 +274,7 @@ async function manageVisitorAccess(request, env) {
     statements.push(env.DB.prepare("INSERT INTO library_block_notes (kind,target,note) VALUES (?,?,?) ON CONFLICT(kind,target) DO UPDATE SET note=excluded.note")
       .bind(kind, target, note.trim()));
   }
+  statements.push(visitorBlockHistory(env, "block", "?", "b.expires_at", "b.kind=? AND b.target=?", now, kind, target));
   await env.DB.batch(statements);
   return json({ ok: true, expires_at: expiresAt });
 }
