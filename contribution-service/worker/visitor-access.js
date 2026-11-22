@@ -2,6 +2,8 @@ const visitorTables = new WeakMap();
 const visitorCookie = "__Host-course-visitor";
 const libraryPrefix = "/course-library/";
 const visitorRetention = 30 * 86400000;
+const visitorBlockHour = 3600000;
+const visitorBlockDurations = new Set([1, 24, 168, 720]);
 const studyDocuments = new Set(["", "index.html", "os.html", "algorithms.html", "batch.html", "music-player.html"]);
 const ipFormat = /^[0-9a-f.:]{3,45}$/i;
 
@@ -11,6 +13,7 @@ function ensureVisitorTables(env) {
       env.DB.prepare("CREATE TABLE IF NOT EXISTS library_visitors (browser TEXT NOT NULL, ip TEXT NOT NULL, last_path TEXT NOT NULL, last_at INTEGER NOT NULL, PRIMARY KEY(browser,ip))"),
       env.DB.prepare("CREATE INDEX IF NOT EXISTS library_visitors_recent ON library_visitors(last_at)"),
       env.DB.prepare("CREATE TABLE IF NOT EXISTS library_blocks (kind TEXT NOT NULL, target TEXT NOT NULL, created_at INTEGER NOT NULL, expires_at INTEGER NOT NULL, PRIMARY KEY(kind,target))"),
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS library_block_notes (kind TEXT NOT NULL, target TEXT NOT NULL, note TEXT NOT NULL, PRIMARY KEY(kind,target))"),
     ]).catch(error => { visitorTables.delete(env.DB); throw error; });
     visitorTables.set(env.DB, ready);
   }
@@ -81,6 +84,7 @@ async function purgeVisitorRecords(env) {
   await env.DB.batch([
     env.DB.prepare("DELETE FROM library_visitors WHERE last_at<=?").bind(now - visitorRetention),
     env.DB.prepare("DELETE FROM library_blocks WHERE expires_at<=?").bind(now),
+    env.DB.prepare("DELETE FROM library_block_notes WHERE NOT EXISTS (SELECT 1 FROM library_blocks b WHERE b.kind=library_block_notes.kind AND b.target=library_block_notes.target)"),
   ]);
 }
 
@@ -92,29 +96,53 @@ async function manageVisitorAccess(request, env) {
   if (request.method === "GET") {
     const [visitors, blocks] = await Promise.all([
       env.DB.prepare("SELECT browser,ip,last_path,last_at FROM library_visitors ORDER BY last_at DESC LIMIT 100").all(),
-      env.DB.prepare("SELECT kind,target,expires_at FROM library_blocks WHERE expires_at>? ORDER BY expires_at").bind(Date.now()).all(),
+      env.DB.prepare("SELECT b.kind,b.target,b.expires_at,COALESCE(n.note,'') AS note FROM library_blocks b LEFT JOIN library_block_notes n ON n.kind=b.kind AND n.target=b.target WHERE b.expires_at>? ORDER BY b.expires_at").bind(Date.now()).all(),
     ]);
     return json({ visitors: visitors.results, blocks: blocks.results });
   }
   if (request.method !== "POST") throw new HttpError(405, "不支援此操作。");
   requireOrigin(request, true);
   const body = await readBody(request, 4096);
-  const { action, kind, target, days } = body ?? {};
+  const { action, kind, target, days, durationHours, note } = body ?? {};
   const column = { ip: "ip", browser: "browser" };
   if (!Object.hasOwn(column, kind) || typeof target !== "string" ||
       !(kind === "ip" ? ipFormat : /^[a-f0-9]{64}$/).test(target))
     throw new HttpError(400, "封鎖對象不正確。");
   if (action === "unblock") {
-    await env.DB.prepare("DELETE FROM library_blocks WHERE kind=? AND target=?").bind(kind, target).run();
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM library_blocks WHERE kind=? AND target=?").bind(kind, target),
+      env.DB.prepare("DELETE FROM library_block_notes WHERE kind=? AND target=?").bind(kind, target),
+    ]);
     return json({ ok: true });
   }
-  if (action !== "block" || ![1, 7, 30].includes(days)) throw new HttpError(400, "封鎖期限不正確。");
-  const visit = await env.DB.prepare("SELECT 1 AS found FROM library_visitors WHERE " + column[kind] + "=? LIMIT 1").bind(target).first();
-  if (!visit) throw new HttpError(404, "訪客紀錄已到期，請重新載入。");
+  if (action !== "block" && action !== "extend") throw new HttpError(400, "不支援此封鎖操作。");
+  const hours = durationHours ?? ([1, 7, 30].includes(days) ? days * 24 : null);
+  if (!visitorBlockDurations.has(hours)) throw new HttpError(400, "封鎖期限不正確。");
   const self = await visitorIdentity(request, env);
   if (target === self[kind]) throw new HttpError(409, "無法封鎖你目前使用的連線或瀏覽器。");
+
   const now = Date.now();
-  await env.DB.prepare("INSERT INTO library_blocks (kind,target,created_at,expires_at) VALUES (?,?,?,?) ON CONFLICT(kind,target) DO UPDATE SET created_at=excluded.created_at,expires_at=excluded.expires_at")
-    .bind(kind, target, now, now + days * 86400000).run();
-  return json({ ok: true });
+  const duration = hours * visitorBlockHour;
+  if (action === "extend") {
+    const block = await env.DB.prepare("UPDATE library_blocks SET expires_at=expires_at+? WHERE kind=? AND target=? AND expires_at>? RETURNING expires_at")
+      .bind(duration, kind, target, now).first();
+    if (!block) throw new HttpError(404, "這筆封鎖已到期或已解除。");
+    return json({ ok: true, ...block });
+  }
+
+  if (note !== undefined && (typeof note !== "string" || note.length > 200))
+    throw new HttpError(400, "封鎖備註最多 200 個字。");
+  const visit = await env.DB.prepare("SELECT 1 AS found FROM library_visitors WHERE " + column[kind] + "=? LIMIT 1").bind(target).first();
+  if (!visit) throw new HttpError(404, "訪客紀錄已到期，請重新載入。");
+  const expiresAt = now + duration;
+  const statements = [
+    env.DB.prepare("INSERT INTO library_blocks (kind,target,created_at,expires_at) VALUES (?,?,?,?) ON CONFLICT(kind,target) DO UPDATE SET created_at=excluded.created_at,expires_at=excluded.expires_at")
+      .bind(kind, target, now, expiresAt),
+  ];
+  if (note !== undefined) {
+    statements.push(env.DB.prepare("INSERT INTO library_block_notes (kind,target,note) VALUES (?,?,?) ON CONFLICT(kind,target) DO UPDATE SET note=excluded.note")
+      .bind(kind, target, note.trim()));
+  }
+  await env.DB.batch(statements);
+  return json({ ok: true, expires_at: expiresAt });
 }

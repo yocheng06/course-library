@@ -2728,8 +2728,18 @@ test('the controlled library logs visits privately and enforces IP and browser b
   assert.equal(first.last_path,'index.html');
   assert.ok(!visitorCookie.includes(first.browser));
 
-  const block={action:'block',kind:'browser',target:first.browser,days:1};
-  assert.equal((await manage(block)).response.status,200);
+  const block={action:'block',kind:'browser',target:first.browser,durationHours:1,note:' 短時間內大量連線 '};
+  const beforeBlock=Date.now();
+  const initialBlock=await manage(block);
+  assert.equal(initialBlock.response.status,200);
+  assert.ok(initialBlock.data.expires_at>=beforeBlock+3600000);
+  assert.ok(initialBlock.data.expires_at<=Date.now()+3600000);
+  const extension=await manage({action:'extend',kind:block.kind,target:block.target,durationHours:24});
+  assert.equal(extension.response.status,200);
+  assert.equal(extension.data.expires_at,initialBlock.data.expires_at+86400000);
+  assert.deepEqual((await manage()).data.blocks,[{kind:'browser',target:first.browser,note:'短時間內大量連線',expires_at:extension.data.expires_at}]);
+  assert.equal((await manage({...block,durationHours:2})).response.status,400);
+  assert.equal((await manage({...block,note:'x'.repeat(201)})).response.status,400);
   const count=reads.length;
   for(const path of ['/course-library/','/course-library/os.html','/course-library/assets/batch-library.json','/api/questions?course=os','/api/community/builtin-questions/os/basics-1']){
     assert.equal((await call(env,path,{ip:'192.0.2.21',cookie:visitorCookie})).response.status,403,path);
@@ -2737,6 +2747,8 @@ test('the controlled library logs visits privately and enforces IP and browser b
   assert.equal(reads.length,count);
   assert.equal((await call(env,'/course-library/os.html',{ip:browserIP})).response.status,200);
   assert.equal((await manage({...block,action:'unblock'})).response.status,200);
+  assert.equal((await manage({...block,action:'extend'})).response.status,404);
+  assert.equal(env.sql.prepare('SELECT COUNT(*) AS total FROM library_block_notes').get().total,0);
   assert.equal((await call(env,'/course-library/os.html',{ip:browserIP,cookie:visitorCookie})).response.status,200);
 
   const ipBlock={action:'block',kind:'ip',target:browserIP,days:1};

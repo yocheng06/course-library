@@ -238,3 +238,97 @@ html[data-theme=dark] .state-badge.pending {
     align-self: center;
   }
 }
+
+.visitor-heading,
+.visitor-tabs,
+.visitor-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.visitor-heading {
+  justify-content: space-between;
+}
+.visitor-heading h2 {
+  margin: 0;
+}
+.visitor-tabs {
+  margin: 12px 0 16px;
+}
+.visitor-tabs [aria-current="page"] {
+  background: var(--accent);
+  color: #fff;
+}
+.visitor-tabs button span:not(:empty) {
+  margin-left: 4px;
+}
+.visitor-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 190px);
+  align-items: end;
+  gap: 12px;
+}
+.visitor-filters label {
+  margin: 0;
+}
+.visitor-list {
+  padding: 0;
+  margin: 8px 0;
+  list-style: none;
+}
+.visitor-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px 16px;
+  border-top: 1px solid var(--line);
+  padding: 14px 0;
+  overflow-wrap: anywhere;
+}
+.visitor-row p,
+.visitor-row .state-badge {
+  margin: 4px 0;
+}
+.visitor-row details summary {
+  color: var(--accent);
+  cursor: pointer;
+}
+.visitor-note {
+  white-space: pre-wrap;
+}
+.visitor-scope {
+  font-size: 13px;
+  margin: 12px 0 0;
+}
+.visitor-dialog {
+  box-sizing: border-box;
+  max-width: calc(100vw - 24px);
+  width: 440px;
+  max-height: calc(100dvh - 24px);
+  overflow: auto;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card, #fff);
+  color: var(--ink);
+}
+.visitor-dialog::backdrop {
+  background: #12151bb3;
+}
+.visitor-dialog h3 {
+  margin: 0 0 12px;
+}
+.visitor-dialog .visitor-target {
+  overflow-wrap: anywhere;
+}
+.visitor-dialog [role="alert"]:empty,
+[data-access-status]:empty {
+  display: none;
+}
+@media (max-width: 520px) {
+  .visitor-filters,
+  .visitor-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
