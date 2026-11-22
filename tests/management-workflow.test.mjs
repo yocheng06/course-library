@@ -8,7 +8,7 @@ import {loadCourse} from '../scripts/audit-topic-order-20261102.mjs';
 const tick=()=>new Promise(r=>setImmediate(r));
 const storage=()=>{const m=new Map();return {getItem:k=>m.get(k)??null,setItem:(k,v)=>m.set(k,v)};};
 function dom(store=storage()){
- const {document,window}=parseHTML('<section id="libraryWorkspace"></section><dialog id="questionDialog"></dialog><section id="unitWorkspace"></section>');
+ const {document,window}=parseHTML('<div id="managementSearch"></div><section id="libraryWorkspace"></section><dialog id="questionDialog"></dialog><section id="unitWorkspace"></section>');
  Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){const o=this.querySelector('option[selected]')||this.querySelector('option');return o?.getAttribute('value')??o?.textContent??'';},set(v){for(const o of this.querySelectorAll('option'))o.toggleAttribute('selected',(o.getAttribute('value')??o.textContent)===v);}});
  Object.assign(globalThis,{window,document,localStorage:store,requestAnimationFrame:f=>f(),confirm:()=>true});
  window.courseContributions={apiOrigin:'https://test.invalid'};window.scrollTo=()=>{};window.HTMLElement.prototype.focus=()=>{};
@@ -58,6 +58,7 @@ test('partial failure retains only failed selections and retries only them',asyn
 
 test('course, unit, source, sort and query survive a fresh manager instance',async()=>{
  const store=storage();let ui=dom(store),s=server(bank(1)),manager=setupLibraryManager({userId:'owner'});await manager.show('all');
+ assert.equal(ui.$('managementSearch').firstElementChild,ui.$('librarySearch'));assert.equal(ui.$('libraryMoreFilters').hasAttribute('open'),false);
  ui.$('libraryUnit').value='basics';ui.$('libraryQuery').value='題目';ui.fire(ui.$('librarySearch'),'submit');await tick();
  ui=dom(store);s=server(bank(1));manager=setupLibraryManager({userId:'owner'});await manager.show('modified');
  assert.equal(ui.$('libraryUnit').value,'basics');assert.equal(ui.$('libraryQuery').value,'題目');assert.equal(s.queries[0].searchParams.get('unit'),'basics');assert.equal(s.queries[0].searchParams.get('q'),'題目');
@@ -95,12 +96,16 @@ test('history highlights changed text and keeps imported markup inert',async()=>
   if(url.pathname.endsWith('/history'))return new Response(JSON.stringify({items:[{id:'history-1',revision:0,unit:'basics',created_at:Date.now(),data:{stem:row.stem,type:'填空題',category:'測試',answer:'舊答案<img src=x onerror=bad()>',options:[],images:[]}}]}));
   return fetchBase(raw,opts);
  };
- const manager=setupLibraryManager();await manager.show('modified');ui.document.querySelector('[data-history]').click();
+ const manager=setupLibraryManager();await manager.show('modified');ui.document.querySelector('.question-title').click();
  await waitFor(()=>ui.document.querySelector('.history-record'));
  assert.match(ui.document.querySelector('.field-diff').textContent,/正確答案/);
  assert(ui.document.querySelector('.field-diff mark'));
  assert.equal(ui.document.querySelector('.history-record img'),null);
  assert.match(ui.document.querySelector('.history-record').textContent,/<img/);
+ const rollback=ui.document.querySelector('[data-restore-version="0"]');
+ assert.equal(rollback.textContent,'撤回這次修改');
+ rollback.click();await waitFor(()=>ui.$('editorStatus').textContent.includes('已同步到公開題庫'));
+ assert.equal(base.posts[0].body.action,'restoreVersion');assert.equal(base.posts[0].body.historyId,'history-1');
 });
 
 test('unit creation stays a draft, rejects duplicate chapter numbers, and saves the new unit',async()=>{

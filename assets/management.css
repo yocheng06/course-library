@@ -41,3 +41,78 @@ html[data-theme="dark"] .button.danger:not(.secondary):not(:disabled):hover { ba
 .management-tools[data-open-up] .management-tool-menu{top:auto;bottom:calc(100% + 8px)}
 .management-tool-menu .text-button{min-height:40px;padding:8px 10px}
 .management-tool-menu .muted{margin:4px 0;font-size:12px}
+
+.management-page .management-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 16px 20px;
+}
+#managementSearch,
+.management-nav-group:not(.management-organize) {
+  grid-column: 1 / -1;
+}
+.management-nav-group h2 {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.management-organize .button {
+  padding-block: 8px;
+}
+.management-toolbar .management-tools {
+  align-self: end;
+  margin: 0;
+}
+#librarySearch {
+  grid-template-columns: minmax(0, 1fr) minmax(120px, .35fr) minmax(150px, .5fr) auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+#librarySearch .library-query,
+#librarySearch > button {
+  grid-column: auto;
+}
+.library-more-filters {
+  grid-column: 1 / -1;
+}
+.library-more-filters summary {
+  width: fit-content;
+  padding-block: 4px;
+  color: var(--accent);
+  cursor: pointer;
+}
+.library-more-filters > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+.library-more-filters label {
+  flex: 0 1 180px;
+}
+.history-record > summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+.history-actions {
+  margin-top: 14px;
+}
+@media (max-width: 760px) {
+  #librarySearch {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #librarySearch .library-query,
+  #librarySearch > button {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 500px) {
+  .management-page .management-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .management-toolbar .management-tools {
+    justify-self: end;
+  }
+}

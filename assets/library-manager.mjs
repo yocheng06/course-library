@@ -16,26 +16,39 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
   const filterKey=`course-library.manager-filters.v1.${userId}`;
   let savedFilters={};try{savedFilters=JSON.parse(localStorage.getItem(filterKey)||'{}')||{};}catch{}
   let view='modified', activeKey='', current=null, history=null, controller=null, detailController=null, sequence=0, detailSequence=0, busy=false, actionPending=false, timer=null, dirty=false, counts=null, focusReturn=null, focusScroll=0, draftFailed=false;
-  const scrollPositions={all:0,modified:0,deleted:0};
+  const scrollPositions={all:0,pending:0,modified:0,deleted:0};
   let drafts={};
   const draftKey=`course-library.manager-drafts.v2.${userId}`;
   try { drafts=JSON.parse(localStorage.getItem(draftKey)||'{}'); if(!drafts||Array.isArray(drafts))drafts={}; } catch {}
-  panel.innerHTML=`<div class="library-heading"><div><h2 id="libraryTitle">最近修改</h2><p id="libraryHint" class="muted">包含已退回原始內容的修改紀錄。</p></div><button type="button" class="button secondary" id="refreshLibrary">重新同步</button></div>
-    <form id="librarySearch" class="library-filters"><label>科目<select id="libraryCourse" name="course">${Object.entries(COURSE_UNITS).map(([id,c])=>`<option value="${id}">${esc(c.name)}</option>`).join('')}</select></label><label>單元<select id="libraryUnit" name="unit"><option value="">全部單元</option></select></label><label>來源<select id="librarySource" name="source"><option value="all">所有來源</option><option value="builtin">內建題目</option><option value="community">同學投稿</option></select></label><label>排序<select id="librarySort" name="sort"><option value="updated">最近異動</option><option value="id">題目順序</option></select></label><label class="library-query">搜尋題目<input id="libraryQuery" name="q" type="search" maxlength="100" placeholder="題號、題幹、答案或解析"></label><button type="submit" class="button">搜尋</button></form>
-    <p id="libraryStatus" class="muted" role="status" aria-live="polite"></p><div id="libraryError" class="notice error" role="alert" hidden></div><div id="libraryBulk" class="library-bulk" hidden><span id="librarySelectedCount"></span><button id="libraryResolveSelected" type="button" class="button" hidden>確認保留並解除標記</button><button id="libraryRemoveSelected" type="button" class="button danger">移除選取題目</button><button id="libraryRestoreSelected" type="button" class="button secondary">還原選取題目</button><button id="libraryClearSelected" type="button" class="button secondary">取消選取</button></div><div class="library-selection-tools"><button type="button" id="librarySelectMatching" class="text-button">勾選全部符合條件的題目</button></div><div id="libraryOutcome" class="notice" hidden><span id="libraryOutcomeText" role="status"></span><button type="button" class="button secondary" id="libraryUndo" hidden>復原剛才移除的題目</button><button type="button" class="button secondary" id="libraryRetry" hidden>只重試未完成題目</button></div><div class="library-table-wrap"><table class="library-table"><caption class="sr-only">題目管理清單</caption><thead><tr><th scope="col"><label class="library-check"><input id="librarySelectVisible" type="checkbox" aria-label="勾選目前顯示的題目">勾選已載入題目</label></th><th scope="col">題目</th><th scope="col">單元／來源</th><th scope="col">狀態／最近異動</th><th scope="col">操作</th></tr></thead><tbody id="libraryRows"></tbody></table></div><button id="libraryMore" type="button" class="button secondary" hidden>載入更多題目</button>`;
+  panel.innerHTML=`<div class="library-heading"><div><h2 id="libraryTitle" tabindex="-1">最近修改</h2><p id="libraryHint" class="muted">點選題目查看修改前後，或撤回變更。</p></div><button type="button" class="button secondary" id="refreshLibrary">重新同步</button></div>
+    <form id="librarySearch" class="library-filters" role="search" aria-label="找題目">
+      <label class="library-query">搜尋題目<input id="libraryQuery" name="q" type="search" maxlength="100" placeholder="題號、題幹、答案或解析"></label>
+      <label>科目<select id="libraryCourse" name="course">${Object.entries(COURSE_UNITS).map(([id,c])=>`<option value="${id}">${esc(c.name)}</option>`).join('')}</select></label>
+      <label>單元<select id="libraryUnit" name="unit"><option value="">全部單元</option></select></label>
+      <button type="submit" class="button">搜尋</button>
+      <details id="libraryMoreFilters" class="library-more-filters">
+        <summary>更多篩選</summary>
+        <div><label>來源<select id="librarySource" name="source"><option value="all">所有來源</option><option value="builtin">內建題目</option><option value="community">同學投稿</option></select></label><label>排序<select id="librarySort" name="sort"><option value="updated">最近異動</option><option value="id">題目順序</option></select></label></div>
+      </details>
+    </form>
+    <p id="libraryStatus" class="muted" role="status" aria-live="polite"></p><div id="libraryError" class="notice error" role="alert" hidden></div><div id="libraryBulk" class="library-bulk" hidden><span id="librarySelectedCount"></span><button id="libraryResolveSelected" type="button" class="button" hidden>確認保留並解除待核對</button><button id="libraryRemoveSelected" type="button" class="button danger">移除選取題目</button><button id="libraryRestoreSelected" type="button" class="button secondary">還原選取題目</button><button id="libraryClearSelected" type="button" class="button secondary">取消選取</button></div><div class="library-selection-tools"><button type="button" id="librarySelectMatching" class="text-button">勾選全部符合條件的題目</button></div><div id="libraryOutcome" class="notice" hidden><span id="libraryOutcomeText" role="status"></span><button type="button" class="button secondary" id="libraryUndo" hidden>復原剛才移除的題目</button><button type="button" class="button secondary" id="libraryRetry" hidden>只重試未完成題目</button></div><div class="library-table-wrap"><table class="library-table"><caption class="sr-only">題目管理清單</caption><thead><tr><th scope="col"><label class="library-check"><input id="librarySelectVisible" type="checkbox" aria-label="勾選目前顯示的題目">勾選已載入題目</label></th><th scope="col">題目</th><th scope="col">單元／來源</th><th scope="col">狀態／最近異動</th><th scope="col">操作</th></tr></thead><tbody id="libraryRows"></tbody></table></div><button id="libraryMore" type="button" class="button secondary" hidden>載入更多題目</button>`;
+  const search = $('librarySearch');
+  $('managementSearch')?.append(search);
+  const managementControls = () => new Set([...panel.querySelectorAll('input,select,button'), ...search.querySelectorAll('input,select,button')]);
   for(const id of ['Course','Source','Sort','Query'])if(typeof savedFilters[id]==='string'&&(id==='Query'||[...$('library'+id).options].some(o=>o.value===savedFilters[id])))$('library'+id).value=savedFilters[id];
   if(savedFilters.Unit){$('libraryUnit').innerHTML+=`<option value="${esc(savedFilters.Unit)}">${esc(savedFilters.Unit)}</option>`;$('libraryUnit').value=savedFilters.Unit;}
+  if ($('librarySource').value !== 'all' || $('librarySort').value !== 'updated') $('libraryMoreFilters').open = true;
   function saveFilters(){try{localStorage.setItem(filterKey,JSON.stringify(Object.fromEntries(['Course','Unit','Source','Sort','Query'].map(id=>[id,$('library'+id).value]))));}catch{}}
   function query() { const p=new URLSearchParams(); for(const id of ['Course','Unit','Source','Sort','Query'])p.set({Course:'course',Unit:'unit',Source:'source',Sort:'sort',Query:'q'}[id],$('library'+id).value.trim());p.set('state',view);return p; }
   function say(text,error=false) { $('libraryStatus').textContent=text; $('libraryError').hidden=!error;$('libraryError').textContent=error?text:''; }
   function badge(row) {return row.deleted?'已移除':row.pendingReview?'待核對':row.currentOriginal?(row.hasHistory?'原始內容 · 曾修改':'原始內容'):row.hasHistory?'已修改':'公開中';}
-  function rowMarkup(row) { const key=esc(keyOf(row)); return `<tr data-row="${key}"><td><input type="checkbox" data-select="${key}" aria-label="選取題目 ${esc(row.id)}" ${selected.has(keyOf(row))?'checked':''} ${busy?'disabled':''}></td><td><button type="button" class="question-title" data-open="${key}">${esc(row.stem)}</button><span class="question-id">${esc(row.id)} · ${esc(row.type)}</span></td><td>${esc(row.unitLabel||unitLabel(row.course,row.unit,row.unitTitle))}<span class="source-badge">${row.source==='builtin'?'內建題目':'同學投稿'}</span></td><td><span class="state-badge ${row.deleted?'removed':''}">${esc(badge(row))}</span><span class="question-id">${esc(dateText(row.updatedAt))} · 版本 ${row.revision}</span></td><td><div class="row-actions"><button type="button" class="text-button" data-open="${key}">${row.deleted?'查看':row.pendingReview?'核對處理':'編輯'}</button><button type="button" class="text-button" data-history="${key}">${row.hasHistory?'修改歷史':'版本紀錄'}</button>${row.deleted?`<button type="button" class="text-button" data-recover="${key}">還原題目</button>`:''}</div></td></tr>`; }
+  function rowMarkup(row) { const key=esc(keyOf(row)); const showChanges = view === 'modified' && row.hasHistory; return `<tr data-row="${key}"><td><input type="checkbox" data-select="${key}" aria-label="選取題目 ${esc(row.id)}" ${selected.has(keyOf(row))?'checked':''} ${busy?'disabled':''}></td><td><button type="button" class="question-title" ${showChanges ? 'data-history' : 'data-open'}="${key}">${esc(row.stem)}</button><span class="question-id">${esc(row.id)} · ${esc(row.type)}</span></td><td>${esc(row.unitLabel||unitLabel(row.course,row.unit,row.unitTitle))}<span class="source-badge">${row.source==='builtin'?'內建題目':'同學投稿'}</span></td><td><span class="state-badge ${row.deleted?'removed':''}">${esc(badge(row))}</span><span class="question-id">${esc(dateText(row.updatedAt))} · 版本 ${row.revision}</span></td><td><div class="row-actions"><button type="button" class="text-button" data-open="${key}">${row.deleted?'查看':row.pendingReview?'核對處理':'編輯'}</button><button type="button" class="text-button" data-history="${key}">${showChanges?'查看變更':row.hasHistory?'修改歷史':'版本紀錄'}</button>${row.deleted?`<button type="button" class="text-button" data-recover="${key}">還原題目</button>`:''}</div></td></tr>`; }
   function selectionStatus(){
     const boxes=[...$('libraryRows').querySelectorAll('[data-select]')];boxes.forEach(box=>box.disabled=busy||selectingAll);
     const removable=[...selected.values()].filter(row=>!row.deleted).length,restorable=selected.size-removable,resolvable=[...selected.values()].filter(row=>row.source==='community'&&row.pendingReview&&!row.deleted).length;
-    $('libraryBulk').hidden=!selected.size;$('librarySelectedCount').textContent=`已選 ${selected.size} 題（${resolvable?'可解除待核對 '+resolvable+' 題、':''}可移除 ${removable} 題、可還原 ${restorable} 題；勾選範圍以已選題目為準）`;
+    $('libraryBulk').hidden=!selected.size;$('librarySelectedCount').textContent=`已選 ${selected.size} 題`;
     $('librarySelectVisible').disabled=!boxes.length||busy;$('librarySelectVisible').checked=boxes.length>0&&boxes.every(box=>box.checked);$('librarySelectVisible').indeterminate=boxes.some(box=>box.checked)&&!$('librarySelectVisible').checked;
-    $('libraryResolveSelected').hidden=!resolvable;$('libraryResolveSelected').disabled=busy||selectingAll||!resolvable;$('libraryResolveSelected').textContent=`確認保留並解除標記（${resolvable}）`;
+    $('libraryResolveSelected').hidden=!resolvable;$('libraryResolveSelected').disabled=busy||selectingAll||!resolvable;$('libraryResolveSelected').textContent=`確認保留並解除待核對（${resolvable} 題）`;
     $('libraryRemoveSelected').hidden=!removable;$('libraryRestoreSelected').hidden=!restorable;
     $('librarySelectMatching').disabled=busy||selectingAll||!cache.get(activeKey)?.total;
     $('libraryRemoveSelected').textContent=`移除選取題目（${removable}）`;$('libraryRemoveSelected').disabled=busy||!removable;
@@ -103,8 +116,26 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
   }
   function diffMarkup(record){const names={unit:'所屬單元',stem:'題目',translation:'題幹翻譯',type:'題型',category:'分類',options:'選項',optionTranslations:'選項翻譯',answer:'正確答案',explanation:'解析',note:'備註',images:'題圖'};const keys=Object.keys(names).filter(k=>JSON.stringify(record.before[k]??'')!==JSON.stringify(record.after[k]??''));const show=value=>Array.isArray(value)?value.join('\n'):String(value||'（空白）');return keys.length?keys.map(k=>`<section class="field-diff"><h4>${names[k]}</h4><div class="diff-columns"><div><strong>修改前</strong><p>${highlightChange(show(record.before[k]),show(record.after[k]))}</p></div><div><strong>修改後</strong><p>${highlightChange(show(record.after[k]),show(record.before[k]))}</p></div></div></section>`).join(''):'<p class="muted">題目內容相同；這次紀錄保留了狀態或版本變更。</p>';}
   async function showHistory(){if(history){renderHistory();return;}const request=detailSequence;$('historyPanel').innerHTML='<p role="status">正在載入修改歷史…</p>';try{const data=await api(historyPath(current),{signal:detailController.signal});if(request!==detailSequence)return;history=normalizedHistory(data.items);renderHistory();}catch(error){if(error.name!=='AbortError')$('historyPanel').innerHTML=`<p class="error">${esc(error.message)}</p><button type="button" class="button secondary" data-retry-history>重新載入歷史</button>`;}}
-  function renderHistory(){$('historyPanel').innerHTML=history.length?`<p class="muted">先顯示異動欄位。還原會建立新版本，保留目前內容與全部歷史。</p>`+history.map((r,i)=>`<article class="history-record"><div class="section-heading"><h3>版本 ${r.targetRevision} → ${r.targetRevision+1}</h3><button type="button" class="button secondary" data-restore-version="${i}">還原修改前的版本 ${r.targetRevision}</button></div><p class="muted">${esc(dateText(r.date))} · ${/匿名/.test(r.actor||'')?'匿名使用者':'站主'}</p><p>${esc(r.note||'未填寫修改說明')}</p>${diffMarkup(r)}<details><summary>查看完整題目內容</summary><h4>修改前</h4><pre>${esc(JSON.stringify(r.before,null,2))}</pre><h4>修改後</h4><pre>${esc(JSON.stringify(r.after,null,2))}</pre></details></article>`).join(''):'<p class="empty-state">這道題目尚無修改紀錄。</p>';}
-  async function selectTab(tab){for(const name of ['edit','history']){const selected=name===tab;$(name+'Tab').setAttribute('aria-selected',String(selected));$(name+'Tab').tabIndex=selected?0:-1;$(name+'Panel').hidden=!selected;}$('saveQuestion').hidden=tab!=='edit'||current.deleted;if(tab==='edit')renderEdit();else await showHistory();}
+  function renderHistory() {
+    const panel = $('historyPanel');
+    if (!history.length) {
+      panel.innerHTML = '<p class="empty-state">這道題目尚無修改紀錄。</p>';
+      return;
+    }
+    panel.innerHTML = history.map((record, index) => {
+      const version = `版本 ${record.targetRevision} → ${record.targetRevision + 1}`;
+      const action = index === 0 ? '撤回這次修改' : `還原到版本 ${record.targetRevision}`;
+      const content = `<p class="muted">${esc(dateText(record.date))} · ${/匿名/.test(record.actor || '') ? '匿名使用者' : '站主'}</p>
+        ${record.note ? `<p>${esc(record.note)}</p>` : ''}
+        ${diffMarkup(record)}
+        <details><summary>查看完整題目內容</summary><h4>修改前</h4><pre>${esc(JSON.stringify(record.before, null, 2))}</pre><h4>修改後</h4><pre>${esc(JSON.stringify(record.after, null, 2))}</pre></details>
+        <div class="history-actions"><button type="button" class="button secondary" data-restore-version="${index}">${action}</button></div>`;
+      return index === 0
+        ? `<article class="history-record"><h3>${version}</h3>${content}</article>`
+        : `<details class="history-record"><summary>${version}</summary>${content}</details>`;
+    }).join('');
+  }
+  async function selectTab(tab){for(const name of ['edit','history']){const selected=name===tab;$(name+'Tab').setAttribute('aria-selected',String(selected));$(name+'Tab').tabIndex=selected?0:-1;$(name+'Panel').hidden=!selected;}const previous=dialog.querySelector('[data-action=previous]');if(previous)previous.hidden=tab==='history';$('saveQuestion').hidden=tab!=='edit'||current.deleted;if(tab==='edit')renderEdit();else await showHistory();}
   async function open(row,tab='edit',recover=false,remove=false){persist();detailController?.abort();detailController=new AbortController();const request=++detailSequence;focusReturn=document.activeElement;focusScroll=window.scrollY;current=null;history=null;dialog.innerHTML='<div class="editor-header"><h2 id="questionDialogTitle" tabindex="-1">正在載入題目…</h2><button type="button" class="button secondary" data-close>返回清單</button></div>';if(!dialog.open)dialog.showModal();
     try{const item=await fetchItem(row);if(request!==detailSequence)return;current=item;shell(item,tab);await selectTab(tab);$('questionDialogTitle').focus({preventScroll:true});if(recover)await action('recover');if(remove)await action('remove');}catch(error){if(error.name!=='AbortError')dialog.innerHTML=`<div class="editor-header"><h2 id="questionDialogTitle">載入未完成</h2><button type="button" class="button secondary" data-close>返回清單</button></div><p class="error">${esc(error.message)}</p>`;}}
   function clearDraft(){delete drafts[keyOf(current)];try{localStorage.setItem(draftKey,JSON.stringify(drafts));}catch{}dirty=false;}
@@ -136,7 +167,7 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
         }else if(kind==='original'){target=current.original;body={...body,action:current.source==='builtin'?'reset':'resetOriginal',note:'站主退回原始版'};}
         else if(kind==='remove')body={...body,action:current.source==='builtin'?'delete':'hide',note:'站主移除題目（可還原）'};
         else if(kind==='recover')body={...body,action:current.source==='builtin'?'rollback':'restore',note:'站主還原移除的題目'};
-        const label={resolve:'確認保留此投稿版本並解除待核對標記',merge:'保留既有題目並移除此投稿版本',version:'還原選定版本',previous:'退回上一版',original:'退回原始版',remove:'移除此題',recover:'還原此題'}[kind];
+        const label={resolve:'確認保留此投稿版本並解除待核對標記',merge:'保留既有題目並移除此投稿版本',version:historyIndex===0?'撤回這次修改':'還原選定版本',previous:'退回上一版',original:'退回原始版',remove:'移除此題',recover:'還原此題'}[kind];
         if(!confirm(`確定${label}？\n\n${current.question.stem}\n目前答案：${current.question.answer}${target?'\n還原後答案：'+target.answer:''}\n\n目前內容與歷史都會保留。`))return;
       }
       busy=true;dialog.setAttribute('aria-busy','true');for(const n of dialog.querySelectorAll('button'))n.disabled=true;dialogStatus('正在儲存，請稍候…');
@@ -148,7 +179,7 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
       try{current=await fetchItem(newRow,true);}catch(error){detailRefreshError=error;current=newRow;details.set(keyOf(current),current);}
       history=null;updateRow(current,old);
       const rowNode=[...$('libraryRows').children].find(n=>n.dataset.row===keyOf(current));
-      focusReturn=rowNode?.querySelector('[data-open]')||$('libraryTitle');
+      focusReturn=rowNode?.querySelector('.question-title')||$('libraryTitle');
       shell(current,active);await selectTab(active);
       dialogStatus(detailRefreshError?'儲存已完成並已記錄版本；題目詳細內容暫時無法重新整理，稍後重新開啟即可確認。':'已同步到公開題庫。此版本也已保留在修改歷史中。',Boolean(detailRefreshError));
     }catch(error){
@@ -166,7 +197,7 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
     if(!confirm(`確定${verb}選取的 ${rows.length} 題？\n\n${rows.slice(0,3).map(row=>row.id+'：'+row.stem.slice(0,70)).join('\n')}${rows.length>3?'\n…另有 '+(rows.length-3)+' 題':''}\n\n${resolving?'這會確認保留目前版本，清除疑似重複或版本差異及尚未確認提示；題幹、選項與答案完全不變。':restoring?'還原後會重新公開；若與既有題目重複，會保留原狀並列出原因。':'移除後會停止公開，可到「已移除」還原。'}內容與修改歷史會保留。${untouched?'\n另有 '+untouched+' 題不適用此動作，將維持原狀。':''}`))return;
     busy=true;let done=0;const failures=[],removed=[];lastBulkAction=resolving?'resolve':restoring;
     $('libraryRetry').hidden=true;$('libraryUndo').disabled=true;
-    panel.querySelectorAll('input,select,button').forEach(node=>node.disabled=true);
+    managementControls().forEach(node=>node.disabled=true);
     try{
       for(const [i,row] of rows.entries()){
         say(`正在${verb} ${i+1}／${rows.length} 題，已完成 ${done} 題…`);
@@ -181,7 +212,7 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
         }catch(error){failures.push(`${row.id}：${error.message}`);}
       }
     }finally{
-      panel.querySelectorAll('input,select,button').forEach(node=>node.disabled=false);cache.clear();
+      managementControls().forEach(node=>node.disabled=false);cache.clear();
       await load({refresh:true});busy=false;selectionStatus();
       say(`已${verb} ${done} 題。${resolving?'已確認保留，題目、選項與答案維持原樣。':restoring?'還原後已重新公開。':'可到「已移除」還原。'}${failures.length?' 尚有 '+failures.length+' 題未完成，仍保留勾選。\n'+failures.join('\n'):''}`,failures.length>0);
       if(removed.length)undoRows=removed;
@@ -237,5 +268,5 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
   dialog.addEventListener('keydown',event=>{const tab=event.target.closest('[role=tab]');if(tab&&['ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();const next=tab.dataset.tab==='edit'?'history':'edit';selectTab(next);$(next+'Tab').focus();}});
   dialog.addEventListener('cancel',event=>{if(busy||actionPending)event.preventDefault();});dialog.addEventListener('close',()=>{persist();detailController?.abort();detailSequence++;if(focusReturn?.isConnected)focusReturn.focus({preventScroll:true});else $('libraryTitle')?.focus({preventScroll:true});window.scrollTo({top:focusScroll,behavior:'instant'});});
   const beforeLeave=event=>{persist();if(draftFailed){event.preventDefault();event.returnValue='';}};window.addEventListener('beforeunload',beforeLeave);window.addEventListener('pagehide',persist);
-  return {openItem(row,options={}){return open(row,'edit',false,options.remove===true);},async show(next='modified',options={}){persist();if(next!==view)scrollPositions[view]=window.scrollY;view=next;panel.hidden=false;$('libraryTitle').textContent=labels[next];$('libraryHint').textContent=next==='pending'?'勾選題目後，可一次「確認保留並解除標記」，題目、選項與答案不變。需要逐題比對時，點「核對處理」；修改紀錄會保留。':next==='modified'?'包含已退回原始內容的修改紀錄。':next==='deleted'?'公開刪除與站主下架的題目都保留在這裡，可以還原。':'選一題編輯或查看修改歷史；來源只作為篩選條件。';await load({refresh:options.refresh===true});if(next!==view)return;requestAnimationFrame(()=>window.scrollTo({top:scrollPositions[next],behavior:'instant'}));},refresh(){cache.clear();return load({refresh:true});},exportDrafts(){persist();downloadJSON({savedAt:new Date().toISOString(),drafts},'題目編輯草稿.json');},clear(){controller?.abort();detailController?.abort();clearTimeout(timer);sequence++;detailSequence++;cache.clear();details.clear();drafts={};current=null;dirty=false;dialog.close();panel.replaceChildren();window.removeEventListener('beforeunload',beforeLeave);}};
+  return {openItem(row,options={}){return open(row,'edit',false,options.remove===true);},async show(next='modified',options={}){persist();if(next!==view)scrollPositions[view]=window.scrollY;view=next;panel.hidden=false;$('libraryTitle').textContent=labels[next];$('libraryHint').textContent=next==='pending'?'勾選要保留的題目，可一次解除待核對。點選題目可逐題比較。':next==='modified'?'點選題目查看修改前後，或撤回變更。':next==='deleted'?'公開刪除與站主下架的題目都保留在這裡，可以還原。':'選一題編輯或查看修改歷史；來源只作為篩選條件。';await load({refresh:options.refresh===true});if(next!==view)return;requestAnimationFrame(()=>window.scrollTo({top:scrollPositions[next],behavior:'instant'}));},refresh(){cache.clear();return load({refresh:true});},exportDrafts(){persist();downloadJSON({savedAt:new Date().toISOString(),drafts},'題目編輯草稿.json');},clear(){controller?.abort();detailController?.abort();clearTimeout(timer);sequence++;detailSequence++;cache.clear();details.clear();drafts={};current=null;dirty=false;dialog.close();search.remove();panel.replaceChildren();window.removeEventListener('beforeunload',beforeLeave);}};
 }
