@@ -20,7 +20,8 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
   let drafts={};
   const draftKey=`course-library.manager-drafts.v2.${userId}`;
   try { drafts=JSON.parse(localStorage.getItem(draftKey)||'{}'); if(!drafts||Array.isArray(drafts))drafts={}; } catch {}
-  panel.innerHTML=`<div class="library-heading"><div><h2 id="libraryTitle" tabindex="-1">最近修改</h2><p id="libraryHint" class="muted">點選題目查看修改前後，或撤回變更。</p></div><button type="button" class="button secondary" id="refreshLibrary">重新同步</button></div>
+  panel.innerHTML=`<h2 id="libraryTitle" tabindex="-1" class="sr-only">最近修改</h2>
+    <p id="libraryHint" class="muted library-hint"></p>
     <form id="librarySearch" class="library-filters" role="search" aria-label="找題目">
       <label class="library-query">搜尋題目<input id="libraryQuery" name="q" type="search" maxlength="100" placeholder="題號、題幹、答案或解析"></label>
       <label>科目<select id="libraryCourse" name="course">${Object.entries(COURSE_UNITS).map(([id,c])=>`<option value="${id}">${esc(c.name)}</option>`).join('')}</select></label>
@@ -31,7 +32,13 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
         <div><label>來源<select id="librarySource" name="source"><option value="all">所有來源</option><option value="builtin">內建題目</option><option value="community">同學投稿</option></select></label><label>排序<select id="librarySort" name="sort"><option value="updated">最近異動</option><option value="id">題目順序</option></select></label></div>
       </details>
     </form>
-    <p id="libraryStatus" class="muted" role="status" aria-live="polite"></p><div id="libraryError" class="notice error" role="alert" hidden></div><div id="libraryBulk" class="library-bulk" hidden><span id="librarySelectedCount"></span><button id="libraryResolveSelected" type="button" class="button" hidden>確認保留並解除待核對</button><button id="libraryRemoveSelected" type="button" class="button danger">移除選取題目</button><button id="libraryRestoreSelected" type="button" class="button secondary">還原選取題目</button><button id="libraryClearSelected" type="button" class="button secondary">取消選取</button></div><div class="library-selection-tools"><button type="button" id="librarySelectMatching" class="text-button">勾選全部符合條件的題目</button></div><div id="libraryOutcome" class="notice" hidden><span id="libraryOutcomeText" role="status"></span><button type="button" class="button secondary" id="libraryUndo" hidden>復原剛才移除的題目</button><button type="button" class="button secondary" id="libraryRetry" hidden>只重試未完成題目</button></div><div class="library-table-wrap"><table class="library-table"><caption class="sr-only">題目管理清單</caption><thead><tr><th scope="col"><label class="library-check"><input id="librarySelectVisible" type="checkbox" aria-label="勾選目前顯示的題目">勾選已載入題目</label></th><th scope="col">題目</th><th scope="col">單元／來源</th><th scope="col">狀態／最近異動</th><th scope="col">操作</th></tr></thead><tbody id="libraryRows"></tbody></table></div><button id="libraryMore" type="button" class="button secondary" hidden>載入更多題目</button>`;
+    <div class="library-list-toolbar">
+      <p id="libraryStatus" class="muted" role="status" aria-live="polite"></p>
+      <div class="library-list-actions">
+        <button type="button" class="text-button" id="refreshLibrary">重新同步</button>
+        <button type="button" id="librarySelectMatching" class="text-button" title="包含尚未載入清單的題目">勾選全部結果</button>
+      </div>
+    </div><div id="libraryError" class="notice error" role="alert" hidden></div><div id="libraryBulk" class="library-bulk" hidden><span id="librarySelectedCount"></span><button id="libraryResolveSelected" type="button" class="button" hidden>確認保留並解除待核對</button><button id="libraryRemoveSelected" type="button" class="button danger">移除選取題目</button><button id="libraryRestoreSelected" type="button" class="button secondary">還原選取題目</button><button id="libraryClearSelected" type="button" class="button secondary">取消選取</button></div><div id="libraryOutcome" class="notice" hidden><span id="libraryOutcomeText" role="status"></span><button type="button" class="button secondary" id="libraryUndo" hidden>復原剛才移除的題目</button><button type="button" class="button secondary" id="libraryRetry" hidden>只重試未完成題目</button></div><div class="library-table-wrap"><table class="library-table"><caption class="sr-only">題目管理清單</caption><thead><tr><th scope="col"><label class="library-check"><input id="librarySelectVisible" type="checkbox" aria-label="勾選目前顯示的題目"><span>勾選已顯示</span></label></th><th scope="col">題目</th><th scope="col">狀態</th><th scope="col">操作</th></tr></thead><tbody id="libraryRows"></tbody></table></div><button id="libraryMore" type="button" class="button secondary" hidden>載入更多題目</button>`;
   const search = $('librarySearch');
   $('managementSearch')?.append(search);
   const managementControls = () => new Set([...panel.querySelectorAll('input,select,button'), ...search.querySelectorAll('input,select,button')]);
@@ -42,7 +49,25 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
   function query() { const p=new URLSearchParams(); for(const id of ['Course','Unit','Source','Sort','Query'])p.set({Course:'course',Unit:'unit',Source:'source',Sort:'sort',Query:'q'}[id],$('library'+id).value.trim());p.set('state',view);return p; }
   function say(text,error=false) { $('libraryStatus').textContent=text; $('libraryError').hidden=!error;$('libraryError').textContent=error?text:''; }
   function badge(row) {return row.deleted?'已移除':row.pendingReview?'待核對':row.currentOriginal?(row.hasHistory?'原始內容 · 曾修改':'原始內容'):row.hasHistory?'已修改':'公開中';}
-  function rowMarkup(row) { const key=esc(keyOf(row)); const showChanges = view === 'modified' && row.hasHistory; return `<tr data-row="${key}"><td><input type="checkbox" data-select="${key}" aria-label="選取題目 ${esc(row.id)}" ${selected.has(keyOf(row))?'checked':''} ${busy?'disabled':''}></td><td><button type="button" class="question-title" ${showChanges ? 'data-history' : 'data-open'}="${key}">${esc(row.stem)}</button><span class="question-id">${esc(row.id)} · ${esc(row.type)}</span></td><td>${esc(row.unitLabel||unitLabel(row.course,row.unit,row.unitTitle))}<span class="source-badge">${row.source==='builtin'?'內建題目':'同學投稿'}</span></td><td><span class="state-badge ${row.deleted?'removed':''}">${esc(badge(row))}</span><span class="question-id">${esc(dateText(row.updatedAt))} · 版本 ${row.revision}</span></td><td><div class="row-actions"><button type="button" class="text-button" data-open="${key}">${row.deleted?'查看':row.pendingReview?'核對處理':'編輯'}</button><button type="button" class="text-button" data-history="${key}">${showChanges?'查看變更':row.hasHistory?'修改歷史':'版本紀錄'}</button>${row.deleted?`<button type="button" class="text-button" data-recover="${key}">還原題目</button>`:''}</div></td></tr>`; }
+  function rowMarkup(row) {
+    const rowKey = keyOf(row);
+    const key = esc(rowKey);
+    const openMode = view === 'modified' && row.hasHistory ? 'data-history' : 'data-open';
+    const action = row.deleted ? '還原' : openMode === 'data-history' ? '查看變更' : row.pendingReview ? '核對' : '編輯';
+    const unit = row.unitLabel || unitLabel(row.course, row.unit, row.unitTitle);
+    const origin = row.source === 'builtin' ? '內建' : '投稿';
+    return `<tr data-row="${key}">
+      <td><input type="checkbox" data-select="${key}" aria-label="選取題目 ${esc(row.id)}" ${selected.has(rowKey) ? 'checked' : ''} ${busy ? 'disabled' : ''}></td>
+      <td>
+        <button type="button" class="question-title" ${openMode}="${key}">${esc(row.stem)}</button>
+        <span class="question-id">${esc(unit)} · ${origin} · ${esc(row.type)} · ${esc(row.id)}</span>
+      </td>
+      <td><span class="state-badge ${row.deleted ? 'removed' : row.pendingReview ? 'pending' : ''}">${esc(badge(row))}</span>
+        ${row.updatedAt ? `<span class="question-id">${esc(dateText(row.updatedAt))}</span>` : ''}
+      </td>
+      <td><button type="button" class="button secondary library-row-action" ${row.deleted ? 'data-recover' : openMode}="${key}">${action}</button></td>
+    </tr>`;
+  }
   function selectionStatus(){
     const boxes=[...$('libraryRows').querySelectorAll('[data-select]')];boxes.forEach(box=>box.disabled=busy||selectingAll);
     const removable=[...selected.values()].filter(row=>!row.deleted).length,restorable=selected.size-removable,resolvable=[...selected.values()].filter(row=>row.source==='community'&&row.pendingReview&&!row.deleted).length;
@@ -54,7 +79,7 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
     $('libraryRemoveSelected').textContent=`移除選取題目（${removable}）`;$('libraryRemoveSelected').disabled=busy||!removable;
     $('libraryRestoreSelected').textContent=`還原選取題目（${restorable}）`;$('libraryRestoreSelected').disabled=busy||!restorable;$('libraryClearSelected').disabled=busy;
   }
-  function render(record) { $('libraryRows').innerHTML=record.items.length?record.items.map(rowMarkup).join(''):'<tr><td colspan="5" class="empty-state">目前沒有符合條件的題目。試試其他單元或搜尋文字。</td></tr>';$('libraryMore').hidden=!record.nextCursor;say(`符合 ${record.total} 題，已顯示 ${record.items.length} 題。`);selectionStatus(); }
+  function render(record) { $('libraryRows').innerHTML=record.items.length?record.items.map(rowMarkup).join(''):'<tr><td colspan="4" class="empty-state">目前沒有符合條件的題目。試試其他單元或搜尋文字。</td></tr>';$('libraryMore').hidden=!record.nextCursor;say(`符合 ${record.total} 題，已顯示 ${record.items.length} 題。`);selectionStatus(); }
   function setCounts(next) {counts=next||counts;if(!counts)return;for(const name of Object.keys(labels)){const node=document.querySelector(`[data-count="${name}"]`);if(node)node.textContent=counts[name]??0;} }
   function units(list) {const selected=$('libraryUnit').value||savedFilters.Unit||'';savedFilters.Unit='';$('libraryUnit').innerHTML='<option value="">全部單元</option>'+list.map(u=>`<option value="${esc(u.id)}">${esc(u.label||unitLabel($('libraryCourse').value,u.id,u.title))}</option>`).join('');if(list.some(u=>u.id===selected))$('libraryUnit').value=selected;}
   async function load({refresh=false,append=false}={}) {
@@ -68,7 +93,7 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
     activeKey=key;panel.setAttribute('aria-busy','true');$('refreshLibrary').disabled=true;$('libraryMore').disabled=true;say(cached?'正在同步；目前清單仍可查看…':'正在載入題目…');
     try {const data=await api('/api/manage/library?'+params,{signal:controller.signal});if(request!==sequence)return;
       const record={...data,items:append?[...(cached?.items||[]),...data.items]:data.items,at:Date.now()};cache.set(key,record);if(cache.size>16)cache.delete(cache.keys().next().value);units(data.units||[]);setCounts(data.counts);render(record);
-    }catch(error){if(error.name!=='AbortError'&&request===sequence){if(!cached)$('libraryRows').innerHTML='<tr><td colspan="5" class="empty-state">載入未完成，請按「重新同步」。</td></tr>';say(error.message+' 已載入的內容仍保留。',true);}}
+    }catch(error){if(error.name!=='AbortError'&&request===sequence){if(!cached)$('libraryRows').innerHTML='<tr><td colspan="4" class="empty-state">載入未完成，請按「重新同步」。</td></tr>';say(error.message+' 已載入的內容仍保留。',true);}}
     finally{if(request===sequence){panel.removeAttribute('aria-busy');$('refreshLibrary').disabled=false;$('libraryMore').disabled=false;}}
   }
   function summaryFrom(item){return {...item,pendingReview:item.question?.submissionReview?.status==='pending',key:keyOf(item),stem:item.question.stem,answer:item.question.answer,category:item.question.category,type:item.question.type,deleted:!!item.deleted||item.published===false,hasHistory:item.hasHistory??item.revision>0};}
@@ -268,5 +293,5 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
   dialog.addEventListener('keydown',event=>{const tab=event.target.closest('[role=tab]');if(tab&&['ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();const next=tab.dataset.tab==='edit'?'history':'edit';selectTab(next);$(next+'Tab').focus();}});
   dialog.addEventListener('cancel',event=>{if(busy||actionPending)event.preventDefault();});dialog.addEventListener('close',()=>{persist();detailController?.abort();detailSequence++;if(focusReturn?.isConnected)focusReturn.focus({preventScroll:true});else $('libraryTitle')?.focus({preventScroll:true});window.scrollTo({top:focusScroll,behavior:'instant'});});
   const beforeLeave=event=>{persist();if(draftFailed){event.preventDefault();event.returnValue='';}};window.addEventListener('beforeunload',beforeLeave);window.addEventListener('pagehide',persist);
-  return {openItem(row,options={}){return open(row,'edit',false,options.remove===true);},async show(next='modified',options={}){persist();if(next!==view)scrollPositions[view]=window.scrollY;view=next;panel.hidden=false;$('libraryTitle').textContent=labels[next];$('libraryHint').textContent=next==='pending'?'勾選要保留的題目，可一次解除待核對。點選題目可逐題比較。':next==='modified'?'點選題目查看修改前後，或撤回變更。':next==='deleted'?'公開刪除與站主下架的題目都保留在這裡，可以還原。':'選一題編輯或查看修改歷史；來源只作為篩選條件。';await load({refresh:options.refresh===true});if(next!==view)return;requestAnimationFrame(()=>window.scrollTo({top:scrollPositions[next],behavior:'instant'}));},refresh(){cache.clear();return load({refresh:true});},exportDrafts(){persist();downloadJSON({savedAt:new Date().toISOString(),drafts},'題目編輯草稿.json');},clear(){controller?.abort();detailController?.abort();clearTimeout(timer);sequence++;detailSequence++;cache.clear();details.clear();drafts={};current=null;dirty=false;dialog.close();search.remove();panel.replaceChildren();window.removeEventListener('beforeunload',beforeLeave);}};
+  return {openItem(row,options={}){return open(row,'edit',false,options.remove===true);},async show(next='modified',options={}){persist();if(next!==view)scrollPositions[view]=window.scrollY;view=next;panel.hidden=false;$('libraryTitle').textContent=labels[next];$('libraryHint').textContent=next==='pending'?'點「核對」比較版本，或勾選多題一次確認保留。':next==='deleted'?'點「還原」可重新公開題目。':'';await load({refresh:options.refresh===true});if(next!==view)return;requestAnimationFrame(()=>window.scrollTo({top:scrollPositions[next],behavior:'instant'}));},refresh(){cache.clear();return load({refresh:true});},exportDrafts(){persist();downloadJSON({savedAt:new Date().toISOString(),drafts},'題目編輯草稿.json');},clear(){controller?.abort();detailController?.abort();clearTimeout(timer);sequence++;detailSequence++;cache.clear();details.clear();drafts={};current=null;dirty=false;dialog.close();search.remove();panel.replaceChildren();window.removeEventListener('beforeunload',beforeLeave);}};
 }

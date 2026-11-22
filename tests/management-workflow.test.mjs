@@ -96,7 +96,10 @@ test('history highlights changed text and keeps imported markup inert',async()=>
   if(url.pathname.endsWith('/history'))return new Response(JSON.stringify({items:[{id:'history-1',revision:0,unit:'basics',created_at:Date.now(),data:{stem:row.stem,type:'填空題',category:'測試',answer:'舊答案<img src=x onerror=bad()>',options:[],images:[]}}]}));
   return fetchBase(raw,opts);
  };
- const manager=setupLibraryManager();await manager.show('modified');ui.document.querySelector('.question-title').click();
+ const manager=setupLibraryManager();await manager.show('modified');
+ const actions=ui.document.querySelectorAll('#libraryRows td:last-child button');
+ assert.deepEqual([...actions].map(button=>button.textContent),['查看變更']);
+ ui.document.querySelector('.question-title').click();
  await waitFor(()=>ui.document.querySelector('.history-record'));
  assert.match(ui.document.querySelector('.field-diff').textContent,/正確答案/);
  assert(ui.document.querySelector('.field-diff mark'));

@@ -45,24 +45,56 @@ html[data-theme="dark"] .button.danger:not(.secondary):not(:disabled):hover { ba
 .management-page .management-toolbar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 16px 20px;
+  align-items: start;
+  gap: 12px 24px;
 }
-#managementSearch,
-.management-nav-group:not(.management-organize) {
+#managementNav {
   grid-column: 1 / -1;
+  gap: 4px;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
 }
-.management-nav-group h2 {
-  margin: 0 0 8px;
-  color: var(--muted);
-  font-size: 14px;
+#managementNav[hidden],
+#returnToQuestions[hidden] {
+  display: none;
 }
-.management-organize .button {
-  padding-block: 8px;
+#returnToQuestions {
+  justify-self: start;
+}
+#managementNav .question-view {
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+#managementNav .question-view:hover {
+  background: var(--soft);
+}
+#managementNav .question-view[aria-current=page] {
+  background: var(--accent);
+  color: #fff;
 }
 .management-toolbar .management-tools {
-  align-self: end;
+  justify-self: end;
+  align-self: start;
   margin: 0;
+}
+.management-tool-group {
+  display: grid;
+  gap: 2px;
+}
+.management-tool-group + .management-tool-group {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+.management-tool-group h2 {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 4px 10px;
 }
 #librarySearch {
   grid-template-columns: minmax(0, 1fr) minmax(120px, .35fr) minmax(150px, .5fr) auto;
@@ -101,18 +133,108 @@ html[data-theme="dark"] .button.danger:not(.secondary):not(:disabled):hover { ba
 }
 @media (max-width: 760px) {
   #librarySearch {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
   }
-  #librarySearch .library-query,
+  #librarySearch .library-query {
+    grid-column: 1 / 3;
+  }
   #librarySearch > button {
-    grid-column: 1 / -1;
+    grid-row: 1;
+    grid-column: 3;
+  }
+  #librarySearch label:has(#libraryUnit) {
+    grid-column: 2 / -1;
   }
 }
-@media (max-width: 500px) {
-  .management-page .management-toolbar {
-    grid-template-columns: minmax(0, 1fr);
+.library-table .library-check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0;
+}
+.library-table .library-check input {
+  flex: 0 0 22px;
+}
+.library-hint:empty {
+  display: none;
+}
+.library-hint {
+  margin: 0 0 8px;
+}
+.library-list-toolbar,
+.library-list-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.library-list-toolbar {
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.library-list-toolbar p {
+  margin: 0;
+}
+.library-list-actions button {
+  min-height: 40px;
+}
+.library-row-action.button {
+  font-size: 14px;
+  padding: 8px 12px;
+}
+.question-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.state-badge.pending {
+  background: #fff1cb;
+  color: #684512;
+}
+html[data-theme=dark] .state-badge.pending {
+  background: #4b381c;
+  color: #ffde95;
+}
+@media (min-width: 761px) {
+  .management-page .library-table th:nth-child(1) { width: 12%; }
+  .management-page .library-table th:nth-child(2) { width: 57%; }
+  .management-page .library-table th:nth-child(3) { width: 17%; }
+  .management-page .library-table th:nth-child(4) { width: 14%; }
+}
+@media (max-width: 760px) {
+  .management-toolbar #managementSearch {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+  #managementNav {
+    gap: 4px;
+    width: auto;
+  }
+  #managementNav .question-view {
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 14px;
   }
   .management-toolbar .management-tools {
-    justify-self: end;
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .library-table thead th:first-child {
+    padding: 6px 14px;
+  }
+  .library-table tbody tr:not(:has(.empty-state)) {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0 10px;
+  }
+  .library-table td:nth-child(3) {
+    grid-column: 2;
+  }
+  .library-table td:nth-child(4) {
+    grid-column: 3;
+    grid-row: 1 / 3;
+    align-self: center;
   }
 }

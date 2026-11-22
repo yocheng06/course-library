@@ -6,7 +6,7 @@ import {setupSystemPanel} from './system-backup.mjs?v=improvements-20261104';
 import {setupUnitManager} from './unit-manager.mjs?v=unit-drag-add-20261103';
 import {setupLibraryHealth} from './library-health.mjs?v=admin-workflow-20261103';
 import { api, message, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
-import { setupLibraryManager } from './library-manager.mjs?v=admin-layout-20261122';
+import { setupLibraryManager } from './library-manager.mjs?v=admin-question-list-20261122';
 import { setupImportRecords } from './import-records.mjs?v=treasure-unit-20261030';
 
 const $ = id => document.getElementById(id);
@@ -18,15 +18,21 @@ let userId = '';
 const requestedSecurity=new URLSearchParams(location.search).get('view')==='security';
 let currentView = requestedSecurity?'security':'all';
 let starting = false;
+let lastQuestionView = 'all';
 const questionViews = new Set(['all','pending','modified','deleted']);
 
 function setActiveView(view) {
   currentView = view;
-  if (userId && questionViews.has(view)) try { localStorage.setItem('course-library.manager-view.v1.'+userId,view); } catch {}
+  const browsingQuestions = questionViews.has(view);
+  if (browsingQuestions) {
+    lastQuestionView = view;
+    if (userId) try { localStorage.setItem('course-library.manager-view.v1.' + userId, view); } catch {}
+  }
   for (const button of document.querySelectorAll('[data-view]')) {
     button.setAttribute('aria-current', button.dataset.view === view ? 'page' : 'false');
   }
-  $('managementSearch').hidden = $('libraryWorkspace').hidden = !questionViews.has(view);
+  for (const id of ['managementSearch', 'managementNav', 'libraryWorkspace']) $(id).hidden = !browsingQuestions;
+  $('returnToQuestions').hidden = browsingQuestions;
   $('systemWorkspace').hidden = view !== 'system';
   $('securityWorkspace').hidden = view !== 'security';
   $('moderationWorkspace').hidden = view !== 'moderation';
@@ -100,7 +106,12 @@ async function start() {
       library?.clear();
       imports?.clear();
       userId = session.userId || 'owner';
-      try{const saved=localStorage.getItem('course-library.manager-view.v1.'+userId);if(!requestedSecurity)currentView=questionViews.has(saved)?saved:'all';}catch{}
+      lastQuestionView = 'all';
+      try {
+        const saved = localStorage.getItem('course-library.manager-view.v1.' + userId);
+        if (questionViews.has(saved)) lastQuestionView = saved;
+      } catch {}
+      if (!requestedSecurity) currentView = lastQuestionView;
       library = setupLibraryManager({
         userId,
         onChanged: () => { health?.invalidate();if (currentView==='health')return health.show({refresh:true});if (imports && currentView === 'imports') return imports.show({ refresh: true }); },
@@ -131,6 +142,10 @@ $('managementTabs').addEventListener('click', event => {
   const button = event.target.closest('[data-view]');
   if (!button || !library || !imports) return;
   showView(button.dataset.view);
+});
+$('returnToQuestions').addEventListener('click', async () => {
+  await showView(lastQuestionView);
+  if (questionViews.has(currentView)) $('managementNav').querySelector('[aria-current=page]')?.focus();
 });
 $('passwordLoginForm').addEventListener('submit', async event => {
   event.preventDefault();
