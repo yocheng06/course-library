@@ -9,6 +9,7 @@ import {
   expandLibraryQuestion,
   aiPrompt,
   normalizeText,
+  normalizeStem,
 } from "../assets/batch-model.mjs";
 import { parseOSCourseHTML } from "../scripts/course-data.mjs";
 const make = (overrides = {}) =>
@@ -72,6 +73,37 @@ test("reorders and relabels answers according to input options, including multi-
     [bank],
   )[0];
   assert.equal(multi.answer, "A. 短程排程器；C. 長程排程器");
+});
+test("ignores only leading decorative stars when matching reordered choices", () => {
+  const stem = "若 n=1，集合的第 1 個順序統計量即為？";
+  const bank = make({
+    id: "L7-2479",
+    stem,
+    options: ["A. 唯一的元素", "B. 為 0", "C. 無窮大", "D. 不確定"],
+    answer: "A",
+  });
+  const [incoming] = parseQuestions(
+    "8. **********若 n=1,集合的第 1 個順序統計量即為?\nA. 不確定\nB. 無窮大\nC. 唯一的元素\nD. 為 0",
+  );
+  const strict = { ...scope, completeOnly: true };
+  for (const [question, stored] of [
+    [incoming, bank],
+    [{ ...incoming, stem }, { ...bank, stem: "*** " + stem }],
+  ]) {
+    const [row] = matchQuestions([question], buildIndex([stored]), strict);
+    assert.equal(row.status, "matched");
+    assert.equal(row.answer, "C. 唯一的元素");
+  }
+  assert.match(incoming.stem, /^\*{10}/);
+  assert.equal(bank.stem, stem);
+
+  const formula = make({ ...bank, stem: "若 n*2 < 4，結果為何？" });
+  const index = buildIndex([formula]);
+  for (const changed of ["若 n+2 < 4，結果為何？", "若 n*2 > 4，結果為何？", "若 n*3 < 4，結果為何？", "若 n*2 < 4 且 n > 0，結果為何？"]) {
+    const [row] = matchQuestions([{ ...incoming, stem: "**********" + changed }], index, strict);
+    assert.notEqual(row.status, "matched");
+  }
+  assert.notEqual(normalizeStem("***ptr 的值為何？"), normalizeStem("ptr 的值為何？"));
 });
 test("mathematical case, comparison operators, negation and fill-answer requirements cannot silently change answers", () => {
   const bank = make({

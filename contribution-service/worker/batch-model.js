@@ -168,6 +168,8 @@ export const normalizeStem = (value) =>
   answerFormat(value)
     .stem.replace(/使用著空間/g, "使用者空間")
     .replace(/^(?:(?:Beast|妖獸)\s*\d{1,4}\s*[.)、:]\s*)+/iu, "")
+    // The source may prepend a decorative run of stars to the question heading.
+    .replace(/^\*{3,}(?=\s|\p{Script=Han})/u, "")
     .replace(/[?？。.!！]+$/u, "")
     .trim();
 export const optionText = (value) =>

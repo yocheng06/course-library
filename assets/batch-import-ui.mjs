@@ -4,7 +4,7 @@ import {
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=automatic-scope-20261120";
+} from "./batch-import.mjs?v=stem-stars-20261122";
 
 export function setupBatchImport({ document, onApply, getImageQuestions = () => [], autoApply = false }) {
   const $ = (id) => document.getElementById(id);

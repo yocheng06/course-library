@@ -10,9 +10,9 @@ import {
   applyBuiltinOverrides,
   MAX_TEXT,
   normalizeText,
-} from "./batch-model.mjs?v=automatic-scope-20261120";
-import { parseBatchInput } from "./batch-import.mjs?v=automatic-scope-20261120";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=batch-file-names-20261120";
+} from "./batch-model.mjs?v=stem-stars-20261122";
+import { parseBatchInput } from "./batch-import.mjs?v=stem-stars-20261122";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=stem-stars-20261122";
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 function ensureTransferButton() {

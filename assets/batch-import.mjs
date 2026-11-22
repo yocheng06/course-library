@@ -5,7 +5,7 @@ import {
   normalizeText,
   MAX_TEXT,
   MAX_QUESTIONS,
-} from "./batch-model.mjs?v=automatic-scope-20261120";
+} from "./batch-model.mjs?v=stem-stars-20261122";
 import JSON5 from "./vendor/json5.mjs?v=2.2.3";
 
 // Saved exam HTML includes page assets/markup well beyond the question text.
