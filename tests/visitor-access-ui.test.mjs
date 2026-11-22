@@ -21,7 +21,7 @@ test('filters recent visits and uses the selected record to block, extend and un
   const browser = 'a'.repeat(64);
   const ip = '192.0.2.20';
   const visitors = [
-    {browser, ip, last_path: 'os.html', last_at: Date.now()},
+    {browser, ip, last_path: 'os.html', last_at: Date.now(), device:'Android 手機', browser_name:'Chrome', model:'Pixel 9'},
     {browser, ip: '192.0.2.21', last_path: 'algorithms.html', last_at: Date.now() - 1800000},
     {browser: 'a'.repeat(8) + 'b'.repeat(56), ip, last_path: 'batch.html', last_at: Date.now() - 86400000},
   ];
@@ -51,6 +51,11 @@ test('filters recent visits and uses the selected record to block, extend and un
     assert.deepEqual([...container.querySelectorAll('[data-visitor-list] strong code')].map(node => node.textContent), ['AAAAAAAAA','AAAAAAAAB']);
     assert.match($('[data-visitor-list] summary').textContent, /2 個 IP/);
     assert.equal(container.querySelectorAll('[data-visitor-list] > li').length, 2);
+    assert.match($('[data-visitor-list] > li').textContent, /Android 手機 · Chrome/);
+    assert.match($('[data-visitor-list] > li details').textContent, /設備型號 Pixel 9/);
+    assert.equal($('[data-visitor-list] > li details').hasAttribute('open'), false);
+    search('Pixel 9');
+    assert.equal(container.querySelectorAll('[data-visitor-list] > li').length, 1);
     search(ip);
     assert.equal(container.querySelectorAll('[data-visitor-list] > li').length, 2);
     search('192.0.2.21');

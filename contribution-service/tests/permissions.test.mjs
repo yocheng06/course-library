@@ -2727,6 +2727,32 @@ test('the controlled library logs visits privately and enforces IP and browser b
   assert.equal(first.ip,browserIP);
   assert.equal(first.last_path,'index.html');
   assert.ok(!visitorCookie.includes(first.browser));
+  assert.equal(first.device,null);
+
+  const visitWithDevice = headers => worker.fetch(new Request(origin + '/course-library/', {headers}), env);
+  const androidHeaders = {
+    cookie: visitorCookie,
+    'CF-Connecting-IP': browserIP,
+    'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 Chrome/143.0.0.0 Mobile Safari/537.36',
+    'sec-ch-ua-platform': '"Android"',
+    'sec-ch-ua-mobile': '?1',
+  };
+  const androidVisit = await visitWithDevice(androidHeaders);
+  assert.equal(androidVisit.headers.get('accept-ch'),'Sec-CH-UA-Model');
+  const withoutModel = (await manage()).data.visitors.find(row => row.browser === first.browser);
+  assert.deepEqual([withoutModel.device,withoutModel.browser_name,withoutModel.model],['Android 手機','Chrome','']);
+  await visitWithDevice({...androidHeaders,'sec-ch-ua-model':'"Pixel 9"'});
+  await visitWithDevice(androidHeaders);
+  const withModel = (await manage()).data.visitors.find(row => row.browser === first.browser);
+  assert.deepEqual([withModel.device,withModel.browser_name,withModel.model],['Android 手機','Chrome','Pixel 9']);
+  const iphoneIP = '192.0.2.22';
+  const iphoneVisit = await visitWithDevice({
+    'CF-Connecting-IP': iphoneIP,
+    'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 Version/26.0 Mobile/15E148 Safari/604.1',
+  });
+  assert.equal(iphoneVisit.headers.get('accept-ch'),null);
+  const iphone = (await manage()).data.visitors.find(row => row.ip === iphoneIP);
+  assert.deepEqual([iphone.device,iphone.browser_name,iphone.model],['iPhone','Safari','']);
 
   const block={action:'block',kind:'browser',target:first.browser,durationHours:1,note:' 短時間內大量連線 '};
   const beforeBlock=Date.now();
@@ -2763,6 +2789,7 @@ test('the controlled library logs visits privately and enforces IP and browser b
   env.sql.prepare('UPDATE library_visitors SET last_at=0').run();
   await worker.scheduled(null,env);
   assert.deepEqual((await manage()).data.visitors,[]);
+  assert.equal(env.sql.prepare('SELECT COUNT(*) AS total FROM library_visitor_devices').get().total,0);
 });
 
 test('the Cloudflare library serves legacy builtin images locally and accepts their new URLs in edit requests', async () => {

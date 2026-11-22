@@ -12,6 +12,7 @@ function ensureVisitorTables(env) {
     const ready = env.DB.batch([
       env.DB.prepare("CREATE TABLE IF NOT EXISTS library_visitors (browser TEXT NOT NULL, ip TEXT NOT NULL, last_path TEXT NOT NULL, last_at INTEGER NOT NULL, PRIMARY KEY(browser,ip))"),
       env.DB.prepare("CREATE INDEX IF NOT EXISTS library_visitors_recent ON library_visitors(last_at)"),
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS library_visitor_devices (browser TEXT PRIMARY KEY, device TEXT NOT NULL, browser_name TEXT NOT NULL, model TEXT NOT NULL)"),
       env.DB.prepare("CREATE TABLE IF NOT EXISTS library_blocks (kind TEXT NOT NULL, target TEXT NOT NULL, created_at INTEGER NOT NULL, expires_at INTEGER NOT NULL, PRIMARY KEY(kind,target))"),
       env.DB.prepare("CREATE TABLE IF NOT EXISTS library_block_notes (kind TEXT NOT NULL, target TEXT NOT NULL, note TEXT NOT NULL, PRIMARY KEY(kind,target))"),
     ]).catch(error => { visitorTables.delete(env.DB); throw error; });
@@ -29,6 +30,36 @@ async function visitorIdentity(request, env) {
     token,
     browser: token && uuid.test(token) ? await hash("library-visitor:" + env.RATE_HASH_KEY + ":" + token) : "",
   };
+}
+
+function visitorDevice(headers) {
+  const ua = headers.get('user-agent') || '';
+  const platform = (headers.get('sec-ch-ua-platform') || '').replace(/^"|"$/g, '');
+  let device = '';
+  if (/\biPhone\b/i.test(ua)) device = 'iPhone';
+  else if (/\biPad\b/i.test(ua)) device = 'iPad';
+  else if (platform === 'Android' || /\bAndroid\b/i.test(ua)) {
+    device = headers.get('sec-ch-ua-mobile') === '?1' || /\bMobile\b/i.test(ua) ? 'Android 手機' : 'Android';
+  } else if (platform === 'Windows' || /Windows NT/i.test(ua)) device = 'Windows';
+  else if (platform === 'Chrome OS' || /\bCrOS\b/i.test(ua)) device = 'ChromeOS';
+  else if (platform === 'macOS' || /Macintosh/i.test(ua)) device = 'macOS';
+  else if (platform === 'iOS') device = 'iOS';
+  else if (platform === 'Linux' || /\bLinux\b/i.test(ua)) device = 'Linux';
+
+  const browserName = [
+    [/\bEdg(?:A|iOS)?\//i, 'Edge'],
+    [/\bSamsungBrowser\//i, 'Samsung Internet'],
+    [/\b(?:OPR|OPiOS)\//i, 'Opera'],
+    [/\b(?:Firefox|FxiOS)\//i, 'Firefox'],
+    [/\b(?:Chrome|CriOS)\//i, 'Chrome'],
+    [/\bChromium\//i, 'Chromium'],
+    [/\bVersion\/\S+.*\bSafari\//i, 'Safari'],
+  ].find(([pattern]) => pattern.test(ua))?.[1] || '';
+
+  // Only retain a model that the Android browser explicitly supplied.
+  const modelHint = device.startsWith('Android') ? headers.get('sec-ch-ua-model') : null;
+  const model = modelHint?.match(/^"([\p{L}\p{N} ._()+/-]{2,80})"$/u)?.[1].trim() || '';
+  return { device, browserName, model };
 }
 
 async function enforceVisitorBlock(env, { ip, browser }) {
@@ -66,8 +97,27 @@ async function serveProtectedLibrary(request, env, url) {
       headers.append("set-cookie", visitorCookie + "=" + identity.token + "; Path=/; Max-Age=2592000; Secure; HttpOnly; SameSite=Lax");
     }
     const now = Date.now();
-    await env.DB.prepare("INSERT INTO library_visitors (browser,ip,last_path,last_at) VALUES (?,?,?,?) ON CONFLICT(browser,ip) DO UPDATE SET last_path=excluded.last_path,last_at=excluded.last_at WHERE excluded.last_at-library_visitors.last_at>=300000 OR excluded.last_path<>library_visitors.last_path")
-      .bind(identity.browser, identity.ip, path || "index.html", now).run();
+    const visit = env.DB.prepare("INSERT INTO library_visitors (browser,ip,last_path,last_at) VALUES (?,?,?,?) ON CONFLICT(browser,ip) DO UPDATE SET last_path=excluded.last_path,last_at=excluded.last_at WHERE excluded.last_at-library_visitors.last_at>=300000 OR excluded.last_path<>library_visitors.last_path")
+      .bind(identity.browser, identity.ip, path || "index.html", now);
+    const { device, browserName, model } = visitorDevice(request.headers);
+    if (device.startsWith('Android')) headers.append("accept-ch", "Sec-CH-UA-Model");
+    if (device || browserName || model) {
+      // Later requests may omit optional hints, so keep the last usable value.
+      await env.DB.batch([
+        visit,
+        env.DB.prepare(
+          "INSERT INTO library_visitor_devices (browser,device,browser_name,model) VALUES (?,?,?,?) " +
+          "ON CONFLICT(browser) DO UPDATE SET device=COALESCE(NULLIF(excluded.device,''),library_visitor_devices.device), " +
+          "browser_name=COALESCE(NULLIF(excluded.browser_name,''),library_visitor_devices.browser_name), " +
+          "model=COALESCE(NULLIF(excluded.model,''),library_visitor_devices.model) " +
+          "WHERE (excluded.device<>'' AND excluded.device<>library_visitor_devices.device) " +
+          "OR (excluded.browser_name<>'' AND excluded.browser_name<>library_visitor_devices.browser_name) " +
+          "OR (excluded.model<>'' AND excluded.model<>library_visitor_devices.model)"
+        ).bind(identity.browser, device, browserName, model),
+      ]);
+    } else {
+      await visit.run();
+    }
   }
   if ((headers.get("content-type") || "").includes("text/html")) {
     const hashes = env.LIBRARY_SCRIPT_HASHES?.[path] || "";
@@ -83,6 +133,7 @@ async function purgeVisitorRecords(env) {
   const now = Date.now();
   await env.DB.batch([
     env.DB.prepare("DELETE FROM library_visitors WHERE last_at<=?").bind(now - visitorRetention),
+    env.DB.prepare("DELETE FROM library_visitor_devices WHERE NOT EXISTS (SELECT 1 FROM library_visitors v WHERE v.browser=library_visitor_devices.browser)"),
     env.DB.prepare("DELETE FROM library_blocks WHERE expires_at<=?").bind(now),
     env.DB.prepare("DELETE FROM library_block_notes WHERE NOT EXISTS (SELECT 1 FROM library_blocks b WHERE b.kind=library_block_notes.kind AND b.target=library_block_notes.target)"),
   ]);
@@ -95,7 +146,7 @@ async function manageVisitorAccess(request, env) {
   await purgeVisitorRecords(env);
   if (request.method === "GET") {
     const [visitors, blocks] = await Promise.all([
-      env.DB.prepare("SELECT browser,ip,last_path,last_at FROM library_visitors ORDER BY last_at DESC LIMIT 100").all(),
+      env.DB.prepare("SELECT v.browser,v.ip,v.last_path,v.last_at,d.device,d.browser_name,d.model FROM library_visitors v LEFT JOIN library_visitor_devices d ON d.browser=v.browser ORDER BY v.last_at DESC LIMIT 100").all(),
       env.DB.prepare("SELECT b.kind,b.target,b.expires_at,COALESCE(n.note,'') AS note FROM library_blocks b LEFT JOIN library_block_notes n ON n.kind=b.kind AND n.target=b.target WHERE b.expires_at>? ORDER BY b.expires_at").bind(Date.now()).all(),
     ]);
     return json({ visitors: visitors.results, blocks: blocks.results });

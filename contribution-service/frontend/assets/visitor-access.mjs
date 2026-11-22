@@ -65,7 +65,7 @@ export function setupVisitorAccess({container, api}) {
       <p data-access-status role="status" aria-live="polite" tabindex="-1"></p>
       <div data-visitor-view="visitors">
         <form class="visitor-filters" role="search" aria-label="搜尋最近訪客">
-          <label>搜尋訪客<input type="search" data-visitor-search maxlength="100" placeholder="IP、瀏覽器代號或頁面"></label>
+          <label>搜尋訪客<input type="search" data-visitor-search maxlength="100" placeholder="IP、瀏覽器代號、頁面或設備"></label>
           <label>最後出現<select data-visitor-period><option value="0">全部時間</option><option value="1">近 1 小時</option><option value="24">近 24 小時</option><option value="168">近 7 天</option></select></label>
         </form>
         <p class="muted" data-visitor-results></p>
@@ -109,7 +109,8 @@ export function setupVisitorAccess({container, api}) {
     const since = period ? Date.now() - period * hour : 0;
     const matches = visitors.map((visitor, index) => ({visitor, index})).filter(({visitor}) =>
       visitor.connections.some(connection => connection.last_at >= since && (!query ||
-        [connection.ip, visitor.browser, connection.last_path, pageNames[connection.last_path]]
+        [connection.ip, visitor.browser, connection.last_path, pageNames[connection.last_path],
+          connection.device, connection.browser_name, connection.model]
           .some(text => (text || '').toLowerCase().includes(query)))));
     $('[data-visitor-results]').textContent = `顯示 ${matches.length}／${visitors.length} 個瀏覽器`;
     $('[data-visitor-empty]').hidden = matches.length > 0 || loading;
@@ -120,13 +121,16 @@ export function setupVisitorAccess({container, api}) {
       const status = [browserBlock && '瀏覽器已封鎖', blockedIPs > 0 && `${blockedIPs} 個 IP 已封鎖`].filter(Boolean).join('、');
       const canBlock = !browserBlock || blockedIPs < ips.length;
       const {latest} = visitor;
+      const deviceLabel = [latest.device, latest.browser_name].filter(Boolean).join(' · ');
       return `<li class="visitor-row">
         <div>
           <strong>瀏覽器 <code>${esc(visitor.code)}</code></strong>
+          ${deviceLabel ? `<p class="muted">${esc(deviceLabel)}</p>` : ''}
           <p class="muted">最後出現 ${esc(timestamp(latest.last_at))} · ${esc(pageNames[latest.last_path] || latest.last_path)}</p>
           <details>
             <summary>查看連線資料（${ips.length} 個 IP）</summary>
             <p>完整瀏覽器代號 <code>${esc(visitor.browser)}</code></p>
+            <p>設備型號 ${esc(latest.model || '瀏覽器未提供')}</p>
             <ul>${visitor.connections.map(connection => `<li>${esc(connection.ip || '無 IP 資料')} · 最後出現 ${esc(timestamp(connection.last_at))}</li>`).join('')}</ul>
           </details>
         </div>

@@ -1,4 +1,4 @@
-import {setupVisitorAccess} from './visitor-access.mjs?v=visitor-groups-20261122';
+import {setupVisitorAccess} from './visitor-access.mjs?v=visitor-devices-20261122';
 import {setupEditModeration} from './edit-moderation.mjs?v=public-edit-rollback-20261120';
 import {setupManagementMenu} from './management-menu.mjs?v=menu-position-20261118';
 import {setupAdminSecurity} from './admin-security.mjs?v=security-20261118';
