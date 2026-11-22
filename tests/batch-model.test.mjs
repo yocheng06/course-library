@@ -105,6 +105,30 @@ test("ignores only leading decorative stars when matching reordered choices", ()
   }
   assert.notEqual(normalizeStem("***ptr 的值為何？"), normalizeStem("ptr 的值為何？"));
 });
+test("heap diagrams match across index-marker and numeric answer separator changes", () => {
+  const stem = [
+    "這是Build-Max-Heap(A) 建立過程的結果，目前程式跑到 i 點，下一步陣列內容為何？",
+    "索引 i: (1)",
+    "陣列位置內容 A: [4]",
+    "(1)[4] (2)[1] i(3)[3] (4)[14] (5)[16] (6)[9] (7)[10]",
+    "____________ (請用數字回答) 格式: 1,2,3,4,5,6",
+  ].join("\n");
+  const underscore = stem.replace(/\((\d+)\)(?=\[|\n陣列位置)/g, "_$1_")
+    .replace("_6_[9]", "_6_9]")
+    .replace("1,2,3,4,5,6", "1_2_3_4_5_6");
+  const answer = "4,1,10,14,16,9,3";
+  const commaBank = make({ stem, options: [], answer });
+  const underscoreBank = make({ stem: underscore, options: [], answer: answer.replaceAll(",", "_") });
+  const check = (text, entries) =>
+    matchQuestions(parseQuestions(text), buildIndex(entries), { ...scope, completeOnly: true })[0];
+  assert.equal(check(underscore, [commaBank]).answer, "4_1_10_14_16_9_3");
+  assert.equal(check(stem, [underscoreBank]).answer, answer);
+  assert.equal(check(underscore, [commaBank]).question.stem, underscore.normalize("NFKC"));
+  assert.notEqual(check(underscore.replace("i_3_", "_3_").replace("_5_", "i_5_"), [commaBank]).status, "matched");
+  assert.notEqual(check(underscore.replace("_6_9]", "_6_8]"), [commaBank]).status, "matched");
+  assert.notEqual(check(underscore, [{ ...commaBank, answer: "A_1" }]).status, "matched");
+  assert.notEqual(check(underscore, [{ ...commaBank, needsImage: true }]).status, "matched");
+});
 test("mathematical case, comparison operators, negation and fill-answer requirements cannot silently change answers", () => {
   const bank = make({
     stem: "哪一個函數滿足 O(N)？",

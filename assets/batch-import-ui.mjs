@@ -4,7 +4,7 @@ import {
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=stem-stars-20261122";
+} from "./batch-import.mjs?v=numeric-sequence-format-20261122";
 
 export function setupBatchImport({ document, onApply, getImageQuestions = () => [], autoApply = false }) {
   const $ = (id) => document.getElementById(id);

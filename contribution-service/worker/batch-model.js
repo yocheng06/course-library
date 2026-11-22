@@ -48,6 +48,8 @@ const namedHeader = /^[\p{L}][\p{L}\p{M} _-]{0,30}?\s+(\d{1,4})[.)、:]\s*$/u;
 // Requiring whitespace after the punctuation avoids splitting decimals such as "CPU 2.6".
 const inlineNamedHeader = /^(?:妖獸|Beast)\s+(\d{1,4})[.)、:]\s+(.+)$/iu;
 function questionHeader(line) {
+  // A heap diagram row such as (1)[4] is part of the current stem.
+  if (/^\([1-9]\d*\)\[[+-]?\d+\]/.test(line)) return null;
   const standard = line.match(header);
   if (standard)
     return {
@@ -100,7 +102,25 @@ export function normalizeText(value) {
 // part of the question; case and number requirements are checked on answers.
 // The pasted text itself is kept for display/copy.
 function answerFormat(value) {
-  const normalized = normalizeText(value).replace(/[?？。]+$/, "");
+  // Only the known heap diagram uses _1_ and (1) interchangeably as labels.
+  const heapDiagram = String(value ?? "").match(/^(\s*這是\s*Build-Max-Heap\(A\)\s*建立過程的結果[\s\S]*?)(索引\s*i:\s*)([\s\S]*\n\s*陣列位置內容\s*A:[\s\S]*)$/u);
+  const stem = heapDiagram
+    ? heapDiagram[1] + heapDiagram[2] + heapDiagram[3]
+      .replace(/^_([1-9]\d*)_/, "($1)")
+      .replace(/(^|[^\w_])(i?)_([1-9]\d*)_\[?([+-]?\d+)\]/g, "$1$2($3)[$4]")
+      // Preserve array and node values so the fill matcher does not count [4] as a blank.
+      .replace(/(陣列位置內容\s*A:\s*)\[([+-]?\d+)\]/, "$1[=$2]")
+      .replace(/(\([1-9]\d*\))\[([+-]?\d+)\]/g, "$1[=$2]")
+    : value;
+  const normalized = normalizeText(stem).replace(/[?？。]+$/, "");
+  const sequenceFormat = normalized.match(/\(請用數字回答\)格式:\d+\s*([,_])\s*\d+(?:\s*\1\s*\d+)+$/);
+  if (sequenceFormat) {
+    return {
+      stem: normalized.slice(0, sequenceFormat.index).trim(),
+      hint: sequenceFormat[0],
+      sequenceSeparator: sequenceFormat[1],
+    };
+  }
   const mixedHyphenHint = normalized.match(
     /\((Please\s+answer\s+using\s+(?:lowercase|uppercase)\s+English\s+letters;\s*connect\s+related\s+letters\s+with\s+a\s+hyphen\s+and\s+separate\s+unrelated\s+letters\s+with\s+a\s+space\.?)\)$/i,
   );
@@ -723,7 +743,13 @@ function sameOptions(question, entry) {
 function remapAnswer(question, entry) {
   if (typeof entry.answer !== "string" || !entry.answer.trim()) return null;
   if (!question.options.length) {
-    const { hint } = answerFormat(question.stem);
+    const { hint, sequenceSeparator } = answerFormat(question.stem);
+    if (sequenceSeparator) {
+      const answer = normalizeText(entry.answer);
+      if (fillBlankCount(question.stem) !== 1 || !/^[+-]?\d+\s*([,_])\s*[+-]?\d+(?:\s*\1\s*[+-]?\d+)*$/.test(answer)) return null;
+      const values = answer.split(/\s*[,_]\s*/);
+      return { answer: values.join(sequenceSeparator), signature: JSON.stringify(values) };
+    }
     if (
       hint &&
       (/[\p{Script=Han}]/u.test(entry.answer) ||
