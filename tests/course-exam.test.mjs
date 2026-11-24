@@ -128,7 +128,7 @@ for (const course of ['os','algorithms']) test(course+' saves only the last comp
  assert.deepEqual([...reload.document.querySelectorAll('.option')].map(e=>e.textContent),optionText);
  assert.match(reload.document.querySelector('[data-exam-results]').textContent,/67 分/);
  reload.click('[data-exam-reset]');reload.click('[data-exam-start]');reload.click('[data-exam-submit]');reload.click('[data-exam-submit]');
- assert.equal(storage.size,1); assert.notEqual(storage.get('course-exam-last-v1:'+course),saved);
+ assert.deepEqual([...storage.keys()].sort(),['course-exam-last-v1:'+course,'course-exam-settings-v1:'+course].sort()); assert.notEqual(storage.get('course-exam-last-v1:'+course),saved);
  reload.click('[data-exam-reset]');reload.click('[data-exam-last]');reload.change('[data-exam-result-filter]','unanswered');
  assert.equal([...reload.document.querySelectorAll('.exam-card')].filter(e=>!e.hidden).length,3);
 });
@@ -224,4 +224,65 @@ test('exam backup validates snapshots, merges by date and never owns imported re
  const bad=JSON.parse(JSON.stringify(newer));bad.last.entries=[];assert.throws(()=>h.window.courseExam.prepareBackup(bad),/不正確/);
  h.click('[data-exam-reset]');h.click('[data-exam-start]');const draft=h.window.courseExam.exportBackup().draft;assert(draft.updatedAt);assert(draft.sessionId);
  assert(h.window.courseExam.prepareBackup({last:null,draft}).draft);
+});
+
+test('custom counts, all questions and topic/type selection survive a fresh page',()=>{
+ const storage=new Map();
+ const list=Array.from({length:36},(_,i)=>({id:'custom-'+i,unit:'測試單元',topicLabel:i<34?'排程':'同步',q:{stem:'題目 '+i,category:'其他',type:'單選題',answer:'A',options:['yes','no'],answerProvided:true}}));
+ list.push({id:'fill',unit:'測試單元',topicLabel:'排程',q:{stem:'填空',answer:'yes',options:[],answerProvided:true}});
+ const h=harness('os',list,storage);h.click('#examMode');h.change('[data-exam-scope]','all');
+ h.change('[data-exam-topic]','排程');h.change('[data-exam-type]','單選題');h.change('[data-exam-size]','custom');
+ h.change('[data-exam-custom-size]','0');assert(h.document.querySelector('[data-exam-start]').disabled);
+ h.change('[data-exam-custom-size]','33');assert(!h.document.querySelector('[data-exam-start]').disabled);
+ const reload=harness('os',list,storage);reload.click('#examMode');
+ assert.equal(reload.document.querySelector('[data-exam-size]').value,'custom');
+ assert.equal(reload.document.querySelector('[data-exam-topic]').value,'排程');
+ assert.equal(reload.document.querySelector('[data-exam-type]').value,'單選題');
+ assert.equal(reload.document.querySelector('[data-exam-custom-size]').value,'33');
+ reload.click('[data-exam-start]');assert.equal(reload.document.querySelectorAll('.exam-card').length,33);
+ reload.click('[data-exam-reset]');reload.click('[data-exam-reset]');
+ reload.change('[data-exam-size]','all');reload.click('[data-exam-start]');
+ assert.equal(reload.document.querySelectorAll('.exam-card').length,34);
+ assert.equal(reload.window.courseExam.exportBackup().draft.entries.length,34);
+});
+
+test('navigation and flags restore with the draft and result analysis uses the last exam',()=>{
+ const storage=new Map(),list=fixture.map((item,i)=>({...item,topicLabel:i===0?'CPU':'其他'}));
+ const h=harness('os',list,storage);h.click('#examMode');h.click('[data-exam-start]');
+ const idx=[...h.document.querySelectorAll('.exam-card')].findIndex(card=>card.dataset.examQuestionId==='single');
+ h.click(`[data-exam-flag="${idx}"]`);
+ assert.equal(h.document.querySelector(`[data-exam-jump="${idx}"]`).dataset.state,'flagged');
+ answerCard(h,'單選測試',[1]);
+ const reload=harness('os',list,storage);reload.click('#examMode');reload.click('[data-exam-resume]');
+ assert.equal(reload.document.querySelector(`[data-exam-jump="${idx}"]`).dataset.state,'flagged');
+ reload.click('[data-exam-next-flag]');reload.click(`[data-exam-jump="${idx}"]`);
+ reload.click('[data-exam-submit]');reload.click('[data-exam-submit]');
+ assert.equal(reload.document.querySelector(`[data-exam-jump="${idx}"]`).dataset.state,'right');
+ assert.match(reload.document.querySelector('.exam-analysis').textContent,/依單元.*依主題.*依題型/s);
+ assert.match(reload.document.querySelector('.exam-analysis').textContent,/CPU.*1／1.*100%/s);
+ reload.change('[data-exam-result-filter]','flagged');
+ assert.equal([...reload.document.querySelectorAll('.exam-card')].filter(card=>!card.hidden).length,1);
+ reload.click('[data-exam-reset]');reload.click('[data-exam-last]');
+ assert.equal(reload.window.courseExam.exportBackup().last.flags[0],idx);
+});
+
+test('optional countdown keeps an absolute deadline and submits a resumed expired exam',()=>{
+ const storage=new Map(),h=harness('os',fixture,storage);h.click('#examMode');
+ const check=h.document.querySelector('[data-exam-timed]');
+ assert.ok(!check.checked);
+ check.checked=true;check.dispatchEvent(new h.window.Event('change',{bubbles:true}));
+ h.change('[data-exam-minutes]','0');assert(h.document.querySelector('[data-exam-start]').disabled);
+ h.change('[data-exam-minutes]','1');h.click('[data-exam-start]');
+ assert.match(h.document.querySelector('[data-exam-clock]').textContent,/剩餘 1:00/);
+ answerCard(h,'單選測試',[1]);
+ const expiredStorage=new Map(storage);
+ const draft=JSON.parse(expiredStorage.get('course-exam-draft-v1:os'));
+ assert.equal(draft.deadline-draft.startedAt,60000);
+ draft.startedAt=Date.now()-61000;draft.deadline=Date.now()-1000;
+ expiredStorage.set('course-exam-draft-v1:os',JSON.stringify(draft));
+ h.click('[data-exam-reset]');h.click('[data-exam-reset]');
+ const reload=harness('os',fixture,expiredStorage);reload.click('#examMode');reload.click('[data-exam-resume]');
+ assert.match(reload.document.querySelector('[data-exam-results]').textContent,/33 分/);
+ assert.match(reload.document.querySelector('[data-exam-notice]').textContent,/已自動交卷/);
+ assert.equal(expiredStorage.has('course-exam-draft-v1:os'),false);
 });

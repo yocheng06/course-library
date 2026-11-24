@@ -22,7 +22,7 @@
     if(exams){const keys=window.courseExam.backupKeys;
       writes.set(keys.last,exams.last?JSON.stringify(exams.last):null);
       writes.set(keys.draft,exams.draft?JSON.stringify(exams.draft):null);
-      writes.set(keys.answers,exams.draft?JSON.stringify({sessionId:exams.draft.sessionId,responses:exams.draft.responses}):null);
+      writes.set(keys.answers,exams.draft?JSON.stringify({sessionId:exams.draft.sessionId,responses:exams.draft.responses,flags:exams.draft.flags||[]}):null);
     }
     const previous=new Map([...writes.keys()].map(key=>[key,localStorage.getItem(key)]));
     const put=(key,value)=>value===null?localStorage.removeItem(key):localStorage.setItem(key,value);

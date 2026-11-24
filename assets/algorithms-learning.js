@@ -172,7 +172,7 @@ function mergeCommunityQuestions(entries,{openLinkedQuestion=false,aliases=[],ov
 window.courseLearning={
  examUnits:()=>COURSES.map(unit=>({id:unit.id,label:`${unit.id} · ${meta[unit.id].short}`})),
  examUnitId:()=>lesson,
- examEntries:selection=>{const ids=Array.isArray(selection)?new Set(selection):null;return orderEntries(questionEntries.filter(e=>!builtinDeletedIds.has(e.id)&&(ids?ids.has(e.unit.id):selection===true||e.unit.id===lesson))).map(e=>({id:e.id,q:e.q,unit:meta[e.unit.id].short,unitId:e.unit.id}));},
+ examEntries:selection=>{const ids=Array.isArray(selection)?new Set(selection):null;return orderEntries(questionEntries.filter(e=>!builtinDeletedIds.has(e.id)&&(ids?ids.has(e.unit.id):selection===true||e.unit.id===lesson))).map(e=>({id:e.id,q:e.q,unit:meta[e.unit.id].short,unitId:e.unit.id,topicLabel:e.topicLabel}));},
  examUnitLabel:()=>meta[lesson].short,
  setUnitMetadata(rows){
   if(!Array.isArray(rows))return;

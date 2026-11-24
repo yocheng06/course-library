@@ -381,7 +381,7 @@ window.courseLearning={
     if(selection===true)ensureAllUnitsLoaded();
     else if(ids)UNITS.forEach((unit,index)=>{if(ids.has(unit.id))ensureUnitLoaded(index);});
     else ensureUnitLoaded(active);
-    return orderEntries(questionEntries.filter(e=>!builtinDeletedIds.has(e.q.id)&&(ids?ids.has(e.unit.id):selection===true||e.unitIndex===active))).map(e=>({id:e.q.id,q:e.q,unit:e.unit.label,unitId:e.unit.id}));
+    return orderEntries(questionEntries.filter(e=>!builtinDeletedIds.has(e.q.id)&&(ids?ids.has(e.unit.id):selection===true||e.unitIndex===active))).map(e=>({id:e.q.id,q:e.q,unit:e.unit.label,unitId:e.unit.id,topicLabel:e.topicLabel}));
   },
   examUnitLabel:()=>UNITS[active].label,
   setUnitMetadata(rows){

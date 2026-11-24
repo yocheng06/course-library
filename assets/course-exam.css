@@ -35,3 +35,37 @@
 .exam-start-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0}.course-exam [data-exam-results] [data-exam-retry]{margin:12px 0 0}
 
 .course-exam .exam-review-toggle{display:flex;align-items:flex-start;gap:10px;margin-top:16px;line-height:1.6;cursor:pointer}.exam-review-toggle input{width:18px;height:18px;flex:none;margin-top:4px;accent-color:var(--rose-strong,#527da4)}
+
+.exam-extra-settings{margin:12px 0}
+.course-exam .exam-inline{display:flex;align-items:center;gap:8px;margin:14px 0}
+.exam-custom-size,.exam-time-control{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:10px 0}
+.exam-custom-size input,.exam-time-control input{width:110px;padding:8px;border:1px solid var(--line,#a6b6c9);border-radius:8px;background:var(--surface,#fff);color:inherit}
+.exam-nav-panel{padding:9px 22px;border-bottom:1px solid var(--line,#a6b6c9);flex:none;background:var(--surface,#fff)}
+.exam-nav-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
+.exam-nav-heading summary{cursor:pointer;font-weight:650;margin-bottom:5px}
+.exam-nav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:5px;max-height:105px;overflow:auto;padding:3px;overscroll-behavior:contain}
+.course-exam .exam-nav-grid button{min-height:34px;border:1px solid var(--line,#a6b6c9);border-radius:6px;font-size:13px;padding:3px;background:var(--surface,#fff);color:inherit}
+.exam-nav-grid button[data-state=answered],.exam-nav-grid button[data-state=right]{background:#dcefe3;color:#185c36;border-color:#8bbd9b}
+.exam-nav-grid button[data-state=flagged]{background:#fff0bd;color:#73500f;border-color:#d1ab58}
+.exam-nav-grid button[data-state=wrong]{background:#fbe2e6;color:#872b3b;border-color:#d89aa5}
+.exam-nav-grid button[data-state=answered]::after,.exam-nav-grid button[data-state=right]::after{content:" ✓"}
+.exam-nav-grid button[data-state=flagged]::after{content:" ⚑"}
+.exam-nav-grid button[data-state=wrong]::after{content:" ×"}
+.exam-nav-meta{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:5px 8px}
+.course-exam .exam-nav-meta button,.course-exam .exam-flag{min-height:34px;font-size:13px;padding:5px 9px}
+.exam-nav-meta [data-exam-clock]{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.exam-nav-legend{font-size:12px;margin:4px 0 0}
+.exam-card .exam-flag{margin-left:auto}
+.exam-card .exam-flag[aria-pressed=true]{background:#fff0bd;color:#73500f;border-color:#d1ab58}
+.exam-analysis h4{margin:16px 0 8px}
+.exam-analysis-section{margin:8px 0;padding:10px;border:1px solid var(--line,#a6b6c9);border-radius:8px}
+.exam-analysis-section summary{cursor:pointer;font-weight:600}
+.exam-analysis-section table{border-collapse:collapse;width:100%;font-size:14px;table-layout:fixed;margin-top:8px}
+.exam-analysis-section th,.exam-analysis-section td{padding:7px 5px;border-top:1px solid var(--line,#a6b6c9);text-align:left;overflow-wrap:anywhere}
+.exam-analysis-section th:first-child{width:58%}
+@media(max-width:600px){
+ .exam-nav-panel{padding:7px 12px}
+ .exam-nav-heading{grid-template-columns:1fr;gap:4px}
+ .exam-nav-grid{max-height:82px;grid-template-columns:repeat(auto-fill,minmax(39px,1fr))}
+ .exam-nav-meta{justify-content:flex-start}
+}
