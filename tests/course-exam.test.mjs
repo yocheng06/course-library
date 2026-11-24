@@ -286,3 +286,24 @@ test('optional countdown keeps an absolute deadline and submits a resumed expire
  assert.match(reload.document.querySelector('[data-exam-notice]').textContent,/已自動交卷/);
  assert.equal(expiredStorage.has('course-exam-draft-v1:os'),false);
 });
+
+test('result details are collapsed and a compact slash answer uses two fields, including legacy snapshots',()=>{
+ const entry={id:'stack',unit:'堆疊',q:{stem:'2 ____________ <- x 4 return ____________',answer:'S[top[S]]/S[top[S]+1]',options:[],answerProvided:true}};
+ const storage=new Map(),h=harness('algorithms',[entry],storage);
+ h.click('#examMode');h.click('[data-exam-start]');
+ const fields=h.document.querySelectorAll('[data-fill-index]');assert.equal(fields.length,2);
+ ['S[top[S]]','S[top[S]+1]'].forEach((value,i)=>{fields[i].value=value;fields[i].dispatchEvent(new h.window.Event('input',{bubbles:true}));});
+ h.click('[data-exam-submit]');
+ const result=h.document.querySelector('[data-exam-results]');
+ assert.deepEqual([...result.children].map(node=>node.tagName),['H3','P','DETAILS']);
+ assert.match(result.querySelector('h3').textContent,/100 分/);
+ assert.equal(result.querySelector('details').hasAttribute('open'),false);
+ assert.ok(result.querySelector('details [data-exam-result-filter]'));
+ assert.ok(result.querySelector('details .exam-analysis'));
+ const saved=JSON.parse(storage.get('course-exam-last-v1:algorithms'));
+ saved.responses[0][1]={chosen:[],text:entry.q.answer,fields:[]};
+ storage.set('course-exam-last-v1:algorithms',JSON.stringify(saved));
+ const reload=harness('algorithms',[entry],storage);reload.click('#examMode');reload.click('[data-exam-last]');
+ assert.deepEqual([...reload.document.querySelectorAll('[data-fill-index]')].map(field=>field.value),['S[top[S]]','S[top[S]+1]']);
+ assert.equal(reload.document.querySelector('[data-exam-result-details]').hasAttribute('open'),false);
+});

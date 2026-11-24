@@ -31,18 +31,48 @@
     'os:os8-053': { answer: 'wait for graph', aliases: ['wait-for graph', 'wait-for-graph'] },
     'algorithms:L6-055': { answer: 'n!', aliases: ['n !'] },
   };
-  function answerParts(question, answer) {
+  function blankCount(question) {
     const stem = String(question.stem ?? question.q ?? '');
-    const blanks = [...new Set([...stem.matchAll(/\[_{2,}(\d+)_{2,}\]/g)].map(m => m[1]))];
-    const parts = String(answer).split(/\s+\/\s+/);
-    return blanks.length > 1 && blanks.length <= 20 && blanks.every((n,i)=>Number(n)===i+1) && parts.length === blanks.length ? parts : null;
+    const blanks = [...stem.matchAll(/\[_{2,}(\d+)_{2,}\]|_{4,}/g)];
+    if (blanks.every(match=>match[1]===undefined)) return blanks.length;
+    if (blanks.some(match=>match[1]===undefined)) return 0;
+    const numbers = [...new Set(blanks.map(match=>match[1]))];
+    return numbers.every((number,i)=>Number(number)===i+1) ? numbers.length : 0;
+  }
+  function splitBlankAnswer(value, count, allowEmpty = false) {
+    const text = String(value ?? '');
+    const stack = [], separators = [], lineBreaks = [];
+    const closing = {')':'(', ']':'[', '}':'{'};
+    for (let i=0;i<text.length;i++) {
+      const char=text[i];
+      if ('([{'.includes(char)) stack.push(char);
+      else if (char in closing) {
+        if (stack.pop()!==closing[char]) return null;
+      } else if (char==='/'&&!stack.length) separators.push(i);
+      else if (char==='\n'&&!stack.length) lineBreaks.push(i);
+    }
+    if (stack.length) return null;
+    const spaced=separators.filter(i=>/\s/.test(text[i-1]||'')&&/\s/.test(text[i+1]||''));
+    const positions=spaced.length===count-1 ? spaced : lineBreaks.length===count-1 ? lineBreaks : separators;
+    if (positions.length!==count-1) return null;
+    const parts=positions.map((index,i)=>text.slice(i?positions[i-1]+1:0,index).trim());
+    parts.push(text.slice(positions.at(-1)+1).trim());
+    return allowEmpty||parts.every(Boolean) ? parts : null;
+  }
+  function answerParts(question, answer) {
+    const count=blankCount(question);
+    return count>1&&count<=20 ? splitBlankAnswer(answer,count) : null;
+  }
+  function fillValues(question, draft) {
+    const parts=answerParts(question,question.answer??question.a??'');
+    return parts ? splitBlankAnswer(draft,parts.length,true)||[String(draft||'')] : [];
   }
   function entryMarkup(question, id, draft, mark) {
     const answer = question.answer ?? question.a ?? '';
     const parts = answerParts(question, answer);
     const invalid = mark.className === 'practice-incorrect' ? 'aria-invalid="true"' : '';
     if (!parts) return `<div class="practice-entry ${mark.className}"><textarea class="entry" data-draft="${escape(id)}" aria-label="${escape(id)} 你的答案" placeholder="先寫下你的答案或解題想法…" ${invalid}>${escape(draft || '')}</textarea>${mark.icon}</div>`;
-    const values = String(draft || '').split(/\s+\/\s+/);
+    const values = fillValues(question,draft);
     return `<div class="practice-entry ${mark.className}"><p>依空格順序填寫；每格內的多個數值可用逗號分隔。</p>${parts.map((_, i) => `<label class="fill-answer-label">第 ${i + 1} 格<textarea class="entry" data-fill-index="${i}" aria-label="${escape(id)} 第 ${i + 1} 格答案" rows="2" ${invalid}>${escape(values[i] || '')}</textarea></label>`).join('')}<textarea data-draft="${escape(id)}" hidden>${escape(draft || '')}</textarea>${mark.icon}</div>`;
   }
   if (typeof document !== 'undefined') document.addEventListener('input', event => {
@@ -146,7 +176,8 @@
         text: "本題沒有可自動核對的標準答案，請對照答案與解析。",
       };
 
-    const formulaCaseSensitive = String(answer ?? '').split(/\s+\/\s+/)
+    const parts = answerParts(question, answer);
+    const formulaCaseSensitive = (parts || String(answer ?? '').split(/\s+\/\s+/))
       .some(part => /^(?:O|o|Ω|ω|Θ|θ)\s*[\(\^]/u.test(part.trim()));
     const caseSensitive = question.exact === true || formulaCaseSensitive;
     const id = question.id ?? question.bookmarkId;
@@ -154,12 +185,14 @@
     const reviewed = reviewedAnswers[`${course}:${id}`];
     const aliases = reviewed?.answer === answer ? reviewed.aliases : [];
     const canonical = value => {
-      const parts = answerParts(question, answer);
       // Whitespace around list separators is presentation, not a numeric change.
       const normalize = text => normalizedText(text, caseSensitive).replace(/\s*[,，]\s*/g, ',');
-      return parts ? String(value).split(/\s+\/\s+/).map(normalize).join(' / ') : normalize(value);
+      if (!parts) return normalize(value);
+      const values=splitBlankAnswer(value,parts.length,true);
+      return values ? JSON.stringify(values.map(normalize)) : null;
     };
-    const correct = [answer, ...aliases].some(expected => canonical(response) === canonical(expected));
+    const actual=canonical(response);
+    const correct = actual!==null&&[answer, ...aliases].some(expected => actual===canonical(expected));
     return {
       kind: "text",
       correct,
@@ -259,7 +292,7 @@
   }
 
   window.coursePractice = {
-    entryMarkup, answerParts,
+    entryMarkup, answerParts, fillValues,
     expectedChoiceKey,
     evaluate,
     markup,

@@ -23,9 +23,15 @@
 .exam-card .option:has(input:checked){outline:2px solid var(--rose-strong,#668bad)}
 .exam-card .option-translation{display:block;font-size:14px;opacity:.8}
 .exam-text-label{display:grid;gap:8px}.exam-card textarea{width:100%;min-height:88px;box-sizing:border-box;font:inherit;resize:vertical;padding:12px;border:1px solid #a6b6c9;border-radius:10px;background:transparent;color:inherit}
+.exam-card textarea[data-fill-index]{min-height:54px}
 .exam-translation{opacity:.8;white-space:pre-wrap}.exam-card [data-exam-review]{border-top:1px solid #bcc8d366;margin-top:20px;padding-top:10px}.exam-card [data-exam-review]>button{margin:10px 8px 0 0}
 .exam-right{color:#237148}.exam-wrong{color:#a43a3a}.exam-verdict{font-weight:700}
 [data-exam-results]{padding:18px;border:1px solid #a6b6c9;border-radius:12px;background:#809db01a}
+[data-exam-results]>h3{margin:0 0 8px}
+[data-exam-results]>p{margin:0}
+[data-exam-result-details]{margin-top:12px}
+[data-exam-result-details]>summary{cursor:pointer;color:var(--rose-strong,#527da4);font-size:14px}
+[data-exam-result-details][open]>summary{margin-bottom:12px}
 .course-exam :focus-visible{outline:3px solid var(--rose-strong,#527da4);outline-offset:3px}
 @media(max-width:600px){.exam-header,.exam-footer,.exam-body{padding:12px}.exam-card{padding:14px}.course-exam{height:94dvh}.exam-settings{gap:12px}.exam-settings label{min-width:130px}.exam-footer>div{width:100%;justify-content:flex-end}.study-controls .segmented{flex-wrap:wrap}}
 

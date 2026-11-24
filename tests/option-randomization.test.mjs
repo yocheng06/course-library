@@ -57,7 +57,14 @@ test('exam closes and reopens without changing options; submission uses shuffled
  for(const card of h.document.querySelectorAll('.exam-card')){
   const raw=originals.get(card.dataset.examQuestionId),opts=raw.options??raw.opts??[];
   if(opts.length){const key=raw.choiceKey||h.window.courseChoiceAnswers.expectedChoiceKey(raw.answer??raw.a,opts);for(const letter of key){const input=card.querySelector(`[data-original-index="${letter.charCodeAt(0)-65}"]`);input.checked=true;input.setAttribute('checked','');input.dispatchEvent(new h.window.Event('change',{bubbles:true}));}}
-  else {const input=card.querySelector('textarea');input.value=raw.answer??raw.a;input.dispatchEvent(new h.window.Event('input',{bubbles:true}));}
+  else {
+    const fields=[...card.querySelectorAll('[data-fill-index]')];
+    if(fields.length){
+      const parts=h.window.coursePractice.answerParts(raw,raw.answer??raw.a);
+      assert.equal(parts.length,fields.length);
+      fields.forEach((input,i)=>{input.value=parts[i];input.dispatchEvent(new h.window.Event('input',{bubbles:true}));});
+    }else{const input=card.querySelector('textarea');input.value=raw.answer??raw.a;input.dispatchEvent(new h.window.Event('input',{bubbles:true}));}
+  }
  }
  h.click('[data-exam-submit]');assert.match(h.document.querySelector('[data-exam-results]').textContent,/100 分/);assert(h.document.querySelectorAll('.option.correct').length>0);
 });

@@ -117,11 +117,12 @@
     finally {if(pendingExam?.sessionId===sessionId)pendingExam=null;}
   }
   function restoreResponses() {
-    for (const [index] of entries.entries()) {
+    for (const [index, entry] of entries.entries()) {
       const card=questionList.children[index], response=responses.get(index);
       card.querySelectorAll('input').forEach(input=>{input.checked=Boolean(response?.chosen.includes(Number(input.value)));});
       const draft=card.querySelector('[data-draft]');if(draft)draft.value=response?.text||'';
-      card.querySelectorAll('[data-fill-index]').forEach((field,i)=>{field.value=response?.fields?.[i]||'';});
+      const fields=response?.fields?.length?response.fields:window.coursePractice.fillValues(entry.q,response?.text||'');
+      card.querySelectorAll('[data-fill-index]').forEach((field,i)=>{field.value=fields[i]||'';});
     }
   }
   function resumeDraft() {
@@ -168,14 +169,10 @@
     completedAt = saved.completedAt; sessionLabel = saved.label; submitted = true; confirmation = ''; resultFilter = 'all'; notice.textContent = '';
     find('[data-exam-setup]').hidden = true; find('[data-exam-session]').hidden = false; find('.exam-footer').hidden = false;
     find('[data-exam-description]').textContent = `${sessionLabel} · 上次測驗 · ${new Date(completedAt).toLocaleString('zh-TW')}（保留交卷當時題目與選項）`;
+    find('[data-exam-results]').replaceChildren();
     questionList.innerHTML = entries.map(questionMarkup).join('');
     renderNavigation();
-    for (const [index] of entries.entries()) {
-      const card = questionList.children[index], response = responses.get(index);
-      card.querySelectorAll('input').forEach(input => { input.checked = Boolean(response?.chosen.includes(Number(input.value))); });
-      const draft = card.querySelector('[data-draft]'); if (draft) draft.value = response?.text || '';
-      card.querySelectorAll('[data-fill-index]').forEach((field,i) => {field.value = response?.fields?.[i] || '';});
-    }
+    restoreResponses();
     renderResults();
   }
   lastInfo();
@@ -351,6 +348,7 @@
   function showSession() {
     find('[data-exam-setup]').hidden = true; find('[data-exam-session]').hidden = false;
     find('.exam-footer').hidden = false; find('[data-exam-results]').hidden = true;
+    find('[data-exam-results]').replaceChildren();
     find('[data-exam-submit]').hidden = false; notice.textContent = '';
     find('[data-exam-description]').textContent = `${sessionLabel} · 隨機 ${entries.length} 題；選擇題選項每場重新排列，相依選項保留原序。`;
     questionList.innerHTML = entries.map(questionMarkup).join('');
@@ -369,19 +367,20 @@
   function summary() {
     const correct = results.filter(r => r.correct).length;
     const self = results.filter(r => r.selfAssessed).length;
-    find('[data-exam-results]').innerHTML = `<h3>測驗結果：${Math.round(correct / entries.length * 100)} 分</h3><p>答對 ${correct} / ${entries.length} 題 · 答錯或未答 ${entries.length-correct} 題${self ? ` · 其中 ${self} 題為自行確認` : ''}</p><p class="exam-hint">填空依題庫文字核對；若你的其他寫法也正確，可在對照解析後自行確認。</p><label>顯示題目<select data-exam-result-filter><option value="all">全部題目</option><option value="wrong">只看錯題與未作答</option><option value="unanswered">只看未作答</option><option value="flagged">只看考試時標記</option></select></label><button type="button" class="reveal" data-exam-retry>重練錯題與未作答</button>`;
+    const expanded = find('[data-exam-result-details]')?.hasAttribute('open');
+    find('[data-exam-results]').innerHTML = `<h3>測驗結果：${Math.round(correct / entries.length * 100)} 分</h3><p>答對 ${correct} / ${entries.length} 題 · 答錯或未答 ${entries.length-correct} 題</p><details data-exam-result-details ${expanded?'open':''}><summary>詳細結果與複習工具</summary>${self ? `<p class="exam-hint">其中 ${self} 題為自行確認。</p>` : ''}<p class="exam-hint">填空依題庫文字核對；若你的其他寫法也正確，可在對照解析後自行確認。</p><label>顯示題目<select data-exam-result-filter><option value="all">全部題目</option><option value="wrong">只看錯題與未作答</option><option value="unanswered">只看未作答</option><option value="flagged">只看考試時標記</option></select></label><button type="button" class="reveal" data-exam-retry>重練錯題與未作答</button></details>`;
     const reviewLabel = document.createElement('label');
     reviewLabel.className = 'exam-review-toggle';
     reviewLabel.innerHTML = `<input type="checkbox" data-exam-mark-wrong> 將本次答錯或未答的題目全部標記為待複習（${entries.length-correct} 題）`;
     const reviewToggle = reviewLabel.querySelector('input');
     reviewToggle.checked = markWrong;
     reviewToggle.disabled = !window.learningUI?.addReviews || (!markWrong && correct === entries.length);
-    find('[data-exam-results]').append(reviewLabel);
+    find('[data-exam-result-details]').append(reviewLabel);
     const analysis=document.createElement('div');
     analysis.className='exam-analysis';
     const elapsed=startedAt ? Math.max(0,Math.round((Math.min(Date.parse(completedAt),deadline||Infinity)-startedAt)/1000)) : 0;
     analysis.innerHTML=`${startedAt?`<p class="exam-hint">用時 ${Math.floor(elapsed/60)} 分 ${elapsed%60} 秒${deadline?' · 限時測驗':''}</p>`:''}<h4>測驗結果分析</h4>${analysisTable('依單元',entry=>entry.unit||'其他單元')}${analysisTable('依主題',entry=>[entry.unit,topicName(entry)].filter(Boolean).join(' · '))}${analysisTable('依題型',entry=>questionType(entry.q))}`;
-    find('[data-exam-results]').append(analysis);
+    find('[data-exam-result-details]').append(analysis);
     find('[data-exam-result-filter]').value = resultFilter;
     find('[data-exam-retry]').hidden = correct===entries.length;
     filterResults();

@@ -247,3 +247,16 @@ test('multi-blank lists tolerate separator spacing but retain mathematical case 
  assert.equal(practice.answerParts({q:'[__1__]'},'a / b'),null);
  assert.match(practice.entryMarkup(q,'id','', {className:'',icon:''}),/data-fill-index="1"/);
 });
+test('plain underscore blanks split compact slash or line-separated answers without splitting one-blank fractions',()=>{
+ const practice=loadPractice('algorithms');
+ const q={q:'2  ____________  <- x  POP(S) 4 return  ____________',a:'S[top[S]]/S[top[S]+1]',answerProvided:true};
+ assert.deepEqual(Array.from(practice.answerParts(q,q.a)),['S[top[S]]','S[top[S]+1]']);
+ assert.deepEqual(Array.from(practice.fillValues(q,q.a)),['S[top[S]]','S[top[S]+1]']);
+ assert.equal(practice.evaluate(q.a,[],[],q,'S[top[S]] / S[top[S]+1]').correct,true);
+ assert.equal(practice.evaluate(q.a,[],[],q,'S[top[S]+1] / S[top[S]]').correct,false);
+ assert.equal(practice.evaluate(q.a,[],[],q,'S[top[S]] / ').correct,false);
+ assert.equal(practice.answerParts({q:'____________'},'3n/2'),null);
+ assert.equal(practice.answerParts(q,'a/b/c'),null);
+ assert.deepEqual(Array.from(practice.answerParts(q,'O(n/2) / 3n/2')),['O(n/2)','3n/2']);
+ assert.deepEqual(Array.from(practice.answerParts(q,'policy\nmechanism')),['policy','mechanism']);
+});
