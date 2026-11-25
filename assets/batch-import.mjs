@@ -850,7 +850,7 @@ function htmlQuestions(raw, doc, warnings, metadata) {
           }
           for (const node of promptCopy.querySelectorAll('label,script,style,template,noscript,button')) node.remove();
           const prompt = text(promptCopy).replace(/\s+/g,' ').trim()
-            .replace(/^\s*(?:(?:題目|妖獸|Beast)\s*)?\d+[.．、)]\s*/iu,'');
+            .replace(/^\s*(?:(?:題目|妖獸|Beast|Question)\s*)?\d+[.．、)]\s*/iu,'');
           if (!prompt)
             fail(`第 ${imported.length + 1} 題缺少題幹，沒有匯入任何題目。`);
           const optionLabels = [...child.querySelectorAll("label")].filter((label) =>

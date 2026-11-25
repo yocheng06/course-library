@@ -11,8 +11,8 @@ import {
   MAX_TEXT,
   normalizeText,
 } from "./batch-model.mjs?v=numeric-sequence-format-20261122";
-import { parseBatchInput } from "./batch-import.mjs?v=response-check-20261125";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=response-check-20261125";
+import { parseBatchInput } from "./batch-import.mjs?v=english-question-header-20261125";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=english-question-header-20261125";
 import {checkResponse,responseKey} from './batch-response.mjs?v=response-check-20261125';
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);

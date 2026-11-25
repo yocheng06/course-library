@@ -4,7 +4,7 @@ import {
   prepareImport,
   readBatchFiles,
   resolveImportMapping,
-} from "./batch-import.mjs?v=response-check-20261125";
+} from "./batch-import.mjs?v=english-question-header-20261125";
 
 export function setupBatchImport({ document, onApply, getImageQuestions = () => [], autoApply = false }) {
   const $ = (id) => document.getElementById(id);
