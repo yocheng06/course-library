@@ -46,10 +46,11 @@ test('GitHub and submission-service copies use identical prompt extraction',asyn
 });
 
 
-test('base URL supports missing actions, while an explicit practice action takes precedence',async()=>{
+test('base URL supports missing actions and conflicting subject sources require confirmation',async()=>{
  const body='<div class="question-block"><div class="question-text">合成測試<input type="text" class="text-answer"></div></div>';
  for(const [action,course,unit] of [['','os','L9'],['https://example.test/course/Alg26/process_practice.php?realm_id=4','algorithms','L4']]){
   const html='<html><head><base href="https://example.test/course/OS26B/practice.php?realm_id=9"></head><body><form id="practice-quiz-form"'+(action?' action="'+action+'"':'')+'>'+body+'</form></body></html>';
+  if(action){await assert.rejects(context.p.parseCoursePracticeHtml(parseHTML(html).document,html,'test.html'),/互相矛盾/);continue;}
   const value=await context.p.parseCoursePracticeHtml(parseHTML(html).document,html,'test.html');
   assert.equal(value.course,course);assert.equal(value.unit,unit);
  }
@@ -70,5 +71,5 @@ test('a form action without a realm can use the base or the saved practice URL f
  assert.equal(saved.unit,normalizeUnit('os','6'));
  const base=await parse(page('https://example.test/course/OS26B/practice.php?realm_id=6','<base href="https://example.test/course/OS26B/practice.php?realm_id=9">'));
  assert.equal(base.unit,'L9');
- await assert.rejects(parse(page('https://example.test/course/Alg26/practice.php?realm_id=6')),/無法判斷單元/);
+ await assert.rejects(parse(page('https://example.test/course/Alg26/practice.php?realm_id=6')),/互相矛盾/);
 });

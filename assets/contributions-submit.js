@@ -466,14 +466,16 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
   if (!form) return null;
   const challenge = form.id === "challenge-quiz-form";
   const action = form.getAttribute("action") || "";
-  const coursePath = /\/course\/([a-z0-9_-]+)\/(?:process_)?(?:practice|challenge)\.php(?:[?#]|$)/i;
+  const coursePath = /\/course\/([a-z0-9_-]+)\/(?:[?#]|$|(?:process_)?(?:practice|challenge)\.php(?:[?#]|$))/i;
   // Saved pages can put the course in the form action and the unit in the original URL.
   const savedUrl = /^\s*(?:<!doctype[^>]*>\s*)?<!--\s*saved from url=\(\d+\)(https?:\/\/[^\s<>]+)\s*-->/i.exec(raw)?.[1];
   const sources = [action, doc.querySelector("base[href]")?.getAttribute("href"), savedUrl]
     .map(url => ({url, code: url?.match(coursePath)?.[1]}))
     .filter(source => source.code);
   const courseCode = sources[0]?.code;
-  if (!courseCode) throw new Error("找到測驗表單，但無法辨識課程代碼；請下載題庫 JSON 匯入。");
+  if (!courseCode) throw new Error("找到測驗表單，但檔案未保存可辨識的課程網址；請重新下載完整 HTML，或匯出題庫 JSON。");
+  const sourceSubjects = new Set(sources.map(({code})=>/^OS/i.test(code)?'os':/^Alg(?:\d[A-Za-z0-9_-]*)?$/i.test(code)?'algorithms':code.toLowerCase()));
+  if (sourceSubjects.size > 1) throw new Error("檔案中的課程網址互相矛盾，請確認題目 HTML 來自同一個科目後重新匯入。");
   const course = /^OS/i.test(courseCode) ? "os" : /^Alg(?:\d[A-Za-z0-9_-]*)?$/i.test(courseCode) ? "algorithms" : null;
   if (!course) throw new Error(`目前無法辨識課程「${courseCode}」；請先選擇網站科目並使用題庫 JSON 匯入。`);
   const realmId = sources

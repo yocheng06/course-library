@@ -9,6 +9,19 @@ const context={COURSE_UNITS,normalizeUnit,URL,btoa,globalThis:{courseChoiceAnswe
 vm.runInNewContext(source.slice(source.indexOf('function normalizedImagePath('),source.indexOf('async function parseCoursePracticeHtmlPair('))+'\nthis.p={parseCoursePracticeHtml,parseCoursePracticeResultsHtml,combineCoursePracticeHtml};',context);
 const practice=(code,body,realm=6)=>`<html><head><title>匯入測試</title></head><body><form id="practice-quiz-form" action="https://example.invalid/course/${code}/process_practice.php?realm_id=${realm}">${body}</form></body></html>`;
 const block='<div class="question-block"><div class="question-text">測試<input type="text" class="text-answer"></div></div>';
+test('saved course-directory base URL supports relative forms and selected units',async()=>{
+ const html='<html><head><base href="http://example.invalid:8080/course/ALG26/"><title>9雜湊方石</title></head><body><form id="practice-quiz-form" action="process_practice.php">'+block+'</form></body></html>';
+ const local={...context,importScopeChosen:true,$:id=>({value:'L9'})};
+ vm.runInNewContext(source.slice(source.indexOf('function normalizedImagePath('),source.indexOf('async function parseCoursePracticeHtmlPair('))+'\nthis.parse=parseCoursePracticeHtml;',local);
+ const result=await local.parse(parseHTML(html).document,html,'practice.html');
+ assert.equal(result.course,'algorithms');assert.equal(result.unit,'L9');assert.equal(result.questions.length,1);
+ local.importScopeChosen=false;
+ await assert.rejects(local.parse(parseHTML(html).document,html,'practice.html'),/先選擇正確單元/);
+});
+test('conflicting source subjects do not silently select a course',async()=>{
+ const html=practice('Alg26',block).replace('<title>','<base href="https://example.invalid/course/OS26/"><title>');
+ await assert.rejects(context.p.parseCoursePracticeHtml(parseHTML(html).document,html,'test.html'),/互相矛盾/);
+});
 for(const [code,course,unit] of [['Alg26','algorithms','L6'],['alg26B','algorithms','L6'],['OS26B','os','scheduling']])test(`practice course ${code} maps to ${course}/${unit}`,async()=>{
  const html=practice(code,block);const value=await context.p.parseCoursePracticeHtml(parseHTML(html).document,html,'test.html');assert.equal(value.course,course);assert.equal(value.unit,unit);
 });
