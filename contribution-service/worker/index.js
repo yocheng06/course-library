@@ -72,10 +72,10 @@ function submissionVersion(payload,q){
   return JSON.stringify([questionKey(payload.course,payload.unit,q),normalizeType(q.type,q.images||[]),answer]);
 }
 async function pendingFingerprint(payload,q){return '__variant__:'+await hash(submissionVersion(payload,q));}
-async function removePublished(env, payload, skipped, input) {
+async function removePublished(env, payload, skipped, input, options) {
   await releaseLegacyHiddenFingerprints(env);
   const keys = await fingerprints(payload);
-  const duplicateIndexes = new Set(await duplicates(env, keys, payload));
+  const duplicateIndexes = new Set(await duplicates(env, keys, payload, null, options));
   const sourceIndexes = new Map();
   input.questions.forEach((q, i) => {
     const normalized=normalizeBatch({...input,questions:[q]},{allowConflictingVersions:true}).questions[0];
@@ -578,7 +578,7 @@ async function releaseLegacyHiddenFingerprints(env) {
     ).bind(HIDDEN_FINGERPRINT_VERSION, Date.now()),
   ]);
 }
-async function duplicateDecisions(env, payload, excludeId = null) {
+async function duplicateDecisions(env, payload, excludeId = null, {separateChoiceVersions=false} = {}) {
   const overrides = await publicBuiltinOverrides(env, payload.course);
   const revised = new Map(overrides.map(row => [row.question.id || row.question.bookmarkId, row]));
   const entries = [];
@@ -619,6 +619,11 @@ async function duplicateDecisions(env, payload, excludeId = null) {
       duplicateStemKey(entry.stem)===duplicateStemKey(stem) &&
       submissionVersion(payload,{...entry,images:imageKeys,imageKeys})===submissionVersion(payload,{...q,stem,images:imageKeys,imageKeys}));
     if(exactCandidate)return {status:'duplicate',reference:exactCandidate.id};
+    const parsed = {...q,stem,issues:[],options:q.options.map((text,i)=>({label:String.fromCharCode(65+i),text:text.replace(/^[A-H][.、．:：]\s*/i,'')}))};
+    if (separateChoiceVersions && parsed.options.length) {
+      candidates = candidates.filter(entry=>builtinSearch.sameOptions(parsed,entry));
+      if (!candidates.length) return null;
+    }
     const sameType=candidates.filter(entry=>!entry.type || normalizeType(entry.type,entry.imageKeys||[])===normalizeType(q.type,imageKeys));
     if(sameType.length)candidates=sameType;
     const ids = new Set(candidates.map(entry=>entry.id));
@@ -636,7 +641,6 @@ async function duplicateDecisions(env, payload, excludeId = null) {
       if (!sameCount.length) return review('題幹相同，但填空數不同');
       candidates=sameCount;
     }
-    const parsed = {...q,stem,issues:[],options:q.options.map((text,i)=>({label:String.fromCharCode(65+i),text:text.replace(/^[A-H][.、．:：]\s*/i,'')}))};
     const match = builtinSearch.matchQuestion(parsed,builtinSearch.buildIndex(candidates),{course:payload.course,unit:payload.unit});
     if (match.status !== 'matched') return review(match.reason);
     const normalize = value => builtinSearch.normalizeText(value);
@@ -649,8 +653,8 @@ async function duplicateDecisions(env, payload, excludeId = null) {
     return {status:'duplicate',reference};
   });
 }
-async function duplicates(env, keys, payload, excludeId = null) {
-  return (await duplicateDecisions(env,payload,excludeId)).flatMap((decision,i)=>decision?.status==='duplicate'?[i+1]:[]);
+async function duplicates(env, keys, payload, excludeId = null, options) {
+  return (await duplicateDecisions(env,payload,excludeId,options)).flatMap((decision,i)=>decision?.status==='duplicate'?[i+1]:[]);
 }
 async function attachImageKeys(env, payload, original = { questions: [] }) {
   const trusted = new Map();
@@ -743,14 +747,16 @@ async function submit(request, env, attempt=0) {
   }
   await attachImageKeys(env, payload);
   let keys, originalIndexes;
-  ({ payload, keys, originalIndexes } = await removePublished(env, payload, skipped, body));
+  const versionPolicy = {separateChoiceVersions:true};
+  ({ payload, keys, originalIndexes } = await removePublished(env, payload, skipped, body, versionPolicy));
   const pendingReviews=[];
-  const decisions=payload.questions.length?await duplicateDecisions(env,payload):[];
+  const decisions=payload.questions.length?await duplicateDecisions(env,payload,null,versionPolicy):[];
   const groups=new Map();
-  payload.questions.forEach((q,i)=>{const key=duplicateStemKey(q.stem,true);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(i);});
+  const groupKey=q=>questionKey(payload.course,payload.unit,q);
+  payload.questions.forEach((q,i)=>{const key=groupKey(q);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(i);});
   for(const [i,q] of payload.questions.entries()){
     const decision=decisions[i];
-    const peers=groups.get(duplicateStemKey(q.stem,true))||[];
+    const peers=groups.get(groupKey(q))||[];
     const differs=peers.some(j=>j!==i && submissionVersion(payload,payload.questions[j])!==submissionVersion(payload,q));
     if(decision?.status!=='review'&&!differs)continue;
     const references=[...(decision?.reference||'').split('、').filter(Boolean),...peers.filter(j=>j!==i).map(j=>`community-${id}-${j+1}`)];

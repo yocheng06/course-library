@@ -1927,7 +1927,8 @@ test("reviewed L7 aliases and reordered mixed-language choices deduplicate, whil
   };
   const newVersion = await call(env, "/api/submissions", { method: "POST", body: changed });
   assert.equal(newVersion.response.status,201,JSON.stringify(newVersion.data));
-  assert.equal(newVersion.data.pendingReviewCount,1);
+  assert.equal(newVersion.data.pendingReviewCount,0);
+  assert.equal(newVersion.data.addedCount,1);
   const confirmed=await call(env,"/api/submissions",{method:"POST",body:{...changed,confirmSimilar:true}});
   assert.equal(confirmed.response.status,200,JSON.stringify(confirmed.data));
   assert.equal(confirmed.data.status,"duplicates_only");
@@ -2325,7 +2326,28 @@ test('pending-review submissions preserve existing answers, deduplicate retries 
   assert.equal((await call(env,path+'/history',{reviewer:true})).data.items[0].action,'resolveReview');
 });
 
-test('different versions within one submission both publish as pending without fingerprint collisions',async()=>{
+test('L9 imports publish different option sets as separate questions and skip reordered duplicates',async()=>{
+  const env=await setup();
+  const base={...payload().questions[0],stem:'線性探測：以下哪些雜湊表內容正確？',type:'多選題'};
+  const first={...base,options:['A[9] = 10','A[8] = 59','A[4] = 15','A[6] = 28'],answer:'B、D'};
+  const second={...base,options:['A[8] = 59','A[0] = 22','A[6] = 28','A[3] = 4'],answer:'A、B、C'};
+  const body={...payload(),course:'algorithms',unit:'L9',questions:[first,second]};
+  const sent=await call(env,'/api/submissions',{method:'POST',body});
+  assert.equal(sent.response.status,201,JSON.stringify(sent.data));
+  assert.equal(sent.data.addedCount,2);
+  assert.equal(sent.data.pendingReviewCount,0);
+  const data=env.sql.prepare('SELECT data FROM public_questions ORDER BY id').all().map(row=>JSON.parse(row.data));
+  assert.deepEqual(data.map(q=>q.a),['B、D','A、B、C']);
+  assert.ok(data.every(q=>!q.submissionReview));
+  const reordered={...first,options:[...first.options].reverse(),answer:'A、C'};
+  const repeat=await call(env,'/api/submissions',{method:'POST',body:{...body,questions:[reordered]}});
+  assert.equal(repeat.data.status,'duplicates_only',JSON.stringify(repeat.data));
+  const conflict=await call(env,'/api/submissions',{method:'POST',body:{...body,questions:[{...first,answer:'A、B'}]}});
+  assert.equal(conflict.data.pendingReviewCount,1);
+  assert.match(conflict.data.pendingReviews[0].reason,/答案不同/);
+});
+
+test('conflicting answers for the same question within a submission both remain pending',async()=>{
   const env=await setup(),q=payload().questions[0];
   const body={...payload(),questions:[q,{...q,answer:'B'}]};
   const sent=await call(env,'/api/submissions',{method:'POST',body});
