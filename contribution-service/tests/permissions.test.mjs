@@ -2347,6 +2347,19 @@ test('L9 imports publish different option sets as separate questions and skip re
   assert.match(conflict.data.pendingReviews[0].reason,/答案不同/);
 });
 
+test('L9 fill questions asking for different array indices publish separately',async()=>{
+  const env=await setup();
+  const q={...payload().questions[0],stem:'雜湊表插入完成後，A[1] = ____________，A[6] = ____________',type:'填空題',options:[],answer:'59/17'};
+  const alternate={...q,stem:'雜湊表插入完成後，A[3] = ____________，A[7] = ____________',answer:'14/88'};
+  const batch={...payload(),course:'algorithms',unit:'L9'};
+  for(const questions of [[q],[alternate]]){
+    const sent=await call(env,'/api/submissions',{method:'POST',body:{...batch,questions}});
+    assert.equal(sent.response.status,201,JSON.stringify(sent.data));
+    assert.equal(sent.data.addedCount,1);
+    assert.equal(sent.data.pendingReviewCount,0);
+  }
+});
+
 test('conflicting answers for the same question within a submission both remain pending',async()=>{
   const env=await setup(),q=payload().questions[0];
   const body={...payload(),questions:[q,{...q,answer:'B'}]};

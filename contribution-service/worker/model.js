@@ -73,7 +73,7 @@ export function stripAnswerFormatHint(value) {
 export function duplicateStemKey(value, blankless = false) {
   const text = stripAnswerFormatHint(value)
     .replace(/(?:\\_){2,}/g, blank => blank.replaceAll("\\", ""))
-    .replace(/\[_{2,}\d*_*\]|_{2,}|\[\d+\]/g, "___")
+    .replace(/\[_{2,}\d*_*\]|_{2,}|(?<![\p{L}\p{N}_\]])\[\d+\]/gu, "___")
     .replace(/[。.!！?？]+$/u, "");
   return cleanKey(blankless ? text.replace(/___/g, "") : text);
 }
