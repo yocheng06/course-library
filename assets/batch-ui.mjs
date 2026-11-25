@@ -11,8 +11,8 @@ import {
   MAX_TEXT,
   normalizeText,
 } from "./batch-model.mjs?v=numeric-sequence-format-20261122";
-import { parseBatchInput } from "./batch-import.mjs?v=english-question-header-20261125";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=english-question-header-20261125";
+import { parseBatchInput } from "./batch-import.mjs?v=quiz-course-transfer-20261125";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=quiz-course-transfer-20261125";
 import {checkResponse,responseKey} from './batch-response.mjs?v=response-check-20261125';
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
@@ -108,8 +108,10 @@ function markChanged() {
   $("copyAnswers").disabled = stale || loading || !index || !results.length;
   const unmatchedCount = results.filter((r) => r.status === "unmatched").length;
   if (transferButton) {
-    transferButton.disabled = stale || loading || !index || !snapshotCoverage || !unmatchedCount || !!courseSuggestion || !snapshotCourse;
+    transferButton.disabled = stale || loading || !index || !snapshotCoverage || !unmatchedCount || !!courseSuggestion;
     transferButton.textContent = `轉入投稿草稿${unmatchedCount ? `（${unmatchedCount} 題）` : ""}`;
+    $("transferCourseStep").hidden = transferButton.disabled || !!snapshotCourse;
+    $("onlyUnmatched").hidden = !unmatchedCount;
   }
   $("inputCount").textContent =
     `${$("batchText").value.length.toLocaleString()} / ${MAX_TEXT.toLocaleString()} 字・最多 30 題`;
@@ -400,6 +402,8 @@ function renderAnswer(row) {
 }
 function renderResults() {
   const filter = $("resultFilter").value;
+  $("onlyUnmatched").setAttribute('aria-pressed',String(filter === 'unmatched'));
+  $("onlyUnmatched").textContent = filter === 'unmatched' ? '顯示全部結果' : snapshotCoverage ? '只看未收錄' : '只看待同步';
   const checking=$("answerMode").value==='check';
   const checks=results.map(row=>checkResponse(row,imageQuestions.find(q=>responseKey(q)===responseKey(row.question))?.savedResponse));
   $("responseFilterField").hidden=!checking;
@@ -460,7 +464,7 @@ async function compare({waitForManualSync = false, forceSync = false} = {}) {
     const scopeHint = courseSuggestion
       ? `目前比對科目為「${names[snapshotCourse]}」，這批有 ${otherMatches} 題在「${names[otherCourse]}」找到一致原題。請切換科目後重新比對。`
       : snapshotCoverage && !snapshotCourse && count("unmatched")
-        ? "要轉入投稿草稿時，請在更多設定選擇投稿科目後重新比對。"
+        ? "要轉入投稿草稿時，請在答案總表選擇投稿科目。"
         : "請展開有疑義的項目，核對題幹與選項是否完整。";
     $("courseMismatchText").textContent = courseSuggestion ? scopeHint : "";
     $("switchCourse").textContent = `改用${names[otherCourse]}比對`;
@@ -485,6 +489,7 @@ async function compare({waitForManualSync = false, forceSync = false} = {}) {
     );
     $("resultsHeading").focus({ preventScroll: true });
     $("results").scrollIntoView({ behavior: "smooth", block: "start" });
+    return true;
   } catch (error) {
     if (request !== comparisonRequest || currentSnapshot() !== expected) return;
     message(error.message, true);
@@ -532,8 +537,25 @@ $("copyAnswers").addEventListener("click", () => {
       .join("\n");
   copy(text);
 });
-transferButton?.addEventListener("click", () => {
-  if (isStale() || loading || !index || !snapshotCoverage || courseSuggestion || !snapshotCourse) return;
+transferButton?.addEventListener("click", async () => {
+  if (transferButton.disabled || isStale()) return;
+  if (!snapshotCourse) {
+    const course = $("transferCourse").value;
+    if (!Object.hasOwn(names, course)) {
+      $("transferCourse").focus();
+      return;
+    }
+    $("course").value = course;
+    restoreUnit = null;
+    units();
+    $("unit").value = "all";
+    markChanged();
+    if (!await compare({waitForManualSync:true}) || snapshotCourse !== course || isStale()) return;
+    if (transferButton.disabled) {
+      if (snapshotCoverage && !count("unmatched")) message("重新比對後，本批題目皆已收錄。");
+      return;
+    }
+  }
   try {
     stageUnmatched(results, { course: snapshotCourse, unit: snapshotUnit }, localStorage);
     location.href = window.courseTheme?.href("submit.html?v=draft-transfer-20261020#pendingHeading") || "submit.html?v=draft-transfer-20261020#pendingHeading";
@@ -567,6 +589,10 @@ $("copyTranscription").addEventListener("click", () =>
   ),
 );
 $("resultFilter").addEventListener("change", renderResults);
+$("onlyUnmatched").addEventListener('click',()=>{
+  $("resultFilter").value = $("resultFilter").value === 'unmatched' ? 'all' : 'unmatched';
+  renderResults();
+});
 $("batchText").addEventListener("input", () => {
   importedCourse = null;
   markChanged();
@@ -622,11 +648,17 @@ const importUI = setupBatchImport({ document, autoApply:true, getImageQuestions:
   if(autoCompare) void compare({waitForManualSync:true});
 } });
 markChanged();
-$("answerMode").addEventListener('change',()=>{
+function updateAnswerMode(){
   const checking=$("answerMode").value==='check';
   $("responseHelp").hidden=!checking;
-  $("chooseBatchFiles").textContent=checking?'選檔並核對作答':'選檔並查答案';
   if(results.length)renderResults();
+}
+$("answerMode").addEventListener('change',updateAnswerMode);
+$("chooseBatchFiles").addEventListener('click',()=>{$("answerMode").value='lookup';updateAnswerMode();},{capture:true});
+$("chooseResponseFile").addEventListener('click',()=>{
+  $("answerMode").value='check';
+  updateAnswerMode();
+  $("batchFiles").click();
 });
 $("responseOnlyProblems").addEventListener('change',renderResults);
 if ($("course").value === "auto") {

@@ -1,7 +1,7 @@
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 const uniqueQuestions=(course,unit,questions,onDuplicate)=>uniqueQuestionsBase(course,unit,questions,onDuplicate,{allowConflictingVersions:true});
 import {createUnitCatalog} from './unit-catalog.mjs?v=admin-units-20261103';
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=next-import-preview';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=workflow-clarity-20261125';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -462,11 +462,11 @@ async function imageFileDataUrl(file, questionNumber) {
   return `data:${type};base64,${btoa(binary)}`;
 }
 async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
-  const form = doc.querySelector("#practice-quiz-form,#challenge-quiz-form");
+  const form = doc.querySelector("#practice-quiz-form,#challenge-quiz-form,#quiz-form");
   if (!form) return null;
   const challenge = form.id === "challenge-quiz-form";
   const action = form.getAttribute("action") || "";
-  const coursePath = /\/course\/([a-z0-9_-]+)\/(?:[?#]|$|(?:process_)?(?:practice|challenge)\.php(?:[?#]|$))/i;
+  const coursePath = /\/course\/([a-z0-9_-]+)\/(?:[?#]|$|(?:process_)?(?:practice|challenge|quiz)\.php(?:[?#]|$))/i;
   // Saved pages can put the course in the form action and the unit in the original URL.
   const savedUrl = /^\s*(?:<!doctype[^>]*>\s*)?<!--\s*saved from url=\(\d+\)(https?:\/\/[^\s<>]+)\s*-->/i.exec(raw)?.[1];
   const sources = [action, doc.querySelector("base[href]")?.getAttribute("href"), savedUrl]
@@ -504,7 +504,7 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
   };
   const cleanText = (value) => value.replace(/\s+/g, " ").trim();
   const cleanQuestionStem = (value) =>
-    cleanText(value).replace(/^\s*(?:妖獸|Beast)\s*\d+\s*[.．、:：)]?\s*/iu, "");
+    cleanText(value).replace(/^\s*(?:題目|Question|妖獸|Beast)\s*\d+\s*[.．、:：)]?\s*/iu, "");
   const questions = [];
   const blocks = [...doc.querySelectorAll(".question-block")].flatMap(block => {
     if (block.closest('template') || hidden(block)) return [];
@@ -547,7 +547,7 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
     }
     for (const node of promptCopy.querySelectorAll('label,script,style,template,noscript,button,[hidden],[aria-hidden="true"]')) node.remove();
     for (const node of promptCopy.querySelectorAll('.question-text')) {
-      if (/^(?:(?:妖獸|Beast)\s*)?\d+[.．、)]\s*$/iu.test(cleanText(staticHtmlText(node)))) node.remove();
+      if (/^(?:(?:題目|Question|妖獸|Beast)\s*)?\d+[.．、)]\s*$/iu.test(cleanText(staticHtmlText(node)))) node.remove();
     }
     const preformatted = [];
     for (const node of promptCopy.querySelectorAll('pre')) {
@@ -661,9 +661,9 @@ function parseCoursePracticeResultsHtml(doc) {
     return { index, stem, correctLines };
   });
   const meaningful = answers.filter((answer) => answer.stem || answer.correctLines.length);
-  if (!meaningful.some((answer) => answer.correctLines.length)) return null;
-  if (meaningful.some((answer) => !answer.stem || !answer.correctLines.length))
-    throw new Error("答案結果 HTML 有題目缺少題幹或正確答案；請確認這是交卷後顯示答案的頁面。");
+  if (!meaningful.length) return null;
+  if (meaningful.some((answer) => !answer.stem))
+    throw new Error("交卷結果 HTML 有資料缺少題幹，無法安全配對。");
   return { answers: meaningful };
 }
 
@@ -690,7 +690,8 @@ function combineCoursePracticeHtml(questionImport, resultImport) {
     byStem.set(key, matches);
   });
   // Resolve repeated stems using answer content, never result order.
-  const resultCandidates = resultImport.answers.map(result => {
+  const usableResults = resultImport.answers.filter(result => result.correctLines.length);
+  const resultCandidates = usableResults.map(result => {
     let matches = byStem.get(practiceStemKey(result.stem)) || [];
     // Repeated local prompts can belong to different challenge groups. The
     // saved answer's blank position distinguishes layouts without using row order.
@@ -748,7 +749,7 @@ function combineCoursePracticeHtml(questionImport, resultImport) {
     matchedQuestionCount++;
   }
   for (const [stem,indices] of byStem) {
-    const rows = resultCandidates.filter((_,row) => practiceStemKey(resultImport.answers[row].stem) === stem);
+    const rows = resultCandidates.filter((_,row) => practiceStemKey(usableResults[row].stem) === stem);
     if (indices.length === rows.length) {
       const solution = solveGroup(rows);
       if (!solution) continue;
@@ -897,7 +898,7 @@ function setSubmissionMode(mode) {
   }
 }
 function updatePairStatus() {
-  for (const id of ["chooseQuestionHtml", "chooseAnswerHtml", "chooseImportImages", "chooseImportImageFiles", "chooseImport"]) $(id).disabled = importBusy;
+  for (const id of ["chooseBothHtml", "chooseQuestionHtml", "chooseAnswerHtml", "chooseImportImages", "chooseImportImageFiles", "chooseImport"]) $(id).disabled = importBusy;
   $("questionHtmlName").textContent = selectedQuestionHtml?.name || "尚未選取";
   $("answerHtmlName").textContent = selectedAnswerHtml?.name || "尚未選取";
   $("previewHtmlPair").disabled = importBusy || !selectedQuestionHtml || !selectedAnswerHtml;
@@ -981,6 +982,18 @@ async function previewSelectedPair() {
   if (!selectedQuestionHtml || !selectedAnswerHtml) return;
   await previewImport([selectedQuestionHtml, selectedAnswerHtml]);
 }
+$("chooseBothHtml").addEventListener("click", () => $("bothHtmlFiles").click());
+$("bothHtmlFiles").addEventListener("change", async event => {
+  const files = [...event.target.files];
+  event.target.value = "";
+  if (!files.length || importBusy) return;
+  if (files.length !== 2) {
+    message("請同時選取一份題目 HTML 和一份交卷結果 HTML。", true);
+    return;
+  }
+  resetImportSelection();
+  await previewImport(files);
+});
 $("previewHtmlPair").addEventListener("click",previewSelectedPair);
 $("chooseImportImages").addEventListener("click", () => $("importImages").click());
 $("chooseImportImageFiles")?.addEventListener("click", () => $("importImageFiles").click());

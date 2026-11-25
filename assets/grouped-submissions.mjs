@@ -81,6 +81,12 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
   }
   function save(){localStorage.setItem(key,JSON.stringify({version:1,groups:queue}));}
   function missingAnswerCount(group){return group.payload.questions.filter(q=>!String(q.answer||'').trim()).length;}
+  function missingAnswerLabel(group) {
+    const positions = group.payload.questions.flatMap((question,index)=>String(question.answer || '').trim() ? [] : [index + 1]);
+    if (!positions.length) return '正解已補齊';
+    const numbers = positions.slice(0,12).join('、');
+    return `待補正解 ${positions.length} 題（預覽第 ${numbers} 題${positions.length > 12 ? '等' : ''}）`;
+  }
   function answerEditor(q,groupIndex,questionIndex){
     if(!q.options.length){
       const value=String(q.answer||'');
@@ -130,7 +136,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
     const pairText=pair?'答案檔已自動配對 '+pair.matchedQuestionCount+'/'+pair.totalQuestionCount+' 題。':'';
     queue.forEach((group,index)=>{
       const counter=list.querySelector(`[data-group-index="${index}"] [data-answer-count]`);
-      if(counter)counter.textContent=`（待補正解 ${missingAnswerCount(group)} 題）`;
+      if(counter)counter.textContent=missingAnswerLabel(group);
     });
     if(missing)status.textContent=pairText+'還有 '+missing+' 題缺少正解；補齊並核對後，再勾選確認。尚未送出。';
     else if(queue.some(group=>!group.result))status.textContent=pairText+'正解已補齊。請核對題幹與選項，勾選確認後再送出。';
@@ -145,7 +151,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
     });
     list.innerHTML=queue.map((group,index)=>{
       const missing=missingAnswerCount(group),counts=groupImportCounts(group),expand=!group.result && missing>0;
-      return `<details data-group-index="${index}" ${expand?'open':''}><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`:'待送出'}${group.htmlImport?` <span data-answer-count>（待補正解 ${missing} 題）</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary><div data-group-body data-ready="${expand?'true':'false'}">${expand?groupBody(group,index):''}</div>${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+esc(group.result.id):group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，未新增投稿。'}</p>${replacedQuestionSummary(group.result)}`:''}<div data-similar></div><p data-error role="status"></p></details>`;
+      return `<details data-group-index="${index}" ${expand?'open':''}><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`:'待送出'}${group.htmlImport?` <span data-answer-count> · ${missingAnswerLabel(group)}</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary><div data-group-body data-ready="${expand?'true':'false'}">${expand?groupBody(group,index):''}</div>${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+esc(group.result.id):group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，未新增投稿。'}</p>${replacedQuestionSummary(group.result)}`:''}<div data-similar></div><p data-error role="status"></p></details>`;
     }).join('');
     updateSummary();refreshSendButton();
   }

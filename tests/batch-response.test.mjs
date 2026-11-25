@@ -3,6 +3,14 @@ import assert from 'node:assert/strict';
 import {parseHTML} from 'linkedom';
 import {parseBatchInput,prepareImport} from '../assets/batch-import.mjs';
 import {checkResponse} from '../assets/batch-response.mjs';
+test('quiz-form and course-directory base retain the course needed for draft transfer',()=>{
+ const document=parseHTML('<html><body></body></html>').document;
+ for(const [code,course] of [['OS26B','os'],['ALG26','algorithms']]){
+  const html=`<html><head><base href="http://example.test:8080/course/${code}/"></head><body><form id="quiz-form" action="process_quiz.php"><div class="question-block"><p class="question-text">Question 1. Fill <input class="text-answer" type="text"></p></div></form></body></html>`;
+  const result=parseBatchInput(html,{document,name:'quiz.html'});
+  assert.equal(result.courseHint,course);assert.equal(result.questions.length,1);
+ }
+});
 test('English saved quiz headers are removed without changing conditions, options or saved responses',()=>{
  const document=parseHTML('<html><body></body></html>').document;
  const html='<form id="quiz-form"><div class="question-block"><p class="question-text">Question 7. What does the No Preemption condition state?</p><label><input type="radio" value="B" checked>Resources cannot be taken forcibly</label><label><input type="radio" value="A">Resources can always be taken</label></div><div class="question-block"><p class="question-text">Question 9.</p><div class="question-text">Question 2 remains part of this condition: n &gt; 5, answer <input type="text" class="text-answer" value="example"></div></div></form>';

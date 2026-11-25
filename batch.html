@@ -14,7 +14,7 @@
       rel="stylesheet"
       href="assets/contributions.css?v=workflow-improvements-20261102"
     />
-    <link rel="stylesheet" href="assets/batch.css?v=batch-clean-results-20261120" />
+    <link rel="stylesheet" href="assets/batch.css?v=workflow-clarity-20261125" />
     <link
       rel="stylesheet"
       href="assets/ui-consistency.css?v=flow-clarity-20261103"
@@ -57,7 +57,7 @@
           </div>
         </details>
         <div id="importTools" class="import-tools">
-          <label>使用方式<select id="answerMode"><option value="lookup">查詢題庫答案</option><option value="check">核對我的作答</option></select></label>
+          <label hidden>使用方式<select id="answerMode"><option value="lookup">查詢題庫答案</option><option value="check">核對我的作答</option></select></label>
           <p id="responseHelp" class="muted" hidden>選取已作答、尚未提交的 HTML，讀取保存的勾選與填空，對照題庫答案；修改後請重新存檔核對。</p>
           <div class="batch-file-picker">
             <button
@@ -68,6 +68,7 @@
             >
               選檔並查答案
             </button>
+            <button id="chooseResponseFile" class="button secondary" type="button">核對已作答 HTML</button>
             <span id="batchFileNames" class="muted" aria-live="polite">尚未選檔</span>
           </div>
           <input
@@ -271,6 +272,7 @@ D. 巨集排程器
         <div class="results-heading">
           <h2 id="resultsHeading" tabindex="-1">答案總表</h2>
           <span id="resultCount" class="muted"></span>
+          <button id="onlyUnmatched" class="text-button" type="button" aria-pressed="false" hidden>只看未收錄</button>
         </div>
         <p id="responseSummary" class="notice" role="status" hidden></p>
         <div id="resultImageHelp" class="notice" role="status" hidden>
@@ -301,7 +303,10 @@ D. 巨集排程器
           >
           <div class="actions">
             <button id="copyAnswers" type="button" class="button secondary">
-              複製答案總表</button
+              複製答案總表</button>
+            <label id="transferCourseStep" hidden>選擇科目後轉入草稿<select id="transferCourse">
+              <option value="">請選擇科目</option><option value="os">作業系統</option><option value="algorithms">演算法</option>
+            </select></label>
             <button id="transferUnmatched" type="button" class="button secondary" disabled>
               補答案並分享未收錄題目
             </button>
@@ -350,7 +355,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=orange06-20261118"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=english-question-header-20261125"
+      src="assets/batch-ui.mjs?v=workflow-clarity-20261125"
     ></script>
   </body>
 </html>

@@ -205,6 +205,23 @@ test('empty submission startup and import/manual toggles do not reveal an empty 
 });
 
 
+test('two-file picker accepts either order and flags quiz results without an official answer',async()=>{
+ const ui=await page(storage());
+ const quiz='<html><head><base href="https://example.test/course/OS26B/"><title>死結</title></head><body><form id="quiz-form" action="process_quiz.php"><div class="question-block"><p class="question-text">Question 1.</p><div class="question-text">死結條件 <input type="text" class="text-answer"></div></div></form></body></html>';
+ const result='<div class="question-result"><p>題目：死結條件 [__1__]</p><p>你的答案：example</p><p>得分：1 / 1</p></div>';
+ const file=(name,html)=>({name,size:html.length,text:async()=>html});
+ ui.$('bothHtmlFiles').files=[file('result.html',result),file('quiz.html',quiz)];
+ ui.fire(ui.$('bothHtmlFiles'),'change');
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(ui.$('retryMetadataImport').hidden,false);
+ ui.$('course').value='os';ui.fire(ui.$('course'),'change');ui.$('unit').value='deadlocks';ui.fire(ui.$('unit'),'change');
+ ui.fire(ui.$('retryMetadataImport'),'click');
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.match(ui.document.querySelector('[data-answer-count]').textContent,/預覽第 1 題/);
+ assert.equal(ui.document.querySelector('[data-import-answer]').value,'');
+ assert.equal(ui.document.querySelector('[data-send]').disabled,true);
+});
+
 test('submission course palette follows selection and the restored draft without changing light/dark preference',async()=>{
  const store=storage();let ui=await page(store);
  ui.document.documentElement.dataset.theme='dark';assert.equal(ui.document.body.dataset.course,'os');

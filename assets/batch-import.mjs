@@ -701,11 +701,11 @@ function htmlQuestions(raw, doc, warnings, metadata) {
   const template = doc.createElement("template");
   template.innerHTML = raw.replace(/^\s*<!doctype[^>]*>/i, "");
   const root = template.content;
-  const form = root.querySelector("#practice-quiz-form,#challenge-quiz-form");
+  const form = root.querySelector("#practice-quiz-form,#challenge-quiz-form,#quiz-form");
   if (form) {
     const savedURL = /^\s*(?:<!doctype[^>]*>\s*)?<!--\s*saved from url=\(\d+\)(https?:\/\/[^\s<>]+)\s*-->/i.exec(raw)?.[1];
     const courses = new Set([form.getAttribute("action"), root.querySelector("base[href]")?.getAttribute("href"), savedURL]
-      .map(url => /\/course\/(OS(?:\d[a-z0-9_-]*)?|Alg(?:\d[a-z0-9_-]*)?)\/(?:process_)?(?:practice|challenge)\.php(?:[?#]|$)/i.exec(url || "")?.[1])
+      .map(url => /\/course\/(OS(?:\d[a-z0-9_-]*)?|Alg(?:\d[a-z0-9_-]*)?)\/(?:[?#]|$|(?:process_)?(?:practice|challenge|quiz)\.php(?:[?#]|$))/i.exec(url || "")?.[1])
       .filter(Boolean).map(code => /^os/i.test(code) ? "os" : "algorithms"));
     if (courses.size === 1) metadata.courseHint = [...courses][0];
   }
