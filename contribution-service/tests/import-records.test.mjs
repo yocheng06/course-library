@@ -103,5 +103,27 @@ test('stale list responses never replace the selected status and clear aborts ou
   const first=h.ui.show();h.$('[data-import-status]').value='pending';h.fire(h.$('[data-import-status]'),'change');
   pending[1].resolve({items:[entry('pending')],nextCursor:null});await tick();pending[0].resolve({items:[entry('approved')],nextCursor:null});await first;
   assert.match(h.$('[data-import-count]').textContent,/舊版待審/);assert.ok(h.$('[data-import-decision="approve"]')===null);h.toggle(h.$('.import-record'));assert.ok(h.$('[data-import-decision="approve"]'));
-  h.fire(h.$('[data-import-refresh]'),'click');h.ui.clear();assert.equal(pending[2].options.signal.aborted,true);pending[2].resolve({items:[entry('pending')],nextCursor:null});await tick();assert.equal(h.$('.import-record'),null);
+  h.fire(h.$('[data-import-controls]'),'submit');h.ui.clear();assert.equal(pending[2].options.signal.aborted,true);pending[2].resolve({items:[entry('pending')],nextCursor:null});await tick();assert.equal(h.$('.import-record'),null);
+});
+
+test('import search sends the same filters on later pages and reset clears them',async()=>{
+  const calls=[];
+  const h=setup(async path=>{
+    const url=new URL(path,'https://test.invalid');
+    calls.push(url);
+    if(url.pathname==='/api/manage/units')return {units:[{id:'L21',label:'自訂單元'}]};
+    return {items:[],nextCursor:url.searchParams.has('cursor')?null:entry().id};
+  });
+  await h.ui.show();
+  const field=name=>h.$('[data-import-filter="'+name+'"]');
+  field('course').value='os';h.fire(field('course'),'change');await tick();
+  field('unit').value='L21';field('q').value='題目與答案.html';field('from').value='2026-11-18';field('to').value='2026-11-25';
+  h.fire(h.$('[data-import-controls]'),'submit');await tick();
+  h.fire(h.$('[data-import-more]'),'click');await tick();
+  const first=Object.fromEntries(calls.at(-2).searchParams);
+  assert.deepEqual(first,{status:'approved',course:'os',unit:'L21',q:'題目與答案.html',from:'2026-11-18',to:'2026-11-25'});
+  assert.deepEqual(Object.fromEntries(calls.at(-1).searchParams),{...first,cursor:entry().id});
+  h.fire(h.$('[data-import-reset]'),'click');await tick();
+  assert.deepEqual(Object.fromEntries(calls.at(-1).searchParams),{status:'approved'});
+  h.ui.clear();
 });

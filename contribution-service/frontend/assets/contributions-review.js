@@ -6,8 +6,8 @@ import {setupSystemPanel} from './system-backup.mjs?v=improvements-20261104';
 import {setupUnitManager} from './unit-manager.mjs?v=unit-drag-add-20261103';
 import {setupLibraryHealth} from './library-health.mjs?v=admin-workflow-20261103';
 import { api, message, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
-import { setupLibraryManager } from './library-manager.mjs?v=admin-question-list-20261122';
-import { setupImportRecords } from './import-records.mjs?v=treasure-unit-20261030';
+import { setupLibraryManager } from './library-manager.mjs?v=management-workflow-20261125';
+import { setupImportRecords } from './import-records.mjs?v=management-workflow-20261125';
 
 const $ = id => document.getElementById(id);
 setupManagementMenu(document.querySelector('.management-tools'));
@@ -31,8 +31,9 @@ function setActiveView(view) {
   for (const button of document.querySelectorAll('[data-view]')) {
     button.setAttribute('aria-current', button.dataset.view === view ? 'page' : 'false');
   }
-  for (const id of ['managementSearch', 'managementNav', 'libraryWorkspace']) $(id).hidden = !browsingQuestions;
-  $('returnToQuestions').hidden = browsingQuestions;
+  for (const id of ['managementSearch', 'libraryWorkspace']) $(id).hidden = !browsingQuestions;
+  $('managementNav').hidden = !browsingQuestions && view!=='imports';
+  $('returnToQuestions').hidden = browsingQuestions || view==='imports';
   $('systemWorkspace').hidden = view !== 'system';
   $('securityWorkspace').hidden = view !== 'security';
   $('moderationWorkspace').hidden = view !== 'moderation';

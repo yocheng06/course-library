@@ -24,9 +24,11 @@ export function setupImportRecords({
   if (!drafts || typeof drafts !== 'object' || Array.isArray(drafts)) drafts = {};
   if (!legacyDrafts || typeof legacyDrafts !== 'object' || Array.isArray(legacyDrafts)) legacyDrafts = {};
   const notifyChange = change => { try { onChanged(change)?.catch?.(() => {}); } catch {} };
-  container.innerHTML = `<div class="section-heading"><div><h2>匯入紀錄</h2><p class="muted">查看每批匯入內容，或整批、逐題移除及重新公開。新投稿已直接公開。</p></div></div><form class="panel review-controls" data-import-controls><label>紀錄範圍<select data-import-status><option value="approved">已公開匯入</option><option value="pending">舊版待審</option><option value="rejected">舊版已退回</option></select></label><button type="button" class="button secondary" data-import-refresh>重新整理</button></form><p role="status" aria-live="polite" data-import-count></p><div data-import-list></div><button class="button secondary" type="button" data-import-more hidden>載入更多紀錄</button>`;
+  container.innerHTML = `<div class="section-heading"><div><h2>匯入紀錄</h2><p class="muted">查看每批匯入內容，或整批、逐題移除及重新公開。新投稿已直接公開。</p></div></div><form class="panel review-controls import-record-filters" data-import-controls><label>紀錄範圍<select data-import-status><option value="approved">已公開匯入</option><option value="pending">舊版待審</option><option value="rejected">舊版已退回</option></select></label><label class="import-filter-query">檔名、題庫名稱或投稿編號<input type="search" maxlength="160" data-import-filter="q"></label><label>科目<select data-import-filter="course"><option value="">全部科目</option>${Object.entries(COURSE_UNITS).map(([id,c])=>`<option value="${esc(id)}">${esc(c.name)}</option>`).join('')}</select></label><label>單元<select data-import-filter="unit" disabled><option value="">全部單元</option></select></label><label>起始日期<input type="date" data-import-filter="from"></label><label>結束日期<input type="date" data-import-filter="to"></label><div class="import-filter-actions"><button type="submit" class="button" data-import-refresh>搜尋紀錄</button><button type="button" class="text-button" data-import-reset>重設篩選</button></div></form><p role="status" aria-live="polite" data-import-count></p><div data-import-list></div><button class="button secondary" type="button" data-import-more hidden>載入更多紀錄</button>`;
   const $ = selector => container.querySelector(selector);
-  const current = () => cache.get(selectedStatus);
+  let appliedFilters = new URLSearchParams();
+  const filterParams = () => new URLSearchParams({status:selectedStatus,...Object.fromEntries(appliedFilters)});
+  const current = () => cache.get(filterParams().toString());
   const record = id => details.get(id) || current()?.items.get(id);
   const status = text => { $('[data-import-count]').textContent = text; };
   const date = value => { const d = new Date(value); return Number.isNaN(d.getTime()) ? '時間未提供' : d.toLocaleString('zh-TW'); };
@@ -36,7 +38,7 @@ export function setupImportRecords({
     return Object.entries(units).map(([id, name]) => `<option value="${esc(id)}" ${id === selected ? 'selected' : ''}>${esc(name)}</option>`).join('');
   };
   const batchTitle = entry => `${entry.title || entry.payload?.title || '未命名匯入'} · ${COURSE_UNITS[entry.course || entry.payload?.course]?.name || entry.course || entry.payload?.course || ''} · ${unitLabel(entry.course || entry.payload?.course, entry.unit || entry.payload?.unit, entry.unitTitle || entry.payload?.unitTitle)} · ${entry.questionCount ?? entry.payload?.questions?.length ?? 0} 題`;
-  const summary = entry => `<details class="panel import-record" data-import-id="${esc(entry.id)}"><summary>${esc(batchTitle(entry))}<span class="muted"> · ${esc(date(entry.createdAt))}</span></summary><div data-import-body></div></details>`;
+  const summary = entry => `<details class="panel import-record" data-import-id="${esc(entry.id)}"><summary><span>${esc(batchTitle(entry))}<span class="muted"> · ${esc(date(entry.createdAt))}</span></span><span class="import-record-open">查看這批題目</span></summary><div data-import-body></div></details>`;
   function render() {
     const data = current();
     $('[data-import-list]').innerHTML = data ? [...data.items.values()].map(summary).join('') : '';
@@ -45,17 +47,25 @@ export function setupImportRecords({
   }
   async function load(append = false) {
     flush();
-    const seq = ++sequence, wanted = selectedStatus, old = cache.get(wanted);
+    const params = filterParams();
+    const seq = ++sequence, wanted = params.toString(), old = cache.get(wanted);
     controller?.abort(); controller = new AbortController();
+    if(!old){
+      $('[data-import-list]').replaceChildren();
+      $('[data-import-more]').hidden=true;
+      details.clear();
+    }
     status(append ? '正在載入更多紀錄…' : '正在載入匯入紀錄…');
     $('[data-import-refresh]').disabled = true; $('[data-import-more]').disabled = true;
     try {
-      const result = await api('/api/manage/imports?status=' + wanted + (append && old?.cursor ? '&cursor=' + encodeURIComponent(old.cursor) : ''), { signal: controller.signal });
+      if(append && old?.cursor)params.set('cursor',old.cursor);
+      const result = await api('/api/manage/imports?' + params, { signal: controller.signal });
       if (!active || seq !== sequence) return;
       const items = append ? new Map(old?.items || []) : new Map();
       if (!append) details.clear();
       for (const item of result.items || []) items.set(item.id, item);
       cache.set(wanted, { items, cursor: result.nextCursor || null });
+      if(cache.size>20)cache.delete(cache.keys().next().value);
       render();
     } catch (error) {
       if (active && seq === sequence && error.name !== 'AbortError') status(error.message + (old ? ' 原有紀錄仍保留，可重新整理。' : ' 請重新整理再試。'));
@@ -187,7 +197,10 @@ export function setupImportRecords({
     busy = true; workingCard = card; card.querySelectorAll('button,input,select,textarea').forEach(n => n.disabled = true);
     try {
       const result = await api('/api/review/' + entry.id, { method:'POST', body:JSON.stringify({ action, revision:entry.revision, payload:action === 'approve' ? payload : undefined, note, confirmSimilar:card.querySelector('.similar-consent')?.checked === true }) });
-      forgetDraft(entry); details.delete(entry.id); current()?.items.delete(entry.id); cache.delete(action === 'approve' ? 'approved' : 'rejected'); render();
+      forgetDraft(entry); details.delete(entry.id); current()?.items.delete(entry.id);
+      const activeKey=filterParams().toString();
+      for(const key of cache.keys())if(key!==activeKey)cache.delete(key);
+      render();
       message(action === 'approve' ? `已新增 ${result.acceptedCount} 題${result.skippedCount ? `，略過 ${result.skippedCount} 題重複題` : ''}。` : '已退回這批投稿。'); notifyChange({type:'review'});
     } catch (error) { if (error.details?.code === 'similar_questions') showSimilar(card.querySelector('.similar-warning'), error.details.possibleDuplicates); message(error.message + ' 編輯草稿仍保留。',true); }
     finally { busy = false; workingCard = null; if (card.isConnected) card.querySelectorAll('button,input,select,textarea').forEach(n => n.disabled = false); }
@@ -199,8 +212,8 @@ export function setupImportRecords({
     if (target === card) {
       if (card.hasAttribute('open')) {
         for (const other of container.querySelectorAll('.import-record[open]')) if (other !== card) { capture(other); details.delete(other.dataset.importId); other.removeAttribute('open'); other.querySelector('[data-import-body]').replaceChildren(); }
-        try { const full = entry.payload?.questions ? (details.set(entry.id,entry),entry) : await loadDetail(entry); if (card.hasAttribute('open')) openRecord(card, full); }
-        catch (error) { if (card.hasAttribute('open')) { card.removeAttribute('open'); message(error.message + ' 請重新開啟再試。', true); } }
+        try { const full = entry.payload?.questions ? (details.set(entry.id,entry),entry) : await loadDetail(entry); if (card.isConnected && card.hasAttribute('open')) openRecord(card, full); }
+        catch (error) { if (card.isConnected && card.hasAttribute('open')) { card.removeAttribute('open'); message(error.message + ' 請重新開啟再試。', true); } }
       } else { capture(card); details.delete(entry.id); persist(); card.querySelector('[data-import-body]').replaceChildren(); }
     } else if (target.matches('[data-question-index]')) {
       const body = target.querySelector('[data-question-body]'), i = Number(target.dataset.questionIndex);
@@ -212,14 +225,32 @@ export function setupImportRecords({
   }, true);
   listen(container, 'input', e => { const card = e.target.closest('.import-record'); if (card) schedule(card); });
   listen(container, 'change', e => {
-    if (e.target.matches('[data-import-status]')) { if (busy) { e.target.value = selectedStatus; return; } flush(); selectedStatus = e.target.value; if (current()) render(); else load(); return; }
+    if (e.target.matches('[data-import-status]')) {
+      if (busy) { e.target.value = selectedStatus; return; }
+      flush();
+      selectedStatus = e.target.value;
+      if(current()){
+        sequence++;
+        controller?.abort();
+        details.clear();
+        render();
+        $('[data-import-refresh]').disabled=false;
+        $('[data-import-more]').disabled=false;
+      }else void load();
+      return;
+    }
     const card = e.target.closest('.import-record'); if (!card) return; const entry = record(card.dataset.importId);
     if (e.target.matches('[data-publication-id]')) selection(card,entry);
     else { if (e.target.dataset.batch === 'course') card.querySelector('[data-batch="unit"]').innerHTML = unitOptions(e.target.value,'',''); schedule(card); }
   });
   listen(container, 'click', e => {
     const button = e.target.closest('button'); if (!button || busy) return;
-    if (button.matches('[data-import-refresh]')) return void load();
+    if (button.matches('[data-import-reset]')) {
+      for(const field of container.querySelectorAll('[data-import-filter]'))field.value='';
+      setFilterUnits('');
+      appliedFilters=new URLSearchParams();
+      return void load();
+    }
     if (button.matches('[data-import-more]')) return void load(true);
     const card = button.closest('.import-record'); if (!card) return; const entry = record(card.dataset.importId);
     if (button.dataset.publicationAction) return void visibility(card,entry,button.dataset.publicationAction);
@@ -227,7 +258,32 @@ export function setupImportRecords({
     if (button.matches('[data-import-remove-question]')) { capture(card); button.closest('[data-question-index]').remove(); schedule(card); }
     if (button.matches('[data-import-discard]') && window.confirm('確定捨棄這批尚未送出的本機編輯草稿？已公開資料不受影響。')) { forgetDraft(entry); openRecord(card,entry); }
   });
-  listen($('[data-import-controls]'), 'submit', e => e.preventDefault());
+  function setFilterUnits(course, catalog) {
+    const field=$('[data-import-filter="unit"]'), currentUnit=field.value;
+    const options=catalog||Object.entries(COURSE_UNITS[course]?.units||{}).map(([id,label])=>({id,label}));
+    field.innerHTML='<option value="">全部單元</option>'+options.map(row=>`<option value="${esc(row.id)}">${esc(row.label||row.title||row.id)}</option>`).join('');
+    field.value=options.some(row=>row.id===currentUnit)?currentUnit:'';
+    field.disabled=!course;
+  }
+  const filterCourse=$('[data-import-filter="course"]');
+  let unitRequest=0;
+  listen(filterCourse,'change',async ()=>{
+    const ticket=++unitRequest, course=filterCourse.value;
+    $('[data-import-filter="unit"]').value='';
+    setFilterUnits(course);
+    if(!course)return;
+    try {
+      const data=await api('/api/manage/units?course='+encodeURIComponent(course));
+      if(active && ticket===unitRequest && filterCourse.value===course && Array.isArray(data.units))setFilterUnits(course,data.units);
+    } catch {}
+  });
+  listen($('[data-import-controls]'), 'submit', e => {
+    e.preventDefault();
+    if(busy)return;
+    appliedFilters=new URLSearchParams();
+    for(const field of container.querySelectorAll('[data-import-filter]'))if(field.value.trim())appliedFilters.set(field.dataset.importFilter,field.value.trim());
+    void load();
+  });
   listen(window, 'beforeunload', flush);
   return {
     async show({refresh=false}={}) { active = true; container.hidden = false; if (refresh || !current()) await load(); },

@@ -49,6 +49,7 @@ async function managementSummaries(env, course, query = '') {
     COALESCE(json_extract(p.data,'$.answer'),json_extract(p.data,'$.a'),'') AS answer,
     json_extract(p.data,'$.unitTitle') AS unit_title,json_extract(p.data,'$.mergedInto') AS merged_into,
     json_extract(p.data,'$.submissionReview.status') AS review_status,
+    json_extract(p.data,'$.submissionReview.reason') AS review_reason,
     EXISTS(SELECT 1 FROM question_history h WHERE h.question_id=p.id) AS has_history,
     COALESCE((SELECT (h.course=p.course AND h.unit=p.unit AND ${originalContentComparison}) FROM question_history h WHERE h.question_id=p.id ORDER BY h.revision ASC,h.created_at ASC,id ASC LIMIT 1),1) AS original_content
     ${query ? ',p.data AS search_text' : ''}
@@ -61,6 +62,7 @@ async function managementSummaries(env, course, query = '') {
       category: r.category, type: r.type, answer: String(r.answer || '').slice(0, 200),
       revision: r.revision, published: !deleted, deleted, status: deleted ? 'deleted' : 'published',
       hasHistory: Boolean(r.has_history), currentOriginal: Boolean(r.original_content), pendingReview:r.review_status==='pending',
+      reviewReason: r.review_status==='pending' ? String(r.review_reason || '').slice(0,240) : '',
       updatedAt: r.updated_at || r.created_at,
       _search: query ? (r.id + ' ' + r.search_text).toLocaleLowerCase() : '' });
   }
@@ -143,23 +145,41 @@ async function listManagementImports(request, env, url) {
   const status=url.searchParams.get('status')||'approved',cursor=url.searchParams.get('cursor')||'';
   if(!['approved','pending','rejected'].includes(status)|| (cursor&&!uuid.test(cursor)))
     throw new HttpError(400,'匯入紀錄篩選條件不正確。');
-  let rows;
+  const filters=['status=?'], args=[status];
+  const query=(url.searchParams.get('q')||'').trim().slice(0,160);
+  const course=url.searchParams.get('course')||'', unit=url.searchParams.get('unit')||'';
+  if(course && !['os','algorithms'].includes(course))throw new HttpError(400,'匯入紀錄科目不正確。');
+  if(unit && !/^[a-zA-Z0-9_-]{1,40}$/.test(unit))throw new HttpError(400,'匯入紀錄單元不正確。');
+  if(course){filters.push("json_extract(payload,'$.course')=?");args.push(course);}
+  if(unit){filters.push("json_extract(payload,'$.unit')=?");args.push(unit);}
+  if(query){
+    filters.push("instr(lower(id || ' ' || coalesce(json_extract(payload,'$.title'),'') || ' ' || coalesce(json_extract(payload,'$.source'),'')),lower(?))>0");
+    args.push(query);
+  }
+  const boundaries=['from','to'].map(key=>{
+    const value=url.searchParams.get(key);
+    if(!value)return null;
+    const time=Date.parse(value+'T00:00:00+08:00');
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(value) || !Number.isFinite(time) ||
+       new Date(time+8*3600000).toISOString().slice(0,10)!==value)
+      throw new HttpError(400,'匯入紀錄日期不正確。');
+    return time;
+  });
+  const [from,to]=boundaries;
+  if(from!==null && to!==null && from>to)throw new HttpError(400,'起始日期不可晚於結束日期。');
+  if(from!==null){filters.push('created_at>=?');args.push(from);}
+  if(to!==null){filters.push('created_at<?');args.push(to+86400000);}
   if(cursor){
     const pivot=await env.DB.prepare('SELECT created_at FROM submissions WHERE id=?').bind(cursor).first();
     if(!pivot)throw new HttpError(400,'匯入紀錄頁碼已失效。');
-    rows=await env.DB.prepare(`SELECT id,status,revision,created_at,reviewed_at,note,
-      json_extract(payload,'$.course') AS course,json_extract(payload,'$.unit') AS unit,
-      json_extract(payload,'$.unitTitle') AS unit_title,json_extract(payload,'$.title') AS title,
-      json_array_length(json_extract(payload,'$.questions')) AS question_count
-      FROM submissions WHERE status=? AND (created_at<? OR (created_at=? AND id<?))
-      ORDER BY created_at DESC,id DESC LIMIT 21`).bind(status,pivot.created_at,pivot.created_at,cursor).all();
-  }else{
-    rows=await env.DB.prepare(`SELECT id,status,revision,created_at,reviewed_at,note,
-      json_extract(payload,'$.course') AS course,json_extract(payload,'$.unit') AS unit,
-      json_extract(payload,'$.unitTitle') AS unit_title,json_extract(payload,'$.title') AS title,
-      json_array_length(json_extract(payload,'$.questions')) AS question_count
-      FROM submissions WHERE status=? ORDER BY created_at DESC,id DESC LIMIT 21`).bind(status).all();
+    filters.push('(created_at<? OR (created_at=? AND id<?))');
+    args.push(pivot.created_at,pivot.created_at,cursor);
   }
+  const rows=await env.DB.prepare(`SELECT id,status,revision,created_at,reviewed_at,note,
+      json_extract(payload,'$.course') AS course,json_extract(payload,'$.unit') AS unit,
+      json_extract(payload,'$.unitTitle') AS unit_title,json_extract(payload,'$.title') AS title,
+      json_array_length(json_extract(payload,'$.questions')) AS question_count
+      FROM submissions WHERE ${filters.join(' AND ')} ORDER BY created_at DESC,id DESC LIMIT 21`).bind(...args).all();
   const page=rows.results.slice(0,20).map(r=>({id:r.id,status:r.status,revision:r.revision,createdAt:r.created_at,
     reviewedAt:r.reviewed_at,note:r.note,course:r.course,unit:r.unit,unitTitle:r.unit_title||'',title:r.title||'',questionCount:Number(r.question_count)||0}));
   if(status==='approved'&&page.length){

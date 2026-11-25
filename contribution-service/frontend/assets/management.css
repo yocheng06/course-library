@@ -349,3 +349,55 @@ html[data-theme=dark] .state-badge.pending {
 .visitor-pager span {
   font-size: 14px;
 }
+
+.active-library-filters {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px 10px;
+  align-items:center;
+  margin:0 0 10px;
+  color:var(--muted);
+}
+.active-library-filters button[data-clear-filter]:not(.text-button) {
+  color:var(--ink);
+  background:var(--soft);
+  border:1px solid var(--line);
+  border-radius:999px;
+  min-height:36px;
+  padding:4px 10px;
+  overflow-wrap:anywhere;
+  text-align:left;
+  cursor:pointer;
+}
+.question-unit,.review-reason {
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:13px;
+  overflow-wrap:anywhere;
+}
+.question-row-meta {margin-top:4px;font-size:13px;color:var(--muted)}
+.question-row-meta summary,.import-record-open {color:var(--accent);cursor:pointer}
+.review-decision-actions,.import-filter-actions {display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.review-decision-actions {margin-top:12px}
+.import-record-filters {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:end;
+  gap:12px;
+}
+.import-record-filters label {margin:0;min-width:0}
+.import-record-filters input,.import-record-filters select {width:100%;min-width:0}
+.import-record-filters .import-filter-query {grid-column:span 2}
+.import-record summary .import-record-open {display:inline-block;margin-left:12px;font-weight:650}
+.import-record[open] summary .import-record-open {display:none}
+@media(max-width:760px) {
+  .management-page .library-table tbody tr:not(:has(.empty-state)) {
+    grid-template-columns:28px minmax(0,1fr) auto;
+  }
+  .management-page .library-table tbody td:nth-child(2) {grid-column:2/-1}
+  .management-page .library-table tbody td:nth-child(3) {grid-row:2;grid-column:2}
+  .management-page .library-table tbody td:nth-child(4) {grid-row:2;grid-column:3;align-self:start}
+  .import-record-filters {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .import-filter-actions {grid-column:1/-1}
+}

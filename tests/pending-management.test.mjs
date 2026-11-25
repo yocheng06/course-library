@@ -20,7 +20,7 @@ test('pending management shows review controls and removes a resolved item from 
   window.HTMLElement.prototype.focus=()=>{};
   const dialog=document.getElementById('questionDialog');dialog.showModal=()=>{dialog.open=true;};dialog.close=()=>{dialog.open=false;};
   let resolved=false;const posts=[];
-  const row={id:'community-example',source:'community',key:'community:os:community-example',course:'os',unit:'basics',stem:'Example question',type:'填空題',revision:1,pendingReview:true};
+  const row={id:'community-example',source:'community',key:'community:os:community-example',course:'os',unit:'basics',stem:'Example question',type:'填空題',revision:1,pendingReview:true,reviewReason:'題幹相同，但答案不同'};
   const item=()=>({...row,pendingReview:!resolved,revision:resolved?2:1,question:{stem:row.stem,type:'填空題',category:'測試',options:[],answer:'example',images:[],submissionReview:{status:resolved?'resolved':'pending',reason:'答案不同',references:['basics-1']}}});
   globalThis.fetch=async(url,options)=>{const u=new URL(url);let data;
     if(options.method==='POST'){posts.push(JSON.parse(options.body));resolved=true;data={item:item()};}
@@ -30,9 +30,13 @@ test('pending management shows review controls and removes a resolved item from 
   };
   const ui=setupLibraryManager();await ui.show('pending');
   assert.match(document.getElementById('libraryRows').textContent,/待核對/);
+  assert.match(document.getElementById('libraryRows').textContent,/答案不同/);
   document.querySelector('[data-open]').click();
   for(let i=0;i<20&&!document.querySelector('[data-action="resolve"]');i++)await new Promise(r=>setImmediate(r));
   assert.match(dialog.textContent,/合併至選取的既有題目/);
+  assert.match(dialog.textContent,/保留兩個版本/);
+  for(let i=0;i<20&&!document.querySelector('#reviewComparison [role="table"]');i++)await new Promise(r=>setImmediate(r));
+  assert.ok(document.querySelector('#reviewComparison [role="table"]'));
   const form=document.getElementById('managedQuestionForm');Object.defineProperty(form,'elements',{value:{namedItem:name=>form.querySelector(`[name="${name}"]`)}});
   document.querySelector('[data-action="resolve"]').click();
   for(let i=0;i<30&&!document.getElementById('editorStatus')?.textContent.includes('已同步');i++)await new Promise(r=>setImmediate(r));
