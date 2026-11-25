@@ -57,6 +57,8 @@
           </div>
         </details>
         <div id="importTools" class="import-tools">
+          <label>使用方式<select id="answerMode"><option value="lookup">查詢題庫答案</option><option value="check">核對我的作答</option></select></label>
+          <p id="responseHelp" class="muted" hidden>選取已作答、尚未提交的 HTML，讀取保存的勾選與填空，對照題庫答案；修改後請重新存檔核對。</p>
           <div class="batch-file-picker">
             <button
               id="chooseBatchFiles"
@@ -270,6 +272,7 @@ D. 巨集排程器
           <h2 id="resultsHeading" tabindex="-1">答案總表</h2>
           <span id="resultCount" class="muted"></span>
         </div>
+        <p id="responseSummary" class="notice" role="status" hidden></p>
         <div id="resultImageHelp" class="notice" role="status" hidden>
           <p>部分題目缺少題圖，補上圖片後才能完整比對。</p>
           <button id="completeResultImages" type="button" class="button secondary">補上題圖並重新查題</button>
@@ -288,6 +291,7 @@ D. 巨集排程器
           文字、科目或範圍已變更，請重新比對。下方保留的是上一批結果。
         </p>
         <div class="result-tools">
+          <label id="responseFilterField" hidden><input type="checkbox" id="responseOnlyProblems" checked>只看需要檢查的題目</label>
           <label
             >顯示<select id="resultFilter">
               <option value="all">全部結果</option>
@@ -346,7 +350,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=orange06-20261118"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=multiline-answers-20261122"
+      src="assets/batch-ui.mjs?v=response-check-20261125"
     ></script>
   </body>
 </html>

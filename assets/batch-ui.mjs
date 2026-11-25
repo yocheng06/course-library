@@ -11,8 +11,9 @@ import {
   MAX_TEXT,
   normalizeText,
 } from "./batch-model.mjs?v=numeric-sequence-format-20261122";
-import { parseBatchInput } from "./batch-import.mjs?v=numeric-sequence-format-20261122";
-import { setupBatchImport } from "./batch-import-ui.mjs?v=numeric-sequence-format-20261122";
+import { parseBatchInput } from "./batch-import.mjs?v=response-check-20261125";
+import { setupBatchImport } from "./batch-import-ui.mjs?v=response-check-20261125";
+import {checkResponse,responseKey} from './batch-response.mjs?v=response-check-20261125';
 import { stageUnmatched } from "./submission-inbox.mjs?v=draft-transfer-20261020";
 const $ = (id) => document.getElementById(id);
 function ensureTransferButton() {
@@ -377,7 +378,7 @@ function combineCourseMatches(questions) {
     };
   });
 }
-function renderAnswer(row) {
+function bankAnswer(row) {
   if (row.choiceKey?.length > 1) {
     return row.question.options
       .filter(({ label }) => row.choiceKey.includes(label))
@@ -386,9 +387,26 @@ function renderAnswer(row) {
   }
   return esc(row.answer || "尚無可確認答案");
 }
+function renderAnswer(row) {
+  if($("answerMode").value!=='check')return bankAnswer(row);
+  const response=imageQuestions.find(q=>responseKey(q)===responseKey(row.question))?.savedResponse;
+  const check=checkResponse(row,response);
+  const yours=response?.kind==='choice' ? response.values.map(label=>{
+    const option=row.question.options.find(o=>o.label===label);
+    return label+'. '+(option?.text || '');
+  }).join('\n') : response?.values.map((value,i)=>`${response.values.length>1?'第 '+(i+1)+' 格：':''}${value || '未填'}`).join('\n');
+  return `<strong>${esc(check.label)}</strong><p>你的答案：<br>${esc(yours || '未作答').replace(/\n/g,'<br>')}</p><p>題庫答案：<br>${bankAnswer(row)}</p>`+
+    (check.slots.length>1?check.slots.map((slot,i)=>`<p>第 ${i+1} 格：${slot.same?'符合':!slot.value?'未填':'文字不同'}；題庫：${esc(slot.answer)}</p>`).join(''):'');
+}
 function renderResults() {
   const filter = $("resultFilter").value;
-  const shown = results.filter((r) => filter === "all" || r.status === filter);
+  const checking=$("answerMode").value==='check';
+  const checks=results.map(row=>checkResponse(row,imageQuestions.find(q=>responseKey(q)===responseKey(row.question))?.savedResponse));
+  $("responseFilterField").hidden=!checking;
+  $("responseSummary").hidden=!checking;
+  $("resultsHeading").textContent=checking?'作答核對結果':'答案總表';
+  $("responseSummary").textContent=`共 ${results.length} 題：符合 ${checks.filter(c=>c.status==='same').length} 題、不同 ${checks.filter(c=>c.status==='different').length} 題、未作答或未填完整 ${checks.filter(c=>c.status==='unanswered').length} 題、無法確認 ${checks.filter(c=>c.status==='unknown').length} 題。填空依題庫文字核對；其他正確寫法請對照原題與解析確認。`;
+  const shown = results.filter((r,i) => (filter === "all" || r.status === filter) && (!checking || !$("responseOnlyProblems").checked || checks[i].status!=='same'));
   $("resultRows").innerHTML = shown
     .map(
       (row) =>
@@ -585,7 +603,7 @@ try {
     draft.text.length <= MAX_TEXT
   ) {
     $("batchText").value = draft.text;
-    imageQuestions = Array.isArray(draft.imageQuestions) ? draft.imageQuestions.filter(q=>validImageHashes(q.imageHashes)).slice(0,30) : [];
+    imageQuestions = Array.isArray(draft.imageQuestions) ? draft.imageQuestions.filter(q=>validImageHashes(q.imageHashes) || q.savedResponse).slice(0,30) : [];
     importedCourse = Object.hasOwn(names, draft.importedCourse) ? draft.importedCourse : null;
     if (!Object.hasOwn(names, selectedCourse) && draft.scopePreference === 1 && Object.hasOwn(names, draft.course))
       $("course").value = draft.course;
@@ -598,12 +616,19 @@ try {
 } catch {}
 units();
 const importUI = setupBatchImport({ document, autoApply:true, getImageQuestions:()=>imageQuestions, onApply:(result,{autoCompare=false}={})=>{
-  imageQuestions=result.questions.filter(q=>validImageHashes(q.imageHashes));
+  imageQuestions=result.questions.filter(q=>validImageHashes(q.imageHashes) || q.savedResponse);
   importedCourse=result.courseHint || null;
   markChanged();
   if(autoCompare) void compare({waitForManualSync:true});
 } });
 markChanged();
+$("answerMode").addEventListener('change',()=>{
+  const checking=$("answerMode").value==='check';
+  $("responseHelp").hidden=!checking;
+  $("chooseBatchFiles").textContent=checking?'選檔並核對作答':'選檔並查答案';
+  if(results.length)renderResults();
+});
+$("responseOnlyProblems").addEventListener('change',renderResults);
 if ($("course").value === "auto") {
   void getBaseLibrary().then(() => {
     if (!index) rebuildLibraryIndex();

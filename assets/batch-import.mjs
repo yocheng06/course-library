@@ -746,7 +746,17 @@ function htmlQuestions(raw, doc, warnings, metadata) {
         warnings,
       );
   }
-  // Saved practice forms encode blanks as text inputs. Ignore saved answers.
+  // Preserve responses separately from searchable question text and bank answers.
+  const savedResponses = new Map();
+  for (const child of root.querySelectorAll('.question-block:not(.group-block),.sub-question-block')) {
+    const controls = [...child.querySelectorAll('input[type="radio"],input[type="checkbox"],input.text-answer')];
+    if (!controls.length) continue;
+    const choices = controls.filter(input => input.type === 'radio' || input.type === 'checkbox');
+    savedResponses.set(child, choices.length
+      ? {kind:'choice', values:choices.flatMap((input,i)=>input.hasAttribute('checked') ? [LETTERS[i]] : [])}
+      : {kind:'fill', values:controls.map(input=>input.getAttribute('value') || '')});
+  }
+  // Saved practice forms encode blanks as text inputs. Ignore saved answers in stems.
   for (const input of root.querySelectorAll('.question-block input.text-answer,.question-block input[data-question-id]'))
     input.replaceWith(doc.createTextNode(' ____________ '));
   for (const node of root.querySelectorAll(
@@ -810,7 +820,7 @@ function htmlQuestions(raw, doc, warnings, metadata) {
   // Saved practice/challenge forms provide explicit question boundaries.
   // Keep prompt diagrams/code with their question rather than interpreting
   // their node indices or code line numbers as more questions.
-  const quizForm = root.querySelector("#challenge-quiz-form,#practice-quiz-form");
+  const quizForm = root.querySelector("#challenge-quiz-form,#practice-quiz-form,#quiz-form");
   if (quizForm) {
     const hidden = node => {
       for (let current=node;current&&current!==quizForm;current=current.parentElement) {
@@ -822,7 +832,7 @@ function htmlQuestions(raw, doc, warnings, metadata) {
       (node) => !node.parentElement?.closest(".question-block") && !hidden(node) && !node.querySelector('input[name="v_user_answer"]'),
     );
     if (topLevelBlocks.length) {
-      const imported = [], imageSources = [];
+      const imported = [], imageSources = [], responses = [];
       for (const block of topLevelBlocks) {
         const grouped = block.classList.contains("group-block");
         const shared = grouped ? block.querySelector(".group-stem") : null;
@@ -833,13 +843,14 @@ function htmlQuestions(raw, doc, warnings, metadata) {
           fail("挑戰模式題組找不到小題，請確認 HTML 檔案完整。沒有匯入任何題目。");
         const context = shared ? text(shared).replace(/\n{3,}/g, "\n\n").trim() : "";
         for (const child of children) {
+          responses.push(savedResponses.get(child));
           const promptCopy = child.cloneNode(true);
           for (const node of promptCopy.querySelectorAll('.options')) {
             if (node.querySelector('input[type="radio"],input[type="checkbox"]')) node.remove();
           }
           for (const node of promptCopy.querySelectorAll('label,script,style,template,noscript,button')) node.remove();
           const prompt = text(promptCopy).replace(/\s+/g,' ').trim()
-            .replace(/^\s*(?:(?:妖獸|Beast)\s*)?\d+[.．、)]\s*/iu,'');
+            .replace(/^\s*(?:(?:題目|妖獸|Beast)\s*)?\d+[.．、)]\s*/iu,'');
           if (!prompt)
             fail(`第 ${imported.length + 1} 題缺少題幹，沒有匯入任何題目。`);
           const optionLabels = [...child.querySelectorAll("label")].filter((label) =>
@@ -871,7 +882,7 @@ function htmlQuestions(raw, doc, warnings, metadata) {
           );
         }
       }
-      return parseQuestions(imported.join("\n\n")).map((q,i)=>({...q,imageSources:imageSources[i]}));
+      return parseQuestions(imported.join("\n\n")).map((q,i)=>({...q,imageSources:imageSources[i],savedResponse:responses[i]}));
     }
   }
   const tableQuestions = [];
@@ -1236,7 +1247,7 @@ export function parseBatchInput(
   const text = questionsToText(questions);
   return {
     ...metadata,
-    questions: parseQuestions(text).map((q,i)=>({...q,...(questions[i]?.imageSources?.length ? {imageSources:questions[i].imageSources} : {})})),
+    questions: parseQuestions(text).map((q,i)=>({...q,...(questions[i]?.savedResponse ? {savedResponse:questions[i].savedResponse} : {}),...(questions[i]?.imageSources?.length ? {imageSources:questions[i].imageSources} : {})})),
     text,
     format,
     warnings: [...new Set(warnings)],
@@ -1249,9 +1260,10 @@ export function prepareImport(
   options = {},
 ) {
   if (!["append", "replace"].includes(mode)) fail("請選擇加入或取代目前文字。");
+  const retainedResponses = new Map((options.imageQuestions || []).filter(q=>q.savedResponse).map(q=>[JSON.stringify([q.number,q.stem,q.options]),q.savedResponse]));
   const before =
     mode === "append" && existing.trim()
-      ? inheritQuestionImages(parseBatchInput(existing, options).questions, options.imageQuestions)
+      ? inheritQuestionImages(parseBatchInput(existing, options).questions, options.imageQuestions).map(q=>({...q,savedResponse:retainedResponses.get(JSON.stringify([q.number,q.stem,q.options]))}))
       : [];
   const questions = bounded([...before, ...inheritQuestionImages(imported,options.imageQuestions).map((q) => ({ ...q }))]);
   const used = new Set(before.map((q) => q.number));
@@ -1268,7 +1280,7 @@ export function prepareImport(
   const text = questionsToText(questions);
   return {
     text,
-    questions: parseQuestions(text).map((q,i)=>({...q,...(questions[i]?.imageHashes ? {imageHashes:questions[i].imageHashes} : {})})),
+    questions: parseQuestions(text).map((q,i)=>({...q,...(questions[i]?.savedResponse ? {savedResponse:questions[i].savedResponse} : {}),...(questions[i]?.imageHashes ? {imageHashes:questions[i].imageHashes} : {})})),
     added: imported.length,
     renumbered,
   };
