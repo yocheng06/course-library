@@ -943,6 +943,7 @@ $("showHtmlImport").addEventListener("click", () => setSubmissionMode("import"))
 $("showManualEntry").addEventListener("click", () => setSubmissionMode("manual"));
 async function previewImport(files) {
   if (importBusy) return;
+  message("");
   retryImportFiles=Array.from(files);
   pairPreviewReady = false;
   importBusy = true;

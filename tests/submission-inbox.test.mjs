@@ -222,10 +222,14 @@ test('file-first import asks for missing scope, retries with confirmed metadata,
  await new Promise(resolve=>setImmediate(resolve));await new Promise(resolve=>setImmediate(resolve));
  assert.equal(store.getItem('course-library-grouped-submissions-v1'),null);
  assert.equal(ui.$('submissionMetadata').hidden,false);assert.equal(ui.$('retryMetadataImport').hidden,false);
+ assert.ok(ui.$('message').classList.contains('error'));
+ assert.match(ui.$('message').textContent,/無法匯入/);
  ui.$('course').value='algorithms';ui.fire(ui.$('course'),'change');ui.$('unit').value='L7';ui.fire(ui.$('unit'),'change');
  ui.fire(ui.$('retryMetadataImport'),'click');await new Promise(resolve=>setImmediate(resolve));await new Promise(resolve=>setImmediate(resolve));
  let draft=JSON.parse(store.getItem('course-library-grouped-submissions-v1'));
  assert.equal(draft.groups[0].payload.course,'algorithms');assert.equal(draft.groups[0].payload.unit,'L7');
+ assert.equal(ui.$('message').classList.contains('error'),false);
+ assert.doesNotMatch(ui.$('message').textContent,/無法匯入/);
  assert.equal(ui.document.querySelector('[data-send]').textContent,'匯入這 1 題');
  ui.$('unit').value='L6';ui.fire(ui.$('unit'),'change');ui.fire(ui.$('applyImportMetadata'),'click');
  draft=JSON.parse(store.getItem('course-library-grouped-submissions-v1'));assert.equal(draft.groups[0].payload.unit,'L6');
