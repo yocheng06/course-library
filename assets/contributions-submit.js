@@ -21,7 +21,7 @@ import {
   downloadJSON,
   copyText,
 } from "./contributions-ui.js?v=treasure-unit-20261030";
-import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=workflow-improvements-20261102";
+import { setupSubmissionInbox } from "./submission-inbox-ui.mjs?v=inbox-scope-20261120";
 const $ = (id) => document.getElementById(id),
   form = $("questionForm"),
   key = "course-library-submission-draft-v1";
@@ -868,12 +868,16 @@ function importedQuestions(data) {
   return data.questions;
 }
 $("chooseImport").addEventListener("click", () => $("importFile").click());
+function hasManualDraft() {
+  return questions.length > 0 || editIndex !== -1 || images.length > 0 ||
+    ["category", "stem", "options", "answer", "explanation"].some(name => form.elements[name].value.trim());
+}
 function setSubmissionMode(mode) {
   const importing = mode === "import";
   if(importing && !manualImportBackup){
     const imported=importMetadata || groupedSubmissions.getMetadata();
+    if(imported || hasManualDraft()) manualImportBackup=metadata();
     if(imported){
-      manualImportBackup=metadata();
       $("course").value=imported.course;units();setSubmissionUnit(imported.unit,imported.unitTitle);
       $("batchTitle").value=imported.title;$("submitter").value=imported.name||'';$("source").value=imported.source||'';
     }
@@ -1206,17 +1210,24 @@ setupSubmissionInbox({
   addQuestion(q) {
     setSubmissionMode("manual");
     if (submitPending || imageReadPending) throw new Error("請等待目前操作完成。");
-    const hasEditor = editIndex !== -1 || images.length ||
-      ["category", "stem", "options", "answer", "explanation"].some(name => form.elements[name].value.trim());
     const differentScope = q.course !== $("course").value || q.unit !== metadata().unit;
-    if (differentScope && (questions.length || hasEditor))
-      throw new Error("原投稿草稿屬於不同科目或單元，請先送出原清單，再加入這題。待補內容仍保留。");
-    const nextMetadata = { ...metadata(), course: q.course, unit: q.unit, title: $("batchTitle").value || "批次查題補充題" };
+    const separate = differentScope && hasManualDraft();
+    const nextMetadata = { ...metadata(), course: q.course, unit: q.unit,
+      unitTitle: differentScope ? q.unitTitle || publicTitles[q.course]?.[q.unit] || "" : metadata().unitTitle,
+      title: separate ? "批次查題補充題" : $("batchTitle").value || "批次查題補充題",
+      source: separate ? "由批次查題轉入" : $("source").value,
+    };
     const candidate = normalizeBatch({ ...nextMetadata, questions: [{
       category: q.category, type: q.type, stem: q.stem,
       options: q.optionsText.split(/\r?\n/).map(s => s.trim()).filter(Boolean),
       answer: q.answer, explanation: q.explanation, images: [],
     }] }).questions[0];
+    if (separate) {
+      groupedSubmissions.addInboxQuestion(nextMetadata, candidate);
+      importMetadata = groupedSubmissions.getMetadata();
+      setSubmissionMode("import");
+      return "grouped";
+    }
     const merged = uniqueQuestions(q.course, q.unit, [...questions, candidate]);
     const normalized = normalizeBatch({ ...nextMetadata, questions: merged });
     if (differentScope) {

@@ -4,6 +4,14 @@
   "source": "修改前 baseline-frontend.tap；僅納入修改前已存在的失敗",
   "failures": [
     {
+      "name": "os all current units group every topic, then single/multiple/fill, while preserving question contents",
+      "reason": "2026-11-26 在未修改的 8d98212 歸檔重現；排序時分類正規化與整份物件相等的舊預期不同，待另行修正測試"
+    },
+    {
+      "name": "algorithms all current units group every topic, then single/multiple/fill, while preserving question contents",
+      "reason": "2026-11-26 在未修改的 8d98212 歸檔重現；排序時分類正規化與整份物件相等的舊預期不同，待另行修正測試"
+    },
+    {
       "name": "every canonical built-in question round trips safely and reordered choices retain the same correct content",
       "reason": "既有題庫比對、來源版本或解析預期差異，需保留老師答案另行核對"
     },

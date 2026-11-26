@@ -2,11 +2,11 @@
 
 作業系統與演算法課程題庫，提供分單元閱讀、搜尋、遮答練習、單元測驗與答案解析。
 
-**[開啟網站](https://yocheng06.github.io/course-library/)** · [批次查題](https://yocheng06.github.io/course-library/batch.html) · [投稿題庫](https://course-library-submissions.orange06.workers.dev/submit.html) · [題庫管理](https://course-library-submissions.orange06.workers.dev/review.html)
+**[開啟網站](https://course-library-submissions.orange06.workers.dev/course-library/)** · [批次查題](https://course-library-submissions.orange06.workers.dev/course-library/batch.html) · [投稿題庫](https://course-library-submissions.orange06.workers.dev/submit.html) · [題庫管理](https://course-library-submissions.orange06.workers.dev/review)
 
 最近正式 Release：**[v1.3.0](https://github.com/yocheng06/course-library/releases/tag/v1.3.0)** · [所有 Releases](https://github.com/yocheng06/course-library/releases) · [本版更新說明](docs/releases/v1.3.0.md)
 
-目前進度已更新至 **2026-11-18**；`main` 包含 v1.3.0 之後的更新。先看 [系統架構](docs/architecture.md)、[最新安全加強與驗證](docs/updates/2026-11-18-security.md)，或 [v1.3.0 以後的完整提交差異](https://github.com/yocheng06/course-library/compare/v1.3.0...main)。
+目前原始碼與公開題庫快照已更新至 **2026-11-26**。`main` 包含 v1.3.0 之後的更新，最新進度見 [11 月 26 日整理](docs/updates/2026-11-26.md)、[系統架構](docs/architecture.md)，或 [v1.3.0 以後的完整提交差異](https://github.com/yocheng06/course-library/compare/v1.3.0...main)。
 
 [測驗、備份與發布檢查改進](docs/improvements-20261104.md)：測驗語言與可調比例、手機篩選、完整備份、版本狀態及發布檢查。
 
@@ -29,6 +29,11 @@
 - CPU 排程解析提供計算表與時間線，支援橫向捲軸及「往前／往後」按鈕。
 
 - 管理登入可啟用手機驗證與一次性備援碼，並可登出其他所有裝置；安全細節及備份方式見 [管理安全說明](docs/updates/2026-11-18-security.md)。
+- 批次查題可讀取已作答 HTML，逐題、逐格核對，並篩選需要檢查的題目。答案總表可補選投稿科目後轉入草稿。
+- 投稿可一次選取題目與結果兩份 HTML，支援課程資料夾網址及測驗表單，缺少正解會列出要補的題號。
+- 同題幹但選項不同的匯入版本各自收錄，陣列索引保留為題目條件，相同版本的答案衝突仍標示待核對。
+- 題庫管理提供待核對原因、自動並排比較、批次影響範圍與匯入紀錄搜尋。訪客管理支援瀏覽器分組、暱稱、設備資訊與封鎖歷史。
+- 演算法 L9 的 53 題已補解析，依 9 個主題分組，各組按單選、多選、填空排序。
 
 ## 使用方式
 

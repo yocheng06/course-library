@@ -61,16 +61,17 @@ export function setupSubmissionInbox({ document, storage, courses, addQuestion, 
       const fields = Object.fromEntries([...form.querySelectorAll("[name]")].map(node => [node.name, node.value]));
       const q = update(form.dataset.pendingId, fields);
       if (!q.answer.trim() || !q.explanation.trim()) throw new Error("請補齊答案與解析，再加入投稿清單。");
-      // The parent validates course/unit, choices and the existing submission draft.
-      addQuestion(q);
+      const destination = addQuestion(q);
       const latest = readInbox(storage).filter(item => item.id !== q.id);
       try { writeInbox(storage, latest); } catch {
         throw new Error("題目已加入投稿清單，但待補清單未能更新；重新加入時會略過重複題。請下載草稿備份。");
       }
       render();
-      $("pendingStatus").textContent = `原第 ${q.number} 題已加入投稿清單。`;
-      message(`原第 ${q.number} 題已加入投稿清單，預覽後可直接加入公開題庫。`);
-      ($( "pendingList").querySelector("summary") || $("draftHeading")).focus();
+      const target = destination === "grouped" ? "分組投稿草稿" : "投稿清單";
+      $("pendingStatus").textContent = `原第 ${q.number} 題已加入${target}。`;
+      message(`原第 ${q.number} 題已加入${target}，核對後再送出。`);
+      const heading = destination === "grouped" ? "groupedDraftHeading" : "draftHeading";
+      ($("pendingList").querySelector("summary") || $(heading))?.focus();
     } catch (error) { message(error.message, true); }
   });
   $("pendingList").addEventListener("click", event => {

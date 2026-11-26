@@ -72,6 +72,8 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
   const key='course-library-grouped-submissions-v1';let queue=[],busy=false,reading=false;
   const panel=document.createElement('section');panel.className='group-preview';
   panel.innerHTML='<h2>匯入分組預覽</h2><p>依科目與單元分組，每批最多 200 題。可同時選取 CCSA 題目 HTML 和交卷結果 HTML，自動配對正解；解析可留白。確認每組內容與答案後再送出；下方手動編輯中的原草稿會保留。已送出的批次會保留收據，重試只處理未完成批次。沒有配對到的正解需先補上。</p><p class="notice" data-import-summary role="status" aria-live="polite" hidden></p><div data-groups></div><label class="consent"><input type="checkbox" data-consent>我已預覽各組題目並確認題目與答案正確。完全重複會略過；疑似重複或版本不同會另行收錄並標示待核對，既有題目會保留。送出後會立即公開。</label><div class="actions"><button type="button" class="button" data-send>匯入題目</button><button type="button" class="button secondary" data-download>下載分組草稿與收據</button><button type="button" class="text-button" data-clear>清空分組預覽</button></div><p data-import-status role="status" aria-live="polite"></p>';
+  panel.querySelector('h2').id='groupedDraftHeading';
+  panel.querySelector('h2').tabIndex=-1;
   document.getElementById('draftHeading').closest('section').before(panel);
   const list=panel.querySelector('[data-groups]'),status=panel.querySelector('[data-import-status]'),consent=panel.querySelector('[data-consent]');
   function updateSummary(){
@@ -79,7 +81,8 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
     summary.hidden=!queue.length;
     summary.textContent=queue.length?groupedImportSummaryText(queue):'';
   }
-  function save(){localStorage.setItem(key,JSON.stringify({version:1,groups:queue}));}
+  function save(groups=queue){localStorage.setItem(key,JSON.stringify({version:1,groups}));}
+  const locked = group => Boolean(group?.result || group?.inboxDraft && group.attempted);
   function missingAnswerCount(group){return group.payload.questions.filter(q=>!String(q.answer||'').trim()).length;}
   function missingAnswerLabel(group) {
     const positions = group.payload.questions.flatMap((question,index)=>String(question.answer || '').trim() ? [] : [index + 1]);
@@ -111,7 +114,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
     return `<div class="topic-toolbar"><p>已依題目內容建議主題；請修正分錯的題目。自訂主題會保留。題庫顯示依主題，再依單選、多選、填空排序。</p><label><input type="checkbox" data-topic-all="${g}">選取本批全部題目</label><label>選取題目的主題<input maxlength="100" data-topic-bulk="${g}" list="topics-${g}" placeholder="選擇或輸入主題"></label><datalist id="topics-${g}">${names.map(n=>`<option value="${esc(n)}"></option>`).join('')}</datalist><button type="button" class="button secondary" data-topic-apply="${g}">套用至選取題目</button><span data-topic-count="${g}" role="status">已選 0 題</span></div>`;
   }
   function groupBody(group,index){
-    return `${!group.result?topicToolbar(group,index):''}${group.payload.questions.map((q,i)=>topicEditor(q,index,i,!!group.result)+(group.htmlImport?importedPreview(q,index,i):questionPreview(q,i)+'</article>')).join('')}`;
+    return `${!locked(group)?topicToolbar(group,index):''}${group.payload.questions.map((q,i)=>topicEditor(q,index,i,locked(group))+(group.htmlImport?importedPreview(q,index,i):questionPreview(q,i)+'</article>')).join('')}`;
   }
   function topicChanged() {
     list.querySelectorAll('[data-topic]').forEach(input=>{
@@ -126,7 +129,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
   function refreshSendButton(){
     const pendingCount=queue.filter(group=>!group.result).reduce((n,group)=>n+group.payload.questions.length,0);
     panel.querySelector('[data-send]').textContent=busy?'正在匯入題庫…':pendingCount?`匯入這 ${pendingCount} 題`:'已完成匯入';
-    list.querySelectorAll('[data-topic],[data-topic-select],[data-topic-all],[data-topic-bulk],[data-topic-apply],[data-import-answer]').forEach(el=>{const g=Number((el.dataset.topic||el.dataset.topicSelect||'').split(':')[0]||el.dataset.topicAll||el.dataset.topicBulk||el.dataset.topicApply||el.dataset.groupIndex);el.disabled=busy||Boolean(queue[g]?.result);});
+    list.querySelectorAll('[data-topic],[data-topic-select],[data-topic-all],[data-topic-bulk],[data-topic-apply],[data-import-answer]').forEach(el=>{const g=Number((el.dataset.topic||el.dataset.topicSelect||'').split(':')[0]||el.dataset.topicAll||el.dataset.topicBulk||el.dataset.topicApply||el.dataset.groupIndex);el.disabled=busy||locked(queue[g]);});
     panel.querySelector('[data-send]').disabled=busy||reading||!consent.checked||!queue.some(group=>!group.result)||queue.some(group=>!group.result&&missingAnswerCount(group)>0);
     panel.querySelector('[data-clear]').disabled=busy||reading;
   }
@@ -163,7 +166,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
         const htmlImport=group.htmlImport===true;
         const summary=group.answerImportSummary;
         const answerImportSummary=summary&&Number.isSafeInteger(summary.matchedQuestionCount)&&summary.matchedQuestionCount>=0&&Number.isSafeInteger(summary.totalQuestionCount)&&summary.totalQuestionCount>=0?{matchedQuestionCount:summary.matchedQuestionCount,totalQuestionCount:summary.totalQuestionCount}:null;
-        return {payload:normalizeBatch(group.payload,{allowMissingAnswers:htmlImport}),requestId:group.requestId,result:group.result?.id || ['duplicates_only','replaced_only'].includes(group.result?.status)?group.result:null,skippedCount:Number(group.skippedCount)||0,...(htmlImport?{htmlImport:true}:{}),...(answerImportSummary?{answerImportSummary}:{})};
+        return {payload:normalizeBatch(group.payload,{allowMissingAnswers:htmlImport}),requestId:group.requestId,result:group.result?.id || ['duplicates_only','replaced_only'].includes(group.result?.status)?group.result:null,skippedCount:Number(group.skippedCount)||0,...(htmlImport?{htmlImport:true}:{}),...(answerImportSummary?{answerImportSummary}:{}),...(group.inboxDraft===true?{inboxDraft:true,attempted:group.attempted===true}:{})};
       });
     }
   }catch(error){message('分組草稿無法讀取，原始資料未刪除。請先下載備份後重新匯入。',true);}
@@ -179,7 +182,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
   list.addEventListener('change',event=>{
     if(busy)return;
     const topic=event.target.closest('[data-topic]');
-    if(topic){const [g,i]=topic.dataset.topic.split(':').map(Number);const q=queue[g]?.payload.questions[i];if(q&&!queue[g].result){q.category=topic.value.trim()||globalThis.courseTopicOrder.topic({...q,category:''},queue[g].payload.course,queue[g].payload.unit).label;topic.value=q.category;topicChanged();}return;}
+    if(topic){const [g,i]=topic.dataset.topic.split(':').map(Number);const q=queue[g]?.payload.questions[i];if(q&&!locked(queue[g])){q.category=topic.value.trim()||globalThis.courseTopicOrder.topic({...q,category:''},queue[g].payload.course,queue[g].payload.unit).label;topic.value=q.category;topicChanged();}return;}
     const all=event.target.closest('[data-topic-all]');
     if(all)list.querySelectorAll(`[data-topic-select^="${all.dataset.topicAll}:"]`).forEach(el=>{el.checked=all.checked;});
     if(all||event.target.matches('[data-topic-select]')){
@@ -201,7 +204,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
   });
   list.addEventListener('click',event=>{
     const button=event.target.closest('[data-topic-apply]');if(!button||busy)return;
-    const g=Number(button.dataset.topicApply),group=queue[g];if(!group||group.result)return;
+    const g=Number(button.dataset.topicApply),group=queue[g];if(!group||locked(group))return;
     const value=list.querySelector(`[data-topic-bulk="${g}"]`).value.trim();
     const boxes=[...list.querySelectorAll(`[data-topic-select^="${g}:"]`)].filter(b=>b.checked);
     if(!value||!boxes.length){status.textContent='請先選取題目並輸入要套用的主題。';return;}
@@ -225,6 +228,10 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
         status.textContent=`正在送出第 ${index+1}／${queue.length} 批…`;
         try{
           const payload=normalizeBatch(group.payload);
+          if(group.inboxDraft && !group.attempted){
+            group.attempted=true;
+            try{save();}catch(error){group.attempted=false;throw error;}
+          }
           group.result=await api('/api/submissions',{method:'POST',body:JSON.stringify({...payload,clientRequestId:group.requestId,website:document.getElementById('website').value,replaceSimilar:true})});
           // Persist each completion before starting the next request.
           node.open=false;
@@ -247,6 +254,27 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
   render();
   if(queue.some(group=>group.htmlImport&&!group.result))updateAnswerStatus();
   return {
+    addInboxQuestion(meta, question){
+      if(busy || reading)throw new Error('請等目前的投稿或讀檔完成。待補內容仍保留。');
+      const payload=normalizeBatch({...meta,questions:[question]});
+      const sameScope=group=>group.inboxDraft && group.payload.course===payload.course && group.payload.unit===payload.unit;
+      if(queue.some(group=>sameScope(group) && !group.result &&
+          group.payload.questions.some(item=>JSON.stringify(item)===JSON.stringify(payload.questions[0]))))return;
+      const next=queue.every(group=>group.result)?[]:queue.slice();
+      const index=next.findIndex(group=>sameScope(group) && !group.result && !group.attempted && group.payload.questions.length<200);
+      if(index>=0){
+        const group=next[index];
+        next[index]={...group,payload:normalizeBatch({...group.payload,questions:[...group.payload.questions,...payload.questions]})};
+      }else{
+        if(next.length>=20)throw new Error('分組預覽已達 20 批。請先處理或備份現有分組；待補內容仍保留。');
+        next.push({payload,requestId:crypto.randomUUID(),inboxDraft:true});
+      }
+      try{save(next);}catch{throw new Error('無法保存分組草稿，原有草稿與待補內容仍保留。');}
+      queue=next;
+      consent.checked=false;
+      render();
+      status.textContent='已依科目與單元加入分組草稿，請核對後再送出。';
+    },
     getMetadata(){
       const pending=queue.filter(group=>!group.result);
       return pending.length && new Set(pending.map(group=>group.payload.course+':'+group.payload.unit)).size===1 ? pending[0].payload : null;
@@ -255,6 +283,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
       if(busy)throw new Error('請等待目前公開操作完成。');
       const pending=queue.filter(group=>!group.result);
       if(!pending.length)throw new Error('沒有待公開的題目。');
+      if(pending.some(locked))throw new Error('有一批已嘗試送出，請先重試該批以確認結果。');
       if(new Set(pending.map(group=>group.payload.course+':'+group.payload.unit)).size>1)throw new Error('這份檔案包含多個單元，請保留各組分類；需要調整時請拆分檔案後匯入。');
       const next=queue.map(group=>group.result?group:{...group,payload:normalizeBatch({...group.payload,...meta,questions:group.payload.questions},{allowMissingAnswers:group.htmlImport===true})});
       const old=queue;queue=next;try{save();}catch{queue=old;throw new Error('無法保存修改，原預覽仍保留。');}

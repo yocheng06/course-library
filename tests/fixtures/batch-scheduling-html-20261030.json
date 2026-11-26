@@ -1,0 +1,520 @@
+[
+  {
+    "number": "1",
+    "stem": "____________ 是根據截止時間分配優先權的演算法:截止時間越早,優先權越高。(請用小寫英文回答 字母間留一個空白)",
+    "options": [],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "2",
+    "stem": "當時間片(q)相對於上下文切換時間非常大時,迴圈排程(RR)演算法的行為會趨近於 ____________ 。(請用小寫英文回答 關聯字母間用-連接  非關聯字母間用 空白)",
+    "options": [],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "3",
+    "stem": "迴圈排程(RR)演算法中,每個程序獲得一小段CPU時間的單位稱為 ____________ 。(請用小寫英文回答 字母間留一個空白)",
+    "options": [],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "4",
+    "stem": "What is the core objective of CPU scheduling?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Minimize code complexity"
+      },
+      {
+        "label": "B",
+        "text": "Maximize I/O wait time"
+      },
+      {
+        "label": "C",
+        "text": "Decrease CPU utilization"
+      },
+      {
+        "label": "D",
+        "text": "Maximize CPU utilization"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "5",
+    "stem": "CPU 排程的目的是在 ____________ 系統中最大化CPU利用率。(請用小寫英文回答)",
+    "options": [],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "6",
+    "stem": "關於估計下一個CPU爆發長度,可以採用哪些方法?",
+    "options": [
+      {
+        "label": "A",
+        "text": "設定 α=1 表示只考慮最後一個 burst"
+      },
+      {
+        "label": "B",
+        "text": "詢問使用者"
+      },
+      {
+        "label": "C",
+        "text": "使用恆定值"
+      },
+      {
+        "label": "D",
+        "text": "使用過去CPU爆發長度的指數平均"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "7",
+    "stem": "What challenges does real-time CPU scheduling face?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Tasks in hard real-time systems must be completed within their deadline"
+      },
+      {
+        "label": "B",
+        "text": "Interrupt latency can affect performance"
+      },
+      {
+        "label": "C",
+        "text": "Dispatch latency can affect performance"
+      },
+      {
+        "label": "D",
+        "text": "Soft real-time systems have no scheduling guarantee"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "8",
+    "stem": "下列哪些排程演算法可以導致飢餓?",
+    "options": [
+      {
+        "label": "A",
+        "text": "先到先服務(FCFS)"
+      },
+      {
+        "label": "B",
+        "text": "最短工作優先 (SJF)"
+      },
+      {
+        "label": "C",
+        "text": "迴圈排程(RR)"
+      },
+      {
+        "label": "D",
+        "text": "優先權排程"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "9",
+    "stem": "In Multilevel Queue scheduling, which of the following statements is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "All queues use the same scheduling algorithm"
+      },
+      {
+        "label": "B",
+        "text": "The foreground queue typically uses Round Robin scheduling"
+      },
+      {
+        "label": "C",
+        "text": "The background queue always has a higher priority than the foreground queue"
+      },
+      {
+        "label": "D",
+        "text": "A process can move between the queues"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "10",
+    "stem": "Windows中,一個執行緒的優先權會被提升的情況有哪些?",
+    "options": [
+      {
+        "label": "A",
+        "text": "當它從等待狀態返回時"
+      },
+      {
+        "label": "B",
+        "text": "時限(quantum)用完時"
+      },
+      {
+        "label": "C",
+        "text": "當被更高優先權的執行緒搶佔時"
+      },
+      {
+        "label": "D",
+        "text": "當它處於前景視窗時"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "11",
+    "stem": "CPU ____________ 是指將一個程序保持在同一處理器上執行的傾向。(請用小寫英文回答)",
+    "options": [],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "12",
+    "stem": "Linux在核心版本2.5中採用的O(1)排程器有哪些特性?",
+    "options": [
+      {
+        "label": "A",
+        "text": "所有任務都放在一個佇列中"
+      },
+      {
+        "label": "B",
+        "text": "有兩個優先權範圍:時程共享和即時"
+      },
+      {
+        "label": "C",
+        "text": "基於優先權"
+      },
+      {
+        "label": "D",
+        "text": "搶佔式"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "13",
+    "stem": "在優先權排程中,什麼問題可能導致低優先權程序永遠無法執行?",
+    "options": [
+      {
+        "label": "A",
+        "text": "死鎖(Deadlock)"
+      },
+      {
+        "label": "B",
+        "text": "活鎖"
+      },
+      {
+        "label": "C",
+        "text": "飢餓(Starvation)"
+      },
+      {
+        "label": "D",
+        "text": "護航效應"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "14",
+    "stem": "在POSIX即時排程中,SCHED_FIFO的特點是什麼?",
+    "options": [
+      {
+        "label": "A",
+        "text": "提供優先提升"
+      },
+      {
+        "label": "B",
+        "text": "提供時間分片"
+      },
+      {
+        "label": "C",
+        "text": "僅限於單核心系統"
+      },
+      {
+        "label": "D",
+        "text": "沒有時間分片"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "15",
+    "stem": "____________  is the time it takes for the scheduler in a real-time system to take the current process off the CPU and switch to another.(Please answer in lowercase English, leaving a space between each word)",
+    "options": [],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "16",
+    "stem": "____________ 是一個可以被系統管理員載入和設定的表格,用於管理Solaris中的多層級回饋佇列。(請用小寫英文回答 字母間留一個空白)",
+    "options": [],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "17",
+    "stem": "In the Windows system, threads in the  ____________  priority class cannot have their priority boosted.(Please answer in lowercase English, connecting letters with underscores)",
+    "options": [],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "18",
+    "stem": "What is a key characteristic of hard real-time systems?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A task must be serviced by its deadline"
+      },
+      {
+        "label": "B",
+        "text": "A task can be interrupted"
+      },
+      {
+        "label": "C",
+        "text": "They do not guarantee scheduling time"
+      },
+      {
+        "label": "D",
+        "text": "They provide guarantees for scheduling"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "19",
+    "stem": "Solaris作業系統的排程有哪六個類別?",
+    "options": [
+      {
+        "label": "A",
+        "text": "系統(System)"
+      },
+      {
+        "label": "B",
+        "text": "即時(Real time)"
+      },
+      {
+        "label": "C",
+        "text": "時程共享(Time sharing)"
+      },
+      {
+        "label": "D",
+        "text": "互動式(Interactive)"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "20",
+    "stem": "迴圈排程(RR)的性能與哪些因素相關?",
+    "options": [
+      {
+        "label": "A",
+        "text": "程序在就緒佇列中的數量"
+      },
+      {
+        "label": "B",
+        "text": "行程類型(CPU 密集型或 I/O 密集型)"
+      },
+      {
+        "label": "C",
+        "text": "上下文切換(context switch)的時間"
+      },
+      {
+        "label": "D",
+        "text": "時間片(q)的大小"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "21",
+    "stem": "When a process switches from a 'running' to a 'waiting' state, what type of scheduling decision is it?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Irrelevant"
+      },
+      {
+        "label": "B",
+        "text": "Preemptive"
+      },
+      {
+        "label": "C",
+        "text": "Nonpreemptive"
+      },
+      {
+        "label": "D",
+        "text": "Interrupt-driven"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "22",
+    "stem": "What is Dispatch latency?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The time it takes to stop one process and start another running"
+      },
+      {
+        "label": "B",
+        "text": "The time required for the scheduler to make a decision"
+      },
+      {
+        "label": "C",
+        "text": "The time required for interrupt handling"
+      },
+      {
+        "label": "D",
+        "text": "The time required for an I/O operation to complete"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "23",
+    "stem": "____________ 是 Windows 7 中引入的一項功能,允許應用程式獨立於核心來創建和管理執行緒。(請用小寫英文回答 字母間留一個空白)",
+    "options": [],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "24",
+    "stem": "在 ____________ 排程中,程序可以在不同的佇列之間移動,這有助於實現老化。(請用小寫英文回答 字母間留一個空白))",
+    "options": [],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "25",
+    "stem": "多層級佇列(Multilevel Queue)排程的特性包含哪些?",
+    "options": [
+      {
+        "label": "A",
+        "text": "程序通常永久地固定在一個佇列中"
+      },
+      {
+        "label": "B",
+        "text": "每個佇列可以有自己的排程演算法"
+      },
+      {
+        "label": "C",
+        "text": "就緒佇列被劃分為獨立的佇列"
+      },
+      {
+        "label": "D",
+        "text": "可能導致低優先權隊列的飢餓問題"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "26",
+    "stem": "短工作優先(SJF)排程的優點包含哪些?",
+    "options": [
+      {
+        "label": "A",
+        "text": "易於實現"
+      },
+      {
+        "label": "B",
+        "text": "適合即時系統"
+      },
+      {
+        "label": "C",
+        "text": "給定程序集的最小平均等待時間"
+      },
+      {
+        "label": "D",
+        "text": "可以預測下一個 CPU burst 的長度"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "27",
+    "stem": "Process Burst Time\nP1 20\nP2 3\nP3 7\nUse Round Robin (RR) to schedule the above process. The following is the process of scheduling time from left to right (A to H represent the processed block H. There may be a schedule after the block, which is ignored because it is not in the question to be asked. Do not show)\n[題圖未轉錄]\nIf TQ = 4, what is the order of A~H?\nAnswer format: P0->P2->P4->P6->P5->P6\nFormat errors do not count ____________",
+    "options": [],
+    "type": "",
+    "issues": [
+      "題目含未提供的圖片或無法辨識的文字。"
+    ]
+  },
+  {
+    "number": "28",
+    "stem": "在多處理器系統中,下列哪些排程方法屬於負載平衡?",
+    "options": [
+      {
+        "label": "A",
+        "text": "推動式遷移(Push migration)"
+      },
+      {
+        "label": "B",
+        "text": "對稱多處理 (SMP)"
+      },
+      {
+        "label": "C",
+        "text": "處理器親和性(Processor affinity)"
+      },
+      {
+        "label": "D",
+        "text": "拉取式遷移(Pull migration)"
+      }
+    ],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "29",
+    "stem": "在非搶佔式排程(no-preemption)中,一旦CPU被分配給一個程序,該程序會持續運行直到它 ____________ 或 ____________ 。(請用小寫英文回答)",
+    "options": [],
+    "type": "",
+    "issues": []
+  },
+  {
+    "number": "30",
+    "stem": "After Linux kernel version 2.6.23, what is the main scheduling algorithm?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Standard UNIX scheduler"
+      },
+      {
+        "label": "B",
+        "text": "O(1) scheduler"
+      },
+      {
+        "label": "C",
+        "text": "Priority scheduler"
+      },
+      {
+        "label": "D",
+        "text": "Completely Fair Scheduler (CFS)"
+      }
+    ],
+    "type": "",
+    "issues": []
+  }
+]

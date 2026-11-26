@@ -59,10 +59,38 @@ test('incomplete drafts survive reload; only completed questions reach the submi
  assert.equal(ui.$('submitBatch').disabled,true);ui.$('consent').checked=true;ui.fire(ui.$('consent'),'change');assert.equal(ui.$('submitBatch').disabled,false);
  ui.fire(ui.$('submitBatch'),'click');await new Promise(resolve=>setImmediate(resolve));const post=ui.requests.find(r=>r.opts?.method==='POST');assert(post,ui.$('message').textContent);assert.equal(JSON.parse(post.opts.body).questions.length,1);assert.equal(readInbox(s).length,6);assert.equal(ui.$('draftCount').textContent,'0 題');
 });
-test('existing drafts and unfinished editors in another unit remain intact',async()=>{
- const s=storage();stageUnmatched(rows(1),{course:'os',unit:'scheduling'},s);
+test('different scopes form separate batches without changing or sending the existing manual draft',async()=>{
+ const s=storage(),groupKey='course-library-grouped-submissions-v1';stageUnmatched(rows(3),{course:'os',unit:'scheduling'},s);
  const original={course:'algorithms',unit:'L2',title:'原草稿',questions:[{category:'分析',type:'填空題',stem:'舊題 ____',options:[],answer:'n',explanation:'舊解析',images:[]}],editor:{stem:'編輯中'}};s.setItem(draftKey,JSON.stringify(original));
- const ui=await page(s);ui.complete();ui.fire(ui.pending(),'submit');assert(ui.$('message').textContent.includes('不同科目或單元'));assert.equal(s.getItem(draftKey),JSON.stringify(original));assert.equal(ui.$('questionForm').elements.stem.value,'編輯中');assert.equal(readInbox(s).length,1);
+ let ui=await page(s);
+ const save=s.setItem;s.setItem=(key,value)=>{if(key===groupKey)throw Error('quota');save(key,value);};
+ ui.complete();ui.fire(ui.pending(),'submit');
+ assert.match(ui.$('message').textContent,/無法保存分組草稿/);
+ assert.equal(readInbox(s).length,3);
+ assert.equal(s.getItem(groupKey),null);
+ s.setItem=save;
+ for(const unit of ['scheduling','basics','scheduling']){
+  ui.complete();ui.fill('unit',unit);ui.fire(ui.pending(),'submit');
+  assert.match(ui.$('message').textContent,/已加入分組投稿草稿/);
+ }
+ assert.equal(readInbox(s).length,0);
+ assert.equal(ui.requests.filter(r=>r.opts?.method==='POST').length,0);
+ assert.equal(s.getItem(draftKey),JSON.stringify(original));
+ const grouped=JSON.parse(s.getItem(groupKey)).groups;
+ assert.deepEqual(grouped.map(({payload})=>[payload.course,payload.unit,payload.questions.length]),[['os','scheduling',2],['os','basics',1]]);
+ ui=await page(s);
+ assert.equal(ui.document.querySelector('.group-preview').hidden,false);
+ assert.equal(ui.document.querySelector('[data-send]').disabled,true);
+ const consent=ui.document.querySelector('.group-preview [data-consent]');
+ consent.checked=true;ui.fire(consent,'change');ui.fire(ui.document.querySelector('[data-send]'),'click');
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.deepEqual(ui.requests.filter(r=>r.opts?.method==='POST').map(r=>JSON.parse(r.opts.body).unit),['scheduling','basics']);
+ ui.$('batchTitle').value='分組畫面未套用的名稱';
+ ui.fire(ui.$('showManualEntry'),'click');
+ assert.equal(ui.$('questionForm').elements.stem.value,'編輯中');
+ assert.equal(ui.$('course').value,'algorithms');
+ assert.equal(ui.$('batchTitle').value,'原草稿');
+ assert.equal(ui.$('draftCount').textContent,'1 題');
 });
 test('invalid choice answers stay pending and duplicate additions stay singular',async()=>{
  const s=storage();stageUnmatched(rows(1),{course:'os',unit:'scheduling'},s);const ui=await page(s);ui.complete();ui.fill('answer','Z');ui.fire(ui.pending(),'submit');assert.equal(ui.$('draftCount').textContent,'0 題');assert.equal(readInbox(s).length,1);

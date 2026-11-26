@@ -1,16 +1,17 @@
 # 系統架構與程式導覽
 
-整理日期：2026-11-17。以下依目前 Repository 程式整理；線上題數及投稿內容會持續變動，不固定寫在文件中。
+整理日期：2026-11-26。以下依目前 Repository 程式整理；線上題數及投稿內容會持續變動。
 
 ## 1. 部署分為兩部分
 
 | 部分 | 入口 | 職責 |
 | --- | --- | --- |
-| GitHub Pages 主站 | `index.html`、`os.html`、`algorithms.html`、`batch.html` | 選單元、閱讀、搜尋、遮答練習、測驗、批次查題 |
-| 獨立投稿／管理服務 | `contribution-service/frontend/`、`worker/` | 投稿、編輯、可復原刪除、管理登入、歷史、題庫健檢、單元設定與題圖 API |
+| GitHub Pages 舊入口 | 經 `scripts/prepare-pages.mjs` 產生的轉址頁 | 將既有分享連結導向 Cloudflare 的對應頁面 |
+| Cloudflare 正式站 | `/course-library/`、`contribution-service/frontend/`、`worker/` | 閱讀、查題、測驗、投稿、管理與 API，並執行訪客存取規則 |
+| D1 資料庫 | `course-library` | 投稿、題目修改歷史、單元設定、管理資料與 `image_objects` 題圖 |
 | 服務位址設定 | `assets/contributions-config.js` | 主站使用的公開 API origin；不放登入憑證 |
 
-主站：[GitHub Pages](https://yocheng06.github.io/course-library/)。獨立服務：[投稿](https://course-library-submissions.orange06.workers.dev/submit.html)、[管理](https://course-library-submissions.orange06.workers.dev/review.html)。主站 `review.html` 導向服務；服務版管理介面由服務自身維護。
+正式站：[Cloudflare 課程入口](https://course-library-submissions.orange06.workers.dev/course-library/)。同站提供[投稿](https://course-library-submissions.orange06.workers.dev/submit.html)與[管理](https://course-library-submissions.orange06.workers.dev/review)。GitHub 保存原始碼與定期公開快照，正式站由 Wrangler 部署。GitHub 推送不會自動部署 Cloudflare。
 
 ## 2. 從題庫到畫面的資料流
 

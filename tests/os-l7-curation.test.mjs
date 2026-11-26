@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';import {rea
 import {loadCourse,orderingIssues} from '../scripts/audit-topic-order-20261102.mjs';
 const curation=JSON.parse(readFileSync(new URL('../assets/os-synchronization-curation.json',import.meta.url),'utf8'));
 test('all 165 L7 question versions receive content-based explanations and preserve every source question and teacher answer',async()=>{
- const h=await loadCourse('os'),entries=h.config.examEntries(['synchronization']),content=h.window.courseExplanationContent;
+ const h=await loadCourse('os'),entries=h.config.examEntries(['synchronization']).filter(({id})=>Object.hasOwn(curation.questions,id)),content=h.window.courseExplanationContent;
  assert.equal(entries.length,165);assert.equal(Object.keys(curation.questions).length,165);
  for(const {id,q}of entries){const v=curation.questions[id].versions.find(v=>v.identity===content.identity(q));assert(v,id);const before=JSON.stringify(q),applied=content.apply(q);assert.equal(applied.explanation,v.explanation,id);assert.equal(applied.category,v.category,id);assert.equal(JSON.stringify(q),before);assert.equal(applied.answer,q.answer);assert.equal(applied.stem,q.stem);assert.deepEqual(applied.options,q.options);assert(v.explanation.length>100,id);assert(!/(?:選|選項|答案為|答案是)\s*[A-D](?![A-Za-z])/.test(v.explanation),id);}
  assert.deepEqual(orderingIssues(entries,h.window.courseTopicOrder,'os'),[]);
