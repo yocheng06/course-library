@@ -38,7 +38,7 @@ test('rewritten option prose uses content while algorithm arrays, process names,
 });
 test('content corrections give genuine counterexamples rather than justifying inconsistent teacher answers',()=>{
  assert(Math.exp(1)>1+1+1/2);assert.equal(Math.log(1+0),0);
- const {api}=load('algorithms');const q=corpus.find(q=>q.id==='L2-026');assert.match(api.text(q),/2\.718/);assert.match(api.text(q),/老師答案保留/);assert.equal(api.apply(q).a,q.a);
+ const {api}=load('algorithms');const q=corpus.find(q=>q.id==='L2-026');assert.match(api.text(q),/2\.718/);assert.doesNotMatch(api.text(q),/老師答案|依老師/);assert.match(api.text(q),/現有答案維持不變/);assert.equal(api.apply(q).a,q.a);
  const os=load('os').api;const pcb=corpus.find(q=>q.id==='process-8');assert.match(os.text(pcb),/stack/);assert.equal(os.apply(pcb).answer,'PCB');
  const bad=corpus.find(q=>q.id==='community-894e9ae8-f063-45d2-b28c-ebf47695aef1-1');assert.doesNotMatch(os.text(bad),/IDK|杰那邊/);assert.match(os.text(bad),/絕對截止/);
 });

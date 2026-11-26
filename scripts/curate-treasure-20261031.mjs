@@ -2,6 +2,7 @@ import {readFile,writeFile} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 import {simulate,periodic,clipSegments} from './lib/scheduling-worked.mjs';
 
+const reviewed=JSON.parse(await readFile(new URL('../content/reviewed-explanations-20261126.json',import.meta.url),'utf8')).questions;
 const processes=(names,arrivals,bursts,priorities=[])=>names.map((name,i)=>({name,arrival:arrivals[i],cpu:bursts[i],...(priorities.length?{priority:priorities[i]}:{})}));
 export const datasets={
   fifo:processes(['P1','P2','P3'],[0,0,0],[24,3,3]),
@@ -219,6 +220,8 @@ export function buildTreasureCuration(rows,{updatedAt='2026-11-01'}={}){
   const questions={},audit=[];
   for(const row of rows){const q=row.question,spec=specs.get(q.id);if(!spec)throw Error('Missing treasure specification: '+q.id);
     const solution=spec.kind==='normal'?normalSolution(q,spec):realtimeSolution(q,spec);
+    const latest=reviewed.find(r=>r.id===q.id&&r.course==='os');
+    if(latest){const identity=JSON.parse(latest.identity);if(q.stem===identity[1]&&JSON.stringify(q.options)===JSON.stringify(identity[2])&&q.answer===identity[3])solution.explanation=latest.explanation;}
     questions[q.id]={sourceSignature:signature(q),imageSources:(q.images||[]).map(i=>typeof i==='string'?i:i.src||i.url||''),category:solution.category,explanation:solution.explanation,workedSolution:solution.workedSolution,clearSubmissionReview:true};
     audit.push({id:q.id,answer:q.answer,...solution.audit});
   }

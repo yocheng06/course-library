@@ -1,12 +1,12 @@
 {
-  "version": "2026.11.26-answers-2",
-  "description": "站主確認三題答案，修正選項對照、計數排序與查題填空辨識",
+  "version": "2026.11.26-edit-backup-1",
+  "description": "閱讀頁衝突比較與草稿保存、21 題解析重寫、歷史備份保留",
   "snapshots": {
     "os": {
-      "generatedAt": "2026-11-26T14:46:13.667846Z"
+      "generatedAt": "2026-11-26T15:27:54.206598Z"
     },
     "algorithms": {
-      "generatedAt": "2026-11-26T14:46:13.704814Z"
+      "generatedAt": "2026-11-26T15:27:54.265242Z"
     }
   }
 }

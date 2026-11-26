@@ -75,3 +75,5 @@ flowchart LR
 - [網站與題庫維護說明](docs/maintenance.md)
 - [投稿與管理服務說明](contribution-service/README.md)
 - [本次功能整合與驗證紀錄](docs/網站功能整合改良_20261102.md)
+
+共同編輯、21 題解析與歷史備份保留：見 [2026-11-26 更新及備份操作](docs/updates/2026-11-26-edit-backup.md)。

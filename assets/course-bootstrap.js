@@ -110,7 +110,7 @@
       if (Array.isArray(meta.imageSources) && JSON.stringify((original.images || []).map(i => typeof i === 'string' ? i : i.src || i.url || '')) !== JSON.stringify(meta.imageSources)) return row;
       const question = { ...original };
       if (!question.category || ['挖寶單元','HTML 匯入'].includes(question.category)) question.category = meta.category;
-      if (!String(question.explanation || '').trim()) {
+      if (!String(question.explanation || '').trim() || question.explanation === meta.explanation) {
         question.explanation = meta.explanation;
         if (meta.workedSolution) question.workedSolution = meta.workedSolution;
       }

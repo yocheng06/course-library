@@ -6,6 +6,7 @@ import {parseHTML} from 'linkedom';
 import {simulate,periodic} from '../scripts/lib/scheduling-worked.mjs';
 import {datasets,tasksets,buildTreasureCuration} from '../scripts/curate-treasure-20261031.mjs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const reviewed=JSON.parse(read('content/reviewed-explanations-20261126.json')).questions;
 const rows=JSON.parse(read('content/treasure-public-review-20261101.json')).rows;
 test('independently calculated normal schedules and metrics distinguish similar figures',()=>{
   const cases=[['abc','fcfs',4.8,7.8],['abc','sjf',3.4,6.4],['abc','srtf',3,6],['p9','srtf',6.5,13],['p6','srtf',6.25,12],['efirst','sjf',4.8,8.2],['efirst','srtf',3.4,6.8],['fcfs4','fcfs',7.5,12.5],['rrabc','rr',4,6.8],['rrba','rr',7.8,11.4],['rr5','rr',12.6,18.2],['priority','priority',8.2,12]];
@@ -49,8 +50,8 @@ test('all 70 current questions have independent explanations and preserve source
   assert.equal(curation.order.length,70);assert.equal(new Set(curation.order).size,70);assert.equal(JSON.stringify(rows),before);
   assert.deepEqual(curation,JSON.parse(read('assets/os-treasure-curation.json')));
   assert.equal(audit.filter(q=>!q.consistent).length,7);
-  for(const q of audit.filter(q=>!q.consistent)){assert.match(curation.questions[q.id].explanation,/題庫提供的答案保留/);}
-  for(const r of rows){const m=curation.questions[r.question.id];assert(m.explanation.length>500);assert(m.workedSolution.rows.length);assert(m.workedSolution.segments.length);assert.match(m.explanation,/①/);assert.match(m.explanation,/時間線/);}
+  for(const q of audit.filter(q=>!q.consistent)){assert.match(curation.questions[q.id].explanation,reviewed.some(r=>r.id===q.id)?/答案維持不變/:/題庫提供的答案保留/);}
+  for(const r of rows){const m=curation.questions[r.question.id];assert(m.explanation.length>(reviewed.some(q=>q.id===r.question.id)?160:500));assert(m.workedSolution.rows.length);assert(m.workedSolution.segments.length);if(!reviewed.some(q=>q.id===r.question.id))assert.match(m.explanation,/①/);assert.match(m.explanation,/時間線/);}
   let prior=-1;
   for(const id of curation.order){const q=rows.find(r=>r.question.id===id).question,m=curation.questions[id],rank=curation.topicOrder.indexOf(m.category)*3+(!q.options.length?2:(q.answer.match(/[A-Z]/g)||[]).length>1?1:0);assert(rank>=prior);prior=rank;}
 });
@@ -64,7 +65,7 @@ test('safe visual walkthrough renders a readable table and ordered time blocks w
 test('page contains matching current treasure snapshot and loads walkthrough before lesson renderer',()=>{
   const html=read('os.html'),{document}=parseHTML(html),snapshot=JSON.parse(document.getElementById('course-community-snapshot').textContent);
   assert.deepEqual(snapshot,JSON.parse(read('assets/course-snapshots/os.json')));
-  assert.deepEqual(snapshot.data.questions.filter(r=>r.unit==='treasure'),rows);
+  assert.deepEqual(snapshot.data.questions.filter(r=>r.unit==='treasure'),rows.map(r=>{const latest=reviewed.find(q=>q.id===r.question.id);return latest?{...r,question:{...r.question,explanation:latest.explanation}}:r;}));
   assert.deepEqual(JSON.parse(document.getElementById('course-os-treasure-curation').textContent),JSON.parse(read('assets/os-treasure-curation.json')));
   assert(html.indexOf('assets/scheduling-walkthrough.js')<html.indexOf('assets/os-learning.js'));
 });

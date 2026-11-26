@@ -54,12 +54,17 @@
         {
           "identity": "[\"多選題\",\"中斷 (Interrupt) 的常見類型包含？\",[\"Software interrupt (Trap/Exception)\",\"Error-generated\",\"Networkr-request generated\",\"Timer interrupt\"],\"A、B\",[]]",
           "sourceExplanation": "答案為 A、B，依本題的來源分類，兩者是軟體引發的中斷／例外：A 是 trap/exception，B 是程式執行錯誤所觸發的例外。C 的網路請求與 D 的計時器到期由外部裝置或計時器通知 CPU，屬硬體中斷來源，因此在這組軟體來源選項中不選。C 原文「Networkr」有拼字錯誤，保留原文供核對。",
-          "explanation": "本題保留老師指定的「軟體中斷／例外」與「錯誤產生」答案。軟體中斷可由程式主動要求服務；錯誤產生的例外可由除以零或非法指令等同步事件引發。\n\n網路介面通知 CPU 與計時器到期也都可以產生真正的硬體中斷。因此，題幹若泛指所有「常見中斷」，不能說網路與計時器不是中斷；只有把本題限定在軟體／目前指令引發的事件時，老師指定的這一組才符合該範圍。這個範圍並未在原題幹明寫，解析在此說明，不把硬體事件說成不存在。"
+          "explanation": "軟體中斷由程式指令主動引發，例如請求系統服務；錯誤產生的例外則可由除以零、非法指令等同步事件引發。這兩類事件都與目前執行的指令有關，但名稱及分類會因處理器架構而異。\n\n計時器到期與網路介面收到封包也可以觸發硬體中斷。因此，若題幹泛指所有常見中斷，這兩種硬體事件也符合；若只限目前指令引發的同步事件，才可排除它們。原題沒有明列這個限制，現有答案維持不變，不能據此認為計時器或網路不會造成中斷。"
         },
         {
           "identity": "[\"多選題\",\"中斷 (Interrupt) 的常見類型包含？\",[\"Software interrupt (Trap/Exception)\",\"Error-generated\",\"Networkr-request generated\",\"Timer interrupt\"],\"A、B\",[]]",
           "sourceExplanation": "",
-          "explanation": "本題保留老師指定的「軟體中斷／例外」與「錯誤產生」答案。軟體中斷可由程式主動要求服務；錯誤產生的例外可由除以零或非法指令等同步事件引發。\n\n網路介面通知 CPU 與計時器到期也都可以產生真正的硬體中斷。因此，題幹若泛指所有「常見中斷」，不能說網路與計時器不是中斷；只有把本題限定在軟體／目前指令引發的事件時，老師指定的這一組才符合該範圍。這個範圍並未在原題幹明寫，解析在此說明，不把硬體事件說成不存在。"
+          "explanation": "軟體中斷由程式指令主動引發，例如請求系統服務；錯誤產生的例外則可由除以零、非法指令等同步事件引發。這兩類事件都與目前執行的指令有關，但名稱及分類會因處理器架構而異。\n\n計時器到期與網路介面收到封包也可以觸發硬體中斷。因此，若題幹泛指所有常見中斷，這兩種硬體事件也符合；若只限目前指令引發的同步事件，才可排除它們。原題沒有明列這個限制，現有答案維持不變，不能據此認為計時器或網路不會造成中斷。"
+        },
+        {
+          "identity": "[\"多選題\",\"中斷 (Interrupt) 的常見類型包含？\",[\"Software interrupt (Trap/Exception)\",\"Error-generated\",\"Networkr-request generated\",\"Timer interrupt\"],\"A、B\",[]]",
+          "sourceExplanation": "本題保留老師指定的「軟體中斷／例外」與「錯誤產生」答案。軟體中斷可由程式主動要求服務；錯誤產生的例外可由除以零或非法指令等同步事件引發。\n\n網路介面通知 CPU 與計時器到期也都可以產生真正的硬體中斷。因此，題幹若泛指所有「常見中斷」，不能說網路與計時器不是中斷；只有把本題限定在軟體／目前指令引發的事件時，老師指定的這一組才符合該範圍。這個範圍並未在原題幹明寫，解析在此說明，不把硬體事件說成不存在。",
+          "explanation": "軟體中斷由程式指令主動引發，例如請求系統服務；錯誤產生的例外則可由除以零、非法指令等同步事件引發。這兩類事件都與目前執行的指令有關，但名稱及分類會因處理器架構而異。\n\n計時器到期與網路介面收到封包也可以觸發硬體中斷。因此，若題幹泛指所有常見中斷，這兩種硬體事件也符合；若只限目前指令引發的同步事件，才可排除它們。原題沒有明列這個限制，現有答案維持不變，不能據此認為計時器或網路不會造成中斷。"
         }
       ]
     },
@@ -225,7 +230,12 @@
         {
           "identity": "[\"多選題\",\"What data structures are common in the kernel?\",[\"Array\",\"Doubly linked list\",\"Binary search tree\",\"Circular linked list\"],\"B、C、D\",[]]",
           "sourceExplanation": "",
-          "explanation": "雙向鏈結串列可方便插入、刪除並往前後走訪；環狀鏈結串列適合反覆輪替；搜尋樹可依鍵值組織查找，都是核心可能使用的資料結構。\n\n本題依老師答案未選 Array，但陣列實際上也廣泛用於核心，例如固定索引表格。不能把本題列舉讀成「核心不使用陣列」；答案是教材此組列舉的取捨，不是全面排除其他合法實作。"
+          "explanation": "雙向鏈結串列可在已知節點的位置快速插入、刪除，並雙向走訪；環狀鏈結串列適合輪流處理工作；二元搜尋樹可依鍵值建立查找順序。這些都是核心可採用的資料結構。\n\n陣列同樣常見於核心，例如固定索引表與緩衝區，不能解釋成核心不使用陣列。本題保留現有答案，但題幹只問「常見資料結構」，沒有提供排除陣列的條件；這是答案與題意範圍的差異。"
+        },
+        {
+          "identity": "[\"多選題\",\"What data structures are common in the kernel?\",[\"Array\",\"Doubly linked list\",\"Binary search tree\",\"Circular linked list\"],\"B、C、D\",[]]",
+          "sourceExplanation": "雙向鏈結串列可方便插入、刪除並往前後走訪；環狀鏈結串列適合反覆輪替；搜尋樹可依鍵值組織查找，都是核心可能使用的資料結構。\n\n本題依老師答案未選 Array，但陣列實際上也廣泛用於核心，例如固定索引表格。不能把本題列舉讀成「核心不使用陣列」；答案是教材此組列舉的取捨，不是全面排除其他合法實作。",
+          "explanation": "雙向鏈結串列可在已知節點的位置快速插入、刪除，並雙向走訪；環狀鏈結串列適合輪流處理工作；二元搜尋樹可依鍵值建立查找順序。這些都是核心可採用的資料結構。\n\n陣列同樣常見於核心，例如固定索引表與緩衝區，不能解釋成核心不使用陣列。本題保留現有答案，但題幹只問「常見資料結構」，沒有提供排除陣列的條件；這是答案與題意範圍的差異。"
         }
       ]
     },
@@ -381,12 +391,17 @@
         {
           "identity": "[\"多選題\",\"Which facilities are commonly provided by background services or daemons?\",[\"Process scheduling\",\"Error logging\",\"Disk checking\",\"Web browser frontend layout\"],\"A、B、C\",[]]",
           "sourceExplanation": "答案為 A、B、C。背景服務或 daemon 可執行排程、錯誤記錄與磁碟檢查等系統工作；D 網頁瀏覽器版面是應用程式前端工作，不是背景系統服務。",
-          "explanation": "錯誤記錄服務可在背景持續收集日誌，磁碟檢查也可由系統服務排程或執行，兩者符合背景系統工作的概念。\n\n老師答案另列 Process scheduling：若指排定背景工作何時啟動，服務程式可參與；但若指核心即時決定哪個程序取得 CPU 的短期 CPU 排程，主要由核心排程器負責，不能說它通常由使用者空間 daemon 直接代替。Web browser frontend layout 是瀏覽器排版工作，與本題的背景系統服務分類不同。"
+          "explanation": "錯誤記錄服務可在背景收集系統日誌；磁碟檢查可由背景服務安排與執行。兩者都是不需使用者持續操作的系統工作。瀏覽器前端排版則屬瀏覽器呈現網頁的工作，不屬於此處的背景系統服務。\n\n「Process scheduling」需要區分層次：安排背景工作何時啟動，可以由服務程式負責；決定下一個取得 CPU 的程序，則主要由核心排程器執行。現有答案包含這一項，但原題沒有說明是哪種排程，不能把核心 CPU 排程器等同於一般 daemon。"
         },
         {
           "identity": "[\"多選題\",\"Which facilities are commonly provided by background services or daemons?\",[\"Process scheduling\",\"Error logging\",\"Disk checking\",\"Web browser frontend layout\"],\"A、B、C\",[]]",
           "sourceExplanation": "",
-          "explanation": "錯誤記錄服務可在背景持續收集日誌，磁碟檢查也可由系統服務排程或執行，兩者符合背景系統工作的概念。\n\n老師答案另列 Process scheduling：若指排定背景工作何時啟動，服務程式可參與；但若指核心即時決定哪個程序取得 CPU 的短期 CPU 排程，主要由核心排程器負責，不能說它通常由使用者空間 daemon 直接代替。Web browser frontend layout 是瀏覽器排版工作，與本題的背景系統服務分類不同。"
+          "explanation": "錯誤記錄服務可在背景收集系統日誌；磁碟檢查可由背景服務安排與執行。兩者都是不需使用者持續操作的系統工作。瀏覽器前端排版則屬瀏覽器呈現網頁的工作，不屬於此處的背景系統服務。\n\n「Process scheduling」需要區分層次：安排背景工作何時啟動，可以由服務程式負責；決定下一個取得 CPU 的程序，則主要由核心排程器執行。現有答案包含這一項，但原題沒有說明是哪種排程，不能把核心 CPU 排程器等同於一般 daemon。"
+        },
+        {
+          "identity": "[\"多選題\",\"Which facilities are commonly provided by background services or daemons?\",[\"Process scheduling\",\"Error logging\",\"Disk checking\",\"Web browser frontend layout\"],\"A、B、C\",[]]",
+          "sourceExplanation": "錯誤記錄服務可在背景持續收集日誌，磁碟檢查也可由系統服務排程或執行，兩者符合背景系統工作的概念。\n\n老師答案另列 Process scheduling：若指排定背景工作何時啟動，服務程式可參與；但若指核心即時決定哪個程序取得 CPU 的短期 CPU 排程，主要由核心排程器負責，不能說它通常由使用者空間 daemon 直接代替。Web browser frontend layout 是瀏覽器排版工作，與本題的背景系統服務分類不同。",
+          "explanation": "錯誤記錄服務可在背景收集系統日誌；磁碟檢查可由背景服務安排與執行。兩者都是不需使用者持續操作的系統工作。瀏覽器前端排版則屬瀏覽器呈現網頁的工作，不屬於此處的背景系統服務。\n\n「Process scheduling」需要區分層次：安排背景工作何時啟動，可以由服務程式負責；決定下一個取得 CPU 的程序，則主要由核心排程器執行。現有答案包含這一項，但原題沒有說明是哪種排程，不能把核心 CPU 排程器等同於一般 daemon。"
         }
       ]
     },
@@ -1402,7 +1417,12 @@
         {
           "identity": "[\"填空題\",\"一個程序在記憶體中被組織成多個部分,其中 ____________ 包含暫時性資料,如函式參數、回傳位址和區域變數。(請用英文縮寫回答 且用大寫字母)\",[],\"PCB\",[]]",
           "sourceExplanation": "PCB 是作業系統記錄程序狀態的資料結構，不是這些暫時資料的記憶體區段。",
-          "explanation": "填答保留老師指定的 PCB。PCB（Process Control Block）是核心保存程序識別、狀態、暫存器、排程與記憶體管理資訊的控制結構，也可能保存堆疊指標。\n\n但函式參數、回傳位址與一般自動區域變數，按標準程序記憶體配置通常位在 stack（堆疊）的呼叫框架中，不是整批放在 PCB。可用「PCB 記錄這個程序如何繼續執行；stack 保存這次函式呼叫現場」區分兩者。這題的老師答案與題幹的標準術語不一致，不能據此背成「區域變數存 PCB」。"
+          "explanation": "PCB（Process Control Block）記錄程序識別、執行狀態、暫存器、排程與記憶體管理資訊，讓作業系統能暫停並恢復程序；其中可能包含堆疊指標。\n\n函式參數、回傳位址與一般自動區域變數，通常保存在 stack（堆疊）的呼叫框架。呼叫函式時建立框架，返回後回收，可用這個過程辨認題幹描述的區域。現有答案 PCB 保留，但它與題幹描述的 stack 不一致；不能把「PCB 保存堆疊位置」理解成「所有區域變數都存於 PCB」。"
+        },
+        {
+          "identity": "[\"填空題\",\"一個程序在記憶體中被組織成多個部分,其中 ____________ 包含暫時性資料,如函式參數、回傳位址和區域變數。(請用英文縮寫回答 且用大寫字母)\",[],\"PCB\",[]]",
+          "sourceExplanation": "填答保留老師指定的 PCB。PCB（Process Control Block）是核心保存程序識別、狀態、暫存器、排程與記憶體管理資訊的控制結構，也可能保存堆疊指標。\n\n但函式參數、回傳位址與一般自動區域變數，按標準程序記憶體配置通常位在 stack（堆疊）的呼叫框架中，不是整批放在 PCB。可用「PCB 記錄這個程序如何繼續執行；stack 保存這次函式呼叫現場」區分兩者。這題的老師答案與題幹的標準術語不一致，不能據此背成「區域變數存 PCB」。",
+          "explanation": "PCB（Process Control Block）記錄程序識別、執行狀態、暫存器、排程與記憶體管理資訊，讓作業系統能暫停並恢復程序；其中可能包含堆疊指標。\n\n函式參數、回傳位址與一般自動區域變數，通常保存在 stack（堆疊）的呼叫框架。呼叫函式時建立框架，返回後回收，可用這個過程辨認題幹描述的區域。現有答案 PCB 保留，但它與題幹描述的 stack 不一致；不能把「PCB 保存堆疊位置」理解成「所有區域變數都存於 PCB」。"
         }
       ]
     },
@@ -1753,7 +1773,12 @@
         {
           "identity": "[\"多選題\",\"以下哪些是遠端程序呼叫（RPC）的特點？\",[\"使用樁（stubs）來定位伺服器並封送參數\",\"使用外部資料表示法（XDL）格式處理資料\",\"抽象化了網路系統中的程序呼叫\",\"需要親屬關係\"],\"A、B、C\",[]]",
           "sourceExplanation": "",
-          "explanation": "RPC 用 stub 封送參數、送出遠端請求並接回結果，讓程式能以類似呼叫函式的方式使用網路服務；客戶端與伺服器不必有父子或親屬關係。教材的 ONC／Sun RPC 使用 XDR（External Data Representation）統一資料表示，不代表所有 RPC 實作都必須使用 XDR。原選項寫 XDL 疑似是 XDR 的誤植，老師答案與選項原文保留，解析在此說明正確術語。"
+          "explanation": "RPC 讓客戶端以類似本地函式呼叫的方式使用遠端服務。stub 負責封送參數、傳送請求及接收結果，隱藏部分網路通訊細節；客戶端與伺服器不必具有父子或其他親屬關係，所以「需要親屬關係」不符合 RPC 的一般條件。\n\n跨平台傳送資料時，需要約定資料編碼。ONC／Sun RPC 採用 XDR（External Data Representation），但其他 RPC 系統可以使用不同格式。原選項寫的是 XDL，與 XDR 不同；現有選項及答案均保留，此處指出術語差異，不把 XDL 當成 XDR 的正式縮寫。"
+        },
+        {
+          "identity": "[\"多選題\",\"以下哪些是遠端程序呼叫（RPC）的特點？\",[\"使用樁（stubs）來定位伺服器並封送參數\",\"使用外部資料表示法（XDL）格式處理資料\",\"抽象化了網路系統中的程序呼叫\",\"需要親屬關係\"],\"A、B、C\",[]]",
+          "sourceExplanation": "RPC 用 stub 封送參數、送出遠端請求並接回結果，讓程式能以類似呼叫函式的方式使用網路服務；客戶端與伺服器不必有父子或親屬關係。教材的 ONC／Sun RPC 使用 XDR（External Data Representation）統一資料表示，不代表所有 RPC 實作都必須使用 XDR。原選項寫 XDL 疑似是 XDR 的誤植，老師答案與選項原文保留，解析在此說明正確術語。",
+          "explanation": "RPC 讓客戶端以類似本地函式呼叫的方式使用遠端服務。stub 負責封送參數、傳送請求及接收結果，隱藏部分網路通訊細節；客戶端與伺服器不必具有父子或其他親屬關係，所以「需要親屬關係」不符合 RPC 的一般條件。\n\n跨平台傳送資料時，需要約定資料編碼。ONC／Sun RPC 採用 XDR（External Data Representation），但其他 RPC 系統可以使用不同格式。原選項寫的是 XDL，與 XDR 不同；現有選項及答案均保留，此處指出術語差異，不把 XDL 當成 XDR 的正式縮寫。"
         }
       ]
     },
@@ -1891,12 +1916,17 @@
         {
           "identity": "[\"多選題\",\"Which multithreading model allows a single kernel thread to be bound to a single user thread?\",[\"One-to-One\",\"Many-to-One\",\"Two-level\",\"Many-to-Many\"],\"A、B、C、D\",[]]",
           "sourceExplanation": "依老師題庫答案選 A、B、C、D。這裡按廣義的執行對應關係理解：One-to-One 固定一對一；Many-to-One 讓多個使用者執行緒輪流使用一條核心執行緒；Many-to-Many 由多條核心執行緒服務多條使用者執行緒；Two-level 額外允許指定綁定。四者比例與固定程度不同；題庫答案採各模型都可出現一條核心執行緒承載一條使用者執行緒的讀法。",
-          "explanation": "這題保留老師指定的全選答案，但四種模型不能都解釋成相同的「固定綁定」。One-to-One 為每條使用者執行緒建立對應的核心執行緒；Many-to-One 讓多條使用者執行緒共用一條核心執行緒；Many-to-Many 則由一組核心執行緒承載多條使用者執行緒。\n\n教材特別說「允許某條使用者執行緒綁定一條核心執行緒」時，通常是在辨認 Two-level：它在多對多模型上增加指定綁定能力。把「某一時刻由一條核心執行緒承載」當成「可指定固定綁定」，會混淆不同模型。作答依老師答案，理解模型時保留這個差別。"
+          "explanation": "One-to-One 讓每條使用者執行緒對應一條核心執行緒；Many-to-One 讓多條使用者執行緒共用一條核心執行緒；Many-to-Many 在兩組執行緒之間進行多對多映射。Two-level 在多對多模型上增加指定綁定能力，可讓某條使用者執行緒固定綁定某條核心執行緒。\n\n判斷關鍵是「固定綁定」與「當下由某條核心執行緒承載」不同。若 bound 指可指定固定綁定，四種模型並非全部具有相同能力。現有全選答案保留，但原題的 bound 用法與模型分類存在範圍差異，不能因此把四種映射機制視為相同。"
         },
         {
           "identity": "[\"多選題\",\"Which multithreading model allows a single kernel thread to be bound to a single user thread?\",[\"One-to-One\",\"Many-to-One\",\"Two-level\",\"Many-to-Many\"],\"A、B、C、D\",[]]",
           "sourceExplanation": "",
-          "explanation": "這題保留老師指定的全選答案，但四種模型不能都解釋成相同的「固定綁定」。One-to-One 為每條使用者執行緒建立對應的核心執行緒；Many-to-One 讓多條使用者執行緒共用一條核心執行緒；Many-to-Many 則由一組核心執行緒承載多條使用者執行緒。\n\n教材特別說「允許某條使用者執行緒綁定一條核心執行緒」時，通常是在辨認 Two-level：它在多對多模型上增加指定綁定能力。把「某一時刻由一條核心執行緒承載」當成「可指定固定綁定」，會混淆不同模型。作答依老師答案，理解模型時保留這個差別。"
+          "explanation": "One-to-One 讓每條使用者執行緒對應一條核心執行緒；Many-to-One 讓多條使用者執行緒共用一條核心執行緒；Many-to-Many 在兩組執行緒之間進行多對多映射。Two-level 在多對多模型上增加指定綁定能力，可讓某條使用者執行緒固定綁定某條核心執行緒。\n\n判斷關鍵是「固定綁定」與「當下由某條核心執行緒承載」不同。若 bound 指可指定固定綁定，四種模型並非全部具有相同能力。現有全選答案保留，但原題的 bound 用法與模型分類存在範圍差異，不能因此把四種映射機制視為相同。"
+        },
+        {
+          "identity": "[\"多選題\",\"Which multithreading model allows a single kernel thread to be bound to a single user thread?\",[\"One-to-One\",\"Many-to-One\",\"Two-level\",\"Many-to-Many\"],\"A、B、C、D\",[]]",
+          "sourceExplanation": "這題保留老師指定的全選答案，但四種模型不能都解釋成相同的「固定綁定」。One-to-One 為每條使用者執行緒建立對應的核心執行緒；Many-to-One 讓多條使用者執行緒共用一條核心執行緒；Many-to-Many 則由一組核心執行緒承載多條使用者執行緒。\n\n教材特別說「允許某條使用者執行緒綁定一條核心執行緒」時，通常是在辨認 Two-level：它在多對多模型上增加指定綁定能力。把「某一時刻由一條核心執行緒承載」當成「可指定固定綁定」，會混淆不同模型。作答依老師答案，理解模型時保留這個差別。",
+          "explanation": "One-to-One 讓每條使用者執行緒對應一條核心執行緒；Many-to-One 讓多條使用者執行緒共用一條核心執行緒；Many-to-Many 在兩組執行緒之間進行多對多映射。Two-level 在多對多模型上增加指定綁定能力，可讓某條使用者執行緒固定綁定某條核心執行緒。\n\n判斷關鍵是「固定綁定」與「當下由某條核心執行緒承載」不同。若 bound 指可指定固定綁定，四種模型並非全部具有相同能力。現有全選答案保留，但原題的 bound 用法與模型分類存在範圍差異，不能因此把四種映射機制視為相同。"
         }
       ]
     },
@@ -1905,12 +1935,17 @@
         {
           "identity": "[\"多選題\",\"哪一種多執行緒模型允許一個核心執行緒與一個使用者執行緒綁定？\",[\"Many-to-One\",\"Two-level\",\"One-to-One\",\"Many-to-Many\"],\"A、B、C、D\",[]]",
           "sourceExplanation": "依老師題庫答案選 A、B、C、D。這裡按廣義的執行對應關係理解：One-to-One 固定一對一；Many-to-One 讓多個使用者執行緒輪流使用一條核心執行緒；Many-to-Many 由多條核心執行緒服務多條使用者執行緒；Two-level 額外允許指定綁定。四者比例與固定程度不同；題庫答案採各模型都可出現一條核心執行緒承載一條使用者執行緒的讀法。",
-          "explanation": "這題保留老師指定的全選答案，但四種模型不能都解釋成相同的「固定綁定」。One-to-One 為每條使用者執行緒建立對應的核心執行緒；Many-to-One 讓多條使用者執行緒共用一條核心執行緒；Many-to-Many 則由一組核心執行緒承載多條使用者執行緒。\n\n教材特別說「允許某條使用者執行緒綁定一條核心執行緒」時，通常是在辨認 Two-level：它在多對多模型上增加指定綁定能力。把「某一時刻由一條核心執行緒承載」當成「可指定固定綁定」，會混淆不同模型。作答依老師答案，理解模型時保留這個差別。"
+          "explanation": "One-to-One 讓每條使用者執行緒對應一條核心執行緒；Many-to-One 讓多條使用者執行緒共用一條核心執行緒；Many-to-Many 允許多條使用者執行緒在一組核心執行緒上執行。Two-level 則在多對多模型之外，允許指定某條使用者執行緒與某條核心執行緒固定綁定。\n\n「可以固定綁定」不是「某個時刻只有一條使用者執行緒正在核心執行緒上執行」。若題目問的是前者，各模型的能力不同；現有全選答案維持不變，理解時應保留這項差異，避免由答案推成四種模型完全等價。"
         },
         {
           "identity": "[\"多選題\",\"哪一種多執行緒模型允許一個核心執行緒與一個使用者執行緒綁定？\",[\"Many-to-One\",\"Two-level\",\"One-to-One\",\"Many-to-Many\"],\"A、B、C、D\",[]]",
           "sourceExplanation": "",
-          "explanation": "這題保留老師指定的全選答案，但四種模型不能都解釋成相同的「固定綁定」。One-to-One 為每條使用者執行緒建立對應的核心執行緒；Many-to-One 讓多條使用者執行緒共用一條核心執行緒；Many-to-Many 則由一組核心執行緒承載多條使用者執行緒。\n\n教材特別說「允許某條使用者執行緒綁定一條核心執行緒」時，通常是在辨認 Two-level：它在多對多模型上增加指定綁定能力。把「某一時刻由一條核心執行緒承載」當成「可指定固定綁定」，會混淆不同模型。作答依老師答案，理解模型時保留這個差別。"
+          "explanation": "One-to-One 讓每條使用者執行緒對應一條核心執行緒；Many-to-One 讓多條使用者執行緒共用一條核心執行緒；Many-to-Many 允許多條使用者執行緒在一組核心執行緒上執行。Two-level 則在多對多模型之外，允許指定某條使用者執行緒與某條核心執行緒固定綁定。\n\n「可以固定綁定」不是「某個時刻只有一條使用者執行緒正在核心執行緒上執行」。若題目問的是前者，各模型的能力不同；現有全選答案維持不變，理解時應保留這項差異，避免由答案推成四種模型完全等價。"
+        },
+        {
+          "identity": "[\"多選題\",\"哪一種多執行緒模型允許一個核心執行緒與一個使用者執行緒綁定？\",[\"Many-to-One\",\"Two-level\",\"One-to-One\",\"Many-to-Many\"],\"A、B、C、D\",[]]",
+          "sourceExplanation": "這題保留老師指定的全選答案，但四種模型不能都解釋成相同的「固定綁定」。One-to-One 為每條使用者執行緒建立對應的核心執行緒；Many-to-One 讓多條使用者執行緒共用一條核心執行緒；Many-to-Many 則由一組核心執行緒承載多條使用者執行緒。\n\n教材特別說「允許某條使用者執行緒綁定一條核心執行緒」時，通常是在辨認 Two-level：它在多對多模型上增加指定綁定能力。把「某一時刻由一條核心執行緒承載」當成「可指定固定綁定」，會混淆不同模型。作答依老師答案，理解模型時保留這個差別。",
+          "explanation": "One-to-One 讓每條使用者執行緒對應一條核心執行緒；Many-to-One 讓多條使用者執行緒共用一條核心執行緒；Many-to-Many 允許多條使用者執行緒在一組核心執行緒上執行。Two-level 則在多對多模型之外，允許指定某條使用者執行緒與某條核心執行緒固定綁定。\n\n「可以固定綁定」不是「某個時刻只有一條使用者執行緒正在核心執行緒上執行」。若題目問的是前者，各模型的能力不同；現有全選答案維持不變，理解時應保留這項差異，避免由答案推成四種模型完全等價。"
         }
       ]
     },
@@ -2165,12 +2200,17 @@
         {
           "identity": "[\"單選題\",\"How is aging implemented in Multilevel Feedback Queue scheduling?\",[\"By reducing the number of queues for a process\",\"By increasing the waiting time\",\"By giving each process a fixed time quantum\",\"By allowing a process to move between queues\"],\"D\",[]]",
           "sourceExplanation": "依老師提供的答案選 D。多層級回饋佇列允許程序在不同佇列間移動，老化時可把等待過久的程序提升到較高優先權佇列。A 減少佇列數不會提升等待者；B 增加等待時間反而加重飢餓；C 固定時間片本身不會提高程序優先權。",
-          "explanation": "依老師提供的答案選 「By allowing a process to move between queues」。多層級回饋佇列允許程序在不同佇列間移動，老化時可把等待過久的程序提升到較高優先權佇列。「By reducing the number of queues for a process」 減少佇列數不會提升等待者；「By increasing the waiting time」 增加等待時間反而加重飢餓；「By giving each process a fixed time quantum」 固定時間片本身不會提高程序優先權。"
+          "explanation": "Aging 的目的，是避免低優先權工作長期等不到 CPU。多層回饋佇列可記錄等待時間，讓等待過久的程序移到較高優先權佇列，或定期把工作提升，增加它被排到的機會。因此關鍵是允許程序在佇列間移動，而且移動方向及時機要有助於久候工作。\n\n只增加等待時間會讓飢餓更嚴重；固定時間片只決定一次可執行多久，不能單獨保證低優先權工作獲得服務；減少某個程序的佇列數也不是 aging 的核心機制。"
         },
         {
           "identity": "[\"單選題\",\"How is aging implemented in Multilevel Feedback Queue scheduling?\",[\"By reducing the number of queues for a process\",\"By increasing the waiting time\",\"By giving each process a fixed time quantum\",\"By allowing a process to move between queues\"],\"D\",[]]",
           "sourceExplanation": "",
-          "explanation": "依老師提供的答案選 「By allowing a process to move between queues」。多層級回饋佇列允許程序在不同佇列間移動，老化時可把等待過久的程序提升到較高優先權佇列。「By reducing the number of queues for a process」 減少佇列數不會提升等待者；「By increasing the waiting time」 增加等待時間反而加重飢餓；「By giving each process a fixed time quantum」 固定時間片本身不會提高程序優先權。"
+          "explanation": "Aging 的目的，是避免低優先權工作長期等不到 CPU。多層回饋佇列可記錄等待時間，讓等待過久的程序移到較高優先權佇列，或定期把工作提升，增加它被排到的機會。因此關鍵是允許程序在佇列間移動，而且移動方向及時機要有助於久候工作。\n\n只增加等待時間會讓飢餓更嚴重；固定時間片只決定一次可執行多久，不能單獨保證低優先權工作獲得服務；減少某個程序的佇列數也不是 aging 的核心機制。"
+        },
+        {
+          "identity": "[\"單選題\",\"How is aging implemented in Multilevel Feedback Queue scheduling?\",[\"By reducing the number of queues for a process\",\"By increasing the waiting time\",\"By giving each process a fixed time quantum\",\"By allowing a process to move between queues\"],\"D\",[]]",
+          "sourceExplanation": "依老師提供的答案選 「By allowing a process to move between queues」。多層級回饋佇列允許程序在不同佇列間移動，老化時可把等待過久的程序提升到較高優先權佇列。「By reducing the number of queues for a process」 減少佇列數不會提升等待者；「By increasing the waiting time」 增加等待時間反而加重飢餓；「By giving each process a fixed time quantum」 固定時間片本身不會提高程序優先權。",
+          "explanation": "Aging 的目的，是避免低優先權工作長期等不到 CPU。多層回饋佇列可記錄等待時間，讓等待過久的程序移到較高優先權佇列，或定期把工作提升，增加它被排到的機會。因此關鍵是允許程序在佇列間移動，而且移動方向及時機要有助於久候工作。\n\n只增加等待時間會讓飢餓更嚴重；固定時間片只決定一次可執行多久，不能單獨保證低優先權工作獲得服務；減少某個程序的佇列數也不是 aging 的核心機制。"
         }
       ]
     },
@@ -2221,12 +2261,17 @@
         {
           "identity": "[\"多選題\",\"What methods can be used to estimate the length of the next CPU burst?\",[\"Setting α=1 to only consider the last burst\",\"Asking the user\",\"Using exponential averaging of previous CPU bursts\",\"Using a constant value\"],\"A、B、C\",[]]",
           "sourceExplanation": "依老師提供的答案選 A、B、C。C 是用過去 CPU burst 做指數平均；A 是它的特例，當 α=1 時公式只保留最近一次 burst。B 代表由使用者提供對下一段工作的估計，屬外部估計方式。D 固定使用同一常數，沒有根據工作或歷史資料估算長度，因此不屬於本題列出的估計方法。",
-          "explanation": "依老師提供的答案選 「Setting α=1 to only consider the last burst」、「Asking the user」、「Using exponential averaging of previous CPU bursts」。「Using exponential averaging of previous CPU bursts」 是用過去 CPU burst 做指數平均；「Setting α=1 to only consider the last burst」 是它的特例，當 α=1 時公式只保留最近一次 burst。「Asking the user」 代表由使用者提供對下一段工作的估計，屬外部估計方式。「Using a constant value」 固定使用同一常數，沒有根據工作或歷史資料估算長度，因此不屬於本題列出的估計方法。"
+          "explanation": "指數平均以 τ(next)=α·t(last)+(1−α)·τ(current) 預測下一次 CPU burst，將最近實測時間與先前預測加權。例如 α=0.5、最近 burst 為 8、舊預測為 4，下一次預測就是 6。\n\n令 α=1 時，新預測等於最近一次 burst，完全忽略更早資料；這是指數平均的特例。詢問使用者也能取得估計值，但通常不如歷史量測可靠。固定值則是沒有依歷史調整的基準預測，並非不能當估計。現有答案排除固定值，原題未明示要排除這種基準方法，需留意這個範圍。"
         },
         {
           "identity": "[\"多選題\",\"What methods can be used to estimate the length of the next CPU burst?\",[\"Setting α=1 to only consider the last burst\",\"Asking the user\",\"Using exponential averaging of previous CPU bursts\",\"Using a constant value\"],\"A、B、C\",[]]",
           "sourceExplanation": "",
-          "explanation": "依老師提供的答案選 「Setting α=1 to only consider the last burst」、「Asking the user」、「Using exponential averaging of previous CPU bursts」。「Using exponential averaging of previous CPU bursts」 是用過去 CPU burst 做指數平均；「Setting α=1 to only consider the last burst」 是它的特例，當 α=1 時公式只保留最近一次 burst。「Asking the user」 代表由使用者提供對下一段工作的估計，屬外部估計方式。「Using a constant value」 固定使用同一常數，沒有根據工作或歷史資料估算長度，因此不屬於本題列出的估計方法。"
+          "explanation": "指數平均以 τ(next)=α·t(last)+(1−α)·τ(current) 預測下一次 CPU burst，將最近實測時間與先前預測加權。例如 α=0.5、最近 burst 為 8、舊預測為 4，下一次預測就是 6。\n\n令 α=1 時，新預測等於最近一次 burst，完全忽略更早資料；這是指數平均的特例。詢問使用者也能取得估計值，但通常不如歷史量測可靠。固定值則是沒有依歷史調整的基準預測，並非不能當估計。現有答案排除固定值，原題未明示要排除這種基準方法，需留意這個範圍。"
+        },
+        {
+          "identity": "[\"多選題\",\"What methods can be used to estimate the length of the next CPU burst?\",[\"Setting α=1 to only consider the last burst\",\"Asking the user\",\"Using exponential averaging of previous CPU bursts\",\"Using a constant value\"],\"A、B、C\",[]]",
+          "sourceExplanation": "依老師提供的答案選 「Setting α=1 to only consider the last burst」、「Asking the user」、「Using exponential averaging of previous CPU bursts」。「Using exponential averaging of previous CPU bursts」 是用過去 CPU burst 做指數平均；「Setting α=1 to only consider the last burst」 是它的特例，當 α=1 時公式只保留最近一次 burst。「Asking the user」 代表由使用者提供對下一段工作的估計，屬外部估計方式。「Using a constant value」 固定使用同一常數，沒有根據工作或歷史資料估算長度，因此不屬於本題列出的估計方法。",
+          "explanation": "指數平均以 τ(next)=α·t(last)+(1−α)·τ(current) 預測下一次 CPU burst，將最近實測時間與先前預測加權。例如 α=0.5、最近 burst 為 8、舊預測為 4，下一次預測就是 6。\n\n令 α=1 時，新預測等於最近一次 burst，完全忽略更早資料；這是指數平均的特例。詢問使用者也能取得估計值，但通常不如歷史量測可靠。固定值則是沒有依歷史調整的基準預測，並非不能當估計。現有答案排除固定值，原題未明示要排除這種基準方法，需留意這個範圍。"
         }
       ]
     },
@@ -3652,7 +3697,12 @@
         {
           "identity": "[\"填空題\",\"為了打破死結,一種方法是通過 ____________ 來終止一個或多個進程。(請用小寫英文回答)\",[],\"preemption\",[]]",
           "sourceExplanation": "無",
-          "explanation": "依老師指定答案填 preemption，但應分清兩種恢復動作：resource preemption 是強制取回可回收的資源，程序之後可能回滾並重做；process termination 是直接終止程序並回收資源。\n\n原題把「藉由 preemption 終止一個或多個程序」寫在一起，術語不夠精確。搶佔資源不必然等於終止整個程序；解析保留填答要求，但不把兩者當成同一個概念。"
+          "explanation": "死結恢復常見兩種做法：終止程序，或搶佔資源。Process termination 直接終止一個或多個程序，回收它們持有的資源；resource preemption 則強制取回可回收資源，必要時讓受影響的程序回滾並重新執行。\n\n現有答案 preemption 保留，但原題使用「終止一個或多個進程」，其字面對應的是 process termination。資源被搶佔並不必然代表整個程序被終止，作答與觀念理解要分清楚這兩種恢復動作。"
+        },
+        {
+          "identity": "[\"填空題\",\"為了打破死結,一種方法是通過 ____________ 來終止一個或多個進程。(請用小寫英文回答)\",[],\"preemption\",[]]",
+          "sourceExplanation": "依老師指定答案填 preemption，但應分清兩種恢復動作：resource preemption 是強制取回可回收的資源，程序之後可能回滾並重做；process termination 是直接終止程序並回收資源。\n\n原題把「藉由 preemption 終止一個或多個程序」寫在一起，術語不夠精確。搶佔資源不必然等於終止整個程序；解析保留填答要求，但不把兩者當成同一個概念。",
+          "explanation": "死結恢復常見兩種做法：終止程序，或搶佔資源。Process termination 直接終止一個或多個程序，回收它們持有的資源；resource preemption 則強制取回可回收資源，必要時讓受影響的程序回滾並重新執行。\n\n現有答案 preemption 保留，但原題使用「終止一個或多個進程」，其字面對應的是 process termination。資源被搶佔並不必然代表整個程序被終止，作答與觀念理解要分清楚這兩種恢復動作。"
         }
       ]
     },
@@ -7378,6 +7428,34 @@
           "identity": "[\"填空題\",\"In deadlock recovery , ____________ is the strategy of selecting and aborting one or more deadlocked processes to break the deadlock.(Please answer in lowercase English, leaving a space between each word)\",[],\"process termination\",[]]",
           "sourceExplanation": "",
           "explanation": "填 process termination（程序終止）。偵測到死結後，中止一個或多個參與死結的程序，回收其持有資源，讓剩餘程序能繼續。\n\n例如程序甲與乙各持一把鎖並互等，終止甲後回收它的鎖，乙便可能取得所需資源完成。可以一次終止全部，也可以逐個終止並重新檢查；代價是未完成工作會損失，可能需要重跑。資源搶佔是收回資源，不一定直接結束整個程序。"
+        }
+      ]
+    },
+    "community-e9945852-7bb0-4512-a4ed-d4bd8fa5e297-2": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"A process is organized into several parts in memory, where the ____________ contains temporary data such as function parameters, return addresses, and local variables. (Please answer using English abbreviations and uppercase letters.)\",[],\"PCB\",[]]",
+          "sourceExplanation": "依老師提供的題庫答案保留 PCB。PCB 保存程序的管理與執行狀態，例如程序狀態、程式計數器和 CPU 暫存器。不過題幹列出的函式參數、回傳位址及區域變數，通常是程序記憶體中的 stack（堆疊）內容；這與內建同題答案 stack 相符。此處保留教師答案，但題幹線索與答案有差異，請以課程指定答案為準。",
+          "explanation": "函式呼叫時，stack（堆疊）上的呼叫框架通常保存參數、回傳位址與自動區域變數；函式返回後，該框架即可回收。這是題幹 temporary data 所描述的用途。\n\nPCB（Process Control Block）則是核心記錄程序狀態與資源的控制結構，可能保存堆疊指標，但不是存放整份函式呼叫資料的區域。現有答案 PCB 維持不變；它與題幹的標準記憶體區域名稱存在差異，兩者的用途需分開理解。"
+        },
+        {
+          "identity": "[\"填空題\",\"A process is organized into several parts in memory, where the ____________ contains temporary data such as function parameters, return addresses, and local variables. (Please answer using English abbreviations and uppercase letters.)\",[],\"PCB\",[]]",
+          "sourceExplanation": "",
+          "explanation": "函式呼叫時，stack（堆疊）上的呼叫框架通常保存參數、回傳位址與自動區域變數；函式返回後，該框架即可回收。這是題幹 temporary data 所描述的用途。\n\nPCB（Process Control Block）則是核心記錄程序狀態與資源的控制結構，可能保存堆疊指標，但不是存放整份函式呼叫資料的區域。現有答案 PCB 維持不變；它與題幹的標準記憶體區域名稱存在差異，兩者的用途需分開理解。"
+        }
+      ]
+    },
+    "community-70c0705f-a1d7-4e2e-b00f-a94d9b435d25-8": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"即時排程 問題\\n\\n已知有兩個行程 P1 P2 分別需要的 CPU 、deladline 時間如下\\n\\nPeriod Deadline CPU\\nP1 50 50 20\\nP2 100 100 35\\n\\n若使用 Rate Monotonic 方式 P2 的第一塊資料 最後完成的位置 在哪一個時間點 ____________ 之前 (請給最接見的時間 數字)\",[],\"(80)\",[]]",
+          "sourceExplanation": "① 先讀懂資料和名稱\nPeriod 是多久來一份新工作；CPU 是每份要做多久；Deadline 是每份從到達起最多能等多久。\n例如 P1_2：第 2 期，到達＝（2－1）×50＝50，絕對截止＝50＋50＝100；需要 20 ms。下標代表第幾期，不是被切開的第幾段。\n\n② 套用排程規則\nRM：週期越短，固定優先權越高；新一期高優先權工作到達，會搶先尚未完成的低優先權工作。\n本題固定優先順序：P1 ＞ P2。\n第一期都在 0 ms 到達；之後每隔一個 Period 產生新一期工作。 Deadline 欄是相對到達時間的期限；絕對截止＝到達＋Deadline。 單一 CPU，不計切換成本；同截止時刻者採先到先做。\n\n③ 一段一段看誰占 CPU\n0 ms：候選 P1_1（週期 50）、P2_1（週期 100）；依固定週期優先權選 P1_1，這段執行到 20 ms。此期已做滿 CPU 時間。\n20 ms：候選 P2_1（週期 100）；依固定週期優先權選 P2_1，這段執行到 50 ms。之後因更高優先權工作到達而換人。\n50 ms：候選 P1_2（週期 50）、P2_1（週期 100）；依固定週期優先權選 P1_2，這段執行到 70 ms。此期已做滿 CPU 時間。\n70 ms：候選 P2_1（週期 100）；依固定週期優先權選 P2_1，這段執行到 75 ms。此期已做滿 CPU 時間。\n75–100：已到達工作都完成，CPU 閒置。\n\n時間線（ms）：P1_1（0–20） → P2_1（20–50） → P1_2（50–70） → P2_1（70–75） → 閒置（75–100）\n\n\n④ 回到本題／逐項核對\nP2_1：第 1 期，到達＝（1－1）×100＝0，絕對截止＝0＋100＝100；需要 35 ms。\n它的實際 CPU 區塊是 P2_1（20–50） → P2_1（70–75）；總長度 30＋5＝35 ms，最後完成在 75 ms。\n本題問「在哪個時間點之前」，不同於問完工時刻。若依 10 ms 圖軸刻度作答，75 之後最近的刻度是 80，所以填 80；題幹沒有明列刻度，此處把採用的解讀寫清楚。\n\n⑤ 對照答案\n本題結論：80。真正完工時刻是 75 ms。老師答案 80 可解讀為「以 10 ms 刻度向後找最近的標記」：75＜80；若未指定刻度，不能把 80 當作實際完工時刻。\n\n容易弄混的地方：工作「到達」不代表立即上 CPU；相對 Deadline 必須先加上到達時刻，才能用 EDF 比較。",
+          "explanation": "Rate Monotonic 以週期較短者為高優先權，所以 P1 的優先權高於 P2。假設兩者在時間 0 同時釋出第一個工作、採可搶佔單處理器排程，時間線如下：\n0–20：P1 執行 20，完成第一份工作。\n20–50：P2 執行 30，還剩 5。\n50–70：P1 第二份工作到達並搶佔，執行 20。\n70–75：P2 完成剩下的 5，因此第一份工作在 75 完成。\n\n現有填答為 (80)。75 確實在 80 之前，但若「最接近的時間」要求精確完成時點，計算結果是 75。原題未交代時間刻度是否只能以十為單位，答案維持不變，不能憑空把完成時點延後到 80。"
+        },
+        {
+          "identity": "[\"填空題\",\"即時排程 問題\\n\\n已知有兩個行程 P1 P2 分別需要的 CPU 、deladline 時間如下\\n\\nPeriod Deadline CPU\\nP1 50 50 20\\nP2 100 100 35\\n\\n若使用 Rate Monotonic 方式 P2 的第一塊資料 最後完成的位置 在哪一個時間點 ____________ 之前 (請給最接見的時間 數字)\",[],\"(80)\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Rate Monotonic 以週期較短者為高優先權，所以 P1 的優先權高於 P2。假設兩者在時間 0 同時釋出第一個工作、採可搶佔單處理器排程，時間線如下：\n0–20：P1 執行 20，完成第一份工作。\n20–50：P2 執行 30，還剩 5。\n50–70：P1 第二份工作到達並搶佔，執行 20。\n70–75：P2 完成剩下的 5，因此第一份工作在 75 完成。\n\n現有填答為 (80)。75 確實在 80 之前，但若「最接近的時間」要求精確完成時點，計算結果是 75。原題未交代時間刻度是否只能以十為單位，答案維持不變，不能憑空把完成時點延後到 80。"
         }
       ]
     }

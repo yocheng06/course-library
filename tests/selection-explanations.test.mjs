@@ -6,6 +6,7 @@ import {parseHTML} from 'linkedom';
 import {buildCuration,explain} from '../scripts/rewrite-algorithms-l7-20261101.mjs';
 const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
 const html=await read('algorithms.html'),curation=JSON.parse(await read('assets/algorithms-l7-curation.json'));
+const latest=JSON.parse(await read('content/reviewed-explanations-20261126.json')).questions;
 const current=JSON.parse(await read('content/algorithms-l7-current-20261101.json'));
 const live=JSON.parse(await read('content/algorithms-public-l7-20261101.json'));
 const base=JSON.parse(parseHTML(html).document.getElementById('course-data').textContent).find(u=>u.id==='L7').questions;
@@ -18,8 +19,8 @@ test('all 60 effective questions and original versions have full reviewed explan
  for(const raw of [...base,...current]){
   const before=JSON.stringify(raw),q=window.courseSelection.apply(raw);
   assert.equal(JSON.stringify(raw),before);assert(q.selectionExplanation,raw.bookmarkId);assert.equal(q.ex,explain(raw));
-  assert(q.ex.length>=160,raw.bookmarkId);assert.match(q.ex,/解題思路與過程/);
-  for(const o of raw.opts)assert(q.ex.includes(o),`${raw.bookmarkId} ${o}`);
+  assert(q.ex.length>=160,raw.bookmarkId);if(!latest.some(r=>r.id===raw.bookmarkId))assert.match(q.ex,/解題思路與過程/);
+  for(const o of raw.opts)assert(q.ex.includes(latest.some(r=>r.id===raw.bookmarkId)?o.replace(/^[A-H][.．、:]\s*/, ''):o),`${raw.bookmarkId} ${o}`);
   for(const key of Object.keys(raw).filter(k=>!['ex','explanation'].includes(k)))assert.deepEqual(q[key],raw[key]);
  }
 });

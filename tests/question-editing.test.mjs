@@ -5,7 +5,7 @@ import vm from 'node:vm';
 import {parseHTML} from 'linkedom';
 const source=await readFile(new URL('../assets/question-corrections.js',import.meta.url),'utf8');
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-async function page({id='basics-1',course='os',server,shown,failPost=false}={}) {
+async function page({id='basics-1',course='os',server,shown,failPost=false,storage=new Map(),session=new Map(),conflict=false}={}) {
  const {document,window}=parseHTML('<html><body><div id="cards"><article><button data-correction="'+id+'">修改題目</button></article></div></body></html>');
  window.confirm=()=>true;
  Object.defineProperty(window.HTMLSelectElement.prototype,'value',{configurable:true,get(){return this.querySelector('option[selected]')?.textContent||this.querySelector('option')?.textContent||''},set(value){for(const option of this.querySelectorAll('option'))option.toggleAttribute('selected',option.textContent===value)}});
@@ -14,8 +14,8 @@ async function page({id='basics-1',course='os',server,shown,failPost=false}={}) 
  window.courseLearning={course,list:document.getElementById('cards'),questionDetails:()=>({unit:'測試單元',number:1}),questionForEdit:()=>shown};
  window.courseContributions={apiOrigin:'https://example.com'};
  window.addEventListener('online',()=>online++);
- const context=vm.createContext({document,window,URL,URLSearchParams,AbortSignal,Event:window.Event,Blob,setTimeout,fetch:async(url,opts={})=>{
-  requests.push({url,opts});if(failPost&&opts.method==='POST')return {ok:false,json:async()=>({error:'Conflict'})};return {ok:true,json:async()=>opts.method==='POST'&&JSON.parse(opts.body).action==='request-delete'?{queued:true}:{item:structuredClone(server)}};
+ const context=vm.createContext({localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},sessionStorage:{getItem:k=>session.get(k)||null,setItem:(k,v)=>session.set(k,v)},crypto:globalThis.crypto,document,window,URL,URLSearchParams,AbortSignal,Event:window.Event,Blob,setTimeout,fetch:async(url,opts={})=>{
+  requests.push({url,opts});if(conflict&&opts.method==='POST'){server.revision++;server.sourceHash='new-hash';server.question={...server.question,stem:'其他人的新題目',explanation:'<img src=x onerror=alert(1)>'};return {ok:false,status:409,json:async()=>({error:'版本衝突'})};}if(failPost&&opts.method==='POST')return {ok:false,json:async()=>({error:'Conflict'})};return {ok:true,json:async()=>opts.method==='POST'&&JSON.parse(opts.body).action==='request-delete'?{queued:true}:{item:structuredClone(server)}};
  }});
  vm.runInContext(source,context);
  const dialog=document.querySelector('dialog'),form=dialog.querySelector('form');
@@ -109,4 +109,33 @@ test('question notes are visible and editable for both built-in and imported que
    assert.equal(body.note,'');
   }
  }
+});
+
+
+test('reader conflict compares both versions, retains draft on reload and requires the latest revision before saving',async()=>{
+ for(const id of ['sample-1','community-11111111-1111-4111-8111-111111111111-1']){
+  const server={id,unit:'L2',revision:1,sourceHash:'old-hash',question:{...question}},storage=new Map(),session=new Map();
+  const ui=await page({id,server,storage,session,conflict:true});
+  ui.form.elements.stem.value='我的草稿';ui.fire(ui.form,'input');ui.fire(ui.form,'submit');await tick();await tick();
+  const section=ui.document.querySelector('[data-conflict]');
+  assert.equal(section.hidden,false);assert.match(section.textContent,/我的草稿/);assert.match(section.textContent,/其他人的新題目/);
+  assert.equal(section.querySelector('img'),null);assert.equal(ui.form.elements.stem.value,'我的草稿');
+  assert.equal(ui.form.querySelector('[type="submit"]').disabled,true);
+  ui.fire(ui.form,'submit');await tick();assert.equal(ui.requests.filter(r=>r.opts.method==='POST').length,1);
+  const reload=await page({id,server,storage,session});
+  assert.equal(reload.document.querySelector('[data-conflict]').hidden,false);
+  assert.match(reload.document.querySelector('[data-conflict]').textContent,/我的草稿/);
+  reload.fire(reload.document.querySelector('[data-conflict-latest]'),'click');
+  reload.form.elements.explanation.value='手動合併';reload.fire(reload.form,'input');reload.fire(reload.form,'submit');await tick();
+  const saved=JSON.parse(reload.requests.find(r=>r.opts.method==='POST').opts.body);assert.equal(saved.revision,2);
+  if(id==='sample-1')assert.equal(saved.sourceHash,'new-hash');
+  assert.equal(new Map(JSON.parse([...storage.values()].find(v=>v.startsWith('['))||'[]')).size,0);
+ }
+});
+test('reader drafts survive reload, isolate two tabs and detect source changes even at the same revision',async()=>{
+ const server={unit:'L2',revision:0,sourceHash:'hash',question:{...question}},storage=new Map(),session=new Map();
+ const ui=await page({server,storage,session});ui.form.elements.answer.value='我的未送出答案';ui.fire(ui.form,'input');
+ const reload=await page({server,storage,session});assert.equal(reload.form.elements.answer.value,'我的未送出答案');
+ const other=await page({server,storage,session:new Map()});assert.equal(other.form.elements.answer.value,question.answer);
+ server.sourceHash='changed';const newer=await page({server,storage,session});assert.equal(newer.document.querySelector('[data-conflict]').hidden,false);
 });

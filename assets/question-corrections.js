@@ -36,8 +36,9 @@
     <button type="button" data-delete-question class="plain danger" hidden>建議移除此題</button>
     <button type="button" data-report-question class="plain" hidden>回報題目問題</button>
     <p data-status role="status" aria-live="polite"></p>
-    <button type="button" data-download-draft class="plain" hidden>下載舊草稿</button>
+    <button type="button" data-download-draft class="plain" hidden>下載修改草稿</button>
     <button type="button" data-download-receipt class="plain" hidden>下載勘誤收據</button>
+    <section data-conflict hidden aria-label="版本差異"><h3>這道題已有新版本</h3><p>你的編輯尚未送出。請比較內容，下載草稿後，再載入最新版本手動合併。</p><div data-conflict-fields></div><button type="button" data-conflict-latest class="plain">載入最新版本後合併</button></section>
     <section data-lookup-area>
       <hr><h3>查詢勘誤進度</h3>
       <form data-lookup method="post"><label>勘誤編號<input name="receipt" required maxlength="36"></label><button type="submit" class="plain">查詢</button></form>
@@ -50,7 +51,67 @@
     lookup = dialog.querySelector('[data-lookup]'),
     submitButton = form.querySelector('[type="submit"]'),
     deleteButton = dialog.querySelector('[data-delete-question]');
-  const drafts = new Map();
+  let draftScope = 'default';
+  try {
+    draftScope = sessionStorage.getItem('course-library.reader-editor.v1') || crypto.randomUUID();
+    sessionStorage.setItem('course-library.reader-editor.v1', draftScope);
+  } catch {}
+  const draftKey = 'course-library.reader-drafts.v1.' + config.course + '.' + draftScope;
+  let drafts = new Map(), draftStorageFailed = false, conflictLatest = null;
+  try { const saved = JSON.parse(localStorage.getItem(draftKey) || '[]'); if (Array.isArray(saved)) drafts = new Map(saved); } catch {}
+  function persistDrafts() {
+    try { localStorage.setItem(draftKey, JSON.stringify([...drafts])); draftStorageFailed = false; }
+    catch { draftStorageFailed = true; }
+  }
+  function rememberDraft() {
+    if (!active || mode !== 'edit' || !currentItem) return;
+    const edit = {};
+    for (const key of ['category','type','stem','options','answer','explanation','note','translation','optionTranslations','questionNote','answerProvided'])
+      edit[key] = key === 'answerProvided' ? form.elements[key].checked : form.elements[key].value;
+    edit.images = currentItem.question.images || [];
+    drafts.set(active, {revision:currentItem.revision,sourceHash:currentItem.sourceHash,edit});
+    persistDrafts();
+    if (draftStorageFailed) status.textContent = '瀏覽器無法保存草稿，請先下載草稿，避免重新整理後遺失。';
+    dialog.querySelector('[data-download-draft]').hidden = false;
+  }
+  const matchesVersion = (draft,item) => draft?.revision === item.revision && draft?.sourceHash === item.sourceHash;
+  function showConflict(latest) {
+    conflictLatest = latest;
+    const section = dialog.querySelector('[data-conflict]'), fields = section.querySelector('[data-conflict-fields]');
+    fields.replaceChildren();
+    const mine = drafts.get(active)?.edit || {}, q = latest.question;
+    const names = {category:'分類',type:'題型',stem:'題目',options:'選項',answer:'答案',explanation:'解析',questionNote:'題目備註',translation:'翻譯',optionTranslations:'選項翻譯',answerProvided:'已確定答案',images:'題圖'};
+    for (const [key,label] of Object.entries(names)) {
+      const value = key === 'questionNote' ? q.note || '' : q[key] ?? (key === 'answerProvided' ? true : '');
+      const theirs = Array.isArray(value) ? value.map(v=>typeof v==='object'?JSON.stringify(v):v).join('\n') : value;
+      const myValue = Array.isArray(mine[key]) ? mine[key].map(v=>typeof v==='object'?JSON.stringify(v):v).join('\n') : mine[key];
+      if (String(myValue ?? '') === String(theirs)) continue;
+      const row = document.createElement('section'), title = document.createElement('h4');
+      title.textContent = label; row.append(title);
+      for (const [heading,text] of [['你的編輯',myValue],['題庫最新版本',theirs]]) {
+        const name = document.createElement('strong'), body = document.createElement('pre');
+        name.textContent = heading; body.textContent = String(text ?? '') || '（空白）';
+        body.style.whiteSpace = 'pre-wrap'; body.style.overflowWrap = 'anywhere'; row.append(name,body);
+      }
+      fields.append(row);
+    }
+    if (!fields.childNodes.length) fields.textContent = '內容相同，但版本已變更，請載入最新版本後再儲存。';
+    section.hidden = false;
+    dialog.querySelector('[data-conflict-latest]').hidden = false;
+    submitButton.disabled = true;
+    dialog.querySelector('[data-download-draft]').hidden = false;
+    status.textContent = latest.deleted ? '此題已被移除；你的草稿仍保留，請下載。' : '題目已有新版本，請先核對差異；你的草稿仍保留。';
+  }
+  function questionPath() { return communityId(active) ? '/api/community/questions/' + encodeURIComponent(active) : '/api/community/builtin-questions/' + config.course + '/' + encodeURIComponent(active); }
+  dialog.querySelector('[data-conflict-latest]').addEventListener('click', () => {
+    if (!conflictLatest || conflictLatest.deleted) return;
+    // The old draft remains downloadable until the user deliberately edits the new version.
+    const latest = conflictLatest; conflictLatest = null;
+    currentItem = null; fillEdit(latest);
+    dialog.querySelector('[data-conflict-latest]').hidden = true;
+    submitButton.disabled = false;
+    status.textContent = '已載入最新版本。請參照差異或下載的草稿，手動合併後再儲存。';
+  });
   let active = null, opener = null, pending = false, receipt = null,
     mode = 'report', currentItem = null, editPolicy = 'direct';
   const reportButton = dialog.querySelector('[data-report-question]');
@@ -76,6 +137,7 @@
     if (!response.ok) {
       const error = new Error(body.error || '題庫服務暫時無法使用。');
       error.details = body;
+      error.status = response.status;
       throw error;
     }
     return body;
@@ -120,7 +182,7 @@
     dialog.querySelector('[data-answer-state]').hidden = communityId(active);
     dialog.querySelector('[data-builtin-fields]').hidden = communityId(active);
     const savedDraft = drafts.get(active);
-    const draft = savedDraft?.revision === item.revision ? savedDraft.edit : null;
+    const draft = matchesVersion(savedDraft,item) ? savedDraft.edit : null;
     if (draft) {
       for (const [key, value] of Object.entries(draft))
         if (form.elements[key]) {
@@ -136,6 +198,8 @@
     opener = button;
     active = button.dataset.correction;
     receipt = null;
+    conflictLatest = null;
+    dialog.querySelector('[data-conflict]').hidden = true;
     currentItem = null;
     editPolicy = 'direct';
     dialog.querySelector('[data-question-label]').textContent =
@@ -161,7 +225,8 @@
         if (editPolicy === 'paused' && !result.item.deleted) setMode('report');
         form.hidden = result.item.deleted === true;
         deleteButton.hidden = result.item.deleted === true;
-        const staleDraft = drafts.has(active) && drafts.get(active).revision !== result.item.revision;
+        const staleDraft = drafts.has(active) && !matchesVersion(drafts.get(active),result.item);
+        if (staleDraft && drafts.get(active).edit) showConflict(result.item);
         dialog.querySelector('[data-download-draft]').hidden = !staleDraft;
         status.textContent = result.item.deleted === true
           ? '此題已從公開題庫移除；站主可在題庫管理的「已刪除」範圍還原。'
@@ -172,16 +237,13 @@
         status.textContent = error.message;
       } finally {
         pending = false;
-        submitButton.disabled = false;
+        submitButton.disabled = !!conflictLatest;
       }
     }
   });
   form.addEventListener('input', () => {
-    if (!active) return;
     form.elements.answer.required = communityId(active) || form.elements.answerProvided.checked;
-    drafts.set(active, mode === 'edit'
-      ? {revision:currentItem?.revision,edit:{category:form.elements.category.value,type:form.elements.type.value,stem:form.elements.stem.value,options:form.elements.options.value,answer:form.elements.answer.value,explanation:form.elements.explanation.value,note:form.elements.note.value,translation:form.elements.translation.value,optionTranslations:form.elements.optionTranslations.value,questionNote:form.elements.questionNote.value,answerProvided:form.elements.answerProvided.checked}}
-      : {report:{detail:form.elements.detail.value,suggestion:form.elements.suggestion.value}});
+    rememberDraft();
   });
   async function saveCommunityEdit(confirmSimilar = false) {
     const item = currentItem, old = item.question;
@@ -220,7 +282,8 @@
   }
   form.addEventListener('submit', async event => {
     event.preventDefault();
-    if (pending || !active || !form.reportValidity()) return;
+    if (pending || conflictLatest || !active || !form.reportValidity()) return;
+    rememberDraft();
     pending = true;
     submitButton.disabled = true;
     status.textContent = mode === 'edit' ? '正在儲存修正…' : '正在送出…';
@@ -237,6 +300,7 @@
           saved = await saveCommunityEdit(true);
         }
         drafts.delete(active);
+        persistDrafts();
         form.hidden = true;
         deleteButton.hidden = true;
         status.textContent = saved?.queued ? '修改建議已送交站主審核。' : '題目已儲存並公開。修改前版本已保留。';
@@ -250,6 +314,7 @@
           body: JSON.stringify({course:config.course,questionId:active,answerSnapshot:config.questionDetails(active).answer,detail:form.elements.detail.value,suggestion:form.elements.suggestion.value,website:form.elements.website.value}),
         });
         drafts.delete(active);
+        persistDrafts();
         form.reset();
         form.hidden = true;
         lookup.elements.receipt.value = receipt.id;
@@ -258,9 +323,13 @@
       }
     } catch (error) {
       status.textContent = `未能完成：${error.message}。你填寫的內容仍保留。`;
+      if (mode === 'edit' && error.status === 409 && error.details?.code !== 'similar_questions') {
+        try { const latest = await api(questionPath()); showConflict(latest.item); }
+        catch { status.textContent = '題目已有新版本，但暫時無法載入差異。草稿仍保留，可下載後稍後重試。'; }
+      }
     } finally {
       pending = false;
-      submitButton.disabled = false;
+      submitButton.disabled = !!conflictLatest;
     }
   });
   reportButton.addEventListener('click', () => {

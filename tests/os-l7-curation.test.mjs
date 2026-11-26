@@ -8,7 +8,8 @@ test('all 165 L7 question versions receive content-based explanations and preser
  assert.deepEqual(orderingIssues(entries,h.window.courseTopicOrder,'os'),[]);
  const sourceHtml=readFileSync(new URL('../os.html',import.meta.url),'utf8');
  const oldHtml=execFileSync('git',['-c','safe.directory='+process.cwd().replaceAll('\\','/'),'show','HEAD:os.html'],{encoding:'utf8',maxBuffer:16*1024*1024});
- const data=html=>[...parseHTML(html).document.querySelectorAll('script[type="application/json"]')].filter(s=>!['course-content-explanations','course-community-snapshot'].includes(s.id)).map(s=>[s.id,JSON.parse(s.textContent)]);
+ const reviewed=JSON.parse(readFileSync(new URL('../content/reviewed-explanations-20261126.json',import.meta.url),'utf8')).questions;
+ const data=html=>[...parseHTML(html).document.querySelectorAll('script[type="application/json"]')].filter(s=>!['course-content-explanations','course-community-snapshot'].includes(s.id)).map(s=>{const value=JSON.parse(s.textContent);if(s.id==='course-os-treasure-curation')for(const row of reviewed)if(value.questions?.[row.id])delete value.questions[row.id].explanation;return [s.id,value];});
  assert.deepEqual(data(sourceHtml),data(oldHtml));
 });
 test('L7 worked examples distinguish lock state, waiting counts, and reader group ownership',async()=>{

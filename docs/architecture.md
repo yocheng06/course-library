@@ -126,3 +126,7 @@ npm --prefix contribution-service test
 ## 8. 驗證狀態
 
 最新功能的測試與已知限制見 [2026-11-04 進度](updates/2026-11-04.md)。`npm test` 是全部前端測試入口，但目前含既有失敗，不能宣稱全套皆通過。版本紀錄會分開寫已驗證的選定測試與尚待整理的舊測試。
+
+## 歷史備份與閱讀頁衝突（2026-11-26）
+
+閱讀頁草稿以分頁代號隔離，存於瀏覽器 localStorage；版本衝突需載入最新 revision／sourceHash 後手動合併。獨立 D1 的 `_backup_generations` 與 `_backup_chunks` 保存最近 12 代通過還原的題庫內容，每次實際從歷史分塊還原。完整 D1 另用 `scripts/archive-d1-backup.mjs` 匯出至專案外私有目錄並離線驗證；歷史內容可用 `scripts/restore-content-archive.mjs` 離線重建。範圍、保存限制及指令見 `docs/updates/2026-11-26-edit-backup.md`。

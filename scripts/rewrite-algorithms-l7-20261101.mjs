@@ -1,6 +1,8 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 
+const reviewed=JSON.parse(await readFile(new URL('../content/reviewed-explanations-20261126.json',import.meta.url),'utf8')).questions;
+
 // Explanations are keyed by source ID; source stems, options and teacher answers stay intact.
 const lessons={
 2468:[`把數字由小到大排列後，第 i 個就是第 i 小。這裡的「第幾個」指大小排名，不是原陣列的位置。
@@ -178,6 +180,8 @@ M＝7 並不是全體真正中位數 8，但已保證有足夠的數在它兩側
 
 export const identity=q=>JSON.stringify([q.type||'',q.q??q.stem??'',q.opts??q.options??[],q.a??q.answer??'',q.images||[]]);
 export function explain(q){
+ const latest=reviewed.find(r=>r.course==='algorithms'&&r.id===(q.bookmarkId||q.id));
+ if(latest?.versions?.some(v=>v.identity===identity(q)&&[v.sourceExplanation,latest.explanation].includes(q.ex??q.explanation??'')))return latest.explanation;
  const id=String(q.bookmarkId||q.id).replace('L7-','');const data=lessons[id];if(!data)throw Error('Missing '+id);
  const opts=q.opts??q.options??[];const answer=q.a??q.answer;let text=`本題答案：${answer}\n\n解題思路與過程\n${data[0]}`;
  if(opts.length){if(data[1]?.length!==opts.length)throw Error('Option coverage '+id);text+='\n\n逐一看選項\n'+opts.map((o,i)=>`${o}\n${data[1][i]}`).join('\n\n');}
