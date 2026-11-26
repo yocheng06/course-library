@@ -112,7 +112,9 @@ function answerFormat(value) {
       .replace(/(陣列位置內容\s*A:\s*)\[([+-]?\d+)\]/, "$1[=$2]")
       .replace(/(\([1-9]\d*\))\[([+-]?\d+)\]/g, "$1[=$2]")
     : value;
-  const normalized = normalizeText(stem).replace(/[?？。]+$/, "");
+  const diagramSafe = String(stem ?? '').replace(/((?:Array contents|陣列內容)\s*[:：]\s*)((?:\[[+-]?\d+\]\s*){2,})/gi,
+    (_, label, values) => label + values.replace(/\[/g, '[='));
+  const normalized = normalizeText(diagramSafe).replace(/[?？。]+$/, "");
   const sequenceFormat = normalized.match(/\(請用數字回答\)格式:\d+\s*([,_])\s*\d+(?:\s*\1\s*\d+)+$/);
   if (sequenceFormat) {
     return {

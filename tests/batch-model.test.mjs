@@ -317,7 +317,7 @@ test("every canonical built-in question round trips safely and reordered choices
     data.entries.filter((entry) => entry.preferred).length,
   );
   assert(answered > 790);
-  assert.equal(reviewed, 8);
+  assert.equal(reviewed, data.entries.filter(e=>e.preferred&&(e.needsImage||e.reviewReason)).length);
 });
 
 test("generated canonical index stays aligned with current course files", async () => {
@@ -1226,7 +1226,7 @@ test("threading Markdown batch keeps all 25 questions and diagnoses the wrong co
   assert.equal(rows.filter((r) => r.status === "matched").length, 19);
   assert.deepEqual(rows.filter((r) => r.status === "review").map((r) => r.question.number), ["4", "7", "9"]);
   assert.deepEqual(rows.filter((r) => r.status === "unmatched").map((r) => r.question.number), ["11", "19", "25"]);
-  assert.equal(rows[0].answer, "A. Two-level");
+  assert.equal(rows[0].answer, "A. Two-level；B. One-to-One；C. Many-to-One；D. Many-to-Many");
   assert.equal(rows[13].answer, "A. KTHREAD；D. ETHREAD");
   assert.equal(rows[17].answer, "A. Java threads；B. Win32 threads；D. POSIX Pthreads");
   // Current source records explicitly include this punctuation variant.

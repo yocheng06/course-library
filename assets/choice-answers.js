@@ -51,6 +51,14 @@
       .filter((i) => i >= 0);
     if (exact.length === 1) return String.fromCharCode(65 + exact[0]);
     if (exact.length > 1) return null;
+    // Site owner confirmed this answer wording on 2026-11-26. Require a unique
+    // option from the recorded wording/translation; do not guess other prose.
+    if (value === clean('任務必須在截止期限前完成')) {
+      const approved = ['任務必須在截止時間內完成', 'Tasks must complete by their deadlines'].map(clean);
+      const hits = values.flatMap((option, index) => approved.includes(option) ? [index] : []);
+      if (hits.length === 1) return String.fromCharCode(65 + hits[0]);
+      if (hits.length > 1) return null;
+    }
     const parts = raw
       .split(/[、,，;；]\s*/)
       .map(clean)

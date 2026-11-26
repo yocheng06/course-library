@@ -1,31 +1,6 @@
 {
   "schema": 1,
   "recordedAt": "2026-11-26",
-  "source": "本次完整回歸：已修正／汰換過期案例，僅保留三道原題內容疑義所對應的六個失敗；詳見 docs/updates/2026-11-26-consistency.md",
-  "failures": [
-    {
-      "name": "every canonical built-in question round trips safely and reordered choices retain the same correct content",
-      "reason": "os6-065：原答案「任務必須在截止期限前完成」與選項用字不同，無安全的選項鍵；查題正確退回待核對，需核對原稿後建立明確對照。"
-    },
-    {
-      "name": "verified bilingual options support mixed languages and reordered letters without changing correct content",
-      "reason": "同上 os6-065；雙語版本的答案與選項對照尚未核准，保留原答案而不猜測。"
-    },
-    {
-      "name": "threading Markdown batch keeps all 25 questions and diagnoses the wrong course without inventing answers",
-      "reason": "threads-018：原題庫記錄 ABCD，舊案例預期僅 Two-level；屬來源答案疑義，未擅自更改題庫。"
-    },
-    {
-      "name": "L6 orders question types consistently and preserves all stable identities and answers",
-      "reason": "L6-047：2026-10-26 校對資料與目前保留的原答案不同；原稿答案與 j=2 輪開始時的推算不一致，需內容核對。"
-    },
-    {
-      "name": "every array trace independently follows its stated radix, bucket or counting checkpoint",
-      "reason": "L6-047：獨立推算 B=0,0,0,2,3,3,3,0；C=0,2,3,4,7,8；原題庫答案不同，尚未變更來源答案。"
-    },
-    {
-      "name": "new L6 practice imports preserve distinct counting checkpoints and support separate blank entry",
-      "reason": "同上 L6-047：保留原題庫答案並明列算式差異；原稿核准前維持內容回歸失敗。"
-    }
-  ]
+  "source": "站主確認三道題答案後，移除六項已處理的列管案例；未列管失敗仍阻擋發布",
+  "failures": []
 }

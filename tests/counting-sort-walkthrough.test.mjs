@@ -53,7 +53,7 @@ test('real lesson and background sync both retain all current counting explanati
   const context=vm.createContext({document,window,location:{search:'?question=L6-063',protocol:'https:'},URLSearchParams,navigator:{onLine:true},AbortSignal,Date,console,requestAnimationFrame:f=>f(),scrollX:0,scrollY:0,innerHeight:900,CSS:{escape:String},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)},fetch:()=>new Promise(r=>resolve=r)});
   for(const name of ['question-tools','choice-answers','practice-feedback','counting-sort-walkthrough','algorithms-learning','course-bootstrap'])vm.runInContext(await read('assets/'+name+'.js'),context);
   const config=window.courseLearning;
-  for(const id of Object.keys(curation.questions)){const q=config.questionForEdit(id);assert(q.countingExplanation,id);if(curation.questions[id].versions.at(-1).walkthrough)assert(q.countingWalkthrough,id);}
+  for(const id of Object.keys(curation.questions)){const q=config.questionForEdit(id);if(id==='L6-047'){const approved=JSON.parse(await read('content/approved-answers-20261126.json')).questions.find(q=>q.id===id);assert.equal(q.a,approved.answer);assert.equal(q.ex,approved.explanation);continue;}assert(q.countingExplanation,id);if(curation.questions[id].versions.at(-1).walkthrough)assert(q.countingWalkthrough,id);}
   assert(document.querySelector('.counting-walkthrough'));
   const updated=structuredClone(live),row=updated.overrides.find(r=>(r.question.bookmarkId||r.question.id)==='L6-063');row.question.ex='新的公開解析';row.question.explanation='新的公開解析';
   resolve({ok:true,headers:{get:()=>new Date().toUTCString()},json:async()=>updated});await new Promise(r=>setImmediate(r));

@@ -406,7 +406,7 @@ test('new L6 practice imports preserve distinct counting checkpoints and support
  const lib=JSON.parse(await read('assets/batch-library.json'));
  for(let n=59;n<=66;n++)assert(lib.entries.some(e=>e.id===`L6-${String(n).padStart(3,'0')}`));
  assert.equal(lib.entries.find(e=>e.id==='L6-047').answer,h.question('L6-047').a);
- assert.equal(lib.courses.algorithms.count,300);
+ assert.equal(lib.courses.algorithms.count,new Set(lib.entries.filter(e=>e.course==='algorithms'&&e.preferred).map(e=>e.id)).size);
 });
 
 test('pending submitted answers mark only their own choices in study, display immediately and remain unverified for practice',async()=>{

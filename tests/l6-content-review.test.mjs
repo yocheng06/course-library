@@ -8,6 +8,8 @@ const questions=JSON.parse(html.match(/<script id="course-data" type="applicatio
 const audit=JSON.parse(await read('content/algorithms-l6-content-review-20261026.json'));
 const library=JSON.parse(await read('assets/batch-library.json'));
 const byId=new Map(questions.map(q=>[q.bookmarkId,q]));
+const confirmed=JSON.parse(await read('content/approved-answers-20261126.json')).questions;
+const approvedAnswer=id=>confirmed.find(q=>q.course==='algorithms'&&q.id===id)?.answer;
 test('L6 orders question types consistently and preserves all stable identities and answers',()=>{
  assert.equal(questions.length,60);
  assert.deepEqual([...byId.keys()].sort(),audit.oldOrder.toSorted());
@@ -16,7 +18,7 @@ test('L6 orders question types consistently and preserves all stable identities 
   const types=questions.filter(q=>q.category===category).map(q=>rank[q.type]);
   assert.deepEqual(types,types.toSorted());
  }
- for(const {id,before} of audit.changes){const q=byId.get(id);assert.equal(q.a,before.a);assert.deepEqual(q.opts,before.opts);}
+ for(const {id,before} of audit.changes){const q=byId.get(id);assert.equal(q.a,approvedAnswer(id)??before.a);assert.deepEqual(q.opts,before.opts);}
  const traces=questions.filter(q=>q.q.includes('COUNTING_SORT(A, B, k)'));
  const groupSizes=traces.map(q=>q.q.match(/A陣列的內容為 ([\d,]+)/)[1].split(',').length);
  assert.deepEqual(groupSizes,groupSizes.toSorted((a,b)=>a-b));

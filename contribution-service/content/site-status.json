@@ -1,12 +1,12 @@
 {
-  "version": "2026.11.26-consistency-1",
-  "description": "投稿直達、跨頁題庫同步、版本衝突、備份還原演練與本機紀錄提示",
+  "version": "2026.11.26-answers-2",
+  "description": "站主確認三題答案，修正選項對照、計數排序與查題填空辨識",
   "snapshots": {
     "os": {
-      "generatedAt": "2026-11-26T07:48:24.286Z"
+      "generatedAt": "2026-11-26T14:46:13.667846Z"
     },
     "algorithms": {
-      "generatedAt": "2026-11-26T07:48:24.268Z"
+      "generatedAt": "2026-11-26T14:46:13.704814Z"
     }
   }
 }
