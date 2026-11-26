@@ -1,0 +1,21 @@
+name: Verify isolated backup restoration
+on:
+  schedule:
+    - cron: '30 20 * * 0'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm --prefix contribution-service ci
+      - run: npm --prefix contribution-service run build
+      - name: Restore schema, question history and image fixtures in isolated SQLite
+        run: node --test tests/d1-backup-restore.test.mjs tests/scheduled-backup.test.mjs contribution-service/tests/cloudflare-migration.test.mjs

@@ -206,6 +206,7 @@
     }
   }
   function validData(data) {
+    if (window.courseQuestionSync) return window.courseQuestionSync.validData(data);
     if (!data || !['questions','aliases','overrides'].every(key => Array.isArray(data[key]))) return false;
     const ids = new Set();
     return data.questions.every(row => {
@@ -275,6 +276,7 @@
     }
     syncing = true;
     const requestVersion = mutationVersion;
+    const requestStamp = window.courseQuestionSync?.stamp(config.course);
     document.documentElement.dataset.questionSync='syncing';
     notice?.querySelector('button')?.setAttribute('disabled','');
     try {
@@ -286,7 +288,7 @@
       if (!unchanged && !response.ok) throw new Error('unavailable');
       const data = unchanged ? latestData : await response.json();
       if (!validData(data)) throw new Error('Invalid public snapshot');
-      if (requestVersion !== mutationVersion) { syncAgain = true; return; }
+      if (requestVersion !== mutationVersion || requestStamp !== window.courseQuestionSync?.stamp(config.course)) { syncAgain = true; return; }
       if (JSON.stringify(data) !== JSON.stringify(latestData)) apply(data, 'live');
       else { source = 'live'; document.documentElement.dataset.questionSource = 'live'; }
       latestData = data;
@@ -311,5 +313,7 @@
   }
   if (!initial && linkedSubmission) showNotice('正在載入這道投稿題目…');
   window.addEventListener('online',sync);
+  window.addEventListener('focus',sync);
+  window.courseQuestionSync?.subscribe(course => { if (course === config.course) { mutationVersion++; sync(); } });
   sync();
 })();

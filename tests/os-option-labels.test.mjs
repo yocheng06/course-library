@@ -11,7 +11,7 @@ const context = {
   languageOf: text => /[\u3400-\u9fff]/.test(text) ? 'zh-Hant' : 'en',
 };
 vm.createContext(context);
-vm.runInContext(source.slice(source.indexOf('function optionMarkup('), source.indexOf('function expectedOptionKeys(')), context);
+vm.runInContext(source.slice(source.indexOf('function orderedBilingualText('), source.indexOf('function expectedOptionKeys(')), context);
 
 test('imported OS choices receive A-D labels without changing option text or answer mapping', () => {
   const q = {options:['哲學家進餐問題','文件鎖定','讀者-寫者問題','生產者-消費者問題'], answer:'A,B'};

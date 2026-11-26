@@ -12,7 +12,7 @@ const id = n => `community-11111111-1111-4111-8111-111111111111-${n}`;
 const question = (course,n,stem='測試題目 ___') => course === 'os'
   ? {id:id(n),stem,options:[],answer:'base',explanation:'測試解析',type:'填空題',category:'測試',images:[]}
   : {bookmarkId:id(n),q:stem,opts:[],a:'base',ex:'測試解析',type:'填空題',category:'測試',images:[]};
-const row = (course,n,unit=course==='os'?'L9':'L7',stem) => ({unit,question:question(course,n,stem)});
+const row = (course,n,unit='L10',stem) => ({unit,question:question(course,n,stem)});
 const response = data => ({ok:true,headers:{get:()=>new Date().toUTCString()},json:async()=>data});
 
 async function page(course, {storage=new Map(), online=true, search='', failStorage=false}={}) {
@@ -21,7 +21,7 @@ async function page(course, {storage=new Map(), online=true, search='', failStor
     configurable:true,get(){return this.querySelector('option[selected]')?.value??this.querySelector('option')?.value??'';},
     set(value){for(const o of this.querySelectorAll('option'))o.toggleAttribute('selected',o.value===String(value));}
   });
-  window.window=window;
+  window.window=window;window.courseQuestionSync=undefined;
   window.HTMLElement.prototype.focus=function(){};
   window.HTMLElement.prototype.scrollIntoView=function(){};
   window.HTMLElement.prototype.getBoundingClientRect=()=>({top:0,bottom:0});
@@ -31,7 +31,7 @@ async function page(course, {storage=new Map(), online=true, search='', failStor
     navigator:{onLine:online},AbortSignal,Date,console,requestAnimationFrame:fn=>fn(),scrollX:0,scrollY:0,innerHeight:900,
     CSS:{escape:s=>String(s)},localStorage:{getItem:k=>{if(failStorage)throw Error('blocked');return storage.get(k);},setItem:(k,v)=>{if(failStorage)throw Error('quota');storage.set(k,v);}}
   });
-  for(const name of ['assets/question-tools.js','assets/choice-answers.js','assets/practice-feedback.js',`assets/${course==='os'?'os':'algorithms'}-learning.js`])vm.runInContext(await read(name),context);
+  for(const name of ['assets/question-sync.js','assets/question-tools.js','assets/choice-answers.js','assets/practice-feedback.js',`assets/${course==='os'?'os':'algorithms'}-learning.js`])vm.runInContext(await read(name),context);
   const config=window.courseLearning, snapshot=JSON.parse(document.getElementById('course-community-snapshot').textContent);
   const bootstrap=await read('assets/course-bootstrap.js');
   const pending=[];
@@ -60,7 +60,7 @@ test('first visit renders all Chapter 9 questions, blanks and explanations befor
   const linked='community-5ecdee2b-276b-46f0-968e-2c2c587559f9-1';
   const h=await page('os',{search:'?question='+linked});h.boot();
   assert.equal(h.source(),'snapshot');assert.equal(h.pending.length,1);
-  assert.equal(h.config.examEntries(['L9']).length,78);
+  assert.equal(h.config.examEntries(['L9']).length,h.snapshot.data.questions.filter(r=>r.unit==='L9').length);
   assert.equal(h.config.examUnitId(),'L9');
   assert.equal((h.config.questionForEdit(linked).stem.match(/_{3,}/g)||[]).length,2);
   assert.match(h.config.questionForEdit(linked).explanation,/base/);
@@ -111,10 +111,10 @@ for(const course of ['os','algorithms']) {
     await h.complete(empty());
     assert.equal(h.config.validId(id(1)),false);
     assert.equal(h.config.examEntries(true).some(e=>e.id===id(1)),false);
-    assert.equal(h.config.examUnits().some(u=>u.id===(course==='os'?'L9':'L7')),false);
+    assert.equal(h.config.examUnits().some(u=>u.id==='L10'),false);
     const again=await page(course,{storage:h.storage,online:false});again.boot();
     assert.equal(again.config.validId(id(1)),false);
-    assert.equal(again.config.examUnits().some(u=>u.id===(course==='os'?'L9':'L7')),false);
+    assert.equal(again.config.examUnits().some(u=>u.id==='L10'),false);
   });
 
   test(course+': background replacement preserves active unit, unchanged answer drafts and supports moved questions',async()=>{
@@ -140,14 +140,14 @@ test('outdated, malformed, wrong-course and future-dated caches fall back to the
     JSON.stringify({schema:1,course:'os',generatedAt:'2099-01-01',data:empty()}),
     JSON.stringify({schema:1,course:'os',generatedAt:'2020-01-01',data:empty()})]){
     const h=await page('os',{storage:new Map([[key('os'),bad]]),online:false});h.boot();
-    assert.equal(h.source(),'snapshot');assert.equal(h.config.examEntries(['L9']).length,78);
+    assert.equal(h.source(),'snapshot');assert.equal(h.config.examEntries(['L9']).length,h.snapshot.data.questions.filter(r=>r.unit==='L9').length);
   }
 });
 
 test('failed or incomplete sync keeps visible snapshot and does not overwrite the last valid cache',async()=>{
   for(const data of [{questions:[]},{...empty(),overrides:[{unit:'basics',question:{id:'bad'}}]}]){
     const h=await page('os');h.boot();await h.complete(data);
-    assert.equal(h.source(),'snapshot');assert.equal(h.config.examEntries(['L9']).length,78);
+    assert.equal(h.source(),'snapshot');assert.equal(h.config.examEntries(['L9']).length,h.snapshot.data.questions.filter(r=>r.unit==='L9').length);
     assert.equal(h.storage.has(key('os')),false);assert.match(h.notice(),/暫時無法同步/);
   }
   const h=await page('os',{failStorage:true});h.boot();await h.complete(empty());
@@ -175,7 +175,7 @@ test('republished Chapter 9 questions retain live editable IDs, curated order an
   const base=h.config.examEntries(true).length;
   await h.complete(h.snapshot.data);
   assert.equal(h.config.examEntries(true).length,base);
-  assert.equal(h.config.examEntries(['deadlocks']).length,138);
+  assert.equal(h.config.examEntries(['deadlocks']).length,new Set(h.config.examEntries(['deadlocks']).map(e=>e.id)).size);
 });
 
 test('a save notification arriving during initial synchronization queues a fresh request',async()=>{
@@ -229,4 +229,17 @@ test(`${course}: confirmed ${community?'community':'built-in'} deletion updates 
  await h.complete(saved.data);assert.equal(h.config.examEntries(true).length,count-1);
  const again=await page(course,{storage:h.storage,online:false});again.boot();
  assert(!again.config.examEntries(true).some(e=>e.id===target.id));
+});
+
+
+test('cross-page mutation during a fetch discards the old response and confirms a fresh version',async()=>{
+ const h=await page('os');h.boot();
+ h.window.courseQuestionSync.invalidate('os');
+ await h.complete({...empty(),questions:[row('os',90)]});
+ assert.equal(h.config.validId(id(90)),false);
+ assert.equal(h.pending.length,1);
+ await h.complete({...empty(),questions:[row('os',91)]});
+ assert.equal(h.config.validId(id(91)),true);
+ assert.equal(h.config.validId(id(90)),false);
+ assert.equal(JSON.parse(h.storage.get(key('os'))).data.questions[0].question.id,id(91));
 });

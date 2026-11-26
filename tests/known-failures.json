@@ -1,123 +1,31 @@
 {
   "schema": 1,
-  "recordedAt": "2026-11-04",
-  "source": "修改前 baseline-frontend.tap；僅納入修改前已存在的失敗",
+  "recordedAt": "2026-11-26",
+  "source": "本次完整回歸：已修正／汰換過期案例，僅保留三道原題內容疑義所對應的六個失敗；詳見 docs/updates/2026-11-26-consistency.md",
   "failures": [
     {
-      "name": "os all current units group every topic, then single/multiple/fill, while preserving question contents",
-      "reason": "2026-11-26 在未修改的 8d98212 歸檔重現；排序時分類正規化與整份物件相等的舊預期不同，待另行修正測試"
-    },
-    {
-      "name": "algorithms all current units group every topic, then single/multiple/fill, while preserving question contents",
-      "reason": "2026-11-26 在未修改的 8d98212 歸檔重現；排序時分類正規化與整份物件相等的舊預期不同，待另行修正測試"
-    },
-    {
       "name": "every canonical built-in question round trips safely and reordered choices retain the same correct content",
-      "reason": "既有題庫比對、來源版本或解析預期差異，需保留老師答案另行核對"
+      "reason": "os6-065：原答案「任務必須在截止期限前完成」與選項用字不同，無安全的選項鍵；查題正確退回待核對，需核對原稿後建立明確對照。"
     },
     {
       "name": "verified bilingual options support mixed languages and reordered letters without changing correct content",
-      "reason": "既有題庫比對、來源版本或解析預期差異，需保留老師答案另行核對"
+      "reason": "同上 os6-065；雙語版本的答案與選項對照尚未核准，保留原答案而不猜測。"
     },
     {
       "name": "threading Markdown batch keeps all 25 questions and diagnoses the wrong course without inventing answers",
-      "reason": "既有題庫比對、來源版本或解析預期差異，需保留老師答案另行核對"
-    },
-    {
-      "name": "OS question data stays embedded by unit but is not executable until that unit is opened",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
-    },
-    {
-      "name": "OS page parses only the opened unit, then loads the rest for whole-course search",
-      "reason": "既有題庫比對、來源版本或解析預期差異，需保留老師答案另行核對"
-    },
-    {
-      "name": "first visit renders all Chapter 9 questions, blanks and explanations before the API resolves",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
-    },
-    {
-      "name": "algorithms: complete empty result removes dynamic units, old links, search and exam entries",
-      "reason": "既有題庫比對、來源版本或解析預期差異，需保留老師答案另行核對"
-    },
-    {
-      "name": "outdated, malformed, wrong-course and future-dated caches fall back to the embedded snapshot",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
-    },
-    {
-      "name": "failed or incomplete sync keeps visible snapshot and does not overwrite the last valid cache",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
-    },
-    {
-      "name": "republished Chapter 9 questions retain live editable IDs, curated order and explanations while old links redirect",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
-    },
-    {
-      "name": "the reported 30 deadlock questions recover all ten missed matches and identify the three items requiring review",
-      "reason": "既有題庫比對、來源版本或解析預期差異，需保留老師答案另行核對"
+      "reason": "threads-018：原題庫記錄 ABCD，舊案例預期僅 Two-level；屬來源答案疑義，未擅自更改題庫。"
     },
     {
       "name": "L6 orders question types consistently and preserves all stable identities and answers",
-      "reason": "既有題庫比對、來源版本或解析預期差異，需保留老師答案另行核對"
+      "reason": "L6-047：2026-10-26 校對資料與目前保留的原答案不同；原稿答案與 j=2 輪開始時的推算不一致，需內容核對。"
     },
     {
       "name": "every array trace independently follows its stated radix, bucket or counting checkpoint",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
-    },
-    {
-      "name": "copying a question includes course, current number, stable ID and a canonical deep link without duplicating actions",
-      "reason": "測試仍期待已移除的複製按鈕"
-    },
-    {
-      "name": "copy falls back when clipboard permission is denied and manual text remains available if both copy APIs fail",
-      "reason": "測試仍期待已移除的複製按鈕"
-    },
-    {
-      "name": "future numbered units normalize with reviewed names and safe fallbacks",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
-    },
-    {
-      "name": "mixed future chapters import into separate groups and retain their names",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
-    },
-    {
-      "name": "the embedded data and navigation show the complete L8 count before any request",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
-    },
-    {
-      "name": "imported OS choices receive A-D labels without changing option text or answer mapping",
-      "reason": "獨立抽取的舊 renderer 測試未帶入目前共用介面"
-    },
-    {
-      "name": "existing option labels are preserved once and translations remain escaped",
-      "reason": "獨立抽取的舊 renderer 測試未帶入目前共用介面"
-    },
-    {
-      "name": "real confirmation tracks first attempts and retries, ignores unchanged checks and clears, and defaults auto review off",
-      "reason": "舊練習統計案例預期待核對"
-    },
-    {
-      "name": "os approved future units appear in navigation and exam ranges without accepting duplicate questions or HTML names",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
-    },
-    {
-      "name": "algorithms approved future units appear in navigation and exam ranges without accepting duplicate questions or HTML names",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
-    },
-    {
-      "name": "deleted L6 display question 27 is absent and its link, bookmark and practice record resolve to retained question 28",
-      "reason": "既有題庫比對、來源版本或解析預期差異，需保留老師答案另行核對"
-    },
-    {
-      "name": "merged sorting questions preserve links, learning records and source-option answer order",
-      "reason": "既有題庫比對、來源版本或解析預期差異，需保留老師答案另行核對"
-    },
-    {
-      "name": "counting-sort C-array duplicates share one practice question and retain source answers",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
+      "reason": "L6-047：獨立推算 B=0,0,0,2,3,3,3,0；C=0,2,3,4,7,8；原題庫答案不同，尚未變更來源答案。"
     },
     {
       "name": "new L6 practice imports preserve distinct counting checkpoints and support separate blank entry",
-      "reason": "持續更新的題庫、單元或快照與舊測試預期不同，待逐題核對"
+      "reason": "同上 L6-047：保留原題庫答案並明列算式差異；原稿核准前維持內容回歸失敗。"
     }
   ]
 }

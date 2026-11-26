@@ -9,13 +9,15 @@
   'os/scheduling':['排程基本觀念','評估指標','FCFS／SJF','RR 時間片','優先權／飢餓','多處理器','即時排程','Linux／Windows／Solaris','排程評估模型','進階排程'],
   'os/treasure':['FCFS／FIFO 計算','SJF／SRTF 計算','Round Robin 計算','優先權排程','Rate Monotonic 即時排程','EDF 即時排程','即時排程可行性'],
   'os/synchronization':['臨界區與核心','同步風險','硬體原子指令','Peterson’s Solution','同步工具','Semaphore','Monitor','經典同步案例','Bounded-Buffer','Readers-Writers','Dining Philosophers','系統實作','替代同步方法'],
-  'os/deadlocks':['死結定義與影響','資源類型','死結必要條件','資源分配圖','處理方法總覽','死結預防','死結避免','安全狀態','銀行家演算法','死結偵測','死結恢復','死結偵測與恢復','死結範例'],
+  'os/deadlocks':['死結定義與影響','死結範例','資源類型','死結必要條件','資源分配圖','處理方法總覽','死結預防','死結避免','安全狀態','銀行家演算法','死結偵測','死結恢復','死結偵測與恢復'],
   'os/L9':['記憶體保護','位址繫結','連續配置與碎片','非連續配置方式','分頁與 TLB','頁表結構','分段','載入、交換與連結','架構案例：ARM／Intel'],
   'algorithms/L2':['演算法分析 / RAM','漸進符號與定義','單調性','Floor / Ceiling / 模運算','函數增長率 / Log','Iterative Log / Fibonacci','Factorial / Stirling','Insertion Sort','Merge Sort'],
   'algorithms/L3':['基礎觀念','漸進符號','代入法','遞迴樹','大師定理','技術細節','特殊遞迴','綜合方法'],
   'algorithms/L4':['Heap 基礎','Heap 索引','Heap Property','Max-Heapify','Build-Max-Heap','Heapsort','Priority Queue','Heap 效率','Heap 應用'],
   'algorithms/L5':['核心概念','Pivot 與 Partition','遞迴與複雜度','特性與優化'],
   'algorithms/L6':['線性排序與穩定性','比較排序與決策樹','計數排序','基數排序','桶排序'],
+  'algorithms/L8':["集合與實作比較","堆疊","佇列","鏈結串列基礎","雙向鏈結串列","鏈結串列操作","環狀串列與哨兵","動態配置與垃圾回收"],
+  'algorithms/L9':['雜湊基本觀念與應用','雜湊函數與設計','負載因子與效能','碰撞處理與鏈結法','開放定址法','線性探測','二次探測','雙重雜湊','全域雜湊與完全雜湊'],
   'algorithms/L7':['順序統計量與中位數','最小值與最大值','第二小元素','Partition 分割操作','Randomized-Select','確定性 Select 與中位數的中位數']
  };
  const aliases={
@@ -43,7 +45,7 @@
  };
  const cache=new WeakMap(),views=new WeakMap();
  function topic(question,course,unit){
-  const key=course+'/'+unit,raw=String(question.category??'').trim(),stem=String(question.stem??question.q??'');
+  const key=course+'/'+unit,raw=String(((course==='os'&&['synchronization','L9'].includes(unit)||course==='algorithms'&&unit==='L8')?(typeof window==='object'?window:globalThis).courseExplanationContent?.category(question):null)??question.category??'').trim(),stem=String(question.stem??question.q??'');
   const old=cache.get(question);if(old?.key===key&&old.raw===raw&&old.stem===stem)return old.result;
   const names=catalogs[key]??[],alias=aliases[key]?.[raw];let label=alias||raw;
   if(!alias&&generic.has(raw)){

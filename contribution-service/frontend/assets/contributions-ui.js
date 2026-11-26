@@ -1,3 +1,4 @@
+import "./question-sync.js?v=consistency-20261126";
 import { normalizeType } from "./contribution-model.js?v=treasure-unit-20261030";
 
 export const esc = (value) =>
@@ -38,6 +39,11 @@ export async function api(path, options = {}) {
     error.status = response.status;
     error.details = body;
     throw error;
+  }
+  if (options.method && options.method !== 'GET' && /\/api\/(?:submissions|(?:manage|community)\/(?:builtin-)?questions)/.test(path)) {
+    let sent = {}; try { sent = JSON.parse(options.body || '{}'); } catch {}
+    const course = body.item?.course || sent.course || sent.payload?.course || path.match(/builtin-questions\/(os|algorithms)\//)?.[1];
+    window.courseQuestionSync?.invalidate(course);
   }
   return body;
 }

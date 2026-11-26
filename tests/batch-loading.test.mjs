@@ -8,7 +8,7 @@ import { parseHTML } from "linkedom";
 import { toLibraryQuestion } from "../assets/batch-model.mjs";
 
 const tick = () => new Promise((resolve) => setImmediate(resolve));
-const response = (questions = []) => ({ ok: true, json: async () => ({ questions }) });
+const response = (questions = []) => ({ ok: true, json: async () => ({ questions,aliases:[],overrides:[] }) });
 const stem = "CPU 排程器是哪一種類型的排程器？";
 const base = {
   schemaVersion: 1,
@@ -148,7 +148,8 @@ test('a transient bank-image failure retries a fresh CORS download and restored 
     return response([{unit:'scheduling',question:{id:'community-00000000-0000-4000-8000-000000000077-1',type:'填空題',stem:'表格的平均時間是多少 ____________',options:[],answer:'8.2',images:[{src:'https://example.invalid/api/image/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/0-0'}]}}]);
   },{storage});
   for(let i=0;i<100&&!storage.has('course-library.questions.v1.os');i++)await tick();
-  await tick();ui.fire('batchForm','submit');
+  ui.fire('batchForm','submit');
+  for(let i=0;i<100&&!ui.$('resultCount').textContent;i++)await tick();
   assert.equal(attempts,2);assert.match(ui.$('resultCount').textContent,/已收錄 1・未收錄 0/);assert.match(ui.$('resultRows').textContent,/8.2/);
 });
 
@@ -235,7 +236,7 @@ test("an incomplete sync preserves bundled public versions and retry refreshes t
   const missing = {...known,id:'community-00000000-0000-4000-8000-000000000023-1',stem:'稍後才同步的答案 ____________',answer:'new'};
   const old = [{unit:'scheduling',question:known}];
   const current = [...old,{unit:'scheduling',question:missing}];
-  const bank = {...base,publicSnapshots:{os:{generatedAt:new Date().toISOString(),data:{questions:old,overrides:[]}}}};
+  const bank = {...base,publicSnapshots:{os:{generatedAt:new Date().toISOString(),data:{questions:old,aliases:[],overrides:[]}}}};
   let apiCalls=0;
   const ui=await page(async url=>{
     if(String(url).startsWith('assets/'))return {ok:true,json:async()=>bank};
@@ -301,7 +302,7 @@ test('approved questions from future units join lookup and unit selection instea
 
 test('manual sync automatically replaces the answer table when a public edit is reset',async()=>{
  let edited=true;
- const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>structuredClone(base)}:{ok:true,json:async()=>({questions:[],overrides:String(url).endsWith('course=os')&&edited?[{unit:'scheduling',question:{id:'os-test',stem,options:['A. 短程排程器','B. 長程排程器'],answer:'B',choiceKey:'B',answerProvided:true}}]:[]})});
+ const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>structuredClone(base)}:{ok:true,json:async()=>({questions:[],aliases:[],overrides:String(url).endsWith('course=os')&&edited?[{unit:'scheduling',question:{id:'os-test',stem,options:['A. 短程排程器','B. 長程排程器'],answer:'B',choiceKey:'B',answerProvided:true}}]:[]})});
  ui.$('batchText').value=`1. ${stem}\nA. 短程排程器\nB. 長程排程器`;ui.fire('batchForm','submit');
  assert.ok(ui.$('resultRows').textContent.includes('B. 長程排程器'));
  ui.fire('copyAnswers','click');await tick();assert.match(ui.copied[0],/B\. 長程排程器/);
@@ -316,7 +317,7 @@ test('an incorporated community question uses its built-in edit instead of an ol
  const old={id:communityId,stem,options:['A. 短程排程器','B. 長程排程器'],answer:'A',answerProvided:true};
  const builtin={...old,answer:'B',choiceKey:'B'};
  const localBase=structuredClone(base);localBase.entries=[toLibraryQuestion('os','scheduling',old,true)];
- const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>localBase}:{ok:true,json:async()=>({questions:String(url).endsWith('course=os')?[{unit:'scheduling',question:old}]:[],overrides:String(url).endsWith('course=os')?[{unit:'scheduling',question:builtin}]:[]})});
+ const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>localBase}:{ok:true,json:async()=>({aliases:[],questions:String(url).endsWith('course=os')?[{unit:'scheduling',question:old}]:[],overrides:String(url).endsWith('course=os')?[{unit:'scheduling',question:builtin}]:[]})});
  ui.$('batchText').value=`1. ${stem}\nA. 短程排程器\nB. 長程排程器`;ui.fire('batchForm','submit');
  assert.ok(ui.$('resultRows').textContent.includes('B. 長程排程器'));assert.match(ui.$('resultCount').textContent,/已收錄 1・未收錄 0/);
 });

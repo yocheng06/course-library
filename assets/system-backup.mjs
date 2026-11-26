@@ -75,6 +75,7 @@ export function setupSystemPanel({container,api,downloadJSON,userId='owner'}){
     const results=await Promise.allSettled([api('/api/manage/system'),fetch('/course-library/assets/site-version.json',{cache:'no-store',signal:AbortSignal.timeout(8000)}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})]);
     const server=results[0].status==='fulfilled'?results[0].value:null,site=results[1].status==='fulfilled'?results[1].value:null;
     fact('主站版本',site?.version||'無法取得主站版本');fact('主站提交版本',site?.sourceRevision||'未提供（可能為分支式發布）');fact('API 版本',server?.build?.version||'無法連線');fact('API 建置指紋',server?.build?.sourceHash||'未提供');
+    fact('獨立還原驗證',server?.backupRestore?.configured ? server.backupRestore.ok===true ? '通過 · '+server.backupRestore.checkedAt : server.backupRestore.ok===false ? '未通過 · '+server.backupRestore.checkedAt : '尚未執行' : '尚未設定');
     fact('API 檢查時間',server?.checkedAt||'未完成');
     fact('作業系統最新資料版本',server?.api?.os||'未確認');fact('演算法最新資料版本',server?.api?.algorithms||'未確認');
     for(const course of ['os','algorithms'])fact(course==='os'?'作業系統快照':'演算法快照',server?.snapshots?.[course]?.generatedAt||'無法取得');

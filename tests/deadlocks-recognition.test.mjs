@@ -24,7 +24,7 @@ const document = parseHTML("<html><body></body></html>").document;
 const questions = parseBatchInput(fixture, { document }).questions,
   index = buildIndex(built.entries);
 
-test("the reported 30 deadlock questions recover all ten missed matches and identify the three items requiring review", () => {
+test("the reported 30 deadlock questions recover all ten missed matches and retain SVG-only items for review after verified text updates", () => {
   assert.equal(questions.length, 30);
   for (const unit of ["all", "deadlocks"]) {
     const results = matchQuestions(questions, index, { course: "os", unit });
@@ -32,9 +32,9 @@ test("the reported 30 deadlock questions recover all ten missed matches and iden
       results
         .map((r, i) => (r.status === "review" ? i + 1 : null))
         .filter(Boolean),
-      [4, 18, 30],
+      [30],
     );
-    assert.equal(results.filter((r) => r.status === "matched").length, 27);
+    assert.equal(results.filter((r) => r.status === "matched").length, 29);
     for (const [n, answer] of [
       [3, "recovery"],
       [5, "circular wait"],
@@ -49,11 +49,10 @@ test("the reported 30 deadlock questions recover all ten missed matches and iden
     ]) {
       assert.equal(results[n - 1].answer, answer, `question ${n}`);
     }
-    assert.match(results[3].reason, /livelock/);
+    assert.equal(results[3].answer, 'livelock');
     assert.equal(results[3].references[0].id, "os8-056");
-    assert.equal(results[3].answer, "");
-    assert.match(results[17].reason, /至少一項/);
-    assert.equal(results[17].answer, "");
+
+    assert.equal(results[17].answer, 'B. Remove the critical section');
     assert.match(results[29].reason, /SVG/);
     assert.equal(results[29].references[0].id, "os8-028");
     assert.equal(results[29].answer, "");

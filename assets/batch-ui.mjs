@@ -1,3 +1,4 @@
+import "./question-sync.js?v=consistency-20261126";
 import './sync-summary.js?v=flow-clarity-20261103';
 import {createUnitCatalog} from './unit-catalog.mjs?v=admin-units-20261103';
 import {comparisonMarkup,mismatchLabel} from './question-comparison.mjs?v=workflow-improvements-20261102';
@@ -186,6 +187,7 @@ function restorePublicCache(course) {
   try {
     const cached = JSON.parse(localStorage.getItem(publicCacheKey(course)) || "null");
     if (cached?.schema !== 1 || cached.course !== course || !Array.isArray(cached.data?.questions) || !Array.isArray(cached.data?.overrides)) return;
+    if (window.courseQuestionSync && !window.courseQuestionSync.validData(cached.data)) return;
     const time = Date.parse(cached.generatedAt);
     if (!Number.isFinite(time) || time > Date.now() + 300000) return;
     publicData.set(course, cached.data);
@@ -245,7 +247,7 @@ async function getBaseLibrary() {
         const bundled = data.publicSnapshots?.[course];
         const time = Date.parse(bundled?.generatedAt || "");
         if (Number.isFinite(time) && time <= Date.now() + 300000 && time >= (publicDates.get(course) ?? 0) &&
-            Array.isArray(bundled.data?.questions) && Array.isArray(bundled.data?.overrides)) {
+            Array.isArray(bundled.data?.questions) && Array.isArray(bundled.data?.overrides) && (!window.courseQuestionSync || window.courseQuestionSync.validData(bundled.data))) {
           publicData.set(course, bundled.data);
           publicDates.set(course, time);
           publicEtags.delete(course);
@@ -260,6 +262,7 @@ async function loadLibrary(course = $("course").value, force = false) {
   if (publicFlights.has(course)) return publicFlights.get(course);
   if (!force && coverage[course] && Date.now() - syncedAt.get(course) < 60000) return;
   restorePublicCache(course);
+  const requestStamp = window.courseQuestionSync?.stamp(course);
   const requestedData = publicData.get(course), requestedEtag = publicEtags.get(course);
   const firstLoad = !index;
   loading = firstLoad;
@@ -267,9 +270,10 @@ async function loadLibrary(course = $("course").value, force = false) {
   $("compare").disabled = firstLoad;
   $("reloadLibrary").disabled = true;
   syncing = true;
+  let needsRefresh = false;
   const task = (async () => {
     const publicRequest = fetch(window.courseContributions.apiOrigin + "/api/questions?course=" + course, {
-      signal:AbortSignal.timeout(6000),
+      signal:AbortSignal.timeout(6000), cache:"no-cache",
       headers:requestedEtag ? {"If-None-Match":requestedEtag} : {},
     }).then(async response => {
       if (response.status === 304 && requestedEtag && requestedData) return {data:requestedData,etag:requestedEtag};
@@ -293,7 +297,13 @@ async function loadLibrary(course = $("course").value, force = false) {
       const result = await publicRequest;
       if (result.error) throw result.error;
       const {data,etag} = result.value;
+      if (requestStamp !== window.courseQuestionSync?.stamp(course)) {
+        needsRefresh = true;
+        return;
+      }
+      if (window.courseQuestionSync && !window.courseQuestionSync.validData(data)) throw Error('public-data');
       await fingerprintLibraryImages(data);
+      if (requestStamp !== window.courseQuestionSync?.stamp(course)) { needsRefresh = true; return; }
       const previous = publicData.get(course);
       const changed = JSON.stringify(previous) !== JSON.stringify(data);
       if (changed) {
@@ -324,6 +334,7 @@ async function loadLibrary(course = $("course").value, force = false) {
       $("reloadLibrary").disabled = $("course").value === "auto" ? publicFlights.size > 0 : publicFlights.has($("course").value);
       if (index) libraryStatus();
       markChanged();
+      if (needsRefresh) void loadLibrary(course,true);
     }
   })();
   publicFlights.set(course,task);
@@ -671,3 +682,10 @@ if ($("course").value === "auto") {
     if (!index) $("libraryStatus").textContent = "無法載入內建題庫，請重新同步。";
   });
 } else loadLibrary();
+
+window.courseQuestionSync?.subscribe(course => {
+  if (!courses.includes(course)) return;
+  coverage[course] = false;
+  void loadLibrary(course,true);
+});
+window.addEventListener?.('focus', () => { void loadLibrary($("course").value, true); });

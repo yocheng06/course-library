@@ -1,3 +1,4 @@
+import {publishedLinks,confirmPublication} from "./submission-feedback.mjs?v=consistency-20261126";
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 const uniqueQuestions=(course,unit,questions,onDuplicate)=>uniqueQuestionsBase(course,unit,questions,onDuplicate,{allowConflictingVersions:true});
 import {createUnitCatalog} from './unit-catalog.mjs?v=admin-units-20261103';
@@ -1089,6 +1090,7 @@ $("submitBatch").addEventListener("click", async () => {
       title: payload.title,
       acceptedCount: result.acceptedCount,
       skippedCount: result.skippedCount,
+      publishedQuestions: result.publishedQuestions || [],
       submittedAt: new Date().toISOString(),
     };
     receipts = [
@@ -1105,6 +1107,11 @@ $("submitBatch").addEventListener("click", async () => {
     $("receipt").textContent = result.id;
     $("statusId").value = result.id;
     $("success").hidden = false;
+    let feedback = $("submissionFeedback");
+    if (!feedback) { feedback = document.createElement('div'); feedback.id='submissionFeedback'; $("success").append(feedback); }
+    feedback.innerHTML = publishedLinks(result,payload.course) + '<button type="button" class="button secondary" data-continue-import>繼續匯入</button><div data-sync-confirm></div>';
+    feedback.querySelector('[data-continue-import]').addEventListener('click',()=>{ $("importFile").click(); });
+    void confirmPublication(feedback.querySelector('[data-sync-confirm]'),result,payload.course);
     questions = [];
     clearEditor();
     render();
@@ -1256,7 +1263,7 @@ const groupedSubmissions=setupGroupedSubmissions({parseImport,metadata,message,o
   pairPreviewReady=false;
   updatePairStatus();
 },onReceipt(result,payload){
-  const next={id:result.id,course:payload.course,title:payload.title,acceptedCount:result.acceptedCount,skippedCount:result.skippedCount,submittedAt:new Date().toISOString()};
+  const next={id:result.id,publishedQuestions:result.publishedQuestions||[],course:payload.course,title:payload.title,acceptedCount:result.acceptedCount,skippedCount:result.skippedCount,submittedAt:new Date().toISOString()};
   currentReceipt=next;
   receipts=[next,...receipts.filter(row=>row.id!==result.id)].slice(0,20);
   try{localStorage.setItem(receiptKey,JSON.stringify(receipts));}

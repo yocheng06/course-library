@@ -278,7 +278,7 @@ test("full page: imported/pasted structured questions use bank answers, update d
     fetch: async (url) => ({
       ok: true,
       json: async () =>
-        String(url).startsWith("assets/") ? base : { questions: [] },
+        String(url).startsWith("assets/") ? base : { questions: [], aliases:[], overrides:[] },
     }),
     navigator: { clipboard: { writeText: async () => {} } },
     URL,

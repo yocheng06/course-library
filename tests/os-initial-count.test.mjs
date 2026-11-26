@@ -21,7 +21,7 @@ test('the embedded data and navigation show the complete L8 count before any req
   assert.ok(html.includes('7 個單元 · 716 道題目'));
   for(const id of historicalIds)assert.ok(isCurrentOrAliased(id),id);
   const nodes={};
-  const context={UNITS:units,active:units.indexOf(l8),guides:{},esc:s=>s,unitNumber:i=>String(i+2).padStart(2,'0'),
+  const context={managedUnitOrder:new Map(),unitCaption:i=>String(i+2),UNITS:units,active:units.indexOf(l8),guides:{},esc:s=>s,unitNumber:i=>String(i+2).padStart(2,'0'),
     $:id=>nodes[id]??=( {} ),document:{querySelectorAll:()=>[]}};
   vm.runInNewContext(source.slice(source.indexOf('function refreshUnitNavigation()'),source.indexOf('function ',source.indexOf('function refreshUnitNavigation()')+10)),context);
   context.refreshUnitNavigation();

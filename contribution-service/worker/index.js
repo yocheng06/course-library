@@ -17,6 +17,7 @@ for (const entry of DUPLICATE_CATALOG) {
 }
 /* BUILTIN_MANAGEMENT */
 /* LIBRARY_MANAGEMENT */
+/* BACKUP_VERIFICATION */
 /* EDIT_MODERATION */
 /* VISITOR_ACCESS */
 const SITE_ORIGIN =
@@ -768,6 +769,7 @@ async function submit(request, env, attempt=0) {
   report.pendingReviewCount=pendingReviews.length;
   report.addedCount=payload.questions.length-pendingReviews.length;
   report.pendingReviews=pendingReviews;
+  report.publishedQuestions=payload.questions.map((q,i)=>({id:`community-${id}-${i+1}`,course:payload.course,unit:payload.unit,index:originalIndexes[i],stem:q.stem.slice(0,160)}));
   if (!payload.questions.length)
     return json({ id: null, status:'duplicates_only', ...report });
   const uploads = [];
@@ -1987,7 +1989,7 @@ async function route(request, env) {
   if (path === '/api/manage/system' && request.method === 'GET') {
     await owner(request,env);
     await ensureReviewedContent(env);
-    return json({checkedAt:new Date().toISOString(),build:{version:BUILD_META.version,sourceHash:BUILD_META.sourceHash,builtAt:BUILD_META.builtAt},snapshots:BUILD_META.snapshots,api:{os:await publicLibraryEtag(env,'os'),algorithms:await publicLibraryEtag(env,'algorithms')}});
+    return json({backupRestore:await backupRestoreStatus(env),checkedAt:new Date().toISOString(),build:{version:BUILD_META.version,sourceHash:BUILD_META.sourceHash,builtAt:BUILD_META.builtAt},snapshots:BUILD_META.snapshots,api:{os:await publicLibraryEtag(env,'os'),algorithms:await publicLibraryEtag(env,'algorithms')}});
   }
   if (path === '/api/manage/units' && ['GET','POST'].includes(request.method)) return manageUnits(request,env,url);
   if (path === '/api/manage/health' && request.method === 'GET') return managementHealth(request,env,url);
@@ -2121,7 +2123,7 @@ async function route(request, env) {
   throw new HttpError(404, "找不到這個頁面。");
 }
 export default {
-  async scheduled(_event, env) { await purgeEditSources(env); await purgeVisitorRecords(env); },
+  async scheduled(event, env) { if(event?.cron && event.cron!=='17 3 * * *') await runBackupRestore(env,{force:true,now:event.scheduledTime||Date.now()}); else { await purgeEditSources(env); await purgeVisitorRecords(env); } },
   async fetch(request, env) {
     let response;
     try {

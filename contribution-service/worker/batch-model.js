@@ -813,7 +813,7 @@ function dice(a, b) {
 const references = (entries) =>
   [
     ...new Map(
-      entries.map((e) => [e.id, { id: e.id, unit: e.unit, stem: e.stem,
+      entries.map((e) => [e.id, { id: e.id, course: e.course, unit: e.unit, stem: e.stem,
         ...(e.showCandidateAnswer?{candidateAnswer:e.options.length&&choiceAnswerKey(e.answer,e.options)?[...choiceAnswerKey(e.answer,e.options)].map(letter=>e.options[letter.charCodeAt(0)-65]).join('；'):e.answer}:{}),
       }]),
     ).values(),
@@ -878,7 +878,13 @@ export function matchQuestion(question, index, { course, unit = "all", completeO
         eligible(entry) &&
         !entry.options.length &&
         withoutFillBlanks(entry.stem) === blankless &&
-        (!completeOnly || completeStem(entry.stem) === completeStem(question.stem)),
+        (!completeOnly || completeStem(entry.stem) === completeStem(question.stem) ||
+          // Older imported records lost their placeholders. Recover only the
+          // exact remaining text with explicit fill instructions on both sides;
+          // the unique-record and answer-slot checks below still apply.
+          (!fillBlankCount(entry.stem) && answerFormat(entry.stem).hint && answerFormat(question.stem).hint &&
+            (blankCount > 1 || ![/\//, /[\r\n]/].some(separator =>
+              (splitTopLevelAnswer(entry.answer, separator)?.length || 0) > 1)))),
     );
     const preferred = !completeOnly && candidates.some((entry) => entry.preferred)
       ? candidates.filter((entry) => entry.preferred)
@@ -891,6 +897,7 @@ export function matchQuestion(question, index, { course, unit = "all", completeO
           new Set(candidates.map(entry => JSON.stringify((entry.conditions || []).map(normalizeText).sort()))).size !== 1)
         return {
         status: "review",
+        exactConflict: true,
         answer: "",
         reason: "相同題幹的題庫版本在填空數或成立條件上有差異，請核對原題。",
         references: references(candidates),
@@ -902,6 +909,7 @@ export function matchQuestion(question, index, { course, unit = "all", completeO
       if (versions.some((entry) => !answerFitsBlankCount(entry.answer, blankCount)))
         return {
           status: "review",
+          exactConflict: true,
           answer: "",
           reason: "題幹唯一符合，但答案項目數與填空數不一致，請核對原題。",
           references: references(versions),
@@ -952,7 +960,7 @@ export function matchQuestion(question, index, { course, unit = "all", completeO
   if(reviewVersions.some(entry=>entry.reviewGroup)){
     const answers=reviewVersions.map(entry=>remapAnswer(question,entry));
     if(reviewVersions.some(entry=>entry.needsImage && !imageMatches(entry))||question.options.length&&reviewVersions.some(entry=>!sameOptions(question,entry))||answers.some(answer=>!answer)||new Set(answers.map(answer=>answer?.signature)).size!==1||new Set(reviewVersions.map(entry=>JSON.stringify((entry.conditions||[]).map(normalizeText).sort()))).size!==1)
-      return {status:'review',answer:'',reason:'此題有另行收錄的投稿版本，答案、選項、作答格式或成立條件仍有差異，請核對下方各版本答案。',references:references(reviewVersions.slice().sort((a,b)=>Number(b.reviewPending)-Number(a.reviewPending)).map(entry=>({...entry,showCandidateAnswer:true})))};
+      return {status:'review',exactConflict:true,answer:'',reason:'此題有另行收錄的投稿版本，答案、選項、作答格式或成立條件仍有差異，請核對下方各版本答案。',references:references(reviewVersions.slice().sort((a,b)=>Number(b.reviewPending)-Number(a.reviewPending)).map(entry=>({...entry,showCandidateAnswer:true})))};
     exact=reviewVersions;
     if (!question.options.length) repeatedFillStem=true;
   }
@@ -973,6 +981,7 @@ export function matchQuestion(question, index, { course, unit = "all", completeO
     )
       return {
         status: "review",
+        exactConflict: true,
         answer: "",
         reason: [...new Set(exact.map(e=>e.reviewReason).filter(Boolean))].join(" ") || "題庫答案的填答格式、版本或選項對應不一致，請開啟原題核對。",
         references: references(exact),

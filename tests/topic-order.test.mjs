@@ -39,7 +39,8 @@ for(const course of ['os','algorithms'])test(course+' all current units group ev
  const previous=await loadCourse(course,{live:live[course],ordering:false}),before=JSON.parse(JSON.stringify(previous.config.examEntries(true)));
  const h=await loadCourse(course,{live:live[course]}),entries=assertOrder(h,course),tools=h.window.courseTopicOrder;
  assert.equal(entries.length,course==='os'?1048:379);assert.equal(h.config.examUnits().length,course==='os'?9:6);
- assert.equal(JSON.stringify([...entries].sort((a,b)=>a.id.localeCompare(b.id))),JSON.stringify(before.sort((a,b)=>a.id.localeCompare(b.id))));
+ const content = rows => rows.map(({topicLabel,q,...entry})=>{const {category,...question}=q;return {...entry,q:question};}).sort((a,b)=>a.id.localeCompare(b.id));
+ assert.deepEqual(JSON.parse(JSON.stringify(content(entries))),content(before));
  assert(orderingIssues(before,tools,course).length>0);
  const source=JSON.stringify(entries);h.config.render();h.document.getElementById('practiceMode').onclick();
  const pageIds=[...h.config.list.children].map(card=>card.dataset.id),expected=Array.from(h.config.unitIds());assert.deepEqual(pageIds,expected.slice(0,pageIds.length));

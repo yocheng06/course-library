@@ -95,6 +95,8 @@ const paths = [
   "assets/contribution-model.js",
   "assets/choice-answers.js",
   "assets/contributions-ui.js",
+  "assets/question-sync.js",
+  "assets/submission-feedback.mjs",
   "assets/contributions-submit.js",
   "assets/grouped-submissions.mjs",
   "assets/unit-catalog.mjs",
@@ -139,6 +141,8 @@ assets["/assets/icons/course-mascot.png"] = {
 };
 const healthExplanations=JSON.parse(await readFile(resolve(root,"content/health-explanations.json"),"utf8"));
 let worker = await readFile(resolve(root, "worker/index.js"), "utf8");
+const backupVerification=(await readFile(resolve(root,"worker/backup-verification.mjs"),"utf8")).replaceAll("export async function ","async function ");
+worker=worker.replace("/* BACKUP_VERIFICATION */",()=>backupVerification);
 const builtinManagement=await readFile(resolve(root,"worker/builtin-management.js"),"utf8");
 const readLibraryManagement=await readFile(resolve(root,"worker/library-management.js"),"utf8");
 const readFileSecurity=await readFile(resolve(root,'worker/admin-security.js'),'utf8');

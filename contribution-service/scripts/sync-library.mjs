@@ -17,6 +17,8 @@ const paths = [
   "assets/contribution-model.js",
   "assets/choice-answers.js",
   "assets/contributions-ui.js",
+  "assets/question-sync.js",
+  "assets/submission-feedback.mjs",
   "assets/contributions-submit.js",
   "assets/grouped-submissions.mjs",
   "assets/unit-catalog.mjs",

@@ -60,7 +60,14 @@
   const backupInput = backupControls.querySelector('input');
   function mountBackupControls() {
     const settingsBody = document.querySelector('.reading-settings-body');
-    if (settingsBody) settingsBody.append(backupControls);
+    if (settingsBody) {
+      if (!settingsBody.querySelector('[data-storage-location]')) {
+        const note = document.createElement('p'); note.dataset.storageLocation='';
+        note.textContent='待複習、練習與測驗紀錄只保存在目前這個瀏覽器，不會隨帳號或 Cloudflare 登入同步。換手機、使用無痕視窗或清除網站資料前，請先匯出完整學習備份。投稿與匯入草稿請到投稿頁另行下載。';
+        settingsBody.append(note);
+      }
+      backupControls.id='learningStorageBackup'; settingsBody.append(backupControls);
+    }
     refreshStorageHint();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountBackupControls, {once:true});

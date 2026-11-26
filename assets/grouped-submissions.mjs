@@ -1,3 +1,4 @@
+import {publishedLinks,confirmPublication} from "./submission-feedback.mjs?v=consistency-20261126";
 import './topic-order.js?v=workflow-improvements-20261102';
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 import {COURSE_UNITS,normalizeBatch as normalizeBatchBase,normalizeType,normalizeUnit,unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
@@ -154,9 +155,18 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
     });
     list.innerHTML=queue.map((group,index)=>{
       const missing=missingAnswerCount(group),counts=groupImportCounts(group),expand=!group.result && missing>0;
-      return `<details data-group-index="${index}" ${expand?'open':''}><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`:'待送出'}${group.htmlImport?` <span data-answer-count> · ${missingAnswerLabel(group)}</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary><div data-group-body data-ready="${expand?'true':'false'}">${expand?groupBody(group,index):''}</div>${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+esc(group.result.id):group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，未新增投稿。'}</p>${replacedQuestionSummary(group.result)}`:''}<div data-similar></div><p data-error role="status"></p></details>`;
+      return `<details data-group-index="${index}" ${expand?'open':''}><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`:'待送出'}${group.htmlImport?` <span data-answer-count> · ${missingAnswerLabel(group)}</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary><div data-group-body data-ready="${expand?'true':'false'}">${expand?groupBody(group,index):''}</div>${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+esc(group.result.id):group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，未新增投稿。'}</p>${replacedQuestionSummary(group.result)}${publishedLinks(group.result,group.payload.course)}`:''}<div data-similar></div><p data-error role="status"></p></details>`;
     }).join('');
     updateSummary();refreshSendButton();
+    if(complete){
+      const controls=document.createElement('div');
+      controls.innerHTML='<button type="button" class="button secondary">繼續匯入</button><div data-sync-confirm></div>';
+      list.append(controls);
+      controls.querySelector('button').addEventListener('click',()=>document.getElementById('importFile').click());
+      const byCourse=new Map();
+      for(const group of queue){const course=group.payload.course;byCourse.set(course,[...(byCourse.get(course)||[]),...(group.result.publishedQuestions||[])]);}
+      for(const [course,publishedQuestions] of byCourse){const node=document.createElement('div');controls.querySelector('[data-sync-confirm]').append(node);void confirmPublication(node,{publishedQuestions},course);}
+    }
   }
   try{
     const saved=JSON.parse(localStorage.getItem(key)||'null');

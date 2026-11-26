@@ -82,3 +82,7 @@ Runtime 秘密由 Cloudflare 管理，不寫進 GitHub：一次性 `ADMIN_SETUP_
 服務使用 Cloudflare Worker 與 D1 `DB`；`worker/d1-image-store.mjs` 提供相容圖片儲存介面。`scripts/build-cloudflare.mjs` 產生獨立入口並移除不可信的 `oai-*` 標頭，`compact-worker-data.mjs` 在建置時核對無損資料壓縮。發布使用官方 Wrangler；保留 `.openai/hosting.json` 僅供舊部署相容。**推送 GitHub main 只更新主站 Pages，不會自動更新這個獨立 Worker。**
 
 不要提交設定碼、密碼、Cookie、權杖、正式 DB、使用者私人備份或 node_modules／dist。GitHub 原始碼封存不是正式題庫與題圖的完整備份。
+
+## 每週獨立還原驗證
+
+正式 Worker 以 `BACKUP_VERIFY_DB` 綁定專用 `course-library-restore-check` 測試資料庫（與 `DB` 分開）。每週一台北時間 04:30 執行題目、歷史與圖片的還原／指紋驗證；既有每日清理排程保留。測試庫必須先由站主建立 `_restore_sandbox(id INTEGER PRIMARY KEY,value TEXT NOT NULL)`，並插入 `(1,'course-library-backup-verification-only')`；缺少此標記時驗證器拒絕重建資料表。部署者應保留此綁定與 `30 20 * * 0` 排程。完整設計、來源內容疑義與備份演練見 [一致性更新](../docs/updates/2026-11-26-consistency.md)。

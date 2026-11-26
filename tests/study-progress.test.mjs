@@ -63,7 +63,7 @@ test('both courses refresh an already loaded community question immediately afte
  for(const course of ['os','algorithms']){
   const ui=await coursePage(course), id='community-11111111-1111-4111-8111-111111111111-1';
   const raw=course==='os'?{id,stem:'原題 ___',options:[],answer:'base',explanation:'原解析',type:'填空題',category:'分類',images:[]}:{bookmarkId:id,q:'原題 ___',opts:[],a:'base',ex:'原解析',type:'填空題',category:'分類',images:[]};
-  const unit=course==='os'?'L9':'L7';
+  const unit='L10';
   ui.config.mergeCommunityQuestions([{unit,question:raw}]);
   const changed=course==='os'?{...raw,stem:'已公開修正 ___',explanation:'新版解析'}:{...raw,q:'已公開修正 ___',ex:'新版解析'};
   ui.config.mergeCommunityQuestions([{unit,question:changed}]);
@@ -95,7 +95,7 @@ test('same-ID built-in updates refresh visible answers, explanation and correct-
 test('editing one community card refreshes its contents while retaining another card and its typed response',async()=>{
  for(const course of ['os','algorithms']){
   const id=n=>'community-22222222-2222-4222-8222-222222222222-'+n;
-  const h=await coursePage(course,{search:'?question='+id(1)}),unit=course==='os'?'L9':'L7';
+  const h=await coursePage(course,{search:'?question='+id(1)}),unit='L10';
   const q=n=>course==='os'?{id:id(n),stem:'填空 ___ '+n,options:[],answer:'base',type:'填空題',category:'分類',explanation:'原解析'}:{bookmarkId:id(n),q:'填空 ___ '+n,opts:[],a:'base',type:'填空題',category:'分類',ex:'原解析'};
   const rows=[1,2].map(n=>({unit,question:q(n)}));
   h.config.mergeCommunityQuestions(rows,{openLinkedQuestion:true});h.practice();
@@ -152,7 +152,7 @@ test('real confirmation tracks first attempts and retries, ignores unchanged che
   for(const course of ['os','algorithms']){
     const h=await coursePage(course);h.practice();
     const card=h.cards().find(card=>card.querySelector('[data-choice]'));
-    const q=h.question(card.dataset.id),options=q.options||q.opts;
+    const q=vm.runInContext(`practiceOptions.get(findEntry(${JSON.stringify(card.dataset.id)}).q,${JSON.stringify(card.dataset.id)})`,h.context),options=q.options||q.opts;
     const expected=[...(q.choiceKey||h.window.coursePractice.expectedChoiceKey(q.answer||q.a,options))].map(letter=>letter.charCodeAt(0)-65);
     const wrong=expected.length>1?[expected[0]]:[options.findIndex((_,i)=>!expected.includes(i))];
     h.check(card);assert.equal(h.progress.getStats().answered,0);
@@ -268,7 +268,7 @@ test('a failure writing the practice half of a full backup rolls back storage an
 });
 
 for(const course of ['os','algorithms'])test(course+' approved future units appear in navigation and exam ranges without accepting duplicate questions or HTML names',async()=>{
- const h=await coursePage(course),id='community-00000000-0000-4000-8000-000000000099-1',unit=course==='os'?'L9':'L7';
+ const h=await coursePage(course),id='community-00000000-0000-4000-8000-000000000099-1',unit='L10';
  const title='<img src=x> 新單元';
  const q=course==='os'?{id,stem:'新單元題目',answer:'answer',options:[],type:'填空題',answerProvided:true,category:'測試',unitTitle:title}:{bookmarkId:id,q:'新單元題目',a:'answer',opts:[],type:'填空題',answerProvided:true,category:'測試',unitTitle:title};
  h.window.HTMLElement.prototype.showModal=function(){this.setAttribute('open','');};
@@ -276,7 +276,7 @@ for(const course of ['os','algorithms'])test(course+' approved future units appe
  const result=h.config.mergeCommunityQuestions([{unit,question:q}]);assert.equal(result.added,1);assert(h.config.examUnits().some(u=>u.id===unit));
  assert.equal(h.config.mergeCommunityQuestions([{unit,question:q}]).added,0);
  assert.equal(h.document.querySelector('img[src="x"]'),null);
- const button=course==='os'?h.document.querySelectorAll('[data-unit]')[7]:h.document.querySelector('[data-lesson="L7"]');h.fire(button,'click');
+ h.config.openQuestionById(id);
  assert(h.config.list.querySelector(`article[data-id="${id}"]`));
  h.click('#examMode');assert([...h.document.querySelector('[data-exam-to]').options].some(o=>o.value===unit));
  assert.equal(h.config.examEntries([unit]).length,1);
@@ -298,7 +298,7 @@ test('deleted L6 display question 27 is absent and its link, bookmark and practi
  assert.equal(entries.filter(e=>e.id==='L6-038').length,1);
  assert.equal(h.question('L6-038').a,'A. 比較排序');
  const library=JSON.parse(await read('assets/batch-library.json'));
- assert.equal(library.courses.algorithms.count,300);
+ assert.equal(library.courses.algorithms.count,new Set(library.entries.filter(e=>e.course==='algorithms'&&e.preferred).map(e=>e.id)).size);
  assert.equal(library.entries.some(e=>e.id==='L6-037'),false);
  assert(library.entries.some(e=>e.id==='L6-038'));
 });
@@ -349,7 +349,7 @@ test('merged sorting questions preserve links, learning records and source-optio
    assert(q.sourceVariants.some(v=>v.opts.includes('D. 桶排序平均情況為 O(n)')&&v.a==='A、B、D'));
   }
  }
- assert.equal(library.courses.algorithms.count,300);
+ assert.equal(library.courses.algorithms.count,new Set(library.entries.filter(e=>e.course==='algorithms'&&e.preferred).map(e=>e.id)).size);
 });
 
 test('counting-sort C-array duplicates share one practice question and retain source answers',async()=>{
@@ -373,7 +373,7 @@ test('counting-sort C-array duplicates share one practice question and retain so
  for(const v of versions)assert.equal(v.options[v.choiceKey.charCodeAt(0)-65],v.answer);
  assert(versions.some(v=>v.choiceKey==='C'&&v.answer.includes('每個鍵值')));
  assert.equal(versions.filter(v=>v.choiceKey==='D'&&v.answer.includes('每個值')).length,2);
- assert.equal(library.courses.algorithms.count,300);
+ assert.equal(library.courses.algorithms.count,new Set(library.entries.filter(e=>e.course==='algorithms'&&e.preferred).map(e=>e.id)).size);
 });
 
 test('new L6 practice imports preserve distinct counting checkpoints and support separate blank entry',async()=>{
@@ -439,4 +439,14 @@ for(const course of ['os','algorithms'])test(course+' mobile filters start colla
  assert.match(details.querySelector('summary').textContent,/1 項/);assert.match(details.querySelector('.more-filters > summary').textContent,/已啟用/);assert.equal(details.open,false);
  const chip=[...h.document.querySelectorAll('.active-filters button')].find(b=>b.textContent.includes('隱藏英文題'));assert(chip);h.fire(chip,'click');assert.equal(hide.checked,false);
  const desktop=await coursePage(course,{readingFlow:true});assert.equal(desktop.document.querySelector('.mobile-filter-group').open,true);
+});
+
+
+test('reading settings explain local storage and expose the learning backup before changing devices',async()=>{
+ const h=await coursePage('os',{readingFlow:true});
+ h.document.dispatchEvent(new h.window.Event('DOMContentLoaded'));
+ const settings=h.document.querySelector('.reading-settings-body');
+ assert.match(settings.querySelector('[data-storage-location]').textContent,/目前這個瀏覽器/);
+ assert.match(settings.textContent,/投稿與匯入草稿/);
+ assert(settings.querySelector('#learningStorageBackup [data-export-review]'));
 });

@@ -10,9 +10,9 @@ const read = path => readFile(new URL('../' + path, import.meta.url), 'utf8');
 test('OS question data stays embedded by unit but is not executable until that unit is opened', async () => {
   const html = await read('os.html');
   const units = parseOSCourseHTML(html);
-  assert.equal(units.length, 7);
+  assert.equal(units.length, 8);
   assert.match(html, /<script id="course-manifest" type="application\/json">/);
-  assert.equal([...html.matchAll(/<script id="course-unit-[^"]+" type="application\/json" data-course-unit=/g)].length, 7);
+  assert.equal([...html.matchAll(/<script id="course-unit-[^"]+" type="application\/json" data-course-unit=/g)].length, units.length);
   const manifest = JSON.parse(html.match(/<script id="course-manifest" type="application\/json">([\s\S]*?)<\/script>/)[1]);
   assert.equal(units.reduce((count, unit) => count + unit.questions.length, 0), manifest.reduce((count, unit) => count + unit.questionCount, 0));
   assert.ok(manifest.every(unit => unit.questionAliases && typeof unit.questionAliases === 'object'));
@@ -67,20 +67,20 @@ test('OS page parses only the opened unit, then loads the rest for whole-course 
   assert.equal(window.courseLearning.validId(alias[0]), true);
   assert.equal(window.courseLearning.resolveId(alias[0]), alias[1]);
 
-  document.querySelector('[data-unit="5"]').dispatchEvent(new window.Event('click', { bubbles: true }));
+  document.querySelector('[data-unit="6"]').dispatchEvent(new window.Event('click', { bubbles: true }));
   assert.deepEqual(parsedUnits, ['basics', 'synchronization']);
   assert.equal(document.getElementById('title').textContent, '程序同步');
-  assert.equal(document.querySelector('#cards article').dataset.id, expectedUnits[5].questions[0].id);
-
-  document.querySelector('[data-unit="6"]').dispatchEvent(new window.Event('click', { bubbles: true }));
-  assert.equal(document.getElementById('title').textContent, '死結');
   assert.equal(document.querySelector('#cards article').dataset.id, expectedUnits[6].questions[0].id);
+
+  document.querySelector('[data-unit="7"]').dispatchEvent(new window.Event('click', { bubbles: true }));
+  assert.equal(document.getElementById('title').textContent, '死結');
+  assert.equal(document.querySelector('#cards article').dataset.id, expectedUnits[7].questions[0].id);
   assert.deepEqual(parsedUnits, ['basics', 'synchronization', 'deadlocks']);
 
   const scope = document.getElementById('searchScopeSelect');
   scope.value = 'all';
   scope.dispatchEvent(new window.Event('change', { bubbles: true }));
-  assert.equal(parsedUnits.length, 7);
+  assert.equal(parsedUnits.length, expectedUnits.length);
   const total = expectedUnits.reduce((count, unit) => count + unit.questions.length, 0);
   assert.equal(document.getElementById('resultCount').textContent.includes(`${total} / ${total} 題`), true);
 });

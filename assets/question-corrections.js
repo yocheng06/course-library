@@ -240,7 +240,10 @@
         form.hidden = true;
         deleteButton.hidden = true;
         status.textContent = saved?.queued ? '修改建議已送交站主審核。' : '題目已儲存並公開。修改前版本已保留。';
-        if (!saved?.queued) window.dispatchEvent(new Event('online'));
+        if (!saved?.queued) {
+          if (window.courseQuestionSync) window.courseQuestionSync.invalidate(config.course);
+          else window.dispatchEvent(new Event('online'));
+        }
       } else {
         receipt = await api('/api/corrections', {
           method: 'POST',

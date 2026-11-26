@@ -136,33 +136,7 @@ test('file import rejects oversized input before reading and valid files use the
   assert.equal(h.ui.isSaved('known-2'), true);
 });
 
-test('copying a question includes course, current number, stable ID and a canonical deep link without duplicating actions', async () => {
-  const h = harness();
-  h.ui.refresh(); h.ui.refresh();
-  assert.equal(h.document.querySelectorAll('article[data-id="known-1"] [data-copy-question]').length, 1);
-  h.click('article[data-id="known-1"] [data-copy-question]');
-  await tick();
-  assert.equal(h.copied.length, 1);
-  assert.equal(h.copied[0], '作業系統｜UNIT 02 · 系統基礎｜第 1 題\n題目 ID：known-1\nhttps://yocheng06.github.io/course-library/os.html?question=known-1');
-  assert.match(h.document.querySelector('.question-copy-status').textContent, /已複製/);
-});
-
-test('copy falls back when clipboard permission is denied and manual text remains available if both copy APIs fail', async () => {
-  const fallback = harness({clipboard:async () => { throw new Error('denied'); }, execCopy:true});
-  fallback.click('[data-copy-question]'); await tick();
-  assert.equal(fallback.legacyCopied.length, 1);
-  assert.match(fallback.legacyCopied[0], /question=known-1/);
-  assert.equal(fallback.document.querySelector('.question-copy-temp'), null);
-  assert.match(fallback.document.querySelector('.question-copy-status').textContent, /已複製/);
-  const manual = harness({course:'algorithms',clipboard:null});
-  manual.click('[data-copy-question]'); await tick();
-  const text = manual.document.querySelector('.question-copy-manual textarea');
-  assert.match(text.value, /演算法｜/);
-  assert.match(text.value, /algorithms\.html\?question=known-1/);
-  assert.equal(manual.selected(), text.value);
-  assert.match(manual.document.querySelector('.question-copy-status').textContent, /請複製下方文字/);
-  assert.equal(manual.document.querySelector('[data-copy-question]').disabled, false);
-});
+test('refresh retains direct editing without resurrecting retired copy controls',()=>{const h=harness();h.ui.refresh();h.ui.refresh();assert.equal(h.document.querySelectorAll('[data-copy-question]').length,0);assert.equal(h.document.querySelectorAll('.question-report').length,2);});
 
 test('every question offers direct editing without duplicating buttons', () => {
   const h = harness();

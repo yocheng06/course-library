@@ -399,6 +399,8 @@ test("anonymous submissions publish immediately; only the owner can manage them"
   });
   assert.equal(submitted.response.status, 201);
   const id = submitted.data.id;
+  assert.equal(submitted.data.publishedQuestions[0].id,`community-${id}-1`);
+  assert.equal(submitted.data.publishedQuestions[0].course,'os');
   const pubBeforeReview = (await call(env, "/api/questions?course=os")).data.questions;
   assert.equal(pubBeforeReview.length, 1);
   assert.equal(pubBeforeReview[0].question.stem, payload().questions[0].stem);
@@ -1959,6 +1961,7 @@ test('grouped submission retries with the same request ID return one receipt wit
  const env=await setup();const body={...payload(),clientRequestId:crypto.randomUUID()};
  const first=await call(env,'/api/submissions',{method:'POST',body});assert.equal(first.response.status,201);
  const second=await call(env,'/api/submissions',{method:'POST',body});assert.equal(second.response.status,200);
+ assert.deepEqual(second.data.publishedQuestions,first.data.publishedQuestions);
  assert.equal(second.data.id,first.data.id);assert.equal(second.data.acceptedCount,first.data.acceptedCount);
  assert.equal(env.sql.prepare('SELECT count(*) AS n FROM submissions').get().n,1);
  const changed=structuredClone(body);changed.questions[0].answer='B';
