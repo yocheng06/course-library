@@ -1,10 +1,24 @@
 const restoreTables=['submissions','public_questions','question_history','builtin_question_edits','question_corrections','unit_settings','unit_settings_history','image_objects'];
 const restoreMarker='course-library-backup-verification-only';
 const restoreDigest=async value=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',typeof value==='string'?new TextEncoder().encode(value):value))].map(v=>v.toString(16).padStart(2,'0')).join('');
-async function restoreRows(db,table){return (await db.prepare('SELECT * FROM '+table).all()).results;}
+const quoteIdentifier=value=>'"'+value.replaceAll('"','""')+'"';
+async function readContentRows(db,schemas){
+  const statements=restoreTables.map(table=>{
+    const schema=schemas.find(row=>row.name===table);
+    if(!schema)throw Error('正式備份缺少資料表：'+table);
+    const fields=JSON.parse(schema.column_names).flatMap(key=>["'"+key.replaceAll("'","''")+"'",key==='body'?'hex('+quoteIdentifier(key)+')':quoteIdentifier(key)]).join(',');
+    return "SELECT '"+table+"' AS table_name,json_object("+fields+") AS row_data FROM "+quoteIdentifier(table);
+  });
+  // D1 limits compound SELECT terms; small groups share one transactional batch.
+  const queries=[];for(let start=0;start<statements.length;start+=2)queries.push(db.prepare(statements.slice(start,start+2).join(' UNION ALL ')));
+  const rows=(await db.batch(queries)).flatMap(result=>result.results);
+  const result=new Map(restoreTables.map(table=>[table,[]]));
+  for(const row of rows){const value=JSON.parse(row.row_data);if(Object.hasOwn(value,'body'))value.body=Uint8Array.from(value.body.match(/../g)||[],hex=>parseInt(hex,16));result.get(row.table_name).push(value);}
+  return result;
+}
 async function restoreSignature(rows){
   const values=[];
-  for(const row of rows){const normalized={};for(const key of Object.keys(row).sort()){const value=row[key];normalized[key]=key==='body'&&value!==null?{sha256:await restoreDigest(new Uint8Array(value)),bytes:value.length}:value;}values.push(JSON.stringify(normalized));}
+  for(const row of rows){const normalized={};for(const key of Object.keys(row).sort()){const value=row[key];normalized[key]=key==='body'&&value!==null?{sha256:await restoreDigest(new Uint8Array(value)),bytes:new Uint8Array(value).byteLength}:value;}values.push(JSON.stringify(normalized));}
   return restoreDigest(JSON.stringify(values.sort()));
 }
 // Immutable generations survive the next sandbox restore. Only verified generations rotate.
@@ -14,7 +28,8 @@ async function archiveSnapshot(db,snapshots,now){
     db.prepare('CREATE TABLE IF NOT EXISTS _backup_chunks(generation INTEGER NOT NULL,table_name TEXT NOT NULL,part INTEGER NOT NULL,data TEXT NOT NULL,PRIMARY KEY(generation,table_name,part))'),
   ]);
   const manifest={format:'course-library.content-archive',version:1,createdAt:new Date(now).toISOString(),tables:{}};
-  for(const [table,{rows,schema,signature}] of snapshots){
+  const pendingChunks=[];
+  for(const [table,{rows,schema,signature,column_names}] of snapshots){
     const chunks=[];let chunk=[],size=0;
     for(const row of rows){
       const value={...row};
@@ -24,9 +39,10 @@ async function archiveSnapshot(db,snapshots,now){
       chunk.push(serialized);size+=bytes+1;
     }
     if(chunk.length)chunks.push('['+chunk.join(',')+']');
-    manifest.tables[table]={schema,signature,count:rows.length,parts:chunks.length};
-    for(let part=0;part<chunks.length;part++)await db.prepare('INSERT INTO _backup_chunks(generation,table_name,part,data) VALUES (?,?,?,?)').bind(now,table,part,chunks[part]).run();
+    manifest.tables[table]={schema,column_names,signature,count:rows.length,parts:chunks.length};
+    for(let part=0;part<chunks.length;part++)pendingChunks.push([now,table,part,chunks[part]]);
   }
+  for(let start=0;start<pendingChunks.length;start+=25){const group=pendingChunks.slice(start,start+25);await db.prepare('INSERT INTO _backup_chunks(generation,table_name,part,data) VALUES '+group.map(()=>'(?,?,?,?)').join(',')).bind(...group.flat()).run();}
   await db.prepare('INSERT INTO _backup_generations(id,manifest) VALUES (?,?)').bind(now,JSON.stringify(manifest)).run();
   return loadArchivedSnapshot(db,now);
 }
@@ -34,9 +50,10 @@ export async function loadArchivedSnapshot(db,generation){
   const record=await db.prepare('SELECT manifest FROM _backup_generations WHERE id=?').bind(generation).first();
   if(!record)throw Error('找不到歷史備份');
   const manifest=JSON.parse(record.manifest),snapshots=new Map();
+  const allChunks=(await db.prepare('SELECT table_name,data FROM _backup_chunks WHERE generation=? ORDER BY table_name,part').bind(generation).all()).results;
   for(const [table,meta] of Object.entries(manifest.tables)){
     if(!restoreTables.includes(table))throw Error('歷史備份包含未知資料表');
-    const chunks=(await db.prepare('SELECT data FROM _backup_chunks WHERE generation=? AND table_name=? ORDER BY part').bind(generation,table).all()).results;
+    const chunks=allChunks.filter(chunk=>chunk.table_name===table);
     if(chunks.length!==meta.parts)throw Error('歷史備份分塊不完整');
     const rows=chunks.flatMap(chunk=>JSON.parse(chunk.data));
     for(const row of rows)if(Object.hasOwn(row,'body'))row.body=Uint8Array.from(row.body.match(/../g)||[],hex=>parseInt(hex,16));
@@ -73,17 +90,19 @@ export async function runBackupRestore(env,{force=false,now=Date.now()}={}){
   const report={configured:true,checkedAt:new Date(now).toISOString(),ok:false,counts:{},imagesVerified:0};
   try{
     let snapshots=new Map();
-    const schemas=(await env.DB.prepare("SELECT name,sql FROM sqlite_master WHERE type='table'").all()).results;
-    const source=await env.DB.batch(restoreTables.map(table=>env.DB.prepare('SELECT * FROM '+table)));
+    const schemas=(await env.DB.prepare("SELECT m.name,m.sql,json_group_array(p.name) AS column_names FROM sqlite_master m JOIN pragma_table_info(m.name) p WHERE m.type='table' AND m.name IN ('submissions','public_questions','question_history','builtin_question_edits','question_corrections','unit_settings','unit_settings_history','image_objects') GROUP BY m.name").all()).results;
+    const source=await readContentRows(env.DB,schemas);
     for(const [index,table] of restoreTables.entries()){
       const schema=schemas.find(row=>row.name===table);
       if(!schema)throw Error('正式備份缺少資料表：'+table);
-      const rows=source[index].results;
-      snapshots.set(table,{rows,schema:schema.sql,signature:await restoreSignature(rows)});
+      const rows=source.get(table);
+      snapshots.set(table,{rows,schema:schema.sql,column_names:schema.column_names,signature:await restoreSignature(rows)});
     }
     snapshots=await archiveSnapshot(target,snapshots,now);
     report.archiveGeneration=now;
-    await target.batch([...restoreTables].reverse().map(table=>target.prepare('DROP TABLE IF EXISTS '+table)).concat([...snapshots.values()].map(({schema})=>target.prepare(schema))));
+    const existing=(await target.prepare("SELECT name,sql FROM sqlite_master WHERE type='table'").all()).results;
+    const unchanged=new Set([...snapshots].filter(([table,meta])=>existing.some(row=>row.name===table&&row.sql===meta.schema)).map(([table])=>table));
+    await target.batch([...restoreTables].reverse().map(table=>target.prepare((unchanged.has(table)?'DELETE FROM ':'DROP TABLE IF EXISTS ')+quoteIdentifier(table))).concat([...snapshots].filter(([table])=>!unchanged.has(table)).map(([,meta])=>target.prepare(meta.schema))));
     for(const [table,{rows}] of snapshots){
       // JSON bulk writes keep the weekly job within D1 query limits; blobs use hex round trips.
       if(rows.length){
@@ -102,7 +121,10 @@ export async function runBackupRestore(env,{force=false,now=Date.now()}={}){
         }
         await flush();
       }
-      const restored=await restoreRows(target,table);
+    }
+    const restoredTables=await readContentRows(target,schemas);
+    for(const [table] of snapshots){
+      const restored=restoredTables.get(table);
       if(await restoreSignature(restored)!==snapshots.get(table).signature)throw Error('還原內容不一致：'+table);
       report.counts[table]=restored.length;
       if(table==='image_objects')for(const image of restored){

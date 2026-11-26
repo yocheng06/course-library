@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {createHash} from 'node:crypto';
 import {runBackupRestore,backupRestoreStatus,loadArchivedSnapshot} from '../contribution-service/worker/backup-verification.mjs';
-function adapter(sql){return {prepare(query){let values=[];return {bind(...v){values=v.map(x=>x instanceof ArrayBuffer?new Uint8Array(x):x);return this;},async first(){return sql.prepare(query).get(...values)||null;},async all(){return {results:sql.prepare(query).all(...values)};},async run(){return {meta:{changes:sql.prepare(query).run(...values).changes}};}};},async batch(statements){sql.exec('BEGIN');try{const out=[];for(const s of statements)out.push(await s.all());sql.exec('COMMIT');return out;}catch(e){sql.exec('ROLLBACK');throw e;}}};}
+function adapter(sql,stats={queries:0}){return {prepare(query){let values=[];return {bind(...v){values=v.map(x=>x instanceof ArrayBuffer?new Uint8Array(x):x);return this;},async first(){stats.queries++;return sql.prepare(query).get(...values)||null;},async all(){stats.queries++;return {results:sql.prepare(query).all(...values)};},async run(){stats.queries++;return {meta:{changes:sql.prepare(query).run(...values).changes}};}};},async batch(statements){sql.exec('BEGIN');try{const out=[];for(const s of statements)out.push(await s.all());sql.exec('COMMIT');return out;}catch(e){sql.exec('ROLLBACK');throw e;}}};}
 function fixture(){
  const source=new DatabaseSync(':memory:'),target=new DatabaseSync(':memory:');
  for(const table of ['submissions','public_questions','question_history','builtin_question_edits','question_corrections','unit_settings','unit_settings_history'])source.exec('CREATE TABLE '+table+'(id TEXT PRIMARY KEY,data TEXT,revision INTEGER)');
@@ -11,7 +11,7 @@ function fixture(){
  source.exec('CREATE TABLE image_objects(key TEXT PRIMARY KEY,body BLOB,size INTEGER,sha256 TEXT)');
  const bytes=Buffer.from([137,80,78,71]);source.prepare('INSERT INTO image_objects VALUES (?,?,?,?)').run('image',bytes,bytes.length,createHash('sha256').update(bytes).digest('hex'));
  target.exec("CREATE TABLE _restore_sandbox(id INTEGER PRIMARY KEY,value TEXT);INSERT INTO _restore_sandbox VALUES (1,'course-library-backup-verification-only')");
- return {source,target,env:{DB:adapter(source),BACKUP_VERIFY_DB:adapter(target)}};
+ const stats={queries:0};return {source,target,stats,env:{DB:adapter(source,stats),BACKUP_VERIFY_DB:adapter(target,stats)}};
 }
 test('weekly restoration uses only the guarded sandbox, preserves answers/history/images and records status',async()=>{
  const {env,source,target}=fixture();try{
@@ -50,5 +50,17 @@ test('retained archives restore the old answer after newer edits and keep twelve
   assert.equal((await backupRestoreStatus(env)).archive.generations,12);
   target.prepare("UPDATE _backup_chunks SET data='[]' WHERE generation=? AND table_name='public_questions'").run(now+2);
   await assert.rejects(loadArchivedSnapshot(env.BACKUP_VERIFY_DB,now+2),/校驗/);
+ }finally{source.close();target.close();}
+});
+
+test('a weekly archive fits the 50-statement budget and rebuilds an incompatible sandbox schema',async()=>{
+ const {env,source,target,stats}=fixture();try{
+  const now=Date.now();await runBackupRestore(env,{force:true,now});stats.queries=0;
+  target.exec('ALTER TABLE public_questions ADD COLUMN obsolete TEXT');
+  source.exec('UPDATE public_questions SET revision=5');
+  await runBackupRestore(env,{force:true,now:now+1});
+  assert(stats.queries<=50,`used ${stats.queries} SQL statements`);
+  assert.equal(target.prepare('SELECT revision FROM public_questions').get().revision,5);
+  assert(!target.prepare('PRAGMA table_info(public_questions)').all().some(column=>column.name==='obsolete'));
  }finally{source.close();target.close();}
 });
