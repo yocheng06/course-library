@@ -85,4 +85,4 @@ Runtime 秘密由 Cloudflare 管理，不寫進 GitHub：一次性 `ADMIN_SETUP_
 
 ## 每週獨立還原驗證
 
-正式 Worker 以 `BACKUP_VERIFY_DB` 綁定專用 `course-library-restore-check` 測試資料庫（與 `DB` 分開）。每週一台北時間 04:30 執行題目、歷史與圖片的還原／指紋驗證；既有每日清理排程保留。測試庫必須先由站主建立 `_restore_sandbox(id INTEGER PRIMARY KEY,value TEXT NOT NULL)`，並插入 `(1,'course-library-backup-verification-only')`；缺少此標記時驗證器拒絕重建資料表。部署者應保留此綁定與 `30 20 * * 0` 排程。完整設計、來源內容疑義與備份演練見 [一致性更新](../docs/updates/2026-11-26-consistency.md)。
+正式 Worker 以 `BACKUP_VERIFY_DB` 綁定專用 `course-library-restore-check` 測試資料庫（與 `DB` 分開）。每週一台北時間 04:30 執行題目、歷史與圖片的還原／指紋驗證；既有每日清理排程保留。測試庫必須先由站主建立 `_restore_sandbox(id INTEGER PRIMARY KEY,value TEXT NOT NULL)`，並插入 `(1,'course-library-backup-verification-only')`；缺少此標記時驗證器拒絕重建資料表。部署者應保留此綁定與 `30 20 * * SUN` 排程。完整設計、來源內容疑義與備份演練見 [一致性更新](../docs/updates/2026-11-26-consistency.md)。
