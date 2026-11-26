@@ -34,6 +34,39 @@ function server(rows,{fail=()=>false}={}){
 }
 async function waitFor(predicate){for(let i=0;i<80&&!predicate();i++)await tick();assert.ok(predicate());}
 
+for(const source of ['community','builtin'])test(source+' concurrent save shows differences and requires editing from the latest revision',async()=>{
+ const store=storage(),ui=dom(store),row={...bank(1)[0],source,key:source+':os:q0',revision:1,sourceHash:'base'},posts=[];
+ let revision=1;
+ const item=()=>({...row,revision,question:{stem:row.stem,type:'填空題',category:'測試',answer:revision===1?'原答案':'他人答案<script>bad()</script>',options:[],images:[]}});
+ globalThis.fetch=async(raw,opts={})=>{
+  const url=new URL(raw);
+  if(opts.method==='POST'){
+   const body=JSON.parse(opts.body);posts.push(body);
+   if(body.revision!==revision)return new Response(JSON.stringify({error:'這道題已被更新'}),{status:409});
+   revision++;return new Response(JSON.stringify({item:item()}));
+  }
+  if(url.pathname.endsWith('/item'))return new Response(JSON.stringify({item:item()}));
+  return new Response(JSON.stringify({items:[row],total:1,counts:{all:1,modified:1,deleted:0},units:[{id:'basics',label:'基礎'}]}));
+ };
+ const manager=setupLibraryManager();await manager.show('all');ui.document.querySelector('[data-open]').click();
+ await waitFor(()=>ui.$('managedQuestionForm'));
+ const wireForm=()=>{const form=ui.$('managedQuestionForm');Object.defineProperty(form,'elements',{value:{namedItem:name=>form.querySelector(`[name="${name}"]`)}});form.reportValidity=()=>true;return form;};
+ let form=wireForm();form.elements.namedItem('answer').value='我的答案';ui.fire(form,'input');revision=2;
+ ui.$('saveQuestion').click();await waitFor(()=>ui.$('editConflict')&&!ui.$('saveQuestion').disabled);
+ assert.equal(posts.length,1);assert.equal(posts[0].revision,1);
+ assert.match(ui.$('editConflict').textContent,/我的答案/);assert.match(ui.$('editConflict').textContent,/他人答案/);
+ assert.equal(ui.$('editConflict').querySelector('script'),null);
+ assert.equal(form.elements.namedItem('answer').value,'我的答案');
+ assert.match(store.getItem('course-library.manager-drafts.v2.'),/我的答案/);
+ ui.document.querySelector('[data-conflict-latest]').click();
+ form=wireForm();assert.match(form.elements.namedItem('answer').value,/^他人答案/);
+ assert.equal(posts.length,1);assert.ok(ui.$('editConflict'));
+ form.elements.namedItem('answer').value='手動整合答案';ui.fire(form,'input');ui.$('saveQuestion').click();
+ await waitFor(()=>posts.length===2&&!ui.$('saveQuestion').disabled);
+ assert.equal(posts[1].revision,2);
+ assert.equal(source==='builtin'?posts[1].question.answer:posts[1].payload.questions[0].answer,'手動整合答案');
+});
+
 test('select all matching includes unloaded questions; bulk removal is recoverable in place',async()=>{
  const ui=dom(),rows=bank(),s=server(rows),manager=setupLibraryManager();await manager.show('all');
  assert.equal(ui.document.querySelectorAll('[data-select]').length,25);

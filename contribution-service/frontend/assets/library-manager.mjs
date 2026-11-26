@@ -166,7 +166,7 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
     while(end<value.length-start&&end<other.length-start&&value[value.length-1-end]===other[other.length-1-end])end++;
     return esc(value.slice(0,start))+'<mark>'+esc(value.slice(start,value.length-end))+'</mark>'+esc(end?value.slice(-end):'');
   }
-  function diffMarkup(record){const names={unit:'所屬單元',stem:'題目',translation:'題幹翻譯',type:'題型',category:'分類',options:'選項',optionTranslations:'選項翻譯',answer:'正確答案',explanation:'解析',note:'備註',images:'題圖'};const keys=Object.keys(names).filter(k=>JSON.stringify(record.before[k]??'')!==JSON.stringify(record.after[k]??''));const show=value=>Array.isArray(value)?value.join('\n'):String(value||'（空白）');return keys.length?keys.map(k=>`<section class="field-diff"><h4>${names[k]}</h4><div class="diff-columns"><div><strong>修改前</strong><p>${highlightChange(show(record.before[k]),show(record.after[k]))}</p></div><div><strong>修改後</strong><p>${highlightChange(show(record.after[k]),show(record.before[k]))}</p></div></div></section>`).join(''):'<p class="muted">題目內容相同；這次紀錄保留了狀態或版本變更。</p>';}
+  function diffMarkup(record){const names={unit:'所屬單元',stem:'題目',translation:'題幹翻譯',type:'題型',category:'分類',options:'選項',optionTranslations:'選項翻譯',answer:'正確答案',answerProvided:'已確認並提供答案',explanation:'解析',note:'備註',images:'題圖'};const keys=Object.keys(names).filter(k=>JSON.stringify(record.before[k]??'')!==JSON.stringify(record.after[k]??''));const show=value=>Array.isArray(value)?value.join('\n'):String(value||'（空白）');return keys.length?keys.map(k=>`<section class="field-diff"><h4>${names[k]}</h4><div class="diff-columns"><div><strong>修改前</strong><p>${highlightChange(show(record.before[k]),show(record.after[k]))}</p></div><div><strong>修改後</strong><p>${highlightChange(show(record.after[k]),show(record.before[k]))}</p></div></div></section>`).join(''):'<p class="muted">題目內容相同；這次紀錄保留了狀態或版本變更。</p>';}
   async function showHistory(){if(history){renderHistory();return;}const request=detailSequence;$('historyPanel').innerHTML='<p role="status">正在載入修改歷史…</p>';try{const data=await api(historyPath(current),{signal:detailController.signal});if(request!==detailSequence)return;history=normalizedHistory(data.items);renderHistory();}catch(error){if(error.name!=='AbortError')$('historyPanel').innerHTML=`<p class="error">${esc(error.message)}</p><button type="button" class="button secondary" data-retry-history>重新載入歷史</button>`;}}
   function renderHistory() {
     const panel = $('historyPanel');
@@ -192,6 +192,30 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
     try{const item=await fetchItem(row);if(request!==detailSequence)return;current=item;shell(item,tab);await selectTab(tab);if(tab==='edit' && $('reviewTarget'))void compareTarget();$('questionDialogTitle').focus({preventScroll:true});if(recover)await action('recover');if(remove)await action('remove');}catch(error){if(error.name!=='AbortError')dialog.innerHTML=`<div class="editor-header"><h2 id="questionDialogTitle">載入未完成</h2><button type="button" class="button secondary" data-close>返回清單</button></div><p class="error">${esc(error.message)}</p>`;}}
   function clearDraft(){delete drafts[keyOf(current)];try{localStorage.setItem(draftKey,JSON.stringify(drafts));}catch{}dirty=false;}
   function endpoint(){return current.source==='builtin'?`/api/manage/builtin-questions/${current.course}/${encodeURIComponent(current.id)}`:`/api/manage/questions/${encodeURIComponent(current.id)}`;}
+  async function showEditConflict(){
+    const request=detailSequence, original=current;
+    const latest=await fetchItem(original,true,detailController?.signal);
+    if(request!==detailSequence||current!==original)return;
+    if(latest.revision===original.revision&&latest.sourceHash===original.sourceHash)return;
+    renderEdit();
+    const mine={...read(),unit:$('managedQuestionForm').elements.namedItem('unit')?.value||original.unit};
+    const note=$('managedQuestionForm').elements.namedItem('editNote').value;
+    dirty=true;persist();
+    $('editConflict')?.remove();
+    const section=document.createElement('section');section.id='editConflict';section.className='history-record';
+    section.innerHTML=`<h3 tabindex="-1">這道題已被其他人更新</h3><p>你的編輯尚未儲存。左側是你的編輯，右側是題庫最新版本（版本 ${latest.revision}）。請先下載或核對，再以最新版本繼續編輯。</p>${diffMarkup({before:mine,after:{...latest.question,unit:latest.unit}}).replaceAll('<strong>修改前</strong>','<strong>你的編輯</strong>').replaceAll('<strong>修改後</strong>','<strong>題庫最新版本</strong>')}<button type="button" class="button secondary" data-conflict-download>下載我的編輯</button><button type="button" class="button secondary" data-conflict-latest>以最新版本繼續編輯</button>`;
+    $('editPanel').prepend(section);
+    section.querySelector('[data-conflict-download]').addEventListener('click',()=>downloadJSON({question:mine,note,revision:original.revision,sourceHash:original.sourceHash},'題目衝突草稿.json'));
+    section.querySelector('[data-conflict-latest]').addEventListener('click',()=>{
+      if(busy)return;
+      // Keep the comparison and original draft available while starting from the latest content.
+      current=latest;history=null;
+      $('managedQuestionForm').remove();renderEdit();$('editPanel').prepend(section);
+      section.querySelector('[data-conflict-latest]').remove();
+      dialogStatus('已載入最新版本。請參照上方差異手動整合，再按儲存；儲存時仍會檢查版本。');
+    });
+    await selectTab('edit');section.querySelector('h3').focus();
+  }
   async function action(kind,historyIndex){
     if(busy||actionPending||!current)return;
     const form=$('managedQuestionForm');
@@ -237,6 +261,9 @@ export function setupLibraryManager({userId='',onChanged=()=>{}}={}) {
     }catch(error){
       dialogStatus(error.message+' 編輯內容與草稿仍保留。',true);
       if(error.details?.code==='similar_questions'&&$('managedQuestionForm'))showSimilar($('managedQuestionForm').querySelector('.similar-warning'),error.details.possibleDuplicates);
+      if(error.status===409&&kind==='save'){
+        try{await showEditConflict();}catch(conflictError){dialogStatus(error.message+' 目前無法載入版本差異：'+conflictError.message+'；編輯內容與草稿仍保留，可稍後再試。',true);}
+      }
     }finally{
       actionPending=false;busy=false;dialog.removeAttribute('aria-busy');for(const n of dialog.querySelectorAll('button'))n.disabled=false;selectionStatus();
     }
