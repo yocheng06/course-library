@@ -1,0 +1,2719 @@
+{
+  "course": "algorithms",
+  "unit": "L9",
+  "title": "雜湊表",
+  "en": "Hash Tables",
+  "questionCount": 60,
+  "sources": [
+    "https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-fall-2011/resources/lecture-10-open-addressing-cryptographic-hashing/",
+    "https://ocw.mit.edu/courses/6-046j-design-and-analysis-of-algorithms-spring-2015/resources/lecture-8-randomization-universal-perfect-hashing/"
+  ],
+  "questions": [
+    {
+      "id": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-1",
+      "revision": 3,
+      "before": {
+        "bookmarkId": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-1",
+        "category": "線性探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n線性探測（Linear Probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[3] =   ____________ \nA[4] =   ____________",
+        "opts": [],
+        "a": "14/15",
+        "ex": "依插入順序逐一處理。索引用 (k + i) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n31：9\n22：0\n15：4\n17：6\n88：0 → 1\n14：3\n28：6 → 7\n59：4 → 5\n\n由 A[0] 到 A[10] 依序為 22、88、空、14、15、59、17、28、空、31、10。\n\n依填空順序取值：A[3]=14，A[4]=15。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "找到相似題，但文字或條件不同，未直接套用答案。",
+          "references": [
+            "community-195e73dc-491e-4a91-8c57-eb1d042735ab-9"
+          ],
+          "createdAt": 1795581507802,
+          "resolvedAt": 1795621692000
+        }
+      },
+      "after": {
+        "bookmarkId": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-1",
+        "category": "線性探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n線性探測（Linear Probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[3] =   ____________ \nA[4] =   ____________",
+        "opts": [],
+        "a": "14/15",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i) mod 11 計算下一個位置。\n碰撞後每次往後一格，超過末格就繞回第 0 格。\n\n逐鍵計算：\n鍵 10：\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+1) mod 11=1，空槽，放入此鍵\n\n鍵 14：\ni=0，(14+0) mod 11=3，空槽，放入此鍵\n\n鍵 28：\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+1) mod 11=7，空槽，放入此鍵\n\n鍵 59：\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+1) mod 11=5，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=88，A[2]=空，A[3]=14，A[4]=15，A[5]=59，A[6]=17，A[7]=28，A[8]=空，A[9]=31，A[10]=10\n\n依題目填空順序讀表：A[3]=14，A[4]=15，因此依序填 14/15。不要把陣列索引順序與鍵的插入順序混在一起。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "找到相似題，但文字或條件不同，未直接套用答案。",
+          "references": [
+            "community-195e73dc-491e-4a91-8c57-eb1d042735ab-9"
+          ],
+          "createdAt": 1795581507802,
+          "resolvedAt": 1795621692000
+        }
+      }
+    },
+    {
+      "id": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-2",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-2",
+        "category": "負載因子與效能",
+        "type": "多選題",
+        "q": "關於雜湊表的負載因子 α，正確的有？",
+        "opts": [
+          "開放定址法 α 必須小於 1",
+          "α = n/m",
+          "α 代表每個位置平均儲存的元素個數",
+          "鏈結法 α 可以大於 1"
+        ],
+        "a": "A、B、C、D",
+        "ex": "α=n/m，表示把表內鍵數平均分到每個槽的數量。鏈結法允許每個槽接多個鍵，所以可超過 1。開放定址最多 α=1，但滿表時已不能插入；題庫的「小於 1」應讀為仍可插入、正常維持負載的條件。",
+        "choiceKey": "ABCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-2",
+        "category": "負載因子與效能",
+        "type": "多選題",
+        "q": "關於雜湊表的負載因子 α，正確的有？",
+        "opts": [
+          "開放定址法 α 必須小於 1",
+          "α = n/m",
+          "α 代表每個位置平均儲存的元素個數",
+          "鏈結法 α 可以大於 1"
+        ],
+        "a": "A、B、C、D",
+        "ex": "α=n/m，表示把表內鍵數平均分到每個槽的數量。鏈結法允許每個槽接多個鍵，所以可超過 1。開放定址最多 α=1，但滿表時已不能插入；題庫的「小於 1」應讀為仍可插入、正常維持負載的條件。\n\n例如 n=15、m=10，α=1.5，意思是平均每桶 1.5 個鍵。鏈結法可透過節點保存；開放定址只有 10 格，存不下 15 個。題目中的「小於 1」是在仍能插入並維持可用空槽的情境下討論。\n\n逐項核對：\n「開放定址法 α 必須小於 1」：要繼續插入就必須有空槽，需 α<1；嚴格的容量上界則為 α≤1，滿表 α=1 是可能但無法再插入的狀態。\n「α = n/m」：依定義以實際元素數 n 除以槽數 m。\n「α 代表每個位置平均儲存的元素個數」：對鏈結法可讀成每桶平均元素數；對開放定址則等於被佔用槽的比例。\n「鏈結法 α 可以大於 1」：同桶可以串接多個元素，因此元素數能超過槽數；搜尋成本仍可能隨負載上升。",
+        "choiceKey": "ABCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-3",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-3",
+        "category": "雜湊基本觀念與應用",
+        "type": "單選題",
+        "q": "雜湊表（Hash Table）的主要目的是為了實現什麼操作的平均 O(1) 效能？",
+        "opts": [
+          "排序 (Sorting)",
+          "圖形搜尋 (Graph searching)",
+          "字典運算 (Dictionary operations)",
+          "樹狀遍歷 (Tree traversal)"
+        ],
+        "a": "C",
+        "ex": "字典運算包括依鍵搜尋、插入與刪除。雜湊分布合理且負載受控時，這些操作可達平均常數時間。排序需處理次序，圖形搜尋與樹遍歷需依結構走訪，不能靠一次雜湊完成。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-3",
+        "category": "雜湊基本觀念與應用",
+        "type": "單選題",
+        "q": "雜湊表（Hash Table）的主要目的是為了實現什麼操作的平均 O(1) 效能？",
+        "opts": [
+          "排序 (Sorting)",
+          "圖形搜尋 (Graph searching)",
+          "字典運算 (Dictionary operations)",
+          "樹狀遍歷 (Tree traversal)"
+        ],
+        "a": "C",
+        "ex": "字典運算包括依鍵搜尋、插入與刪除。雜湊分布合理且負載受控時，這些操作可達平均常數時間。排序需處理次序，圖形搜尋與樹遍歷需依結構走訪，不能靠一次雜湊完成。\n\n像字典拿「單字」找「解釋」，雜湊表拿鍵找值；也能新增鍵值或刪除鍵。在分布合理且負載受控制時，預期只查常數個槽或節點，但最壞情況仍可能退化。\n\n逐項核對：\n「排序 (Sorting)」：雜湊位置沒有大小順序，無法靠一次查找完成排序。\n「圖形搜尋 (Graph searching)」：走訪圖需處理點與邊；即使使用雜湊表記錄已訪問點，也不會讓整個搜尋變成常數時間。\n「字典運算 (Dictionary operations)」：依鍵搜尋、插入、刪除，是雜湊表主要支援的操作。\n「樹狀遍歷 (Tree traversal)」：遍歷整棵樹仍須走訪節點，不能以一次雜湊取代。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-4",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-4",
+        "category": "雜湊函數與設計",
+        "type": "多選題",
+        "q": "雜湊函數 h(k) = k mod m 中的 m？",
+        "opts": [
+          "影響分布效果",
+          "可以選擇質數",
+          "必須大於鍵值範圍",
+          "是雜湊表的大小"
+        ],
+        "a": "A、B、D",
+        "ex": "m 是槽數。取餘數會把鍵分配到 0～m−1，所以 m 會影響分布，可選合適的質數。鍵值範圍可以遠大於 m；雜湊正是把大鍵值空間映射到較小的表。",
+        "choiceKey": "ABD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-4",
+        "category": "雜湊函數與設計",
+        "type": "多選題",
+        "q": "雜湊函數 h(k) = k mod m 中的 m？",
+        "opts": [
+          "影響分布效果",
+          "可以選擇質數",
+          "必須大於鍵值範圍",
+          "是雜湊表的大小"
+        ],
+        "a": "A、B、D",
+        "ex": "m 是槽數。取餘數會把鍵分配到 0～m−1，所以 m 會影響分布，可選合適的質數。鍵值範圍可以遠大於 m；雜湊正是把大鍵值空間映射到較小的表。\n\nh(k)=k mod m 的餘數必在 0～m−1，因此剛好對應 m 格表。像鍵 1000 也能放入 m=11 的表，索引是 10；不需要準備 1001 格。\n\n逐項核對：\n「影響分布效果」：改變 m 會改變餘數，與鍵的規律共同影響碰撞分布。\n「可以選擇質數」：合適的質數常可避開共同因數造成的集中，但不保證零碰撞。\n「必須大於鍵值範圍」：鍵值可以遠大於表長，這正是把大鍵空間映到較小索引範圍的用途。\n「是雜湊表的大小」：m 個可能餘數對應 m 格，故 m 是表的槽數。",
+        "choiceKey": "ABD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-5",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-5",
+        "category": "碰撞處理與鏈結法",
+        "type": "單選題",
+        "q": "在鏈結法中，若所有鍵值都雜湊到同一個位置，搜尋時間複雜度為？",
+        "opts": [
+          "Θ(n)",
+          "Θ(1)",
+          "Θ(n²)",
+          "Θ(log n)"
+        ],
+        "a": "A",
+        "ex": "所有鍵都落在同一桶時，該桶串列長度為 n。最壞要檢查整條串列，例如找不存在的鍵，成本為 Θ(n)。資料沒有排序或樹結構，無法做二分搜尋。",
+        "choiceKey": "A",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-5",
+        "category": "碰撞處理與鏈結法",
+        "type": "單選題",
+        "q": "在鏈結法中，若所有鍵值都雜湊到同一個位置，搜尋時間複雜度為？",
+        "opts": [
+          "Θ(n)",
+          "Θ(1)",
+          "Θ(n²)",
+          "Θ(log n)"
+        ],
+        "a": "A",
+        "ex": "所有鍵都落在同一桶時，該桶串列長度為 n。最壞要檢查整條串列，例如找不存在的鍵，成本為 Θ(n)。資料沒有排序或樹結構，無法做二分搜尋。\n\n若 n 個鍵全落在同一桶，串列長度就是 n。找不存在的鍵要比完 n 個節點；成功搜尋若各節點等可能，平均約比 (n+1)/2 次，也隨 n 線性增加。找到第一個節點的特例不能代表最壞成本。\n\n逐項核對：\n「Θ(n)」：需要沿串列逐個檢查，最壞或等機率成功搜尋的平均成本都線性增加。\n「Θ(1)」：只在找到第一個節點等特例成立，無法保證所有搜尋都固定次數。\n「Θ(n²)」：一次搜尋沒有雙層遍歷，每個節點至多檢查一次，不需平方次。\n「Θ(log n)」：普通鏈結串列沒有平衡樹或隨機存取結構，不能每次排除一半。",
+        "choiceKey": "A",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-6",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-6",
+        "category": "線性探測",
+        "type": "單選題",
+        "q": "在線性探測中，若發生衝突，下一個檢查的位置是？",
+        "opts": [
+          "h(k, i+1) = (h(k, i) + 1) mod m",
+          "隨機位置",
+          "h(k, i) + i²",
+          "h(k, i) + i*h²(k)"
+        ],
+        "a": "A",
+        "ex": "下一槽是 (目前槽+1) mod m。例如從第 m−1 格往前一格會繞回第 0 格。加平方位移屬二次探測，使用第二雜湊函數決定步長則是雙重雜湊。",
+        "choiceKey": "A",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-10a5c455-d3b4-411e-8d5d-c96554917d48-6",
+        "category": "線性探測",
+        "type": "單選題",
+        "q": "在線性探測中，若發生衝突，下一個檢查的位置是？",
+        "opts": [
+          "h(k, i+1) = (h(k, i) + 1) mod m",
+          "隨機位置",
+          "h(k, i) + i²",
+          "h(k, i) + i*h²(k)"
+        ],
+        "a": "A",
+        "ex": "下一槽是 (目前槽+1) mod m。例如從第 m−1 格往前一格會繞回第 0 格。加平方位移屬二次探測，使用第二雜湊函數決定步長則是雙重雜湊。\n\n若 m=11，目前索引為 10，下一次就是 (10+1) mod 11=0；再碰撞則到 1。必須取模才能從表尾繞回表頭。\n\n逐項核對：\n「h(k, i+1) = (h(k, i) + 1) mod m」：每次把目前索引加 1 並取模，符合線性探測。\n「隨機位置」：線性探測的路徑由公式決定，不是每次任意抽一格。\n「h(k, i) + i²」：二次探測需要依探測編號套用平方偏移，並非固定往後一格；通常還應對起點計算並取模。\n「h(k, i) + i*h²(k)」：這在描述第二函數所決定的步長，不是線性探測固定步長 1。",
+        "choiceKey": "A",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-1",
+      "revision": 3,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-1",
+        "category": "二次探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 c1 = 1 與 c2 = 3 的二次探測（quadratic probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[4] =   ____________ \nA[9] =   ____________",
+        "opts": [],
+        "a": "15/31",
+        "ex": "依插入順序逐一處理。索引用 (k + 1i + 3i²) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n31：9\n22：0\n15：4\n17：6\n88：0 → 4 → 3\n14：3 → 7\n28：6 → 10 → 9 → 3 → 8\n59：4 → 8 → 7 → 1\n\n由 A[0] 到 A[10] 依序為 22、59、空、88、15、空、17、14、28、31、10。\n\n依填空順序取值：A[4]=15，A[9]=31。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "找到相似題，但文字或條件不同，未直接套用答案。",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-21"
+          ],
+          "createdAt": 1795573875022,
+          "resolvedAt": 1795621692000
+        }
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-1",
+        "category": "二次探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 c1 = 1 與 c2 = 3 的二次探測（quadratic probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[4] =   ____________ \nA[9] =   ____________",
+        "opts": [],
+        "a": "15/31",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+1i+3i²) mod 11 計算下一個位置。\n係數須逐字看題目；c2=3 與 c2=5 會得到不同結果。i² 是探測編號的平方，不能把鍵值平方。\n\n逐鍵計算：\n鍵 10：\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+4) mod 11=4，已有 15，繼續探測\ni=2，(88+14) mod 11=3，空槽，放入此鍵\n\n鍵 14：\ni=0，(14+0) mod 11=3，已有 88，繼續探測\ni=1，(14+4) mod 11=7，空槽，放入此鍵\n\n鍵 28：\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+4) mod 11=10，已有 10，繼續探測\ni=2，(28+14) mod 11=9，已有 31，繼續探測\ni=3，(28+30) mod 11=3，已有 88，繼續探測\ni=4，(28+52) mod 11=3，已有 88，繼續探測\ni=5，(28+80) mod 11=9，已有 31，繼續探測\ni=6，(28+114) mod 11=10，已有 10，繼續探測\ni=7，(28+154) mod 11=6，已有 17，繼續探測\ni=8，(28+200) mod 11=8，空槽，放入此鍵\n\n鍵 59：\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+4) mod 11=8，已有 28，繼續探測\ni=2，(59+14) mod 11=7，已有 14，繼續探測\ni=3，(59+30) mod 11=1，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=59，A[2]=空，A[3]=88，A[4]=15，A[5]=空，A[6]=17，A[7]=14，A[8]=28，A[9]=31，A[10]=10\n\n依題目填空順序讀表：A[4]=15，A[9]=31，因此依序填 15/31。不要把陣列索引順序與鍵的插入順序混在一起。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "找到相似題，但文字或條件不同，未直接套用答案。",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-21"
+          ],
+          "createdAt": 1795573875022,
+          "resolvedAt": 1795621692000
+        }
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-10",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-10",
+        "category": "線性探測",
+        "type": "多選題",
+        "q": "下列關於線性探測的敘述，正確的有？",
+        "opts": [
+          "容易發生群聚效應 (Primary clustering)",
+          "在 α 接近 1 時效能急劇下降",
+          "是一種開放定址法",
+          "探測序列與關鍵字有關"
+        ],
+        "a": "A、B、C",
+        "ex": "線性探測先用鍵決定起點，碰撞後固定每次前進一格，屬開放定址法。連續佔用區會吸收更多插入，形成一次群聚；α 接近 1 時空槽稀少，探測變長。若「探測序列與關鍵字有關」指起點則有關，本題答案採的是碰撞後位移規則固定的讀法。",
+        "choiceKey": "ABC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-10",
+        "category": "線性探測",
+        "type": "多選題",
+        "q": "下列關於線性探測的敘述，正確的有？",
+        "opts": [
+          "容易發生群聚效應 (Primary clustering)",
+          "在 α 接近 1 時效能急劇下降",
+          "是一種開放定址法",
+          "探測序列與關鍵字有關"
+        ],
+        "a": "A、B、C",
+        "ex": "線性探測先用鍵決定起點，碰撞後固定每次前進一格，屬開放定址法。連續佔用區會吸收更多插入，形成一次群聚；α 接近 1 時空槽稀少，探測變長。若「探測序列與關鍵字有關」指起點則有關，本題答案採的是碰撞後位移規則固定的讀法。\n\n例如 m=11，槽 3、4、5 已連續被佔用，下一個起點落在這段區域的鍵仍會往後擠到 6，使群聚繼續擴大。表越滿，可用空槽越少，掃過的連續區域通常越長。\n\n逐項核對：\n「容易發生群聚效應 (Primary clustering)」：連續佔用區會吸收更多插入，形成一次群聚。\n「在 α 接近 1 時效能急劇下降」：α 越接近 1，越難找到空槽，尤其失敗搜尋與插入可能探測很久。\n「是一種開放定址法」：資料直接放在表內，碰撞後找其他槽，符合開放定址的定義。\n「探測序列與關鍵字有關」：這句有歧義：完整序列 h(k,i)=(h′(k)+i) mod m 的起點確實與鍵有關，不能說整條序列與鍵無關。與鍵無關的是固定的位移 i。本題收錄答案未選此敘述，解析保留原答案並指出兩種讀法。",
+        "choiceKey": "ABC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-11",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-11",
+        "category": "雜湊函數與設計",
+        "type": "單選題",
+        "q": "雜湊函數 h(k) = floor(m(kA mod 1)) 屬於哪種方法？",
+        "opts": [
+          "直接定址法 (Direct addressing)",
+          "除法雜湊法 (Division method)",
+          "乘法雜湊法 (Multiplication method)",
+          "全域雜湊法 (Universal hashing)"
+        ],
+        "a": "C",
+        "ex": "先算 kA，再取 kA mod 1 的小數部分，乘上 m 後向下取整。這是乘法雜湊。除法法取的是 k mod m；直接定址用鍵直接定位；全域雜湊則描述如何選函數。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-11",
+        "category": "雜湊函數與設計",
+        "type": "單選題",
+        "q": "雜湊函數 h(k) = floor(m(kA mod 1)) 屬於哪種方法？",
+        "opts": [
+          "直接定址法 (Direct addressing)",
+          "除法雜湊法 (Division method)",
+          "乘法雜湊法 (Multiplication method)",
+          "全域雜湊法 (Universal hashing)"
+        ],
+        "a": "C",
+        "ex": "先算 kA，再取 kA mod 1 的小數部分，乘上 m 後向下取整。這是乘法雜湊。除法法取的是 k mod m；直接定址用鍵直接定位；全域雜湊則描述如何選函數。\n\n以 m=16、k=10、常數取 A≈0.618 為例：kA≈6.18，kA mod 1≈0.18，16×0.18≈2.88，floor 後索引為 2。此例是示範步驟，實際數值要使用題目指定的常數精度。\n\n逐項核對：\n「直接定址法 (Direct addressing)」：直接定址用鍵直接定位，不是先乘常數再取小數。\n「除法雜湊法 (Division method)」：除法法取 k mod m，與此式的「乘常數、取小數」不同。\n「乘法雜湊法 (Multiplication method)」：公式先乘 kA，再取小數部分並縮放到 m 格，是乘法雜湊的標準形式。\n「全域雜湊法 (Universal hashing)」：全域雜湊說明從函數族隨機選函數；題幹沒有給出隨機選族的條件。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-12",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-12",
+        "category": "雜湊基本觀念與應用",
+        "type": "單選題",
+        "q": "假設雜湊表長度為 m，直接定址法（Direct addressing）適用於？",
+        "opts": [
+          "資料均勻分佈",
+          "鍵值空間 U 很小",
+          "資料無序",
+          "鍵值空間 U 極大"
+        ],
+        "a": "B",
+        "ex": "直接定址替每個可能的鍵預留一格，因此空間大小取決於整個 U，而非只取決於已存的鍵數。U 小時才適合；資料是否排序或均勻分布不會減少這筆空間需求。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-12",
+        "category": "雜湊基本觀念與應用",
+        "type": "單選題",
+        "q": "假設雜湊表長度為 m，直接定址法（Direct addressing）適用於？",
+        "opts": [
+          "資料均勻分佈",
+          "鍵值空間 U 很小",
+          "資料無序",
+          "鍵值空間 U 極大"
+        ],
+        "a": "B",
+        "ex": "直接定址替每個可能的鍵預留一格，因此空間大小取決於整個 U，而非只取決於已存的鍵數。U 小時才適合；資料是否排序或均勻分布不會減少這筆空間需求。\n\n直接定址相當於「每個可能的學號都先準備一格」。若只可能有 100 個鍵，100 格很方便；若可能有十億種鍵而實際只存十個，配置十億格就很浪費。\n\n逐項核對：\n「資料均勻分佈」：分布均勻不會縮小所有可能鍵所需的槽數。\n「鍵值空間 U 很小」：可能的鍵少，才容易直接替每個鍵配置唯一位置。\n「資料無序」：資料有沒有順序不會改變直接定址的空間需求。\n「鍵值空間 U 極大」：可能鍵極多時，即使實際資料很少，也必須面對龐大的直接定址空間。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-13",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-13",
+        "category": "雜湊基本觀念與應用",
+        "type": "多選題",
+        "q": "下列哪些應用場景適合使用雜湊表？",
+        "opts": [
+          "符號表 (Symbol tables)",
+          "快取系統 (Caching)",
+          "二維陣列排序",
+          "編譯器的變數儲存"
+        ],
+        "a": "A、B、D",
+        "ex": "符號表、以鍵查找的快取、以及編譯器用變數名稱找屬性，都需要依鍵存取。雜湊表適合這些查找；若要按大小排序二維陣列，雜湊索引不會提供鍵的順序。",
+        "choiceKey": "ABD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-13",
+        "category": "雜湊基本觀念與應用",
+        "type": "多選題",
+        "q": "下列哪些應用場景適合使用雜湊表？",
+        "opts": [
+          "符號表 (Symbol tables)",
+          "快取系統 (Caching)",
+          "二維陣列排序",
+          "編譯器的變數儲存"
+        ],
+        "a": "A、B、D",
+        "ex": "符號表、以鍵查找的快取、以及編譯器用變數名稱找屬性，都需要依鍵存取。雜湊表適合這些查找；若要按大小排序二維陣列，雜湊索引不會提供鍵的順序。\n\n判斷方式是問「是否經常拿一個鍵找對應資料」。例如用變數名找型別、用網址找快取，都能先算索引定位；要把整批資料由小到大排好，則還需要排序方法。\n\n逐項核對：\n「符號表 (Symbol tables)」：用名稱查找符號的屬性，符合鍵→值的字典操作。\n「快取系統 (Caching)」：以網址或其他鍵快速尋找已存內容，是常見用途。\n「二維陣列排序」：雜湊位置不保留大小順序，不能靠雜湊表本身完成陣列排序。\n「編譯器的變數儲存」：用變數名稱查詢位址、型別等屬性，適合放在雜湊式符號表。",
+        "choiceKey": "ABD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-14",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-14",
+        "category": "二次探測",
+        "type": "填空題",
+        "q": "____________ 探測序列函數是 i^2 (請用小寫英文回答)",
+        "opts": [],
+        "a": "quadratic",
+        "ex": "quadratic 表示二次。典型位移是 c₁i+c₂i²，辨認點是 i² 項。題目以 i² 表示簡式；一般二次探測也可以同時有線性項。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-14",
+        "category": "二次探測",
+        "type": "填空題",
+        "q": "____________ 探測序列函數是 i^2 (請用小寫英文回答)",
+        "opts": [],
+        "a": "quadratic",
+        "ex": "填 quadratic，意思是「二次」。先看探測編號 i 的最高次方：簡式偏移 i²，在 i=0、1、2、3 時是 0、1、4、9；若 m=11、起點 2，實際索引是 2、3、6、0。一般公式為 (h′(k)+c₁i+c₂i²) mod m，所以同時有一次項也仍可稱二次探測。不要把平方施加在鍵 k 上，也不要把平方偏移當成每次固定往後一格；後者是線性探測。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-15",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-15",
+        "category": "開放定址法",
+        "type": "單選題",
+        "q": "下列何者是雜湊表刪除（Delete）操作的潛在問題？",
+        "opts": [
+          "鏈結法會導致無窮迴圈",
+          "需要額外空間",
+          "排序陣列無法運作",
+          "開放定址法需標記已刪除位置"
+        ],
+        "a": "D",
+        "ex": "開放定址搜尋遇到從未使用的空槽會停止。如果刪除時直接清空，後面因碰撞而移到其他槽的鍵可能找不到。留下「已刪除」標記可讓搜尋繼續，插入時則可重用該槽。",
+        "choiceKey": "D",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-15",
+        "category": "開放定址法",
+        "type": "單選題",
+        "q": "下列何者是雜湊表刪除（Delete）操作的潛在問題？",
+        "opts": [
+          "鏈結法會導致無窮迴圈",
+          "需要額外空間",
+          "排序陣列無法運作",
+          "開放定址法需標記已刪除位置"
+        ],
+        "a": "D",
+        "ex": "開放定址搜尋遇到從未使用的空槽會停止。如果刪除時直接清空，後面因碰撞而移到其他槽的鍵可能找不到。留下「已刪除」標記可讓搜尋繼續，插入時則可重用該槽。\n\n設 m=11，先插入 10 到槽 10，再插入 21，因槽 10 被佔用而放到槽 0。刪掉 10 後，搜尋 21 仍從槽 10 開始；若把它標成「從未用過」，搜尋會提前停止，錯認 21 不存在。刪除標記讓搜尋繼續走到槽 0，插入時則可再利用該槽。\n\n逐項核對：\n「鏈結法會導致無窮迴圈」：正確移除串列節點不會必然形成無窮迴圈，那是連結操作錯誤才可能造成的程式問題。\n「需要額外空間」：刪除不一定要增加新的資料空間；本題真正的問題是必須保留探測路徑的連續性。\n「排序陣列無法運作」：排序陣列不是題目所描述的雜湊刪除問題。\n「開放定址法需標記已刪除位置」：標記已刪除而不是未使用，才能避免截斷搜尋路徑。",
+        "choiceKey": "D",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-16",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-16",
+        "category": "碰撞處理與鏈結法",
+        "type": "多選題",
+        "q": "解決雜湊衝突的技術有哪些？",
+        "opts": [
+          "完全雜湊 (Perfect hashing)",
+          "鏈結法 (Chaining)",
+          "開放定址法 (Open addressing)",
+          "直接定址法 (Direct addressing)"
+        ],
+        "a": "A、B、C",
+        "ex": "鏈結法把碰撞的鍵放在同一桶內；開放定址依探測序列另找位置。完全雜湊可為固定鍵集合建立無碰撞查找，典型二層設計會在碰撞的桶內配置次級表。直接定址每個鍵各一格，是用空間避開雜湊碰撞的另一種設計。",
+        "choiceKey": "ABC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-16",
+        "category": "碰撞處理與鏈結法",
+        "type": "多選題",
+        "q": "解決雜湊衝突的技術有哪些？",
+        "opts": [
+          "完全雜湊 (Perfect hashing)",
+          "鏈結法 (Chaining)",
+          "開放定址法 (Open addressing)",
+          "直接定址法 (Direct addressing)"
+        ],
+        "a": "A、B、C",
+        "ex": "鏈結法把碰撞的鍵放在同一桶內；開放定址依探測序列另找位置。完全雜湊可為固定鍵集合建立無碰撞查找，典型二層設計會在碰撞的桶內配置次級表。直接定址每個鍵各一格，是用空間避開雜湊碰撞的另一種設計。\n\n三種做法分開記：鏈結法把同桶鍵串起來；開放定址改找表內其他槽；完全雜湊則針對固定鍵集合選擇函數／次級表，使查找位置沒有碰撞。它們的建表成本與適用情境並不相同。\n\n逐項核對：\n「完全雜湊 (Perfect hashing)」：靜態完全雜湊可為固定集合建造無碰撞查找，典型做法在碰撞桶內再建立第二層表。\n「鏈結法 (Chaining)」：同槽的鍵放在同一串列，搜尋時逐一比較。\n「開放定址法 (Open addressing)」：碰撞後沿探測序列找另一個槽，資料仍放在表內。\n「直接定址法 (Direct addressing)」：每個可能鍵直接有自己的格子；它不是把不同鍵映射到同一格後再處理碰撞的技術。",
+        "choiceKey": "ABC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-2",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-2",
+        "category": "碰撞處理與鏈結法",
+        "type": "多選題",
+        "q": "雜湊技術中，常用的碰撞處理策略比較？",
+        "opts": [
+          "鏈結法需要額外指標空間",
+          "開放定址法支援刪除操作較簡單",
+          "鏈結法適合處理高負載因子",
+          "開放定址法適合空間受限應用"
+        ],
+        "a": "A、C、D",
+        "ex": "鏈結法需要節點與指標，同一桶可放多個鍵，所以 α 可以大於 1。開放定址把元素留在表內，省掉每個節點的指標，但仍要預留空槽，而且刪除通常需要標記，操作反而較複雜。",
+        "choiceKey": "ACD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-2",
+        "category": "碰撞處理與鏈結法",
+        "type": "多選題",
+        "q": "雜湊技術中，常用的碰撞處理策略比較？",
+        "opts": [
+          "鏈結法需要額外指標空間",
+          "開放定址法支援刪除操作較簡單",
+          "鏈結法適合處理高負載因子",
+          "開放定址法適合空間受限應用"
+        ],
+        "a": "A、C、D",
+        "ex": "鏈結法需要節點與指標，同一桶可放多個鍵，所以 α 可以大於 1。開放定址把元素留在表內，省掉每個節點的指標，但仍要預留空槽，而且刪除通常需要標記，操作反而較複雜。\n\n假設 10 格要存 15 個鍵：鏈結法可讓某些桶串接多個節點；開放定址每格一個，容量不足。相反地，若希望省掉每個節點的指標，開放定址有其空間優勢，但仍需留足空槽。\n\n逐項核對：\n「鏈結法需要額外指標空間」：一般串列實作要為節點保存指標，除了鍵值之外還有額外空間。\n「開放定址法支援刪除操作較簡單」：開放定址要避免刪除後截斷搜尋路徑，通常需刪除標記，並不因此比較簡單。\n「鏈結法適合處理高負載因子」：每桶可放多個鍵，所以 α 可以大於 1；但負載增加仍會拉長串列。\n「開放定址法適合空間受限應用」：一般實作可省下節點與指標空間，因此有此優勢；仍須考慮負載與預留空槽，並非任何情況都最省。",
+        "choiceKey": "ACD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-3",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-3",
+        "category": "雜湊函數與設計",
+        "type": "填空題",
+        "q": "除法雜湊法的計算公式為 h(k) = k ____________ m (請用小寫英文回答)",
+        "opts": [],
+        "a": "mod",
+        "ex": "除法雜湊把 k 除以 m，將餘數用作索引，所以空格填 mod。例如 22 mod 11=0，應檢查第 0 格。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-3",
+        "category": "雜湊函數與設計",
+        "type": "填空題",
+        "q": "除法雜湊法的計算公式為 h(k) = k ____________ m (請用小寫英文回答)",
+        "opts": [],
+        "a": "mod",
+        "ex": "填 mod，表示取除法的餘數。先把鍵 k 除以正整數 m，取 0～m−1 之間的餘數作為陣列索引。例如 31=2×11+9，所以 31 mod 11=9，鍵 31 的初始位置是第 9 格。商 2 不是索引，也不是直接保留原鍵 31。若該格已被佔用，才使用鏈結或探測處理碰撞；碰撞處理不會改變「初始位置由餘數決定」這個公式。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-4",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-4",
+        "category": "開放定址法",
+        "type": "單選題",
+        "q": "下列何者屬於開放定址法（Open addressing）？",
+        "opts": [
+          "連結串列 (Linked list)",
+          "二元樹 (Binary tree)",
+          "桶排序 (Bucket sort)",
+          "線性探測 (Linear probing)"
+        ],
+        "a": "D",
+        "ex": "線性探測發生碰撞後往下一格尋找空槽，所有鍵都留在原表內。鏈結串列常用於鏈結法；二元樹是一種資料結構；桶排序的目的是排序。",
+        "choiceKey": "D",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-4",
+        "category": "開放定址法",
+        "type": "單選題",
+        "q": "下列何者屬於開放定址法（Open addressing）？",
+        "opts": [
+          "連結串列 (Linked list)",
+          "二元樹 (Binary tree)",
+          "桶排序 (Bucket sort)",
+          "線性探測 (Linear probing)"
+        ],
+        "a": "D",
+        "ex": "線性探測發生碰撞後往下一格尋找空槽，所有鍵都留在原表內。鏈結串列常用於鏈結法；二元樹是一種資料結構；桶排序的目的是排序。\n\n判斷重點是碰撞後資料放在哪：若仍放同一張陣列的其他槽，是開放定址；若掛到原桶的外部串列，則是鏈結法。\n\n逐項核對：\n「連結串列 (Linked list)」：它常用於鏈結法，把同桶資料串起來，不是依序探測表內空槽。\n「二元樹 (Binary tree)」：它是另一種資料結構，單憑二元樹名稱無法構成開放定址策略。\n「桶排序 (Bucket sort)」：目的是將資料分桶後排序，不是本題問的碰撞探測法。\n「線性探測 (Linear probing)」：例如槽 3 已滿就試 4、5…，直到找到空槽，資料留在表內。",
+        "choiceKey": "D",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-5",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-5",
+        "category": "二次探測",
+        "type": "單選題",
+        "q": "開放定址法中的「二次探測（Quadratic probing）」的探測序列函數包含？",
+        "opts": [
+          "i³",
+          "i²",
+          "i",
+          "log i"
+        ],
+        "a": "B",
+        "ex": "二次探測以 c₁i+c₂i² 產生偏移，最具辨識力的是 i²。單獨使用 i 是線性位移；i³ 是三次；log i 不是這個公式。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-5",
+        "category": "二次探測",
+        "type": "單選題",
+        "q": "開放定址法中的「二次探測（Quadratic probing）」的探測序列函數包含？",
+        "opts": [
+          "i³",
+          "i²",
+          "i",
+          "log i"
+        ],
+        "a": "B",
+        "ex": "二次探測以 c₁i+c₂i² 產生偏移，最具辨識力的是 i²。單獨使用 i 是線性位移；i³ 是三次；log i 不是這個公式。\n\n一般式為 h(k,i)=(h′(k)+c₁i+c₂i²) mod m，其中 c₂ 不為零。若取簡式偏移 i²，i=0、1、2、3 時偏移為 0、1、4、9，再取 mod m。\n\n逐項核對：\n「i³」：三次方對應三次項，不能當成二次式的辨識特徵。\n「i²」：平方項是二次探測的辨識重點。\n「i」：一般二次式也可以含一次項，但只看 i 不能區別線性與二次；本題指的是二次特徵。\n「log i」：對數不是二次多項式的平方項。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-6",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-6",
+        "category": "負載因子與效能",
+        "type": "多選題",
+        "q": "關於雜湊表的平均效能，正確的有？",
+        "opts": [
+          "完全不依賴輸入分布",
+          "與衝突解決機制有關",
+          "INSERT 預期為 O(1)",
+          "SEARCH 預期為 O(1+α)"
+        ],
+        "a": "B、C、D",
+        "ex": "碰撞解法與雜湊分布都會影響成本。對均勻雜湊的鏈結法，平均桶長為 α，搜尋平均 O(1+α)；若允許直接插到串列開頭，插入 O(1)。開放定址或需要先檢查重複時，插入成本仍會受負載影響。",
+        "choiceKey": "BCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-6",
+        "category": "負載因子與效能",
+        "type": "多選題",
+        "q": "關於雜湊表的平均效能，正確的有？",
+        "opts": [
+          "完全不依賴輸入分布",
+          "與衝突解決機制有關",
+          "INSERT 預期為 O(1)",
+          "SEARCH 預期為 O(1+α)"
+        ],
+        "a": "B、C、D",
+        "ex": "碰撞解法與雜湊分布都會影響成本。對均勻雜湊的鏈結法，平均桶長為 α，搜尋平均 O(1+α)；若允許直接插到串列開頭，插入 O(1)。開放定址或需要先檢查重複時，插入成本仍會受負載影響。\n\n先辨認假設：對簡單均勻雜湊的鏈結法，平均桶長 α=n/m，所以找一個鍵約需「算索引＋檢查桶」O(1+α)。如果直接把新節點插到串列開頭且不先檢查重複，插入可為 O(1)。維持 α 有界時，搜尋也化為預期 O(1)。\n\n逐項核對：\n「完全不依賴輸入分布」：輸入分布與函數是否均勻會影響碰撞，不能說完全不依賴。\n「與衝突解決機制有關」：鏈結法比較串列節點，開放定址比較探測槽；成本與解法有關。\n「INSERT 預期為 O(1)」：在直接串列頭插入，或負載受控等相應假設下成立；若要先查重複，或開放定址已接近滿表，不能無條件套用。\n「SEARCH 預期為 O(1+α)」：這是均勻雜湊鏈結法的標準預期搜尋上界；不能直接當成所有開放定址負載下的公式。",
+        "choiceKey": "BCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-7",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-7",
+        "category": "雙重雜湊",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 3 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[4] =   ____________ \nA[9] =   ____________",
+        "opts": [],
+        "a": "15/31",
+        "ex": "依插入順序逐一處理。索引用 (k + i×(3 + (k mod 10))) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n31：9\n22：0\n15：4\n17：6\n88：探測 0，i=0～10 都找不到空槽\n14：3\n28：探測 6，i=0～10 都找不到空槽\n59：4 → 5\n\n由 A[0] 到 A[10] 依序為 22、空、空、14、15、59、17、空、空、31、10。\n\n依填空順序取值：A[4]=15，A[9]=31。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-7",
+        "category": "雙重雜湊",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 3 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[4] =   ____________ \nA[9] =   ____________",
+        "opts": [],
+        "a": "15/31",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i×(3+(k mod 10))) mod 11 計算下一個位置。\n先為每個鍵算自己的步長，再保持該步長探測；同一鍵的步長不隨 i 改變。\n\n逐鍵計算：\n鍵 10：步長=3+(10 mod 10)=3\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：步長=3+(31 mod 10)=4\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：步長=3+(22 mod 10)=5\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：步長=3+(15 mod 10)=8\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：步長=3+(17 mod 10)=10\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：步長=3+(88 mod 10)=11\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+11) mod 11=0，已有 22，繼續探測\ni=2，(88+22) mod 11=0，已有 22，繼續探測\ni=3，(88+33) mod 11=0，已有 22，繼續探測\ni=4，(88+44) mod 11=0，已有 22，繼續探測\ni=5，(88+55) mod 11=0，已有 22，繼續探測\ni=6，(88+66) mod 11=0，已有 22，繼續探測\ni=7，(88+77) mod 11=0，已有 22，繼續探測\ni=8，(88+88) mod 11=0，已有 22，繼續探測\ni=9，(88+99) mod 11=0，已有 22，繼續探測\ni=10，(88+110) mod 11=0，已有 22，繼續探測\n已試完 i=0～10，未找到空槽；本鍵未插入。\n\n鍵 14：步長=3+(14 mod 10)=7\ni=0，(14+0) mod 11=3，空槽，放入此鍵\n\n鍵 28：步長=3+(28 mod 10)=11\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+11) mod 11=6，已有 17，繼續探測\ni=2，(28+22) mod 11=6，已有 17，繼續探測\ni=3，(28+33) mod 11=6，已有 17，繼續探測\ni=4，(28+44) mod 11=6，已有 17，繼續探測\ni=5，(28+55) mod 11=6，已有 17，繼續探測\ni=6，(28+66) mod 11=6，已有 17，繼續探測\ni=7，(28+77) mod 11=6，已有 17，繼續探測\ni=8，(28+88) mod 11=6，已有 17，繼續探測\ni=9，(28+99) mod 11=6，已有 17，繼續探測\ni=10，(28+110) mod 11=6，已有 17，繼續探測\n已試完 i=0～10，未找到空槽；本鍵未插入。\n\n鍵 59：步長=3+(59 mod 10)=12\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+12) mod 11=5，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=空，A[2]=空，A[3]=14，A[4]=15，A[5]=59，A[6]=17，A[7]=空，A[8]=空，A[9]=31，A[10]=10\n\n依題目填空順序讀表：A[4]=15，A[9]=31，因此依序填 15/31。不要把陣列索引順序與鍵的插入順序混在一起。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-8",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-8",
+        "category": "開放定址法",
+        "type": "單選題",
+        "q": "在開放定址法中，負載因子 α 必須滿足什麼條件？",
+        "opts": [
+          "α > 1",
+          "α <= 1",
+          "α < 0",
+          "α = 0"
+        ],
+        "a": "B",
+        "ex": "開放定址每格最多一個鍵，所以 n≤m，亦即 α≤1。α=1 表已滿，不能再插入，實務常在 α 明顯低於 1 時擴容。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-8",
+        "category": "開放定址法",
+        "type": "單選題",
+        "q": "在開放定址法中，負載因子 α 必須滿足什麼條件？",
+        "opts": [
+          "α > 1",
+          "α <= 1",
+          "α < 0",
+          "α = 0"
+        ],
+        "a": "B",
+        "ex": "開放定址每格最多一個鍵，所以 n≤m，亦即 α≤1。α=1 表已滿，不能再插入，實務常在 α 明顯低於 1 時擴容。\n\n每槽最多放一個鍵，所以 11 格最多有 11 個鍵，n≤m，除以 m 得 α≤1。α=1 表示已滿，仍是可能的狀態，只是無法再插入；實務上通常提早擴容。\n\n逐項核對：\n「α > 1」：代表鍵數比槽數還多，與每格最多一個的限制衝突。\n「α <= 1」：包含空表到滿表的可能負載，符合 n≤m。\n「α < 0」：鍵數與槽數非負，槽數為正，負載不會是負數。\n「α = 0」：它只描述空表，是合法特例，卻不是一般必須永遠維持的值。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-9",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-9",
+        "category": "線性探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n線性探測（Linear Probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[1] =   ____________ \nA[7] =   ____________",
+        "opts": [],
+        "a": "88/28",
+        "ex": "依插入順序逐一處理。索引用 (k + i) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n31：9\n22：0\n15：4\n17：6\n88：0 → 1\n14：3\n28：6 → 7\n59：4 → 5\n\n由 A[0] 到 A[10] 依序為 22、88、空、14、15、59、17、28、空、31、10。\n\n依填空順序取值：A[1]=88，A[7]=28。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-195e73dc-491e-4a91-8c57-eb1d042735ab-9",
+        "category": "線性探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n線性探測（Linear Probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[1] =   ____________ \nA[7] =   ____________",
+        "opts": [],
+        "a": "88/28",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i) mod 11 計算下一個位置。\n碰撞後每次往後一格，超過末格就繞回第 0 格。\n\n逐鍵計算：\n鍵 10：\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+1) mod 11=1，空槽，放入此鍵\n\n鍵 14：\ni=0，(14+0) mod 11=3，空槽，放入此鍵\n\n鍵 28：\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+1) mod 11=7，空槽，放入此鍵\n\n鍵 59：\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+1) mod 11=5，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=88，A[2]=空，A[3]=14，A[4]=15，A[5]=59，A[6]=17，A[7]=28，A[8]=空，A[9]=31，A[10]=10\n\n依題目填空順序讀表：A[1]=88，A[7]=28，因此依序填 88/28。不要把陣列索引順序與鍵的插入順序混在一起。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-1",
+      "revision": 3,
+      "before": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-1",
+        "category": "雙重雜湊",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 1 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[4] =   ____________ \nA[9] =   ____________",
+        "opts": [],
+        "a": "15/31",
+        "ex": "依插入順序逐一處理。索引用 (k + i×(1 + (k mod 10))) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n31：9\n22：0\n15：4\n17：6\n88：0 → 9 → 7\n14：3\n28：6 → 4 → 2\n59：4 → 3 → 2 → 1\n\n由 A[0] 到 A[10] 依序為 22、59、28、14、15、空、17、88、空、31、10。\n\n依填空順序取值：A[4]=15，A[9]=31。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "題幹對到多道既有題目，請確認應保留的版本",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-1",
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-8"
+          ],
+          "createdAt": 1795574333895,
+          "resolvedAt": 1795621692000
+        }
+      },
+      "after": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-1",
+        "category": "雙重雜湊",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 1 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[4] =   ____________ \nA[9] =   ____________",
+        "opts": [],
+        "a": "15/31",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i×(1+(k mod 10))) mod 11 計算下一個位置。\n先為每個鍵算自己的步長，再保持該步長探測；同一鍵的步長不隨 i 改變。\n\n逐鍵計算：\n鍵 10：步長=1+(10 mod 10)=1\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：步長=1+(31 mod 10)=2\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：步長=1+(22 mod 10)=3\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：步長=1+(15 mod 10)=6\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：步長=1+(17 mod 10)=8\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：步長=1+(88 mod 10)=9\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+9) mod 11=9，已有 31，繼續探測\ni=2，(88+18) mod 11=7，空槽，放入此鍵\n\n鍵 14：步長=1+(14 mod 10)=5\ni=0，(14+0) mod 11=3，空槽，放入此鍵\n\n鍵 28：步長=1+(28 mod 10)=9\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+9) mod 11=4，已有 15，繼續探測\ni=2，(28+18) mod 11=2，空槽，放入此鍵\n\n鍵 59：步長=1+(59 mod 10)=10\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+10) mod 11=3，已有 14，繼續探測\ni=2，(59+20) mod 11=2，已有 28，繼續探測\ni=3，(59+30) mod 11=1，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=59，A[2]=28，A[3]=14，A[4]=15，A[5]=空，A[6]=17，A[7]=88，A[8]=空，A[9]=31，A[10]=10\n\n依題目填空順序讀表：A[4]=15，A[9]=31，因此依序填 15/31。不要把陣列索引順序與鍵的插入順序混在一起。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "題幹對到多道既有題目，請確認應保留的版本",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-1",
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-8"
+          ],
+          "createdAt": 1795574333895,
+          "resolvedAt": 1795621692000
+        }
+      }
+    },
+    {
+      "id": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-2",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-2",
+        "category": "雜湊函數與設計",
+        "type": "單選題",
+        "q": "若雜湊函數為 h(k) = k mod m，其中 m 為雜湊表大小，這種方法稱為？",
+        "opts": [
+          "開放定址法 (Open addressing)",
+          "除法雜湊法 (Division method)",
+          "乘法雜湊法 (Multiplication method)",
+          "全域雜湊法 (Universal hashing)"
+        ],
+        "a": "B",
+        "ex": "h(k)=k mod m 是除法雜湊法。開放定址說明發生碰撞後如何處理，與初始索引的計算法不同。乘法法取 kA 的小數部分，全域雜湊則從函數族中隨機選函數。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-2",
+        "category": "雜湊函數與設計",
+        "type": "單選題",
+        "q": "若雜湊函數為 h(k) = k mod m，其中 m 為雜湊表大小，這種方法稱為？",
+        "opts": [
+          "開放定址法 (Open addressing)",
+          "除法雜湊法 (Division method)",
+          "乘法雜湊法 (Multiplication method)",
+          "全域雜湊法 (Universal hashing)"
+        ],
+        "a": "B",
+        "ex": "h(k)=k mod m 是除法雜湊法。開放定址說明發生碰撞後如何處理，與初始索引的計算法不同。乘法法取 kA 的小數部分，全域雜湊則從函數族中隨機選函數。\n\n算 31 mod 11：31=2×11+9，餘數是 9，所以索引為 9。方法名稱來自整數除法的餘數，不是碰撞後再怎麼找位置。\n\n逐項核對：\n「開放定址法 (Open addressing)」：這是碰撞處理的類別，不是初始索引 k mod m 的名稱。\n「除法雜湊法 (Division method)」：以除法餘數作索引，因此稱除法雜湊法。\n「乘法雜湊法 (Multiplication method)」：乘法法先算 kA 的小數部分，再乘表長取整。\n「全域雜湊法 (Universal hashing)」：它強調隨機從函數族選 h，僅給 k mod m 還沒有這個條件。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-3",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-3",
+        "category": "碰撞處理與鏈結法",
+        "type": "單選題",
+        "q": "下列何者是解決雜湊衝突（Collision）的方法？",
+        "opts": [
+          "二元搜尋 (Binary search)",
+          "鏈結法 (Chaining)",
+          "快速排序 (Quicksort)",
+          "動態規劃 (Dynamic programming)"
+        ],
+        "a": "B",
+        "ex": "鏈結法把落到同一索引的鍵放在同一桶的串列裡，再依鍵比對。二元搜尋需有序資料，快速排序負責排列，動態規劃重用子問題結果，都不是本題的碰撞解法。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-3",
+        "category": "碰撞處理與鏈結法",
+        "type": "單選題",
+        "q": "下列何者是解決雜湊衝突（Collision）的方法？",
+        "opts": [
+          "二元搜尋 (Binary search)",
+          "鏈結法 (Chaining)",
+          "快速排序 (Quicksort)",
+          "動態規劃 (Dynamic programming)"
+        ],
+        "a": "B",
+        "ex": "鏈結法把落到同一索引的鍵放在同一桶的串列裡，再依鍵比對。二元搜尋需有序資料，快速排序負責排列，動態規劃重用子問題結果，都不是本題的碰撞解法。\n\n若 h(10)=h(21)=10，鏈結法可讓桶 10 指向存放兩個鍵的串列。查 21 時先找到桶，再逐一比對該桶的鍵，讓兩個鍵都能被保存與找回。\n\n逐項核對：\n「二元搜尋 (Binary search)」：它需要有序資料才能折半，不會自行解決不同鍵映射到同一槽的保存方式。\n「鏈結法 (Chaining)」：把碰撞的元素保存在同一桶的串列，是標準碰撞處理法。\n「快速排序 (Quicksort)」：它負責排序，不決定同一雜湊槽如何保存多個鍵。\n「動態規劃 (Dynamic programming)」：它重用子問題結果，並非這裡問的雜湊碰撞策略。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-4",
+      "revision": 3,
+      "before": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-4",
+        "category": "雙重雜湊",
+        "type": "多選題",
+        "q": "考慮將鍵值 10、22、31、4、15、28、17、88、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 1 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |",
+        "opts": [
+          "A[3]=59",
+          "A[9]=17",
+          "A[6]=28",
+          "A[7]=88"
+        ],
+        "a": "C、D",
+        "ex": "依插入順序逐一處理。索引用 (k + i×(1 + (k mod 10))) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n22：0\n31：9\n4：4\n15：4 → 10 → 5\n28：6\n17：6 → 3\n88：0 → 9 → 7\n59：4 → 3 → 2\n\n由 A[0] 到 A[10] 依序為 22、空、59、17、4、15、28、88、空、31、10。\n\nA[3]=59 不成立，A[3] 實際為 17。A[9]=17 不成立，A[9] 實際為 31。A[6]=28 正確。A[7]=88 正確。",
+        "choiceKey": "CD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "題幹符合，但選項不同；請核對是否抄漏或為不同版本。",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-18"
+          ],
+          "createdAt": 1795574333895,
+          "resolvedAt": 1795621692000
+        }
+      },
+      "after": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-4",
+        "category": "雙重雜湊",
+        "type": "多選題",
+        "q": "考慮將鍵值 10、22、31、4、15、28、17、88、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 1 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |",
+        "opts": [
+          "A[3]=59",
+          "A[9]=17",
+          "A[6]=28",
+          "A[7]=88"
+        ],
+        "a": "C、D",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i×(1+(k mod 10))) mod 11 計算下一個位置。\n先為每個鍵算自己的步長，再保持該步長探測；同一鍵的步長不隨 i 改變。\n\n逐鍵計算：\n鍵 10：步長=1+(10 mod 10)=1\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 22：步長=1+(22 mod 10)=3\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 31：步長=1+(31 mod 10)=2\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 4：步長=1+(4 mod 10)=5\ni=0，(4+0) mod 11=4，空槽，放入此鍵\n\n鍵 15：步長=1+(15 mod 10)=6\ni=0，(15+0) mod 11=4，已有 4，繼續探測\ni=1，(15+6) mod 11=10，已有 10，繼續探測\ni=2，(15+12) mod 11=5，空槽，放入此鍵\n\n鍵 28：步長=1+(28 mod 10)=9\ni=0，(28+0) mod 11=6，空槽，放入此鍵\n\n鍵 17：步長=1+(17 mod 10)=8\ni=0，(17+0) mod 11=6，已有 28，繼續探測\ni=1，(17+8) mod 11=3，空槽，放入此鍵\n\n鍵 88：步長=1+(88 mod 10)=9\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+9) mod 11=9，已有 31，繼續探測\ni=2，(88+18) mod 11=7，空槽，放入此鍵\n\n鍵 59：步長=1+(59 mod 10)=10\ni=0，(59+0) mod 11=4，已有 4，繼續探測\ni=1，(59+10) mod 11=3，已有 17，繼續探測\ni=2，(59+20) mod 11=2，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=空，A[2]=59，A[3]=17，A[4]=4，A[5]=15，A[6]=28，A[7]=88，A[8]=空，A[9]=31，A[10]=10\n\n逐項核對：\n「A[3]=59」：不符合，A[3] 最後是 17，不是 59。\n「A[9]=17」：不符合，A[9] 最後是 31，不是 17。\n「A[6]=28」：符合，A[6] 最後是 28。\n「A[7]=88」：符合，A[7] 最後是 88。",
+        "choiceKey": "CD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "題幹符合，但選項不同；請核對是否抄漏或為不同版本。",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-18"
+          ],
+          "createdAt": 1795574333895,
+          "resolvedAt": 1795621692000
+        }
+      }
+    },
+    {
+      "id": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-5",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-5",
+        "category": "全域雜湊與完全雜湊",
+        "type": "填空題",
+        "q": "完全雜湊的搜尋時間在最壞情況下為 ____________ (請用英文回答，表示形式為 請用log，不可用lg替代log，上標請用^，符號請用 {big-theta, theta, big-omega, omega, O, o,})",
+        "opts": [],
+        "a": "O(1)",
+        "ex": "完全雜湊為固定的鍵集合建表。典型二層完全雜湊先計算第一層桶，再查第二層槽並比對鍵，只需固定次數，因此最壞搜尋 O(1)。建表成本與更新成本要另外算。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-5",
+        "category": "全域雜湊與完全雜湊",
+        "type": "填空題",
+        "q": "完全雜湊的搜尋時間在最壞情況下為 ____________ (請用英文回答，表示形式為 請用log，不可用lg替代log，上標請用^，符號請用 {big-theta, theta, big-omega, omega, O, o,})",
+        "opts": [],
+        "a": "O(1)",
+        "ex": "填 O(1)。典型兩層完全雜湊先算第一層函數決定桶，再用該桶的第二層函數算出唯一位置，最後比對鍵以判斷存在與否。建表完成後，這些是固定次數的計算與存取，因此最壞搜尋仍是常數，不只是平均常數。保證對象是固定鍵集合所建立的查詢結構；選函數、重試建表或新增鍵後的重建成本要另外分析，不能把所有操作都說成最壞常數。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-6",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-6",
+        "category": "雙重雜湊",
+        "type": "單選題",
+        "q": "雙重雜湊（Double hashing）的探測函數形式為？",
+        "opts": [
+          "(h1(k) + i²) mod m",
+          "h1(k*i)",
+          "(h1(k) + i) mod m",
+          "(h1(k) + i*h²(k)) mod m"
+        ],
+        "a": "D",
+        "ex": "雙重雜湊的公式是 (h₁(k)+i×h₂(k)) mod m。h₁ 決定起點，h₂ 決定此鍵的步長，i 是探測次數。選項的 h²(k) 依題意是在指第二個函數 h₂(k)；加 i 是線性探測，加 i² 是二次位移。",
+        "choiceKey": "D",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-6",
+        "category": "雙重雜湊",
+        "type": "單選題",
+        "q": "雙重雜湊（Double hashing）的探測函數形式為？",
+        "opts": [
+          "(h1(k) + i²) mod m",
+          "h1(k*i)",
+          "(h1(k) + i) mod m",
+          "(h1(k) + i*h²(k)) mod m"
+        ],
+        "a": "D",
+        "ex": "雙重雜湊的公式是 (h₁(k)+i×h₂(k)) mod m。h₁ 決定起點，h₂ 決定此鍵的步長，i 是探測次數。選項的 h²(k) 依題意是在指第二個函數 h₂(k)；加 i 是線性探測，加 i² 是二次位移。\n\n標準式 h(k,i)=(h₁(k)+i×h₂(k)) mod m。假設起點 2、步長 3、m=11，i=0、1、2、3 得到 2、5、8、0。每個鍵的步長由第二函數決定，對同一鍵保持固定。\n\n逐項核對：\n「(h1(k) + i²) mod m」：加平方偏移，屬二次探測形式，沒有使用第二函數作步長。\n「h1(k*i)」：把 k 與 i 相乘後重新算第一函數，不是雙重雜湊的標準式。\n「(h1(k) + i) mod m」：每次固定前進 1，屬線性探測。\n「(h1(k) + i*h²(k)) mod m」：這個選項的 h²(k) 依本題用法表示第二支函數 h₂(k)，所以是起點加 i 倍步長。若把上標 ² 當成函數值的平方，便不是標準寫法；應記住下標形式以免混淆。",
+        "choiceKey": "D",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-7",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-7",
+        "category": "雜湊基本觀念與應用",
+        "type": "填空題",
+        "q": "雜湊函數輸入的鍵值空間稱為 ____________ (請用小寫英文回答)",
+        "opts": [],
+        "a": "universe",
+        "ex": "universe 是所有可能輸入鍵的集合，通常寫 U。表內當下實際存放的鍵只是 U 的一部分。例如鍵可為所有學號，表內只有這堂課學生的學號。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-276edad2-8f62-43e9-b7cc-ff7216f423c6-7",
+        "category": "雜湊基本觀念與應用",
+        "type": "填空題",
+        "q": "雜湊函數輸入的鍵值空間稱為 ____________ (請用小寫英文回答)",
+        "opts": [],
+        "a": "universe",
+        "ex": "填 universe，通常用 U 表示，意思是所有可能輸入的鍵之集合。例如系統允許學號 000000～999999，這百萬種學號構成 U；某一堂課實際只有 40 位學生，表內集合只是 U 的一部分。m 是配置的槽數，n 是目前存入的鍵數，兩者都不是 universe。雜湊函數 h:U→{0,…,m−1} 將可能很大的 U 映到較小的索引範圍。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-45ee17a0-3c27-48d5-b2cf-b9d9138f85e3-1",
+      "revision": 1,
+      "before": {
+        "bookmarkId": "community-45ee17a0-3c27-48d5-b2cf-b9d9138f85e3-1",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "二次探測的缺點？",
+        "opts": [
+          "會發生二次群聚效應 (Secondary clustering)",
+          "計算成本高",
+          "容易溢位",
+          "探測序列選擇受限"
+        ],
+        "a": "A、D",
+        "ex": "",
+        "choiceKey": "AD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-45ee17a0-3c27-48d5-b2cf-b9d9138f85e3-1",
+        "category": "二次探測",
+        "type": "多選題",
+        "q": "二次探測的缺點？",
+        "opts": [
+          "會發生二次群聚效應 (Secondary clustering)",
+          "計算成本高",
+          "容易溢位",
+          "探測序列選擇受限"
+        ],
+        "a": "A、D",
+        "ex": "若兩個鍵起始槽相同，二次探測又共用同一組 c₁、c₂，它們接著會試完全相同的序列，仍會互相擠在同一路徑上。另外，平方偏移取模後可能重複，只能到達部分槽。\n\n逐項核對：\n「會發生二次群聚效應 (Secondary clustering)」：同起點的鍵共用偏移規律，會走相同路徑，這就是二次群聚。\n「計算成本高」：要計算平方或更新差值，確實有算術成本，但可有效計算，不能一概說計算成本高是其本質限制。\n「容易溢位」：容量不足或探測序列覆蓋不足才會使插入失敗；數值溢位取決於實作，可用適當型別及模運算控制。\n「探測序列選擇受限」：表長與係數限制可用的探測位置。例如 m=11、偏移 i²，只會出現部分餘數，即使其他槽空著也未必探測得到。",
+        "choiceKey": "AD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-45ee17a0-3c27-48d5-b2cf-b9d9138f85e3-2",
+      "revision": 1,
+      "before": {
+        "bookmarkId": "community-45ee17a0-3c27-48d5-b2cf-b9d9138f85e3-2",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 c_1 = 1 與 c_2 = 5 的二次探測（quadratic probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[4] =   ____________ \nA[7] =   ____________",
+        "opts": [],
+        "a": "15/88",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-45ee17a0-3c27-48d5-b2cf-b9d9138f85e3-2",
+        "category": "二次探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 c_1 = 1 與 c_2 = 5 的二次探測（quadratic probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[4] =   ____________ \nA[7] =   ____________",
+        "opts": [],
+        "a": "15/88",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+1i+5i²) mod 11 計算下一個位置。\n係數須逐字看題目；c2=3 與 c2=5 會得到不同結果。i² 是探測編號的平方，不能把鍵值平方。\n\n逐鍵計算：\n鍵 10：\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+6) mod 11=6，已有 17，繼續探測\ni=2，(88+22) mod 11=0，已有 22，繼續探測\ni=3，(88+48) mod 11=4，已有 15，繼續探測\ni=4，(88+84) mod 11=7，空槽，放入此鍵\n\n鍵 14：\ni=0，(14+0) mod 11=3，空槽，放入此鍵\n\n鍵 28：\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+6) mod 11=1，空槽，放入此鍵\n\n鍵 59：\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+6) mod 11=10，已有 10，繼續探測\ni=2，(59+22) mod 11=4，已有 15，繼續探測\ni=3，(59+48) mod 11=8，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=28，A[2]=空，A[3]=14，A[4]=15，A[5]=空，A[6]=17，A[7]=88，A[8]=59，A[9]=31，A[10]=10\n\n依題目填空順序讀表：A[4]=15，A[7]=88，因此依序填 15/88。不要把陣列索引順序與鍵的插入順序混在一起。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-1",
+      "revision": 3,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-1",
+        "category": "雙重雜湊",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 1 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[1] =   ____________ \nA[6] =   ____________",
+        "opts": [],
+        "a": "59/17",
+        "ex": "依插入順序逐一處理。索引用 (k + i×(1 + (k mod 10))) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n31：9\n22：0\n15：4\n17：6\n88：0 → 9 → 7\n14：3\n28：6 → 4 → 2\n59：4 → 3 → 2 → 1\n\n由 A[0] 到 A[10] 依序為 22、59、28、14、15、空、17、88、空、31、10。\n\n依填空順序取值：A[1]=59，A[6]=17。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "同批有相同題幹的不同版本",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-8"
+          ],
+          "createdAt": 1795573554218,
+          "resolvedAt": 1795621692000
+        }
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-1",
+        "category": "雙重雜湊",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 1 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[1] =   ____________ \nA[6] =   ____________",
+        "opts": [],
+        "a": "59/17",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i×(1+(k mod 10))) mod 11 計算下一個位置。\n先為每個鍵算自己的步長，再保持該步長探測；同一鍵的步長不隨 i 改變。\n\n逐鍵計算：\n鍵 10：步長=1+(10 mod 10)=1\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：步長=1+(31 mod 10)=2\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：步長=1+(22 mod 10)=3\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：步長=1+(15 mod 10)=6\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：步長=1+(17 mod 10)=8\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：步長=1+(88 mod 10)=9\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+9) mod 11=9，已有 31，繼續探測\ni=2，(88+18) mod 11=7，空槽，放入此鍵\n\n鍵 14：步長=1+(14 mod 10)=5\ni=0，(14+0) mod 11=3，空槽，放入此鍵\n\n鍵 28：步長=1+(28 mod 10)=9\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+9) mod 11=4，已有 15，繼續探測\ni=2，(28+18) mod 11=2，空槽，放入此鍵\n\n鍵 59：步長=1+(59 mod 10)=10\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+10) mod 11=3，已有 14，繼續探測\ni=2，(59+20) mod 11=2，已有 28，繼續探測\ni=3，(59+30) mod 11=1，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=59，A[2]=28，A[3]=14，A[4]=15，A[5]=空，A[6]=17，A[7]=88，A[8]=空，A[9]=31，A[10]=10\n\n依題目填空順序讀表：A[1]=59，A[6]=17，因此依序填 59/17。不要把陣列索引順序與鍵的插入順序混在一起。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "同批有相同題幹的不同版本",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-8"
+          ],
+          "createdAt": 1795573554218,
+          "resolvedAt": 1795621692000
+        }
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-10",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-10",
+        "category": "雙重雜湊",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 3 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\n無法藉此公式找到合法位置 的數 (先填小的值再填大的值)\n ____________  ____________",
+        "opts": [],
+        "a": "28/88",
+        "ex": "依插入順序逐一處理。索引用 (k + i×(3 + (k mod 10))) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n31：9\n22：0\n15：4\n17：6\n88：探測 0，i=0～10 都找不到空槽\n14：3\n28：探測 6，i=0～10 都找不到空槽\n59：4 → 5\n\n由 A[0] 到 A[10] 依序為 22、空、空、14、15、59、17、空、空、31、10。\n\n依小到大填 28/88。步長為 11 時，每次取模都回到同一格，表裡即使還有空槽也無法探測到。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-10",
+        "category": "雙重雜湊",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 3 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\n無法藉此公式找到合法位置 的數 (先填小的值再填大的值)\n ____________  ____________",
+        "opts": [],
+        "a": "28/88",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i×(3+(k mod 10))) mod 11 計算下一個位置。\n先為每個鍵算自己的步長，再保持該步長探測；同一鍵的步長不隨 i 改變。\n\n逐鍵計算：\n鍵 10：步長=3+(10 mod 10)=3\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：步長=3+(31 mod 10)=4\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：步長=3+(22 mod 10)=5\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：步長=3+(15 mod 10)=8\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：步長=3+(17 mod 10)=10\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：步長=3+(88 mod 10)=11\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+11) mod 11=0，已有 22，繼續探測\ni=2，(88+22) mod 11=0，已有 22，繼續探測\ni=3，(88+33) mod 11=0，已有 22，繼續探測\ni=4，(88+44) mod 11=0，已有 22，繼續探測\ni=5，(88+55) mod 11=0，已有 22，繼續探測\ni=6，(88+66) mod 11=0，已有 22，繼續探測\ni=7，(88+77) mod 11=0，已有 22，繼續探測\ni=8，(88+88) mod 11=0，已有 22，繼續探測\ni=9，(88+99) mod 11=0，已有 22，繼續探測\ni=10，(88+110) mod 11=0，已有 22，繼續探測\n已試完 i=0～10，未找到空槽；本鍵未插入。\n\n鍵 14：步長=3+(14 mod 10)=7\ni=0，(14+0) mod 11=3，空槽，放入此鍵\n\n鍵 28：步長=3+(28 mod 10)=11\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+11) mod 11=6，已有 17，繼續探測\ni=2，(28+22) mod 11=6，已有 17，繼續探測\ni=3，(28+33) mod 11=6，已有 17，繼續探測\ni=4，(28+44) mod 11=6，已有 17，繼續探測\ni=5，(28+55) mod 11=6，已有 17，繼續探測\ni=6，(28+66) mod 11=6，已有 17，繼續探測\ni=7，(28+77) mod 11=6，已有 17，繼續探測\ni=8，(28+88) mod 11=6，已有 17，繼續探測\ni=9，(28+99) mod 11=6，已有 17，繼續探測\ni=10，(28+110) mod 11=6，已有 17，繼續探測\n已試完 i=0～10，未找到空槽；本鍵未插入。\n\n鍵 59：步長=3+(59 mod 10)=12\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+12) mod 11=5，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=空，A[2]=空，A[3]=14，A[4]=15，A[5]=59，A[6]=17，A[7]=空，A[8]=空，A[9]=31，A[10]=10\n\n不能插入的鍵由小到大填 28/88。例如步長若為 11，取模後每次都回到同一槽；表內其他位置有空格也無法使用。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-11",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-11",
+        "category": "雜湊基本觀念與應用",
+        "type": "單選題",
+        "q": "在雜湊表中，鍵值（Key）到表索引（Index）的對應關係稱為？",
+        "opts": [
+          "鏈結串列",
+          "雜湊函數 (Hash function)",
+          "探測序列",
+          "排序法則"
+        ],
+        "a": "B",
+        "ex": "先把鍵 k 送進雜湊函數 h，再用 h(k) 決定表的位置。鏈結串列用來保存落在同一桶的資料；探測序列是碰撞後依序檢查的位置；排序則負責排列資料。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-11",
+        "category": "雜湊基本觀念與應用",
+        "type": "單選題",
+        "q": "在雜湊表中，鍵值（Key）到表索引（Index）的對應關係稱為？",
+        "opts": [
+          "鏈結串列",
+          "雜湊函數 (Hash function)",
+          "探測序列",
+          "排序法則"
+        ],
+        "a": "B",
+        "ex": "先把鍵 k 送進雜湊函數 h，再用 h(k) 決定表的位置。鏈結串列用來保存落在同一桶的資料；探測序列是碰撞後依序檢查的位置；排序則負責排列資料。\n\n例如 h(k)=k mod 11，把鍵 22 送進去得索引 0。先有「鍵→索引」的函數，發生碰撞時才需要其他處理方式。\n\n逐項核對：\n「鏈結串列」：它是保存節點與連結的資料結構，不能單獨決定鍵的初始索引。\n「雜湊函數 (Hash function)」：它接收鍵並算出表中的索引，正是題目問的對應關係。\n「探測序列」：它描述依序嘗試哪些槽，包括碰撞後要去哪裡；不是單一初始索引的對應名稱。\n「排序法則」：它決定資料的大小先後，雜湊索引並不需要保留大小關係。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-12",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-12",
+        "category": "雜湊函數與設計",
+        "type": "單選題",
+        "q": "下列何者最常被選作乘法雜湊法中的常數 A？",
+        "opts": [
+          "1 one",
+          "2 two",
+          "(sqrt(5)-1)/2",
+          "0 zero"
+        ],
+        "a": "C",
+        "ex": "乘法雜湊先乘常數 A、取小數部分，再乘表長向下取整。常用 A=(√5−1)/2，約 0.618，符合 0<A<1。若用 0、1 或 2，整數鍵乘完仍是整數，小數部分都為 0。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-12",
+        "category": "雜湊函數與設計",
+        "type": "單選題",
+        "q": "下列何者最常被選作乘法雜湊法中的常數 A？",
+        "opts": [
+          "1 one",
+          "2 two",
+          "(sqrt(5)-1)/2",
+          "0 zero"
+        ],
+        "a": "C",
+        "ex": "乘法雜湊先乘常數 A、取小數部分，再乘表長向下取整。常用 A=(√5−1)/2，約 0.618，符合 0<A<1。若用 0、1 或 2，整數鍵乘完仍是整數，小數部分都為 0。\n\n以整數鍵 k=10 示範：10×0.618…≈6.180…，取小數部分約 0.180…，再乘 m 並向下取整。關鍵是留下小數部分，不能把整個乘積拿去當索引。\n\n逐項核對：\n「1 one」：整數鍵乘 1 後沒有小數部分，每個鍵都得到索引 0。\n「2 two」：整數鍵乘 2 仍是整數，小數部分也全部為 0。\n「(sqrt(5)-1)/2」：它約為 0.618，常用作乘法雜湊的常數；選擇這個常數不代表任何輸入都絕不碰撞。\n「0 zero」：任何鍵乘 0 都是 0，全部集中到同一槽。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-13",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-13",
+        "category": "雜湊函數與設計",
+        "type": "單選題",
+        "q": "雜湊表的大小 m 若為質數，通常有助於？",
+        "opts": [
+          "提高雜湊函數複雜度",
+          "降低搜尋速度",
+          "減少衝突",
+          "增加記憶體"
+        ],
+        "a": "C",
+        "ex": "除法雜湊用 k mod m。若鍵常有共同因數，而 m 也含這個因數，餘數容易只落在少數槽。選適當質數能減少這種規律造成的碰撞；仍需看鍵的分布，質數也不會自行增加記憶體或降低搜尋速度。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-13",
+        "category": "雜湊函數與設計",
+        "type": "單選題",
+        "q": "雜湊表的大小 m 若為質數，通常有助於？",
+        "opts": [
+          "提高雜湊函數複雜度",
+          "降低搜尋速度",
+          "減少衝突",
+          "增加記憶體"
+        ],
+        "a": "C",
+        "ex": "除法雜湊用 k mod m。若鍵常有共同因數，而 m 也含這個因數，餘數容易只落在少數槽。選適當質數能減少這種規律造成的碰撞；仍需看鍵的分布，質數也不會自行增加記憶體或降低搜尋速度。\n\n比較鍵 0、8、16：取 mod 8 全都得到 0；改取 mod 11 則得到 0、8、5。這說明表長若與鍵的規律共用因數，容易形成集中分布。質數是常用選擇，仍需搭配輸入特性。\n\n逐項核對：\n「提高雜湊函數複雜度」：選質數的目的在改善餘數分布，並不是讓函數更複雜。\n「降低搜尋速度」：目標是減少碰撞後的搜尋成本，不是刻意降低速度。\n「減少衝突」：適當質數能減少與鍵的週期規律重合，通常有助於減少碰撞。\n「增加記憶體」：記憶體主要由槽數決定；「是否為質數」本身不代表要配置更多槽。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-14",
+      "revision": 3,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-14",
+        "category": "線性探測",
+        "type": "多選題",
+        "q": "考慮將鍵值 10、22、31、4、15、28、17、88、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用線性探測（linear probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |",
+        "opts": [
+          "A[8]=59",
+          "A[0]=22",
+          "A[6]=28",
+          "A[3]=4"
+        ],
+        "a": "A、B、C",
+        "ex": "依插入順序逐一處理。索引用 (k + i) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n22：0\n31：9\n4：4\n15：4 → 5\n28：6\n17：6 → 7\n88：0 → 1\n59：4 → 5 → 6 → 7 → 8\n\n由 A[0] 到 A[10] 依序為 22、88、空、空、4、15、28、17、59、31、10。\n\nA[8]=59 正確。A[0]=22 正確。A[6]=28 正確。A[3]=4 不成立，A[3] 實際為 空。",
+        "choiceKey": "ABC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "同批有相同題幹的不同版本",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-2"
+          ],
+          "createdAt": 1795573554218,
+          "resolvedAt": 1795621692000
+        }
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-14",
+        "category": "線性探測",
+        "type": "多選題",
+        "q": "考慮將鍵值 10、22、31、4、15、28、17、88、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用線性探測（linear probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |",
+        "opts": [
+          "A[8]=59",
+          "A[0]=22",
+          "A[6]=28",
+          "A[3]=4"
+        ],
+        "a": "A、B、C",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i) mod 11 計算下一個位置。\n碰撞後每次往後一格，超過末格就繞回第 0 格。\n\n逐鍵計算：\n鍵 10：\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 22：\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 31：\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 4：\ni=0，(4+0) mod 11=4，空槽，放入此鍵\n\n鍵 15：\ni=0，(15+0) mod 11=4，已有 4，繼續探測\ni=1，(15+1) mod 11=5，空槽，放入此鍵\n\n鍵 28：\ni=0，(28+0) mod 11=6，空槽，放入此鍵\n\n鍵 17：\ni=0，(17+0) mod 11=6，已有 28，繼續探測\ni=1，(17+1) mod 11=7，空槽，放入此鍵\n\n鍵 88：\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+1) mod 11=1，空槽，放入此鍵\n\n鍵 59：\ni=0，(59+0) mod 11=4，已有 4，繼續探測\ni=1，(59+1) mod 11=5，已有 15，繼續探測\ni=2，(59+2) mod 11=6，已有 28，繼續探測\ni=3，(59+3) mod 11=7，已有 17，繼續探測\ni=4，(59+4) mod 11=8，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=88，A[2]=空，A[3]=空，A[4]=4，A[5]=15，A[6]=28，A[7]=17，A[8]=59，A[9]=31，A[10]=10\n\n逐項核對：\n「A[8]=59」：符合，A[8] 最後是 59。\n「A[0]=22」：符合，A[0] 最後是 22。\n「A[6]=28」：符合，A[6] 最後是 28。\n「A[3]=4」：不符合，A[3] 最後是 空槽，不是 4。",
+        "choiceKey": "ABC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "同批有相同題幹的不同版本",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-2"
+          ],
+          "createdAt": 1795573554218,
+          "resolvedAt": 1795621692000
+        }
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-15",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-15",
+        "category": "雜湊函數與設計",
+        "type": "多選題",
+        "q": "雜湊函數的設計原則包含？",
+        "opts": [
+          "減少衝突",
+          "僅使用加法",
+          "分布均勻",
+          "計算快速"
+        ],
+        "a": "A、C、D",
+        "ex": "好的雜湊函數把鍵均勻分散，讓碰撞、桶長和探測次數降低，且每次算索引應夠快。可以使用取餘數、乘法或位元運算，沒有只能用加法的限制。",
+        "choiceKey": "ACD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-15",
+        "category": "雜湊函數與設計",
+        "type": "多選題",
+        "q": "雜湊函數的設計原則包含？",
+        "opts": [
+          "減少衝突",
+          "僅使用加法",
+          "分布均勻",
+          "計算快速"
+        ],
+        "a": "A、C、D",
+        "ex": "好的雜湊函數把鍵均勻分散，讓碰撞、桶長和探測次數降低，且每次算索引應夠快。可以使用取餘數、乘法或位元運算，沒有只能用加法的限制。\n\n想像有 100 個學生要分到 10 個抽屜：若總是集中在一格，每次都要翻很多資料；若分散且能快速算出抽屜編號，查找才快。函數本身太慢，也會吃掉減少搜尋所省的時間。\n\n逐項核對：\n「減少衝突」：碰撞越少，通常需要比較的鍵或探測的槽越少。\n「僅使用加法」：沒有只能加法的限制，常見方法也使用乘法、取餘數與位元運算。\n「分布均勻」：避免少數槽特別擁擠，是維持平均效能的重要條件。\n「計算快速」：每次存取都要算索引，函數本身應能有效率地計算。",
+        "choiceKey": "ACD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-16",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-16",
+        "category": "負載因子與效能",
+        "type": "填空題",
+        "q": "負載因子 α 定義為 ____________ 除以 m (請用小寫英文回答)",
+        "opts": [],
+        "a": "n",
+        "ex": "負載因子 α=n/m。n 是表內已存的鍵數，m 是表的槽數。例如 11 格放了 9 個鍵，α=9/11，因此分子填 n。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-16",
+        "category": "負載因子與效能",
+        "type": "填空題",
+        "q": "負載因子 α 定義為 ____________ 除以 m (請用小寫英文回答)",
+        "opts": [],
+        "a": "n",
+        "ex": "先寫 α=n/m，辨認 n 是已存鍵數、m 是槽數，再看空格位於分子，所以填 n。例如 11 格放 9 個鍵，α=9/11；若把 n、m 顛倒，會得到每個鍵平均分到多少槽，已不是負載因子。鏈結法可有 n>m；開放定址每格最多放一個鍵，所以 n≤m。負載因子不是鍵值的大小，也不是整張表配置多少位元組。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-17",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-17",
+        "category": "負載因子與效能",
+        "type": "單選題",
+        "q": "雜湊表的效能很大程度上依賴於？",
+        "opts": [
+          "探測的次數",
+          "記憶體大小",
+          "雜湊函數的均勻性",
+          "鏈結串列長度"
+        ],
+        "a": "C",
+        "ex": "均勻分布能讓資料分散到各槽，避免所有鍵擠到一處。探測次數和鏈結串列長度是碰撞分布與處理方式的結果；記憶體大小會影響容量，也需要配合分布與負載。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-17",
+        "category": "負載因子與效能",
+        "type": "單選題",
+        "q": "雜湊表的效能很大程度上依賴於？",
+        "opts": [
+          "探測的次數",
+          "記憶體大小",
+          "雜湊函數的均勻性",
+          "鏈結串列長度"
+        ],
+        "a": "C",
+        "ex": "均勻分布能讓資料分散到各槽，避免所有鍵擠到一處。探測次數和鏈結串列長度是碰撞分布與處理方式的結果；記憶體大小會影響容量，也需要配合分布與負載。\n\n同樣 100 個鍵、100 格表，若集中到同一串列，找不到的鍵可能要比較 100 次；分散到各槽時，平均每槽只有一個。比較時應分清「分布的原因」與「觀察到的探測／串列長度」。\n\n逐項核對：\n「探測的次數」：它直接反映實際操作成本，但也是雜湊分布、負載與探測策略共同造成的結果。\n「記憶體大小」：容量會影響負載，確實與效能有關；只是多給記憶體也不能補救所有鍵都落在同一槽的壞函數。\n「雜湊函數的均勻性」：這是本題要辨認的核心設計因素：均勻分散能減輕碰撞。\n「鏈結串列長度」：長度會影響鏈結法搜尋成本，也是分布是否集中的結果；它不是所有碰撞策略都使用的結構。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-18",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-18",
+        "category": "雙重雜湊",
+        "type": "多選題",
+        "q": "考慮將鍵值 10、22、31、4、15、28、17、88、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 1 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |",
+        "opts": [
+          "A[4]=4",
+          "A[9]=10",
+          "A[7]=88",
+          "A[2]=59"
+        ],
+        "a": "A、C、D",
+        "ex": "依插入順序逐一處理。索引用 (k + i×(1 + (k mod 10))) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n22：0\n31：9\n4：4\n15：4 → 10 → 5\n28：6\n17：6 → 3\n88：0 → 9 → 7\n59：4 → 3 → 2\n\n由 A[0] 到 A[10] 依序為 22、空、59、17、4、15、28、88、空、31、10。\n\nA[4]=4 正確。A[9]=10 不成立，A[9] 實際為 31。A[7]=88 正確。A[2]=59 正確。",
+        "choiceKey": "ACD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-18",
+        "category": "雙重雜湊",
+        "type": "多選題",
+        "q": "考慮將鍵值 10、22、31、4、15、28、17、88、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 1 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |",
+        "opts": [
+          "A[4]=4",
+          "A[9]=10",
+          "A[7]=88",
+          "A[2]=59"
+        ],
+        "a": "A、C、D",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i×(1+(k mod 10))) mod 11 計算下一個位置。\n先為每個鍵算自己的步長，再保持該步長探測；同一鍵的步長不隨 i 改變。\n\n逐鍵計算：\n鍵 10：步長=1+(10 mod 10)=1\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 22：步長=1+(22 mod 10)=3\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 31：步長=1+(31 mod 10)=2\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 4：步長=1+(4 mod 10)=5\ni=0，(4+0) mod 11=4，空槽，放入此鍵\n\n鍵 15：步長=1+(15 mod 10)=6\ni=0，(15+0) mod 11=4，已有 4，繼續探測\ni=1，(15+6) mod 11=10，已有 10，繼續探測\ni=2，(15+12) mod 11=5，空槽，放入此鍵\n\n鍵 28：步長=1+(28 mod 10)=9\ni=0，(28+0) mod 11=6，空槽，放入此鍵\n\n鍵 17：步長=1+(17 mod 10)=8\ni=0，(17+0) mod 11=6，已有 28，繼續探測\ni=1，(17+8) mod 11=3，空槽，放入此鍵\n\n鍵 88：步長=1+(88 mod 10)=9\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+9) mod 11=9，已有 31，繼續探測\ni=2，(88+18) mod 11=7，空槽，放入此鍵\n\n鍵 59：步長=1+(59 mod 10)=10\ni=0，(59+0) mod 11=4，已有 4，繼續探測\ni=1，(59+10) mod 11=3，已有 17，繼續探測\ni=2，(59+20) mod 11=2，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=空，A[2]=59，A[3]=17，A[4]=4，A[5]=15，A[6]=28，A[7]=88，A[8]=空，A[9]=31，A[10]=10\n\n逐項核對：\n「A[4]=4」：符合，A[4] 最後是 4。\n「A[9]=10」：不符合，A[9] 最後是 31，不是 10。\n「A[7]=88」：符合，A[7] 最後是 88。\n「A[2]=59」：符合，A[2] 最後是 59。",
+        "choiceKey": "ACD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-19",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-19",
+        "category": "雜湊函數與設計",
+        "type": "多選題",
+        "q": "為什麼 m 選擇質數對除法雜湊法很重要？",
+        "opts": [
+          "沒有任何幫助",
+          "提高運算效率",
+          "減少衝突",
+          "避免數值上的對稱性"
+        ],
+        "a": "C、D",
+        "ex": "h(k)=k mod m 只看餘數。若 m=8 而鍵全是 8 的倍數，便都落在 0。選不容易與鍵規律共用因數的質數，可減少週期性集中和碰撞；取模運算本身未必更快。",
+        "choiceKey": "CD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-19",
+        "category": "雜湊函數與設計",
+        "type": "多選題",
+        "q": "為什麼 m 選擇質數對除法雜湊法很重要？",
+        "opts": [
+          "沒有任何幫助",
+          "提高運算效率",
+          "減少衝突",
+          "避免數值上的對稱性"
+        ],
+        "a": "C、D",
+        "ex": "h(k)=k mod m 只看餘數。若 m=8 而鍵全是 8 的倍數，便都落在 0。選不容易與鍵規律共用因數的質數，可減少週期性集中和碰撞；取模運算本身未必更快。\n\n若鍵都是 8 的倍數，用 m=8 時餘數全是 0；用 m=11 時，鍵 8、16、24 分別到 8、5、2。這裡要破除的是輸入規律與表長的共同週期，而不是宣稱質數能消除所有碰撞。\n\n逐項核對：\n「沒有任何幫助」：適當質數能避開部分規律性集中，因此不能說完全沒有幫助。\n「提高運算效率」：質數取模不保證比其他表長算得更快；分布改善與單次算術速度是兩件事。\n「減少衝突」：減少由共同因數或週期造成的集中，通常有助於降低碰撞。\n「避免數值上的對稱性」：此處的對稱性指鍵的數值規律在取模後反覆落在少數位置，適當質數有助於避開它。",
+        "choiceKey": "CD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-2",
+      "revision": 3,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-2",
+        "category": "線性探測",
+        "type": "多選題",
+        "q": "考慮將鍵值 10、22、31、4、15、28、17、88、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用線性探測（linear probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |",
+        "opts": [
+          "A[9] = 10",
+          "A[8] = 59",
+          "A[4] = 15",
+          "A[6] = 28"
+        ],
+        "a": "B、D",
+        "ex": "依插入順序逐一處理。索引用 (k + i) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n22：0\n31：9\n4：4\n15：4 → 5\n28：6\n17：6 → 7\n88：0 → 1\n59：4 → 5 → 6 → 7 → 8\n\n由 A[0] 到 A[10] 依序為 22、88、空、空、4、15、28、17、59、31、10。\n\nA[9] = 10 不成立，A[9] 實際為 31。A[8] = 59 正確。A[4] = 15 不成立，A[4] 實際為 4。A[6] = 28 正確。",
+        "choiceKey": "BD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "同批有相同題幹的不同版本",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-14"
+          ],
+          "createdAt": 1795573554218,
+          "resolvedAt": 1795621692000
+        }
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-2",
+        "category": "線性探測",
+        "type": "多選題",
+        "q": "考慮將鍵值 10、22、31、4、15、28、17、88、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用線性探測（linear probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |",
+        "opts": [
+          "A[9] = 10",
+          "A[8] = 59",
+          "A[4] = 15",
+          "A[6] = 28"
+        ],
+        "a": "B、D",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i) mod 11 計算下一個位置。\n碰撞後每次往後一格，超過末格就繞回第 0 格。\n\n逐鍵計算：\n鍵 10：\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 22：\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 31：\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 4：\ni=0，(4+0) mod 11=4，空槽，放入此鍵\n\n鍵 15：\ni=0，(15+0) mod 11=4，已有 4，繼續探測\ni=1，(15+1) mod 11=5，空槽，放入此鍵\n\n鍵 28：\ni=0，(28+0) mod 11=6，空槽，放入此鍵\n\n鍵 17：\ni=0，(17+0) mod 11=6，已有 28，繼續探測\ni=1，(17+1) mod 11=7，空槽，放入此鍵\n\n鍵 88：\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+1) mod 11=1，空槽，放入此鍵\n\n鍵 59：\ni=0，(59+0) mod 11=4，已有 4，繼續探測\ni=1，(59+1) mod 11=5，已有 15，繼續探測\ni=2，(59+2) mod 11=6，已有 28，繼續探測\ni=3，(59+3) mod 11=7，已有 17，繼續探測\ni=4，(59+4) mod 11=8，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=88，A[2]=空，A[3]=空，A[4]=4，A[5]=15，A[6]=28，A[7]=17，A[8]=59，A[9]=31，A[10]=10\n\n逐項核對：\n「A[9] = 10」：不符合，A[9] 最後是 31，不是 10。\n「A[8] = 59」：符合，A[8] 最後是 59。\n「A[4] = 15」：不符合，A[4] 最後是 4，不是 15。\n「A[6] = 28」：符合，A[6] 最後是 28。",
+        "choiceKey": "BD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "同批有相同題幹的不同版本",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-14"
+          ],
+          "createdAt": 1795573554218,
+          "resolvedAt": 1795621692000
+        }
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-20",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-20",
+        "category": "負載因子與效能",
+        "type": "單選題",
+        "q": "雜湊表的負載因子（Load factor, α）定義為？",
+        "opts": [
+          "n+m",
+          "m/n",
+          "n/m",
+          "n*m"
+        ],
+        "a": "C",
+        "ex": "將 n 個元素平均分到 m 個槽，每槽平均 n/m 個，例如 10 個元素和 5 格的負載是 2。m/n 是其倒數，相加或相乘也沒有表示每槽平均值。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-20",
+        "category": "負載因子與效能",
+        "type": "單選題",
+        "q": "雜湊表的負載因子（Load factor, α）定義為？",
+        "opts": [
+          "n+m",
+          "m/n",
+          "n/m",
+          "n*m"
+        ],
+        "a": "C",
+        "ex": "將 n 個元素平均分到 m 個槽，每槽平均 n/m 個，例如 10 個元素和 5 格的負載是 2。m/n 是其倒數，相加或相乘也沒有表示每槽平均值。\n\n先辨認 n 是已存元素數、m 是槽數。若放 12 個元素到 4 個桶，平均每桶 12÷4=3 個，因此 α=3。這在鏈結法可行；開放定址每格只能放一個，不能有這樣的負載。\n\n逐項核對：\n「n+m」：相加得到總數，不能表示每槽平均有多少元素。\n「m/n」：它表示每個元素平均分到幾格，是所求比率的倒數。\n「n/m」：元素數除以槽數，正好是每槽平均元素數。\n「n*m」：相乘沒有表示平均佔用程度。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-21",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-21",
+        "category": "二次探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 c1 = 1 與 c2 = 3 的二次探測（quadratic probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[3] =   ____________ \nA[4] =   ____________",
+        "opts": [],
+        "a": "88/15",
+        "ex": "依插入順序逐一處理。索引用 (k + 1i + 3i²) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n31：9\n22：0\n15：4\n17：6\n88：0 → 4 → 3\n14：3 → 7\n28：6 → 10 → 9 → 3 → 8\n59：4 → 8 → 7 → 1\n\n由 A[0] 到 A[10] 依序為 22、59、空、88、15、空、17、14、28、31、10。\n\n依填空順序取值：A[3]=88，A[4]=15。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-21",
+        "category": "二次探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 c1 = 1 與 c2 = 3 的二次探測（quadratic probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[3] =   ____________ \nA[4] =   ____________",
+        "opts": [],
+        "a": "88/15",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+1i+3i²) mod 11 計算下一個位置。\n係數須逐字看題目；c2=3 與 c2=5 會得到不同結果。i² 是探測編號的平方，不能把鍵值平方。\n\n逐鍵計算：\n鍵 10：\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+4) mod 11=4，已有 15，繼續探測\ni=2，(88+14) mod 11=3，空槽，放入此鍵\n\n鍵 14：\ni=0，(14+0) mod 11=3，已有 88，繼續探測\ni=1，(14+4) mod 11=7，空槽，放入此鍵\n\n鍵 28：\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+4) mod 11=10，已有 10，繼續探測\ni=2，(28+14) mod 11=9，已有 31，繼續探測\ni=3，(28+30) mod 11=3，已有 88，繼續探測\ni=4，(28+52) mod 11=3，已有 88，繼續探測\ni=5，(28+80) mod 11=9，已有 31，繼續探測\ni=6，(28+114) mod 11=10，已有 10，繼續探測\ni=7，(28+154) mod 11=6，已有 17，繼續探測\ni=8，(28+200) mod 11=8，空槽，放入此鍵\n\n鍵 59：\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+4) mod 11=8，已有 28，繼續探測\ni=2，(59+14) mod 11=7，已有 14，繼續探測\ni=3，(59+30) mod 11=1，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=59，A[2]=空，A[3]=88，A[4]=15，A[5]=空，A[6]=17，A[7]=14，A[8]=28，A[9]=31，A[10]=10\n\n依題目填空順序讀表：A[3]=88，A[4]=15，因此依序填 88/15。不要把陣列索引順序與鍵的插入順序混在一起。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-3",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-3",
+        "category": "雜湊基本觀念與應用",
+        "type": "單選題",
+        "q": "什麼是「衝突」（Collision）？",
+        "opts": [
+          "雜湊表已滿",
+          "兩個不同的鍵值雜湊到相同位置",
+          "雜湊函數失效",
+          "兩個相同的鍵值"
+        ],
+        "a": "B",
+        "ex": "若不同鍵 k₁、k₂ 得到同一索引 h(k₁)=h(k₂)，就發生碰撞。表還有空格也可能碰撞，且同一個鍵得出相同索引本來就是確定性函數的結果。碰撞由鏈結或探測處理。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-3",
+        "category": "雜湊基本觀念與應用",
+        "type": "單選題",
+        "q": "什麼是「衝突」（Collision）？",
+        "opts": [
+          "雜湊表已滿",
+          "兩個不同的鍵值雜湊到相同位置",
+          "雜湊函數失效",
+          "兩個相同的鍵值"
+        ],
+        "a": "B",
+        "ex": "若不同鍵 k₁、k₂ 得到同一索引 h(k₁)=h(k₂)，就發生碰撞。表還有空格也可能碰撞，且同一個鍵得出相同索引本來就是確定性函數的結果。碰撞由鏈結或探測處理。\n\n設 h(k)=k mod 11，鍵 10 與 21 都得到 10，即使其餘十格都是空的，也已經發生碰撞。碰撞指不同鍵搶同一個雜湊位置，並不代表資料一定放不下。\n\n逐項核對：\n「雜湊表已滿」：表滿是容量問題；表還很空也可能碰撞。\n「兩個不同的鍵值雜湊到相同位置」：不同鍵的函數值相同，就是碰撞的定義。\n「雜湊函數失效」：合法函數也可能碰撞，尤其可能的鍵比槽多時，不能把碰撞直接當成函數壞掉。\n「兩個相同的鍵值」：同一鍵重複得到同一位置是正常對應，碰撞定義比較的是不同鍵。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-4",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-4",
+        "category": "全域雜湊與完全雜湊",
+        "type": "單選題",
+        "q": "全域雜湊法（Universal hashing）的主要優點是？",
+        "opts": [
+          "空間複雜度為 O(1)",
+          "減少衝突發生的機率",
+          "保證沒有衝突",
+          "不需要雜湊函數"
+        ],
+        "a": "B",
+        "ex": "先從函數族隨機選 h。對任兩個不同的鍵，其碰撞機率可由函數族的性質約束，典型上界是 1/m。碰撞仍可能發生，表也必須配置空間並計算雜湊函數。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-4",
+        "category": "全域雜湊與完全雜湊",
+        "type": "單選題",
+        "q": "全域雜湊法（Universal hashing）的主要優點是？",
+        "opts": [
+          "空間複雜度為 O(1)",
+          "減少衝突發生的機率",
+          "保證沒有衝突",
+          "不需要雜湊函數"
+        ],
+        "a": "B",
+        "ex": "先從函數族隨機選 h。對任兩個不同的鍵，其碰撞機率可由函數族的性質約束，典型上界是 1/m。碰撞仍可能發生，表也必須配置空間並計算雜湊函數。\n\n先固定輸入鍵，再從合適的函數族隨機抽 h。對任兩個不同鍵，碰撞機率可限制在 1/m 以內。這是對選函數的隨機性取期望，不是抽完之後每一組鍵都保證不碰撞。\n\n逐項核對：\n「空間複雜度為 O(1)」：表與實際元素仍要佔用空間，不能因為隨機選函數就把總空間說成常數。\n「減少衝突發生的機率」：它控制固定鍵對的碰撞機率，減少特定輸入專門針對某個固定函數的風險。\n「保證沒有衝突」：碰撞機率有上界，不等於機率為零；完全雜湊的無碰撞建表是另一個概念。\n「不需要雜湊函數」：仍要計算抽中的雜湊函數，隨機選擇只是決定使用哪一支。",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-5",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-5",
+        "category": "雜湊基本觀念與應用",
+        "type": "填空題",
+        "q": "雜湊衝突是不可避免的，因為 ____________ 空間大於雜湊表大小 (請用小寫英文回答)",
+        "opts": [],
+        "a": "key",
+        "ex": "鍵值空間（key space）能提供的鍵比槽數多。把所有可能的鍵分配到較少的槽，依鴿籠原理，至少有兩個不同鍵對到同一個槽。因此填 key。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-5",
+        "category": "雜湊基本觀念與應用",
+        "type": "填空題",
+        "q": "雜湊衝突是不可避免的，因為 ____________ 空間大於雜湊表大小 (請用小寫英文回答)",
+        "opts": [],
+        "a": "key",
+        "ex": "填 key，與後面的 space 合成 key space（鍵值空間）。假設可能有 100 個不同鍵，表卻只有 10 格；將所有可能鍵映到 10 格，依鴿籠原理必有兩個不同鍵對到同一位置。要注意「不可避免」指不可能對整個較大的鍵空間都沒有碰撞，不表示每一批實際資料一定碰撞。例如只插入一個鍵就不會與別鍵碰撞；完全雜湊也能針對事先固定的較小集合建無碰撞的表。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-6",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-6",
+        "category": "二次探測",
+        "type": "多選題",
+        "q": "考慮將鍵值 10、22、31、4、15、28、17、88、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 c1 = 1 與 c2 = 3 的二次探測（quadratic probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |",
+        "opts": [
+          "A[10]=10",
+          "A[5]=4",
+          "A[7]=59",
+          "A[9]=15"
+        ],
+        "a": "A、C",
+        "ex": "依插入順序逐一處理。索引用 (k + 1i + 3i²) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n22：0\n31：9\n4：4\n15：4 → 8\n28：6\n17：6 → 10 → 9 → 3\n88：0 → 4 → 3 → 8 → 2\n59：4 → 8 → 7\n\n由 A[0] 到 A[10] 依序為 22、空、88、17、4、空、28、59、15、31、10。\n\nA[10]=10 正確。A[5]=4 不成立，A[5] 實際為 空。A[7]=59 正確。A[9]=15 不成立，A[9] 實際為 31。",
+        "choiceKey": "AC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-6",
+        "category": "二次探測",
+        "type": "多選題",
+        "q": "考慮將鍵值 10、22、31、4、15、28、17、88、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 c1 = 1 與 c2 = 3 的二次探測（quadratic probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |",
+        "opts": [
+          "A[10]=10",
+          "A[5]=4",
+          "A[7]=59",
+          "A[9]=15"
+        ],
+        "a": "A、C",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+1i+3i²) mod 11 計算下一個位置。\n係數須逐字看題目；c2=3 與 c2=5 會得到不同結果。i² 是探測編號的平方，不能把鍵值平方。\n\n逐鍵計算：\n鍵 10：\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 22：\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 31：\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 4：\ni=0，(4+0) mod 11=4，空槽，放入此鍵\n\n鍵 15：\ni=0，(15+0) mod 11=4，已有 4，繼續探測\ni=1，(15+4) mod 11=8，空槽，放入此鍵\n\n鍵 28：\ni=0，(28+0) mod 11=6，空槽，放入此鍵\n\n鍵 17：\ni=0，(17+0) mod 11=6，已有 28，繼續探測\ni=1，(17+4) mod 11=10，已有 10，繼續探測\ni=2，(17+14) mod 11=9，已有 31，繼續探測\ni=3，(17+30) mod 11=3，空槽，放入此鍵\n\n鍵 88：\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+4) mod 11=4，已有 4，繼續探測\ni=2，(88+14) mod 11=3，已有 17，繼續探測\ni=3，(88+30) mod 11=8，已有 15，繼續探測\ni=4，(88+52) mod 11=8，已有 15，繼續探測\ni=5，(88+80) mod 11=3，已有 17，繼續探測\ni=6，(88+114) mod 11=4，已有 4，繼續探測\ni=7，(88+154) mod 11=0，已有 22，繼續探測\ni=8，(88+200) mod 11=2，空槽，放入此鍵\n\n鍵 59：\ni=0，(59+0) mod 11=4，已有 4，繼續探測\ni=1，(59+4) mod 11=8，已有 15，繼續探測\ni=2，(59+14) mod 11=7，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=空，A[2]=88，A[3]=17，A[4]=4，A[5]=空，A[6]=28，A[7]=59，A[8]=15，A[9]=31，A[10]=10\n\n逐項核對：\n「A[10]=10」：符合，A[10] 最後是 10。\n「A[5]=4」：不符合，A[5] 最後是 空槽，不是 4。\n「A[7]=59」：符合，A[7] 最後是 59。\n「A[9]=15」：不符合，A[9] 最後是 31，不是 15。",
+        "choiceKey": "AC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-7",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-7",
+        "category": "負載因子與效能",
+        "type": "填空題",
+        "q": "雜湊表搜尋的平均複雜度為 ____________ (請用英文回答，表示形式為 請用log，不可用lg替代log，上標請用^，符號請用 {big-theta, theta, big-omega, omega, O, o,})",
+        "opts": [],
+        "a": "O(1)",
+        "ex": "在雜湊分布近似均勻、負載受控制時，平均只需檢查常數個位置或元素，因此填 O(1)。若資料集中到同一桶，仍可能要逐一搜尋，最壞情況可為 O(n)。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-7",
+        "category": "負載因子與效能",
+        "type": "填空題",
+        "q": "雜湊表搜尋的平均複雜度為 ____________ (請用英文回答，表示形式為 請用log，不可用lg替代log，上標請用^，符號請用 {big-theta, theta, big-omega, omega, O, o,})",
+        "opts": [],
+        "a": "O(1)",
+        "ex": "填 O(1)。先算雜湊位置，再檢查對應槽或桶；當分布近似均勻、負載受到控制時，預期只需常數次工作。例如鏈結法搜尋為 O(1+α)，若 α 一直維持在 0.75 左右，便化為 O(1)。這是平均／期望效能，不是所有輸入的最壞保證。若 n 個鍵全擠到同一串列，找不到的鍵可能要比 n 次，最壞為 O(n)。不能因為算索引一次就忽略碰撞後的搜尋。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-8",
+      "revision": 3,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-8",
+        "category": "雙重雜湊",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 1 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[3] =   ____________ \nA[7] =   ____________",
+        "opts": [],
+        "a": "14/88",
+        "ex": "依插入順序逐一處理。索引用 (k + i×(1 + (k mod 10))) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n31：9\n22：0\n15：4\n17：6\n88：0 → 9 → 7\n14：3\n28：6 → 4 → 2\n59：4 → 3 → 2 → 1\n\n由 A[0] 到 A[10] 依序為 22、59、28、14、15、空、17、88、空、31、10。\n\n依填空順序取值：A[3]=14，A[7]=88。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "同批有相同題幹的不同版本",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-1"
+          ],
+          "createdAt": 1795573554218,
+          "resolvedAt": 1795621692000
+        }
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-8",
+        "category": "雙重雜湊",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 h1(k) = k 和 h2(k) = 1 + (k mod (m - 1)) 的雙重雜湊（double hashing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[3] =   ____________ \nA[7] =   ____________",
+        "opts": [],
+        "a": "14/88",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i×(1+(k mod 10))) mod 11 計算下一個位置。\n先為每個鍵算自己的步長，再保持該步長探測；同一鍵的步長不隨 i 改變。\n\n逐鍵計算：\n鍵 10：步長=1+(10 mod 10)=1\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：步長=1+(31 mod 10)=2\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：步長=1+(22 mod 10)=3\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：步長=1+(15 mod 10)=6\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：步長=1+(17 mod 10)=8\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：步長=1+(88 mod 10)=9\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+9) mod 11=9，已有 31，繼續探測\ni=2，(88+18) mod 11=7，空槽，放入此鍵\n\n鍵 14：步長=1+(14 mod 10)=5\ni=0，(14+0) mod 11=3，空槽，放入此鍵\n\n鍵 28：步長=1+(28 mod 10)=9\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+9) mod 11=4，已有 15，繼續探測\ni=2，(28+18) mod 11=2，空槽，放入此鍵\n\n鍵 59：步長=1+(59 mod 10)=10\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+10) mod 11=3，已有 14，繼續探測\ni=2，(59+20) mod 11=2，已有 28，繼續探測\ni=3，(59+30) mod 11=1，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=59，A[2]=28，A[3]=14，A[4]=15，A[5]=空，A[6]=17，A[7]=88，A[8]=空，A[9]=31，A[10]=10\n\n依題目填空順序讀表：A[3]=14，A[7]=88，因此依序填 14/88。不要把陣列索引順序與鍵的插入順序混在一起。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "同批有相同題幹的不同版本",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-1"
+          ],
+          "createdAt": 1795573554218,
+          "resolvedAt": 1795621692000
+        }
+      }
+    },
+    {
+      "id": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-9",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-9",
+        "category": "雙重雜湊",
+        "type": "多選題",
+        "q": "雙重雜湊的探測序列優點？",
+        "opts": [
+          "需要更多計算資源",
+          "減少二次群聚效應",
+          "能產生較長的探測序列",
+          "使用兩個雜湊函數"
+        ],
+        "a": "B、C、D",
+        "ex": "第二個函數決定步長，讓起始槽相同的鍵也可能走不同路徑，減輕二次群聚。步長與表長互質時，探測可走遍整張表。使用兩個函數是這個方法的做法；額外計算則是成本。",
+        "choiceKey": "BCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-9",
+        "category": "雙重雜湊",
+        "type": "多選題",
+        "q": "雙重雜湊的探測序列優點？",
+        "opts": [
+          "需要更多計算資源",
+          "減少二次群聚效應",
+          "能產生較長的探測序列",
+          "使用兩個雜湊函數"
+        ],
+        "a": "B、C、D",
+        "ex": "第二個函數決定步長，讓起始槽相同的鍵也可能走不同路徑，減輕二次群聚。步長與表長互質時，探測可走遍整張表。使用兩個函數是這個方法的做法；額外計算則是成本。\n\n若 m=11，兩鍵的起點都是 2，但步長分別為 3 與 4，探測會是 2→5→8… 與 2→6→10…。起點相同也不必整段走同一路。步長必須非零且與 m 互質，才可能走遍全部槽。\n\n逐項核對：\n「需要更多計算資源」：計算第二個函數是額外成本，不能當作效能優點。\n「減少二次群聚效應」：第二函數讓同起點的鍵有機會使用不同步長，減輕二次群聚。\n「能產生較長的探測序列」：步長與表長互質時，可產生長度 m 的完整探測週期；沒有互質條件則不保證。\n「使用兩個雜湊函數」：第一函數決定起點，第二函數決定步長，是本方法提供更多探測序列的機制。",
+        "choiceKey": "BCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-a3c24007-5c27-440b-b552-4003d112f19e-1",
+      "revision": 1,
+      "before": {
+        "bookmarkId": "community-a3c24007-5c27-440b-b552-4003d112f19e-1",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "開放定址法中的探測次數與什麼有關？",
+        "opts": [
+          "雜湊策略",
+          "鍵值分布",
+          "搜尋結果 (成功/失敗)",
+          "負載因子 α"
+        ],
+        "a": "A、B、C、D",
+        "ex": "",
+        "choiceKey": "ABCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-a3c24007-5c27-440b-b552-4003d112f19e-1",
+        "category": "負載因子與效能",
+        "type": "多選題",
+        "q": "開放定址法中的探測次數與什麼有關？",
+        "opts": [
+          "雜湊策略",
+          "鍵值分布",
+          "搜尋結果 (成功/失敗)",
+          "負載因子 α"
+        ],
+        "a": "A、B、C、D",
+        "ex": "探測次數就是為一次操作試了幾個槽。例如查成功可能在第二格找到鍵；查失敗則可能要一路找到從未使用的空槽才確定不存在。表越滿、碰撞越集中，通常越難早停。\n\n逐項核對：\n「雜湊策略」：線性、二次與雙重雜湊走不同路徑，遇到碰撞的方式不同。\n「鍵值分布」：鍵與雜湊函數共同決定起點和碰撞分布；集中輸入可讓路徑變長。\n「搜尋結果 (成功/失敗)」：成功搜尋找到鍵就停；失敗搜尋需確定鍵不存在，停止條件與期望成本不同。\n「負載因子 α」：α=n/m 越高，空槽通常越少，插入及失敗搜尋常需更多探測。",
+        "choiceKey": "ABCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-a3c24007-5c27-440b-b552-4003d112f19e-2",
+      "revision": 1,
+      "before": {
+        "bookmarkId": "community-a3c24007-5c27-440b-b552-4003d112f19e-2",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "完全雜湊（Perfect hashing）的特點是？",
+        "opts": [
+          "僅適用於小資料集",
+          "僅支援插入",
+          "最差情況搜尋時間為 O(1)",
+          "需要大量記憶體"
+        ],
+        "a": "C",
+        "ex": "",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-a3c24007-5c27-440b-b552-4003d112f19e-2",
+        "category": "全域雜湊與完全雜湊",
+        "type": "單選題",
+        "q": "完全雜湊（Perfect hashing）的特點是？",
+        "opts": [
+          "僅適用於小資料集",
+          "僅支援插入",
+          "最差情況搜尋時間為 O(1)",
+          "需要大量記憶體"
+        ],
+        "a": "C",
+        "ex": "典型靜態完全雜湊為固定鍵集合建表：先找第一層桶，再用桶內的第二個函數定位，最後比對鍵。建好後只需固定次數存取，因此最壞搜尋 O(1)。要把建表的重試成本與查詢成本分開。\n\n逐項核對：\n「僅適用於小資料集」：靜態集合可以很大，限制重點是集合固定及建表成本，不是僅能用於小資料。\n「僅支援插入」：主要保證正是搜尋；一般靜態設計若新增鍵，可能需要重建相關表，不能說僅支援插入。\n「最差情況搜尋時間為 O(1)」：建成無碰撞的定位結構後，固定次數存取即可查詢，即使最壞情況也為常數。\n「需要大量記憶體」：天真單層設計可能用大量空間，但典型兩層完全雜湊能達預期線性總空間，因此大量記憶體不是必然特點。",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-a3c24007-5c27-440b-b552-4003d112f19e-3",
+      "revision": 1,
+      "before": {
+        "bookmarkId": "community-a3c24007-5c27-440b-b552-4003d112f19e-3",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n線性探測（Linear Probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[6] =   ____________ \nA[10] =   ____________",
+        "opts": [],
+        "a": "17/10",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-a3c24007-5c27-440b-b552-4003d112f19e-3",
+        "category": "線性探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n線性探測（Linear Probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[6] =   ____________ \nA[10] =   ____________",
+        "opts": [],
+        "a": "17/10",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i) mod 11 計算下一個位置。\n碰撞後每次往後一格，超過末格就繞回第 0 格。\n\n逐鍵計算：\n鍵 10：\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+1) mod 11=1，空槽，放入此鍵\n\n鍵 14：\ni=0，(14+0) mod 11=3，空槽，放入此鍵\n\n鍵 28：\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+1) mod 11=7，空槽，放入此鍵\n\n鍵 59：\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+1) mod 11=5，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=88，A[2]=空，A[3]=14，A[4]=15，A[5]=59，A[6]=17，A[7]=28，A[8]=空，A[9]=31，A[10]=10\n\n依題目填空順序讀表：A[6]=17，A[10]=10，因此依序填 17/10。不要把陣列索引順序與鍵的插入順序混在一起。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-f9039e48-7bcf-4904-8f32-47b554b961dd-1",
+      "revision": 2,
+      "before": {
+        "bookmarkId": "community-f9039e48-7bcf-4904-8f32-47b554b961dd-1",
+        "category": "全域雜湊與完全雜湊",
+        "type": "多選題",
+        "q": "全域雜湊法（Universal hashing）具有什麼特徵？",
+        "opts": [
+          "從函數族中隨機選擇雜湊函數",
+          "降低特定惡意輸入造成大量衝突的風險",
+          "需要儲存所有鍵值",
+          "對任意一組輸入都能達到平均效果"
+        ],
+        "a": "A、B、D",
+        "ex": "建表時從全域函數族隨機選一支函數。對任意事先固定的一組輸入，平均是對「隨機選函數」取期望，因此可降低特定輸入造成大量碰撞的風險。這個性質不需要把整個鍵值空間存起來，也不保證每次選出的函數都同樣均勻。",
+        "choiceKey": "ABD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-f9039e48-7bcf-4904-8f32-47b554b961dd-1",
+        "category": "全域雜湊與完全雜湊",
+        "type": "多選題",
+        "q": "全域雜湊法（Universal hashing）具有什麼特徵？",
+        "opts": [
+          "從函數族中隨機選擇雜湊函數",
+          "降低特定惡意輸入造成大量衝突的風險",
+          "需要儲存所有鍵值",
+          "對任意一組輸入都能達到平均效果"
+        ],
+        "a": "A、B、D",
+        "ex": "建表時從全域函數族隨機選一支函數。對任意事先固定的一組輸入，平均是對「隨機選函數」取期望，因此可降低特定輸入造成大量碰撞的風險。這個性質不需要把整個鍵值空間存起來，也不保證每次選出的函數都同樣均勻。\n\n先把要存的輸入集合固定，再從全域函數族抽 h。對不同鍵的碰撞機率有控制，因此對任一固定集合，對隨機函數取期望能得到好的效能界。這不保證單次抽出的每支函數都好，也不能把結論無條件延伸到能依目前函數持續改變輸入的攻擊者。\n\n逐項核對：\n「從函數族中隨機選擇雜湊函數」：這是全域雜湊的核心：隨機選函數，而不是每次查詢都更換函數。\n「降低特定惡意輸入造成大量衝突的風險」：可降低某組事先挑好的輸入針對固定函數大量碰撞的風險，但不是完全防止所有攻擊。\n「需要儲存所有鍵值」：函數族的保證不要求先把整個可能鍵空間存下來；實際字典當然仍需保存已插入的資料，兩件事要分開。\n「對任意一組輸入都能達到平均效果」：此處平均是對選函數取期望，對任意事先固定的輸入集合成立；不是每次運作或每個自適應輸入都保證均勻。",
+        "choiceKey": "ABD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-f9039e48-7bcf-4904-8f32-47b554b961dd-2",
+      "revision": 3,
+      "before": {
+        "bookmarkId": "community-f9039e48-7bcf-4904-8f32-47b554b961dd-2",
+        "category": "線性探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n線性探測（Linear Probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[5] =   ____________ \nA[9] =   ____________",
+        "opts": [],
+        "a": "59/31",
+        "ex": "依插入順序逐一處理。索引用 (k + i) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n31：9\n22：0\n15：4\n17：6\n88：0 → 1\n14：3\n28：6 → 7\n59：4 → 5\n\n由 A[0] 到 A[10] 依序為 22、88、空、14、15、59、17、28、空、31、10。\n\n依填空順序取值：A[5]=59，A[9]=31。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "題幹對到多道既有題目，請確認應保留的版本",
+          "references": [
+            "community-195e73dc-491e-4a91-8c57-eb1d042735ab-9",
+            "community-10a5c455-d3b4-411e-8d5d-c96554917d48-1"
+          ],
+          "createdAt": 1795581627115,
+          "resolvedAt": 1795621692000
+        }
+      },
+      "after": {
+        "bookmarkId": "community-f9039e48-7bcf-4904-8f32-47b554b961dd-2",
+        "category": "線性探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n線性探測（Linear Probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[5] =   ____________ \nA[9] =   ____________",
+        "opts": [],
+        "a": "59/31",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+i) mod 11 計算下一個位置。\n碰撞後每次往後一格，超過末格就繞回第 0 格。\n\n逐鍵計算：\n鍵 10：\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+1) mod 11=1，空槽，放入此鍵\n\n鍵 14：\ni=0，(14+0) mod 11=3，空槽，放入此鍵\n\n鍵 28：\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+1) mod 11=7，空槽，放入此鍵\n\n鍵 59：\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+1) mod 11=5，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=88，A[2]=空，A[3]=14，A[4]=15，A[5]=59，A[6]=17，A[7]=28，A[8]=空，A[9]=31，A[10]=10\n\n依題目填空順序讀表：A[5]=59，A[9]=31，因此依序填 59/31。不要把陣列索引順序與鍵的插入順序混在一起。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "題幹對到多道既有題目，請確認應保留的版本",
+          "references": [
+            "community-195e73dc-491e-4a91-8c57-eb1d042735ab-9",
+            "community-10a5c455-d3b4-411e-8d5d-c96554917d48-1"
+          ],
+          "createdAt": 1795581627115,
+          "resolvedAt": 1795621692000
+        }
+      }
+    },
+    {
+      "id": "community-f9039e48-7bcf-4904-8f32-47b554b961dd-3",
+      "revision": 3,
+      "before": {
+        "bookmarkId": "community-f9039e48-7bcf-4904-8f32-47b554b961dd-3",
+        "category": "二次探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 c1 = 1 與 c2 = 3 的二次探測（quadratic probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[1] =   ____________ \nA[8] =   ____________",
+        "opts": [],
+        "a": "59/28",
+        "ex": "依插入順序逐一處理。索引用 (k + 1i + 3i²) mod 11，每個鍵都從 i=0 開始，遇到已佔槽便增加 i。\n\n每個鍵的探測位置如下。若成功，箭頭最後一格就是插入位置。\n10：10\n31：9\n22：0\n15：4\n17：6\n88：0 → 4 → 3\n14：3 → 7\n28：6 → 10 → 9 → 3 → 8\n59：4 → 8 → 7 → 1\n\n由 A[0] 到 A[10] 依序為 22、59、空、88、15、空、17、14、28、31、10。\n\n依填空順序取值：A[1]=59，A[8]=28。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "題幹對到多道既有題目，請確認應保留的版本",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-21",
+            "community-195e73dc-491e-4a91-8c57-eb1d042735ab-1"
+          ],
+          "createdAt": 1795581627115,
+          "resolvedAt": 1795621692000
+        }
+      },
+      "after": {
+        "bookmarkId": "community-f9039e48-7bcf-4904-8f32-47b554b961dd-3",
+        "category": "二次探測",
+        "type": "填空題",
+        "q": "考慮將鍵值 10、31、22、15、17、88、14、28、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 c1 = 1 與 c2 = 3 的二次探測（quadratic probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |\n\nA[1] =   ____________ \nA[8] =   ____________",
+        "opts": [],
+        "a": "59/28",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+1i+3i²) mod 11 計算下一個位置。\n係數須逐字看題目；c2=3 與 c2=5 會得到不同結果。i² 是探測編號的平方，不能把鍵值平方。\n\n逐鍵計算：\n鍵 10：\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 31：\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 22：\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 15：\ni=0，(15+0) mod 11=4，空槽，放入此鍵\n\n鍵 17：\ni=0，(17+0) mod 11=6，空槽，放入此鍵\n\n鍵 88：\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+4) mod 11=4，已有 15，繼續探測\ni=2，(88+14) mod 11=3，空槽，放入此鍵\n\n鍵 14：\ni=0，(14+0) mod 11=3，已有 88，繼續探測\ni=1，(14+4) mod 11=7，空槽，放入此鍵\n\n鍵 28：\ni=0，(28+0) mod 11=6，已有 17，繼續探測\ni=1，(28+4) mod 11=10，已有 10，繼續探測\ni=2，(28+14) mod 11=9，已有 31，繼續探測\ni=3，(28+30) mod 11=3，已有 88，繼續探測\ni=4，(28+52) mod 11=3，已有 88，繼續探測\ni=5，(28+80) mod 11=9，已有 31，繼續探測\ni=6，(28+114) mod 11=10，已有 10，繼續探測\ni=7，(28+154) mod 11=6，已有 17，繼續探測\ni=8，(28+200) mod 11=8，空槽，放入此鍵\n\n鍵 59：\ni=0，(59+0) mod 11=4，已有 15，繼續探測\ni=1，(59+4) mod 11=8，已有 28，繼續探測\ni=2，(59+14) mod 11=7，已有 14，繼續探測\ni=3，(59+30) mod 11=1，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=59，A[2]=空，A[3]=88，A[4]=15，A[5]=空，A[6]=17，A[7]=14，A[8]=28，A[9]=31，A[10]=10\n\n依題目填空順序讀表：A[1]=59，A[8]=28，因此依序填 59/28。不要把陣列索引順序與鍵的插入順序混在一起。",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎",
+        "submissionReview": {
+          "status": "resolved",
+          "reason": "題幹對到多道既有題目，請確認應保留的版本",
+          "references": [
+            "community-4a23f59b-43d2-4e9c-a5d2-21da60c16391-21",
+            "community-195e73dc-491e-4a91-8c57-eb1d042735ab-1"
+          ],
+          "createdAt": 1795581627115,
+          "resolvedAt": 1795621692000
+        }
+      }
+    },
+    {
+      "id": "community-fa2c9987-e7e9-4786-904c-39393dd47af5-1",
+      "revision": 1,
+      "before": {
+        "bookmarkId": "community-fa2c9987-e7e9-4786-904c-39393dd47af5-1",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "開放定址法的探測策略包含？",
+        "opts": [
+          "二次探測 (Quadratic probing)",
+          "雙重雜湊 (Double hashing)",
+          "線性探測 (Linear probing)",
+          "鏈結探測(Linked probing)"
+        ],
+        "a": "A、B、C",
+        "ex": "",
+        "choiceKey": "ABC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-fa2c9987-e7e9-4786-904c-39393dd47af5-1",
+        "category": "開放定址法",
+        "type": "多選題",
+        "q": "開放定址法的探測策略包含？",
+        "opts": [
+          "二次探測 (Quadratic probing)",
+          "雙重雜湊 (Double hashing)",
+          "線性探測 (Linear probing)",
+          "鏈結探測(Linked probing)"
+        ],
+        "a": "A、B、C",
+        "ex": "開放定址把所有鍵保存在原表陣列內。發生碰撞後，用探測函數決定下一槽；下面三種標準策略分別改變位移成長方式或步長來源。\n\n逐項核對：\n「二次探測 (Quadratic probing)」：位移含 i²，例如 (h′(k)+c₁i+c₂i²) mod m。\n「雙重雜湊 (Double hashing)」：使用第二函數提供每個鍵的步長，例如 (h₁(k)+i×h₂(k)) mod m。\n「線性探測 (Linear probing)」：位移依序加 1，例如 (h′(k)+i) mod m。\n「鏈結探測(Linked probing)」：此名稱不是本題列舉的標準開放定址探測法；常見鏈結法是把同桶資料串接，與在表內探測空槽不同。",
+        "choiceKey": "ABC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-fa2c9987-e7e9-4786-904c-39393dd47af5-2",
+      "revision": 1,
+      "before": {
+        "bookmarkId": "community-fa2c9987-e7e9-4786-904c-39393dd47af5-2",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "考慮將鍵值 10、22、31、4、15、28、17、88、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 c1 = 1 與 c2 = 3 的二次探測（quadratic probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |",
+        "opts": [
+          "A[4]=10",
+          "A[6]=28",
+          "A[2]=88",
+          "A[8]=15"
+        ],
+        "a": "B、C、D",
+        "ex": "",
+        "choiceKey": "BCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      },
+      "after": {
+        "bookmarkId": "community-fa2c9987-e7e9-4786-904c-39393dd47af5-2",
+        "category": "二次探測",
+        "type": "多選題",
+        "q": "考慮將鍵值 10、22、31、4、15、28、17、88、59 插入長度 m = 11 的雜湊表A中，使用開放定址法（open addressing）與輔助雜湊函數 h'(k) = k。 \n\n使用 c1 = 1 與 c2 = 3 的二次探測（quadratic probing） 請問陣列A[0] - A[10] 的內容哪些正確\n| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |\n|   |   |   |   |   |   |   |   |   |   |    |",
+        "opts": [
+          "A[4]=10",
+          "A[6]=28",
+          "A[2]=88",
+          "A[8]=15"
+        ],
+        "a": "B、C、D",
+        "ex": "先畫出 11 格空表，索引從 0 到 10。依題目給定的鍵值順序插入，已放入的鍵不能任意搬走。每個新鍵都把 i 重設為 0，再依 h(k,i)=(k+1i+3i²) mod 11 計算下一個位置。\n係數須逐字看題目；c2=3 與 c2=5 會得到不同結果。i² 是探測編號的平方，不能把鍵值平方。\n\n逐鍵計算：\n鍵 10：\ni=0，(10+0) mod 11=10，空槽，放入此鍵\n\n鍵 22：\ni=0，(22+0) mod 11=0，空槽，放入此鍵\n\n鍵 31：\ni=0，(31+0) mod 11=9，空槽，放入此鍵\n\n鍵 4：\ni=0，(4+0) mod 11=4，空槽，放入此鍵\n\n鍵 15：\ni=0，(15+0) mod 11=4，已有 4，繼續探測\ni=1，(15+4) mod 11=8，空槽，放入此鍵\n\n鍵 28：\ni=0，(28+0) mod 11=6，空槽，放入此鍵\n\n鍵 17：\ni=0，(17+0) mod 11=6，已有 28，繼續探測\ni=1，(17+4) mod 11=10，已有 10，繼續探測\ni=2，(17+14) mod 11=9，已有 31，繼續探測\ni=3，(17+30) mod 11=3，空槽，放入此鍵\n\n鍵 88：\ni=0，(88+0) mod 11=0，已有 22，繼續探測\ni=1，(88+4) mod 11=4，已有 4，繼續探測\ni=2，(88+14) mod 11=3，已有 17，繼續探測\ni=3，(88+30) mod 11=8，已有 15，繼續探測\ni=4，(88+52) mod 11=8，已有 15，繼續探測\ni=5，(88+80) mod 11=3，已有 17，繼續探測\ni=6，(88+114) mod 11=4，已有 4，繼續探測\ni=7，(88+154) mod 11=0，已有 22，繼續探測\ni=8，(88+200) mod 11=2，空槽，放入此鍵\n\n鍵 59：\ni=0，(59+0) mod 11=4，已有 4，繼續探測\ni=1，(59+4) mod 11=8，已有 15，繼續探測\ni=2，(59+14) mod 11=7，空槽，放入此鍵\n\n完成後的表：\nA[0]=22，A[1]=空，A[2]=88，A[3]=17，A[4]=4，A[5]=空，A[6]=28，A[7]=59，A[8]=15，A[9]=31，A[10]=10\n\n逐項核對：\n「A[4]=10」：不符合，A[4] 最後是 4，不是 10。\n「A[6]=28」：符合，A[6] 最後是 28。\n「A[2]=88」：符合，A[2] 最後是 88。\n「A[8]=15」：符合，A[8] 最後是 15。",
+        "choiceKey": "BCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    }
+  ]
+}

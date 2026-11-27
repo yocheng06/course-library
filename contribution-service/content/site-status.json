@@ -1,12 +1,12 @@
 {
-  "version": "2026.11.27-device-info-1",
-  "description": "訪客設備分類與型號限制說明、Android 明確型號辨識",
+  "version": "2026.11.27-l9-review-1",
+  "description": "演算法 L9 雜湊表 60 題解析與九主題排序",
   "snapshots": {
     "os": {
       "generatedAt": "2026-11-26T15:27:54.206598Z"
     },
     "algorithms": {
-      "generatedAt": "2026-11-27T05:48:09.794Z"
+      "generatedAt": "2026-11-27T12:04:52.188Z"
     }
   }
 }
