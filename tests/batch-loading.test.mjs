@@ -117,23 +117,32 @@ test('multi-choice answer rows separate labels from ABCDE content without changi
 
 test('fill answers copy exact original text per row and block stale copies',async()=>{
  const answers=['22/1,S11,S12,S13,S14','2/L/3/L/3/LU','3n/2-2'];
- const entries=answers.map((answer,i)=>toLibraryQuestion('os','scheduling',{id:'fill-copy-'+i,type:'填空題',stem:'複製測試 '+i+' ____________',options:[],answer},true));
+ const stems=[2,6,1].map((count,i)=>'複製測試 '+i+' '+Array(count).fill('____________').join(' '));
+ const entries=answers.map((answer,i)=>toLibraryQuestion('os','scheduling',{id:'fill-copy-'+i,type:'填空題',stem:stems[i],options:[],answer},true));
  const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>({...base,entries})}:response());
- ui.$('batchText').value=answers.map((_,i)=>`${i+1}. 【填空題】複製測試 ${i} ____________`).join('\n\n');
+ ui.$('batchText').value=stems.map((stem,i)=>`${i+1}. 【填空題】${stem}`).join('\n\n');
  ui.fire('batchForm','submit');
- const buttons=[...ui.$('resultRows').querySelectorAll('.copy-row-answer')];
+ const buttons=[...ui.$('resultRows').querySelectorAll('.copy-whole-answer')];
  assert.equal(buttons.length,3);
- assert.deepEqual([...ui.$('resultRows').querySelectorAll('.batch-fill-value')].map(el=>el.textContent),answers);
+ const slots=[...ui.$('resultRows').querySelectorAll('.copy-fill-slot')];
+ const values=['22','1,S11,S12,S13,S14','2','L','3','L','3','LU','3n/2-2'];
+ assert.deepEqual(slots.map(el=>el.querySelector('.batch-fill-value').textContent),values);
  for(let i=0;i<buttons.length;i++){
    buttons[i].dispatchEvent(new ui.context.Event('click',{bubbles:true})); await tick();
    assert.equal(ui.copied.at(-1),answers[i]);assert.equal(buttons[i].textContent,'已複製');
  }
+ for(let i=0;i<slots.length;i++){
+   slots[i].querySelector('.batch-fill-value').dispatchEvent(new ui.context.Event('click',{bubbles:true}));await tick();
+   assert.equal(ui.copied.at(-1),values[i]);
+   assert.equal(slots[i].querySelector('.fill-copy-indicator').textContent,'✓');
+   assert.equal(slots[i].querySelector('.batch-fill-value').textContent,values[i]);
+ }
  ui.$('batchText').value+='\n changed';ui.fire('batchText','input');
  assert(buttons.every(button=>button.disabled));
  buttons[0].dispatchEvent(new ui.context.Event('click',{bubbles:true}));await tick();
- assert.equal(ui.copied.length,3);
+ assert.equal(ui.copied.length,12);
  ui.fire('batchForm','submit');
- const fresh=ui.$('resultRows').querySelector('.copy-row-answer');
+ const fresh=ui.$('resultRows').querySelector('.copy-whole-answer');
  ui.context.navigator.clipboard.writeText=async()=>{throw new Error('denied');};
  let selected=false;ui.$('copyFallback').select=()=>{selected=true;};
  fresh.dispatchEvent(new ui.context.Event('click',{bubbles:true}));await tick();
