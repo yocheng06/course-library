@@ -6,7 +6,7 @@
 
 最近正式 Release：**[v1.3.0](https://github.com/yocheng06/course-library/releases/tag/v1.3.0)** · [所有 Releases](https://github.com/yocheng06/course-library/releases) · [本版更新說明](docs/releases/v1.3.0.md)
 
-目前原始碼與公開題庫快照已更新至 **2026-11-26**。`main` 包含 v1.3.0 之後的更新，最新進度見 [11 月 26 日整理](docs/updates/2026-11-26.md)、[系統架構](docs/architecture.md)，或 [v1.3.0 以後的完整提交差異](https://github.com/yocheng06/course-library/compare/v1.3.0...main)。
+目前原始碼與公開題庫快照已更新至 **2026-11-27**。main 包含 v1.3.0 之後的更新，最新進度見 [11 月 27 日同步整理](docs/updates/2026-11-27-github-sync.md)、[系統架構](docs/architecture.md)，或 [v1.3.0 以後的完整提交差異](https://github.com/yocheng06/course-library/compare/v1.3.0...main)。
 
 [測驗、備份與發布檢查改進](docs/improvements-20261104.md)：測驗語言與可調比例、手機篩選、完整備份、版本狀態及發布檢查。
 
