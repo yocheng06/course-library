@@ -10,6 +10,20 @@ const source=await read('assets/hash-probing-walkthrough.js');
 const questions=JSON.parse(await read('content/algorithms-l9-review-20261127.json')).questions.map(r=>r.after);
 function component(){const {document,window}=parseHTML('<html><body></body></html>');vm.runInContext(source,vm.createContext({document,window,console}));return {document,window,api:window.courseHashProbing};}
 const plain=v=>JSON.parse(JSON.stringify(v));
+test('all nineteen worked texts collapse only the calculations while keeping concepts and answer reasoning visible',()=>{
+ const {api}=component();let count=0;
+ for(const q of questions.filter(q=>/將鍵值/.test(q.q))){
+  const original=q.ex,html=api.explanation(q,original,s=>'<p>'+s+'</p>'),{document}=parseHTML(html),details=document.querySelector('.hash-full-calculation');
+  assert(details,q.bookmarkId);assert.equal(details.hasAttribute('open'),false);assert.equal(details.querySelector('summary').textContent,'查看完整文字計算');
+  assert(details.textContent.includes('逐鍵計算：'));assert(details.textContent.includes('完成後的表：'));
+  const answer=document.querySelector('.hash-answer-summary');assert(answer);assert(!answer.closest('details'));assert(!answer.textContent.includes('逐鍵計算：'));
+  assert.equal(answer.querySelector('p').textContent,original.slice(original.indexOf('\n\n',original.indexOf('\n\n完成後的表：')+2)+2));
+  assert(document.querySelector('.hash-summary'));assert(document.querySelector('.hash-walkthrough'));assert.equal(q.ex,original);count++;
+ }
+ assert.equal(count,19);
+ const q=questions.find(q=>/將鍵值/.test(q.q)),custom='自訂解析與特別條件要完整顯示。';
+ const html=api.explanation(q,custom,s=>'<p>'+s+'</p>');assert(html.includes(custom));assert(!html.includes('hash-full-calculation'));
+});
 test('all nineteen current numeric questions produce unchanged answers and exact table states',()=>{
  const {api}=component();let count=0;
  for(const q of questions){const before=JSON.stringify(q),input=api.parse(q);if(!/將鍵值/.test(q.q)){assert.equal(input,null);continue;}assert(input,q.bookmarkId);count++;

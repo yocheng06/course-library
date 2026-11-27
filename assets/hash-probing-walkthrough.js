@@ -67,7 +67,7 @@
  function markup(question){
   const input=parse(question);if(!input)return '';
   const data=dataFor(input),names={linear:'線性探測',quadratic:'二次探測',double:'雙重雜湊'};
-  return `<section class="hash-walkthrough" data-hash-input="${escape(JSON.stringify(input))}" data-hash-step="0" aria-label="雜湊表逐步演示"><h4>${names[input.method]}：一步一步放入雜湊表</h4><p class="hash-formula">${escape(formula(input))}</p><p class="hash-hint">從索引 0 開始；每按一次會顯示一次探測。碰撞時不改表，找到空槽才放入。表格可左右捲動。</p><div data-hash-body>${body(data,0)}</div><div class="hash-controls"><button type="button" data-hash-action="previous" disabled>← 上一步</button><button type="button" data-hash-action="next">下一步 →</button><button type="button" data-hash-action="restart">重新開始</button><button type="button" data-hash-action="finish">看完成結果</button></div><p class="hash-counter" data-hash-counter>第 0／${data.states.length-1} 步</p><p class="hash-status" data-hash-status role="status" aria-live="polite">${escape(message(data,0))}</p><p class="hash-hint">下面保留完整文字解析，方便對照每一步的計算。</p></section>`;
+  return `<section class="hash-walkthrough" data-hash-input="${escape(JSON.stringify(input))}" data-hash-step="0" aria-label="雜湊表逐步演示"><h4>${names[input.method]}：一步一步放入雜湊表</h4><p class="hash-formula">${escape(formula(input))}</p><p class="hash-hint">從索引 0 開始；每按一次會顯示一次探測。碰撞時不改表，找到空槽才放入。表格可左右捲動。</p><div data-hash-body>${body(data,0)}</div><div class="hash-controls"><button type="button" data-hash-action="previous" disabled>← 上一步</button><button type="button" data-hash-action="next">下一步 →</button><button type="button" data-hash-action="restart">重新開始</button><button type="button" data-hash-action="finish">看完成結果</button></div><p class="hash-counter" data-hash-counter>第 0／${data.states.length-1} 步</p><p class="hash-status" data-hash-status role="status" aria-live="polite">${escape(message(data,0))}</p><p class="hash-hint">需要時可展開下方「查看完整文字計算」，對照全部步驟。</p></section>`;
  }
  document.addEventListener('click',event=>{
   const button=event.target.closest?.('[data-hash-action]'),root=button?.closest('[data-hash-input]');if(!root)return;
@@ -87,5 +87,17 @@
   root.querySelector('[data-hash-action="previous"]').disabled=index===0;
   root.querySelector('[data-hash-action="next"]').disabled=index===last;
  });
- window.courseHashProbing={parse,trace,markup};
+ function explanation(question,text,render){
+  const input=parse(question);if(!input)return null;
+  const widget=markup(question),steps=text.indexOf('\n\n逐鍵計算：'),table=text.indexOf('\n\n完成後的表：',steps),end=table<0?-1:text.indexOf('\n\n',table+2);
+  // Custom explanations remain fully visible if their sections cannot be separated safely.
+  if(steps<0||table<steps||end<0||!/^(逐項核對：|依題目填空順序讀表：|不能插入的鍵)/.test(text.slice(end+2)))return widget+render(text);
+  const core={
+   linear:'每個新鍵都從 i=0 開始。碰撞後每次往後一格，超過表尾就繞回索引 0；已放入的鍵不移動。',
+   quadratic:'每個新鍵都從 i=0 開始，依題目給定的 c₁i+c₂i² 計算位移，再取模。碰撞時增加 i，係數保持不變；已放入的鍵不移動。',
+   double:'每個新鍵都從 i=0 開始，先算這個鍵的步長。碰撞時增加 i，繼續使用同一鍵的固定步長；已放入的鍵不移動。'
+  }[input.method];
+  return widget+`<section class="hash-summary" aria-label="核心觀念"><h4>核心觀念</h4><p>${escape(core)}</p></section><section class="hash-answer-summary" aria-label="答案說明"><h4>答案說明</h4>${render(text.slice(end+2))}</section><details class="hash-full-calculation"><summary>查看完整文字計算</summary>${render(text.slice(0,end))}</details>`;
+ }
+ window.courseHashProbing={parse,trace,markup,explanation};
 })();

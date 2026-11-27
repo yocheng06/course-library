@@ -238,10 +238,11 @@
   function explanationText(question) { return window.courseExplanationContent?.text(question)??String(question.explanation??question.ex??''); }
   function explanationMarkup(question, format = escape) {
     const text = explanationText(question);
-    return (window.courseHashProbing?.markup(question)||'') + text.split(/\n\s*\n/).filter(Boolean).map(block => {
+    const render = value => value.split(/\n\s*\n/).filter(Boolean).map(block => {
       const section = block.match(/^(核心觀念|解題步驟|判讀步驟|適用條件|選項判讀)：\s*([\s\S]*)$/);
       return section ? `<div class="explanation-section"><strong>${escape(section[1])}</strong><p>${mathMarkup(section[2], format)}</p></div>` : `<p>${mathMarkup(block, format)}</p>`;
     }).join('');
+    return window.courseHashProbing?.explanation(question,text,render) ?? render(text);
   }
   function qualityReasons(question, course) {
     if(question.submissionReview?.status==='pending')return ['投稿版本待核對'];

@@ -1,6 +1,6 @@
 {
-  "version": "2026.11.27-hash-steps-1",
-  "description": "雜湊表逐步演示：碰撞、插入、回上一步及完成結果",
+  "version": "2026.11.27-hash-fold-1",
+  "description": "雜湊解析精簡：保留觀念與答案說明，完整文字計算預設收起",
   "snapshots": {
     "os": {
       "generatedAt": "2026-11-27T12:30:23.982Z"
