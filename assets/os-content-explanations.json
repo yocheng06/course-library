@@ -170,7 +170,17 @@
         {
           "identity": "[\"多選題\",\"雙模式操作 (Dual-mode operation) 使用什麼來區分？\",[\"Mode bit\",\"Privileged instructions\",\"Interrupt vectors\",\"System calls\"],\"A、B\",[]]",
           "sourceExplanation": "雙模式操作使用 mode bit（模式位元）標記 CPU 目前處於使用者模式或核心模式，因此選 B。特權指令是核心模式下受限制的指令，硬體會依模式位元檢查是否允許執行；它不是用來標記目前模式的答案。",
-          "explanation": "雙模式操作使用 mode bit（模式位元）標記 CPU 目前處於使用者模式或核心模式，因此選 「Privileged instructions」。特權指令是核心模式下受限制的指令，硬體會依模式位元檢查是否允許執行；它不是用來標記目前模式的答案。"
+          "explanation": "Mode bit（模式位元）記錄 CPU 目前是使用者模式還是核心模式；Privileged instructions（特權指令）只能在核心模式執行，硬體依目前模式檢查，兩者共同支援模式隔離。System calls 是程式要求 OS 服務的受控介面，不是模式標記；Interrupt vectors 是查找中斷處理程式的對照表，也不負責區分 CPU 模式。"
+        },
+        {
+          "identity": "[\"多選題\",\"雙模式操作 (Dual-mode operation) 使用什麼來區分？\",[\"A. Mode bit\",\"B. Privileged instructions\",\"C. Interrupt vectors\",\"D. System calls\"],\"A、B\",[]]",
+          "sourceExplanation": "雙模式操作使用 mode bit（模式位元）標記 CPU 目前處於使用者模式或核心模式，因此選 B。特權指令是核心模式下受限制的指令，硬體會依模式位元檢查是否允許執行；它不是用來標記目前模式的答案。",
+          "explanation": "Mode bit（模式位元）記錄 CPU 目前是使用者模式還是核心模式；Privileged instructions（特權指令）只能在核心模式執行，硬體依目前模式檢查，兩者共同支援模式隔離。System calls 是程式要求 OS 服務的受控介面，不是模式標記；Interrupt vectors 是查找中斷處理程式的對照表，也不負責區分 CPU 模式。"
+        },
+        {
+          "identity": "[\"多選題\",\"雙模式操作 (Dual-mode operation) 使用什麼來區分？\",[\"A. Mode bit\",\"B. Privileged instructions\",\"C. Interrupt vectors\",\"D. System calls\"],\"A、B\",[]]",
+          "sourceExplanation": "雙模式操作使用 mode bit（模式位元）標記 CPU 目前處於使用者模式或核心模式，因此選 B。特權指令是核心模式下受限制的指令，硬體會依模式位元檢查是否允許執行；它不是用來標記目前模式的答案。",
+          "explanation": "Mode bit（模式位元）記錄 CPU 目前是使用者模式還是核心模式；Privileged instructions（特權指令）只能在核心模式執行，硬體依目前模式檢查，兩者共同支援模式隔離。System calls 是程式要求 OS 服務的受控介面，不是模式標記；Interrupt vectors 是查找中斷處理程式的對照表，也不負責區分 CPU 模式。"
         }
       ]
     },
@@ -7456,6 +7466,72 @@
           "identity": "[\"填空題\",\"即時排程 問題\\n\\n已知有兩個行程 P1 P2 分別需要的 CPU 、deladline 時間如下\\n\\nPeriod Deadline CPU\\nP1 50 50 20\\nP2 100 100 35\\n\\n若使用 Rate Monotonic 方式 P2 的第一塊資料 最後完成的位置 在哪一個時間點 ____________ 之前 (請給最接見的時間 數字)\",[],\"(80)\",[]]",
           "sourceExplanation": "",
           "explanation": "Rate Monotonic 以週期較短者為高優先權，所以 P1 的優先權高於 P2。假設兩者在時間 0 同時釋出第一個工作、採可搶佔單處理器排程，時間線如下：\n0–20：P1 執行 20，完成第一份工作。\n20–50：P2 執行 30，還剩 5。\n50–70：P1 第二份工作到達並搶佔，執行 20。\n70–75：P2 完成剩下的 5，因此第一份工作在 75 完成。\n\n現有填答為 (80)。75 確實在 80 之前，但若「最接近的時間」要求精確完成時點，計算結果是 75。原題未交代時間刻度是否只能以十為單位，答案維持不變，不能憑空把完成時點延後到 80。"
+        }
+      ]
+    },
+    "basics-42": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"下列哪些屬於作業系統的資源管理功能？\",[\"Device management\",\"CPU scheduling\",\"File management\",\"Memory management\"],\"A、B、C、D\",[]]",
+          "sourceExplanation": "記憶體管理決定空間分配、回收與保護；CPU 排程決定哪個就緒程序取得處理器。兩者直接控制執行資源。\n\n建立檔案主要屬檔案服務，使用者管理主要處理身分與權限。OS 子系統會相互合作，但題目分類重點是操作直接管理的對象。",
+          "explanation": "這四個選項都屬於作業系統的資源管理。Device management 管理 I/O 裝置及其使用；CPU scheduling 決定就緒中的程序何時取得處理器；File management 負責檔案與目錄的命名、組織、存取與保護；Memory management 分配、回收記憶體並保護程序的位址空間。它們分別管理裝置、處理器、檔案與記憶體，因此本題列出的四項皆符合。"
+        },
+        {
+          "identity": "[\"多選題\",\"下列哪些屬於作業系統的資源管理功能？\",[\"A. Device management\",\"B. CPU scheduling\",\"C. File management\",\"D. Memory management\"],\"A、B、C、D\",[]]",
+          "sourceExplanation": "記憶體管理決定空間分配、回收與保護；CPU 排程決定哪個就緒程序取得處理器。兩者直接控制執行資源。\n\n建立檔案主要屬檔案服務，使用者管理主要處理身分與權限。OS 子系統會相互合作，但題目分類重點是操作直接管理的對象。",
+          "explanation": "這四個選項都屬於作業系統的資源管理。Device management 管理 I/O 裝置及其使用；CPU scheduling 決定就緒中的程序何時取得處理器；File management 負責檔案與目錄的命名、組織、存取與保護；Memory management 分配、回收記憶體並保護程序的位址空間。它們分別管理裝置、處理器、檔案與記憶體，因此本題列出的四項皆符合。"
+        }
+      ]
+    },
+    "basics-21": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"叢集系統（Clustered Systems）包含哪些類型？\",[\"Distributed locking\",\"Stand-alone\",\"Asymmetric clustering\",\"Symmetric clustering\"],\"C、D\",[]]",
+          "sourceExplanation": "非對稱叢集可由一台主動服務、另一台待命接手；對稱叢集則讓多個節點主動執行工作並互相監控。Distributed locking 是協調共享資料存取的機制，可用在叢集內，但不是本題所問的對稱／非對稱類型。",
+          "explanation": "本題問的是叢集的兩種架構。Asymmetric clustering 由一個節點主動提供服務，另一個節點待命；Symmetric clustering 則讓多個節點同時執行工作並互相監控，兩者都是叢集類型。Distributed locking 是節點協調共享資料存取的鎖定機制，不是叢集類型；Stand-alone 是獨立運作的系統，沒有形成叢集。"
+        },
+        {
+          "identity": "[\"多選題\",\"叢集系統（Clustered Systems）包含哪些類型？\",[\"A. Distributed locking\",\"B. Stand-alone\",\"C. Asymmetric clustering\",\"D. Symmetric clustering\"],\"C、D\",[]]",
+          "sourceExplanation": "非對稱叢集可由一台主動服務、另一台待命接手；對稱叢集則讓多個節點主動執行工作並互相監控。Distributed locking 是協調共享資料存取的機制，可用在叢集內，但不是本題所問的對稱／非對稱類型。",
+          "explanation": "本題問的是叢集的兩種架構。Asymmetric clustering 由一個節點主動提供服務，另一個節點待命；Symmetric clustering 則讓多個節點同時執行工作並互相監控，兩者都是叢集類型。Distributed locking 是節點協調共享資料存取的鎖定機制，不是叢集類型；Stand-alone 是獨立運作的系統，沒有形成叢集。"
+        },
+        {
+          "identity": "[\"多選題\",\"叢集系統（Clustered Systems）包含哪些類型？\",[\"A. Distributed locking\",\"B. Stand-alone\",\"C. Asymmetric clustering\",\"D. Symmetric clustering\"],\"C、D\",[]]",
+          "sourceExplanation": "非對稱叢集可由一台主動服務、另一台待命接手；對稱叢集則讓多個節點主動執行工作並互相監控。Distributed locking 是協調共享資料存取的機制，可用在叢集內，但不是本題所問的對稱／非對稱類型。",
+          "explanation": "本題問的是叢集的兩種架構。Asymmetric clustering 由一個節點主動提供服務，另一個節點待命；Symmetric clustering 則讓多個節點同時執行工作並互相監控，兩者都是叢集類型。Distributed locking 是節點協調共享資料存取的鎖定機制，不是叢集類型；Stand-alone 是獨立運作的系統，沒有形成叢集。"
+        }
+      ]
+    },
+    "basics-40": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"What is the core characteristic of a real-time OS?\",[\"A. Agreed time constraints\",\"B. Graphical interface\",\"C. Multiple users\",\"D. High performance\"],\"A\",[]]",
+          "sourceExplanation": "即時作業系統必須在約定期限內完成工作，正確性同時取決於結果與完成時間。圖形介面、多使用者或高效能都不能單獨定義即時性。",
+          "explanation": "即時作業系統的關鍵是遵守 Agreed time constraints（約定的時間限制）；正確性不只看計算結果，也看是否在期限內完成。Graphical interface（圖形介面）描述操作方式，Multiple users（多使用者）描述使用型態，High performance（高效能）不保證任務一定準時，因此不能取代期限要求。"
+        },
+        {
+          "identity": "[\"單選題\",\"即時作業系統 (Real-time OS) 的核心特徵是？\",[\"A. Agreed time constraints\",\"B. Graphical interface\",\"C. Multiple users\",\"D. High performance\"],\"A\",[]]",
+          "sourceExplanation": "即時作業系統必須在約定期限內完成工作，正確性同時取決於結果與完成時間。圖形介面、多使用者或高效能都不能單獨定義即時性。",
+          "explanation": "即時作業系統的關鍵是遵守 Agreed time constraints（約定的時間限制）；正確性不只看計算結果，也看是否在期限內完成。Graphical interface（圖形介面）描述操作方式，Multiple users（多使用者）描述使用型態，High performance（高效能）不保證任務一定準時，因此不能取代期限要求。"
+        }
+      ]
+    },
+    "basics-48": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"當 I/O 操作完成時，硬體裝置會透過什麼機制通知 CPU？\",[\"System call\",\"Trap\",\"Interrupt\",\"Polling\"],\"C\",[]]",
+          "sourceExplanation": "裝置完成 I/O 後可發出硬體中斷，CPU 暫停目前指令流程，保存必要狀態並進入處理程式。OS 再確認裝置狀態、記錄完成結果，讓等待這次 I/O 的程序重新可執行。\n\n中斷是通知事件；搬運大量資料可由 DMA 負責，兩者可一起使用。",
+          "explanation": "裝置完成 I/O 時會用 Interrupt（中斷）通知 CPU。System call 是程式要求作業系統服務的介面；Trap／exception 通常由目前執行的指令引發，例如系統服務請求或錯誤；Polling 則是 CPU 反覆查詢裝置狀態，並非裝置主動通知。大量資料搬運可另外交由 DMA，DMA 與中斷負責的工作不同。"
+        },
+        {
+          "identity": "[\"單選題\",\"當 I/O 操作完成時，硬體裝置會透過什麼機制通知 CPU？\",[\"A. System call\",\"B. Trap\",\"C. Interrupt\",\"D. Polling\"],\"C\",[]]",
+          "sourceExplanation": "裝置完成 I/O 後可發出硬體中斷，CPU 暫停目前指令流程，保存必要狀態並進入處理程式。OS 再確認裝置狀態、記錄完成結果，讓等待這次 I/O 的程序重新可執行。\n\n中斷是通知事件；搬運大量資料可由 DMA 負責，兩者可一起使用。",
+          "explanation": "裝置完成 I/O 時會用 Interrupt（中斷）通知 CPU。System call 是程式要求作業系統服務的介面；Trap／exception 通常由目前執行的指令引發，例如系統服務請求或錯誤；Polling 則是 CPU 反覆查詢裝置狀態，並非裝置主動通知。大量資料搬運可另外交由 DMA，DMA 與中斷負責的工作不同。"
+        },
+        {
+          "identity": "[\"單選題\",\"當 I/O 操作完成時，硬體裝置會透過什麼機制通知 CPU？\",[\"A. System call\",\"B. Trap\",\"C. Interrupt\",\"D. Polling\"],\"C\",[]]",
+          "sourceExplanation": "裝置完成 I/O 後可發出硬體中斷，CPU 暫停目前指令流程，保存必要狀態並進入處理程式。OS 再確認裝置狀態、記錄完成結果，讓等待這次 I/O 的程序重新可執行。\n\n中斷是通知事件；搬運大量資料可由 DMA 負責，兩者可一起使用。",
+          "explanation": "裝置完成 I/O 時會用 Interrupt（中斷）通知 CPU。System call 是程式要求作業系統服務的介面；Trap／exception 通常由目前執行的指令引發，例如系統服務請求或錯誤；Polling 則是 CPU 反覆查詢裝置狀態，並非裝置主動通知。大量資料搬運可另外交由 DMA，DMA 與中斷負責的工作不同。"
         }
       ]
     }

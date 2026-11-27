@@ -1,4 +1,4 @@
-/* Topic first, then actual answer type. Source question objects and IDs stay intact. */
+/* Topic, identical premise, then actual answer type. Source questions stay intact. */
 (() => {
  'use strict';
  const catalogs={
@@ -22,14 +22,14 @@
   'algorithms/L7':['順序統計量與中位數','最小值與最大值','第二小元素','Partition 分割操作','Randomized-Select','確定性 Select 與中位數的中位數']
  };
  const aliases={
-  'os/basics':{'OS 基礎':'作業系統定義與目標','Computer System':'系統組成與硬體資源',Booting:'開機',Interrupt:'中斷',Storage:'儲存與快取','I/O':'I/O 與裝置',Multiprocessing:'多處理器',Cluster:'叢集系統',Multiprogramming:'多程式與分時',Timesharing:'多程式與分時',Process:'程序',Memory:'記憶體',Protection:'保護與安全','Kernel Data Structures':'核心資料結構',P2P:'分散式系統與 P2P',Distributed:'分散式系統與 P2P',Virtualization:'虛擬化',Cloud:'雲端服務','Real-time':'即時系統','Open Source':'開放原始碼'},
+  'os/basics':{'Computer System':'系統組成與硬體資源',Booting:'開機',Interrupt:'中斷',Storage:'儲存與快取','I/O':'I/O 與裝置',Multiprocessing:'多處理器',Cluster:'叢集系統',Multiprogramming:'多程式與分時',Timesharing:'多程式與分時',Process:'程序',Memory:'記憶體',Protection:'保護與安全','Kernel Data Structures':'核心資料結構',P2P:'分散式系統與 P2P',Distributed:'分散式系統與 P2P',Virtualization:'虛擬化',Cloud:'雲端服務','Real-time':'即時系統','Open Source':'開放原始碼'},
   'os/synchronization':{"Peterson's Solution":'Peterson’s Solution'}
  };
- const generic=new Set(['','其他','課程觀念','HTML 匯入','作業系統基礎','作業系統架構','程序與 IPC','執行緒與多執行緒','CPU 排程','L6 · CPU 排程','L8 · 死結','死結','記憶體管理','基礎與漸進分析','LMS 精確格式','堆積、堆積排序與優先佇列','排序演算法','排序基礎','中位數與順序統計量']);
+ const generic=new Set(['','其他','課程觀念','HTML 匯入','OS 基礎','作業系統基礎','作業系統架構','程序與 IPC','執行緒與多執行緒','CPU 排程','L6 · CPU 排程','L8 · 死結','死結','記憶體管理','基礎與漸進分析','LMS 精確格式','堆積、堆積排序與優先佇列','排序演算法','排序基礎','中位數與順序統計量']);
  // Rules are used only for generic import categories, never to replace a custom topic.
  const rules={
   'algorithms/L10':[[/裝配線|assembly.line/i,1],[/矩陣|MATRIX_CHAIN/i,2],[/最長共同|LCS|longest.common.subsequence/i,3],[/背包|knapsack|水果/i,4]],
-  'os/basics':[[/kernel.*data.structur|核心.*資料結構/i,12],[/cloud|雲端/i,15],[/virtuali|虛擬化/i,14],[/cluster|叢集/i,7],[/multiprocess|多處理器|對稱.*非對稱/i,6],[/interrupt|中斷|timer|計時器/i,3],[/bootstrap|boot|開機/i,2],[/cache|storage|儲存|位元|byte|register|暫存器/i,4],[/\bI\/O\b|DMA|裝置|device/i,5],[/protection|security|dual.mode|安全|保護|模式|權限|user.id|group.id/i,11],[/memory|記憶體/i,10],[/multiprogram|timeshar|多程式|分時/i,8],[/process|程序|行程/i,9],[/distributed|network|LAN|WAN|MAN|PAN|peer|分散|網路/i,13],[/real.time|即時/i,16],[/open.source|開源|原始碼/i,17],[/component|組成|硬體|hardware/i,1]],
+  'os/basics':[[/kernel.*data.structur|核心.*資料結構/i,12],[/resource.management|資源管理/i,1],[/cloud|雲端/i,15],[/virtuali|虛擬化/i,14],[/cluster|叢集/i,7],[/multiprocess|多處理器|對稱.*非對稱/i,6],[/interrupt|中斷|timer|計時器/i,3],[/bootstrap|boot|開機|initializ\w*.*(?:computer|system).*load.*kernel/i,2],[/cache|storage|儲存|位元|byte|register|暫存器/i,4],[/\bI\/O\b|DMA|裝置|device/i,5],[/protection|security|dual.mode|安全|保護|模式|權限|user.id|group.id/i,11],[/memory|記憶體/i,10],[/multiprogram|timeshar|多程式|分時/i,8],[/process|程序|行程/i,9],[/distributed|network|LAN|WAN|MAN|PAN|peer|分散|網路/i,13],[/real.time|即時/i,16],[/open.source|開源|原始碼/i,17],[/component|組成|硬體|hardware/i,1]],
   'os/architecture':[[/Android|iOS|Dalvik|Cocoa|Aqua|Mac OS X.*GUI/i,5],[/FreeBSD|shell.*fork|shell.*exec|UNIX.*結構|multitasking.*Unix|UNIX kernel/i,6],[/boot|開機|bootstrap|firmware|韌體|crash|dump|損毀|DTrace|profil|效能|tuning|instrument|system.generat/i,4],[/system.call|系統呼叫|API|Win32|POSIX|printf|參數.*傳遞/i,2],[/microkernel|微核心|monolithic|hybrid|混合|分層|layer|module|模組|結構|design|設計|mechanism|policy/i,3],[/CLI|GUI|command.line|shell|interface|使用者介面|system.program|系統程式|指令行|指令列|命令列/i,0],[/service|服務|檔案|資源|protection|protect|保護|security|驗證|Accounting|account management/i,1]],
   'os/process':[[/Mach|LPC|Windows.*IPC/i,12],[/RPC|remote.procedure|遠端程序|stubs?|XDR|XDL/i,11],[/pipe|socket|管道|通訊.*端點/i,10],[/direct.communication|indirect.communication|直接通訊|間接通訊|mailbox|信箱/i,8],[/blocking|non.blocking|rendezvous|阻塞|訊息.*容量|零容量|buffer.*capacit|訊息傳遞/i,9],[/CPU.bound|I\/O.bound|密集|bound.process/i,4],[/fork|exec\(|exit\(|wait\(|parent|child|父程序|子程序|孤兒|殭屍|orphan|zombie|程序.*(?:建立|創建|終止)/i,5],[/PCB|control.block|context.switch|上下文|回傳位址|register|暫存器|堆疊|stack/i,1],[/state|狀態|running|ready|waiting|terminated/i,2],[/schedul|queue|排程|佇列|swapping/i,3],[/cooperat|合作/i,6],[/mobile|browser|Chrome|行動|瀏覽器/i,13],[/IPC|communicat|通訊|shared.memory|共享記憶體/i,7]],
   'os/threads':[[/Amdahl/i,3],[/signal|信號|訊號/i,11],[/cancel|取消/i,12],[/thread.local|TLS|本地儲存/i,13],[/fork|exec/i,10],[/Windows|TEB|ETHREAD|KTHREAD/i,14],[/Linux|clone\(/i,15],[/Grand.Central|GCD|dispatch.queue/i,8],[/thread.pool|執行緒池|server|伺服器/i,9],[/OpenMP|implicit|隱式/i,7],[/many.to|one.to|two.level|多對|一對|兩層|映射|model/i,4],[/Java/i,6],[/library|函式庫|Pthread/i,5],[/parallel|多核心|平行/i,2],[/benefit|優點|responsiv/i,1]],
@@ -63,10 +63,36 @@
   const copy={...question,category:label};views.set(question,{label,question:copy});return copy;
  }
  function typeRank(q){const type=window.courseQuestionTools.answerType(q);return type==='單選題'?0:type==='多選題'?1:2;}
+ const normalizePremise=text=>String(text??'').normalize('NFC').replace(/\[__\d+__\]|_{3,}/g,'____').replace(/\s+/g,' ').trim();
+ function premiseKey(q){
+  const text=String(q.stem||q.q||'').trim();if(!text)return null;
+  let premise=normalizePremise(text);
+  // Only this explicit template separates calculation inputs from requested outputs.
+  // Never drop numbers, operators, order of keys, coefficients or extra conditions.
+  const query=/請問陣列\s*A\[0\]\s*-\s*A\[(\d+)\]\s*的內容哪些正確/.exec(text);
+  if(/^考慮將鍵值\s+[\d、,，\s]+插入/.test(text)&&query){
+   const size=Number(text.match(/m\s*=\s*(\d+)/)?.[1]),lines=text.slice(query.index+query[0].length).trim().split(/\n/).map(s=>s.trim());
+   const indices=(lines[0]?.match(/\d+/g)??[]).map(Number),tail=lines.slice(2).join('\n').trim();
+   const cellsOnly=/^(?:A\[\d+\]\s*=\s*(?:_{3,}|\[__\d+__\])\s*)+$/.test(tail);
+   const failuresOnly=/^無法藉此公式找到合法位置\s*的數\s*\(先填小的值再填大的值\)\s*_{3,}\s+_{3,}\s*$/.test(tail);
+   if(Number.isInteger(size)&&size>0&&size<=101&&Number(query[1])===size-1&&indices.length===size&&indices.every((n,i)=>n===i)&&/^\|[|\s]*$/.test(lines[1]??'')&&(!tail||cellsOnly||failuresOnly)){
+    premise='hash-input:'+normalizePremise(text.slice(0,query.index).replace(/c_([12])\b/g,'c$1')).replace(/\s*([=+*(),，、\[\]−-])\s*/g,'$1');
+   }
+  }
+  // An image, note or other supplied context may hold an additional condition.
+  return JSON.stringify([premise,q.images??[],q.image??null,q.imageUrl??null,q.note??'',q.missingContext??null]);
+ }
  function sort(entries,course,unitRank,legacyRank=entry=>entry.i??0){
   const decorated=entries.map((entry,index)=>({entry,index,topic:topic(entry.q,course,entry.unit.id),type:typeRank(entry.q),unit:unitRank(entry),legacy:legacyRank(entry)}));
   decorated.sort((a,b)=>a.unit-b.unit||a.topic.rank-b.topic.rank||(a.topic.label===b.topic.label?0:a.topic.label.localeCompare(b.topic.label,'zh-Hant'))||a.type-b.type||a.legacy-b.legacy||a.index-b.index);
+  const groups=new Map();
+  decorated.forEach((item,position)=>{
+   const premise=premiseKey(item.entry.q),key=JSON.stringify([item.entry.unit.id,item.topic.label,premise]);
+   if(premise!==null&&!groups.has(key))groups.set(key,position);
+   item.anchor=premise===null?position:groups.get(key);
+  });
+  decorated.sort((a,b)=>a.anchor-b.anchor||a.type-b.type||a.legacy-b.legacy||a.index-b.index);
   const numbers=new Map();return decorated.map(({entry,topic})=>{entry.topicLabel=topic.label;const n=(numbers.get(entry.unit.id)??0)+1;numbers.set(entry.unit.id,n);entry.displayNumber=n;return entry;});
  }
- (typeof window==='undefined'?globalThis:window).courseTopicOrder={topic,view,typeRank,sort,catalogs};
+ (typeof window==='undefined'?globalThis:window).courseTopicOrder={topic,view,typeRank,premiseKey,sort,catalogs};
 })();

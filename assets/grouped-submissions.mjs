@@ -1,5 +1,5 @@
 import {publishedLinks,confirmPublication} from "./submission-feedback.mjs?v=consistency-20261126";
-import './topic-order.js?v=workflow-improvements-20261102';
+import './topic-order.js?v=os-basics-topics-20261127b';
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 import {COURSE_UNITS,normalizeBatch as normalizeBatchBase,normalizeType,normalizeUnit,unitLabel} from './contribution-model.js?v=treasure-unit-20261030';
 import {api,esc,questionPreview,downloadJSON,showSimilar} from './contributions-ui.js?v=treasure-unit-20261030';

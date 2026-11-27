@@ -11,7 +11,6 @@
         "community-0193fc99-46c4-43ba-9be0-88c92d11d376-2",
         "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-4",
         "basics-3",
-        "basics-42",
         "community-a353a3c9-59a1-4dc4-8cc3-c70d12a6738a-2"
       ]
     },
@@ -21,6 +20,7 @@
         "basics-6",
         "basics-4",
         "basics-5",
+        "basics-42",
         "basics-55"
       ]
     },
@@ -28,6 +28,7 @@
       "name": "開機",
       "ids": [
         "basics-7",
+        "community-a028e435-0375-42e1-ac6e-87852572d6de-1",
         "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-7"
       ]
     },
@@ -195,13 +196,14 @@
     "community-0193fc99-46c4-43ba-9be0-88c92d11d376-2",
     "community-b218102d-60b5-451f-8ae6-4d074ce7aa32-4",
     "basics-3",
-    "basics-42",
     "community-a353a3c9-59a1-4dc4-8cc3-c70d12a6738a-2",
     "basics-6",
     "basics-4",
     "basics-5",
+    "basics-42",
     "basics-55",
     "basics-7",
+    "community-a028e435-0375-42e1-ac6e-87852572d6de-1",
     "community-b5fa3636-bfa3-4439-80ab-b63b02f97307-7",
     "basics-8",
     "basics-9",
