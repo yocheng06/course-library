@@ -1,4 +1,4 @@
 {
-  "version": "2026.11.27-numeric-slots-1",
-  "description": "多格數字填空逐格驗證，保留答案原文、順序與單格限制"
+  "version": "2026.11.27-l10-completion-1",
+  "description": "演算法 L10 動態規劃共 60 題解析與主題排序，保留原答案"
 }

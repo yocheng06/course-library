@@ -80,4 +80,4 @@ flowchart LR
 
 投稿 HTML 可明確跳過缺少作答欄位的題目，其餘題目仍按內容配對正解：見 [匯入跳過操作說明](docs/updates/2026-11-27-import-skip.md)。
 
-演算法 L10 的 54 題逐題解析、主題分類及答案差異：見 [L10 整理與核算記錄](docs/updates/2026-11-27-algorithms-l10.md)。
+演算法 L10「動態規劃」目前 60 題均有解析，依主題及單選／多選／填空排序：見 [新增六題解析與單元名稱整理](docs/updates/2026-11-27-l10-completion.md)。原有 54 題核算保存在 [首次整理記錄](docs/updates/2026-11-27-algorithms-l10.md)。
