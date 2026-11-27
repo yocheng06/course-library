@@ -1,0 +1,434 @@
+<!doctype html><html><head><base href="https://example.test/course/Alg/practice.php?realm_id=10"><title>動態規劃匯入範例</title></head><body><form id="practice-quiz-form"><div class="question-block">
+                    <p class="question-text">妖獸 1. 動態規劃的自底向上（bottom-up）策略是指？</p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="radio" name="answers[2655]" value="B"> 
+                                        A. 先解大問題                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2655]" value="A"> 
+                                        B. 先解出小問題再合併                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2655]" value="D"> 
+                                        C. 遞迴解題                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2655]" value="C"> 
+                                        D. 隨機解題                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 2. </p>
+                    <div class="options">
+                        <div class="question-text">在課本裝配線排程（Assembly-line scheduling）中，
+<pre>進入裝配線 1 需時間 e1 = 3分  離開時間：x1 = 2,
+進入裝配線 2 需時間 e2 = 2分  離開時間：x2 = 4,
+從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 4, 2, 3]
+從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 5, 1]
+
+
+各站點處理時間  (共 1 2 3 4 站點) 
+線路 1：[5, 8, 4, 7]分
+線路 2：[7, 3, 9, 4]分
+
+請問到 最終出廠總時間最少是多少<input type="text" class="text-answer" name="answers[2690][]" data-question-id="2690" autocomplete="off" value=""> (請用數字回答)
+</pre></div>                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 3. 動態規劃求解過程的最後一個步驟通常是？</p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="radio" name="answers[2650]" value="A"> 
+                                        A. 建構最佳解                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2650]" value="B"> 
+                                        B. 定義遞迴關係                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2650]" value="D"> 
+                                        C. 刪除子問題                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2650]" value="C"> 
+                                        D. 初始化變數                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 4. </p>
+                    <div class="options">
+                        <div class="question-text">動態規劃通常應用於 <input type="text" class="text-answer" name="answers[2688][]" data-question-id="2688" autocomplete="off" value=""> 問題 (請用小寫英文回答)</div>                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 5. </p>
+                    <div class="options">
+                        <div class="question-text">動態規劃求解步驟的第一步是刻畫最佳解 <input type="text" class="text-answer" name="answers[2692][]" data-question-id="2692" autocomplete="off" value=""> (請用小寫英文回答)</div>                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 6. </p>
+                    <div class="options">
+                        <div class="question-text">在課本裝配線排程（Assembly-line scheduling）中，
+<pre>進入裝配線 1 需時間 e1 = 2分  離開時間：x1 = 3,
+進入裝配線 2 需時間 e2 = 3分  離開時間：x2 = 2,
+從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 3, 1, 4]
+從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 5, 2]
+
+
+各站點處理時間  (共 1 2 3 4 站點) 
+線路 1：[4, 2, 6, 3]分
+線路 2：[2, 7, 1, 5]分
+
+請問到 用正常的算法找到最終最少出廠路線 若是選這個算法算完的另一個 時機是多少 <input type="text" class="text-answer" name="answers[2694][]" data-question-id="2694" autocomplete="off" value=""> (請用數字回答)
+(例如 算完後最少時間是由1線 離開 那此時你算完的線2 離開是多少時間)
+算到站點4的最小值為<input type="text" class="text-answer" name="answers[2694][]" data-question-id="2694" autocomplete="off" value=""> 
+</pre></div>                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 7. </p>
+                    <div class="options">
+                        <div class="question-text">矩陣相乘  的動態規劃計算   選出正確的項目
+<pre>
+A is a 3x2 Matrix, 
+B is a 2x2 Matrix, 
+C is a 2x3 Matrix, 
+D is a 3x4 Matrix, 
+
+m 矩陣
+|(1)|(2)|(3)|
+|(6)|(7)|
+|(10)|
+
+s 矩陣
+|(a)|(b)|(c)|
+|(e)|(f)|
+|(h)|
+
+請回答 
+(1) <input type="text" class="text-answer" name="answers[2696][]" data-question-id="2696" autocomplete="off" value="">  
+(2) <input type="text" class="text-answer" name="answers[2696][]" data-question-id="2696" autocomplete="off" value="">  
+(10) <input type="text" class="text-answer" name="answers[2696][]" data-question-id="2696" autocomplete="off" value="">  
+(請用數字回答)
+
+</pre></div>                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 8. 動態規劃與分治法（Divide and Conquer）的主要差異在於？</p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="radio" name="answers[2654]" value="C"> 
+                                        A. 空間需求                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2654]" value="A"> 
+                                        B. 子問題是否重疊                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2654]" value="B"> 
+                                        C. 執行速度                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2654]" value="D"> 
+                                        D. 編碼難度                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 9. 最長共同子序列（Longest Common Subsequence, LCS）虛擬碼
+</p><pre>LCS_LENGTH(X, Y)
+1  m &lt;- length[X]
+2  n &lt;- length[Y]
+3  for i &lt;- 1 to m
+4       do c[i, 0] &lt;- 0
+5  for j &lt;- 1 to n
+6       do c[0, j] &lt;- 0
+7  for i &lt;- 1 to m
+8       do for j &lt;- 1 to n
+9            do if x_i = y_j
+10                 then c[i, j] &lt;- __AAA__
+11                      b[i, j] &lt;- "↖"
+12                 else if c[i-1, j] &gt;= __BBB__
+13                      then c[i, j] &lt;- c[i-1, j]
+14                           b[i, j] &lt;- "↑"
+15                      else c[i, j] &lt;- __CCC__
+16                           b[i, j] &lt;- "←"
+17 return __DDD__
+</pre>
+
+選出正確的<p></p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="checkbox" name="answers[2683][]" value="B"> 
+                                        A. BBB 是 c[i-1, j]                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2683][]" value="C"> 
+                                        B. CCC 是 c[i, j-1]                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2683][]" value="D"> 
+                                        C. DDD 是 c[i-1, j-1] + 1                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2683][]" value="A"> 
+                                        D. AAA 是 c[i, j-1]                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 10. 動態規劃中，儲存表格的方式有？</p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="checkbox" name="answers[2674][]" value="C"> 
+                                        A. 鏈結串列                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2674][]" value="B"> 
+                                        B. 雜湊表                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2674][]" value="D"> 
+                                        C. 樹                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2674][]" value="A"> 
+                                        D. 陣列                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 11. </p>
+                    <div class="options">
+                        <div class="question-text">完成  最長共同子序列（Longest Common Subsequence, LCS）虛擬碼
+<pre>LCS_LENGTH(X, Y)
+1  m &lt;- length[X]
+2  n &lt;- length[Y]
+3  for i &lt;- 1 to m
+4       do c[i, 0] &lt;- 0
+5  for j &lt;- 1 to n
+6       do c[0, j] &lt;- 0
+7  for i &lt;- 1 to m
+8       do for j &lt;- 1 to n
+9            do if x_i = y_j
+10                 then c[i, j] &lt;- <input type="text" class="text-answer" name="answers[2705][]" data-question-id="2705" autocomplete="off" value="">
+11                      b[i, j] &lt;- "↖"
+12                 else if c[i-1, j] &gt;= c[i, j-1]
+13                      then c[i, j] &lt;- c[i-1, j]
+14                           b[i, j] &lt;- "↑"
+15                      else c[i, j] &lt;- <input type="text" class="text-answer" name="answers[2705][]" data-question-id="2705" autocomplete="off" value="">
+16                           b[i, j] &lt;- "←"
+17 return c and b
+</pre>
+
+答案中都不留空白</div>                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 12. 下列有關最佳子結構，正確的是？</p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="checkbox" name="answers[2685][]" value="A"> 
+                                        A. 問題的最優解包含子問題的最優解                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2685][]" value="B"> 
+                                        B. 所有問題都具備此特性                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2685][]" value="C"> 
+                                        C. 可透過局部優化達到全局最優                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2685][]" value="D"> 
+                                        D. 是動態規劃的基本前提                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 13. 最長共同子序列（Longest Common Subsequence, LCS）虛擬碼
+</p><pre>LCS_LENGTH(X, Y)
+1  m &lt;- length[X]
+2  n &lt;- length[Y]
+3  for i &lt;- 1 to m
+4       do c[i, 0] &lt;- 0
+5  for j &lt;- 1 to n
+6       do c[0, j] &lt;- 0
+7  for i &lt;- 1 to m
+8       do for j &lt;- 1 to n
+9            do if x_i = y_j
+10                 then c[i, j] &lt;- __AAA__
+11                      b[i, j] &lt;- "↖"
+12                 else if c[i-1, j] &gt;= __BBB__
+13                      then c[i, j] &lt;- c[i-1, j]
+14                           b[i, j] &lt;- "↑"
+15                      else c[i, j] &lt;- __CCC__
+16                           b[i, j] &lt;- "←"
+17 return __DDD__
+</pre>
+
+選出正確的<p></p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="checkbox" name="answers[2686][]" value="D"> 
+                                        A. DDD  是 b                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2686][]" value="B"> 
+                                        B. BBB  是  c[i, j-1]                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2686][]" value="C"> 
+                                        C. CCC 是 c[i, j-1]                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2686][]" value="A"> 
+                                        D. AAA  是  c[i-1, j-1] + 1                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 14. </p>
+                    <div class="options">
+                        <div class="question-text">000000000000000000000000000000000000000000000.</div>                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 15. </p><pre>MATRIX_CHAIN_ORDER(p)
+1  n &lt;- length[p] - 1
+2  for i &lt;- 1 to n
+3       do m[i, i] &lt;- 0
+4  for ____1____
+5       do for ____2____
+6            do j &lt;- i + l - 1
+7               m[i, j] &lt;- ∞
+8               for ____3____
+9                    do q &lt;- m[i, k] + m[k + 1, j] + p_{i-1} * p_k * p_j
+10                       if q &lt; m[i, j]
+11                            then m[i, j] &lt;- q
+12                                 s[i, j] &lt;- k
+13 return m and s
+</pre>
+
+選出正確的<p></p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="checkbox" name="answers[2676][]" value="B"> 
+                                        A. 1  處     l &lt;- 2 to n                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2676][]" value="D"> 
+                                        B. 3  處     k &lt;- i to j - 1                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2676][]" value="C"> 
+                                        C. 2  處     i &lt;- 1 to n - l + 1                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2676][]" value="A"> 
+                                        D. 時間複雜度 O(n^3)                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 16. 在課本裝配線排程（Assembly-line scheduling）中，
+</p><pre>進入裝配線 1 需時間 e1 = 3分  離開時間：x1 = 2,
+進入裝配線 2 需時間 e2 = 2分  離開時間：x2 = 4,
+從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 4, 2, 3]
+從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 5, 1]
+
+
+各站點處理時間  (共 1 2 3 4 站點) 
+線路 1：[5, 8, 4, 7]分
+線路 2：[7, 3, 9, 4]分
+
+請問到 站點 4 的最少時間是多少
+</pre><p></p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="radio" name="answers[2667]" value="A"> 
+                                        A. 30                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2667]" value="D"> 
+                                        B. 25                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2667]" value="C"> 
+                                        C. 27                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2667]" value="B"> 
+                                        D. 29                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 17. 動態規劃中的 '記憶化'（Memoization）優點？</p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="checkbox" name="answers[2677][]" value="C"> 
+                                        A. 簡化遞迴邏輯                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2677][]" value="D"> 
+                                        B. 完全取消遞迴                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2677][]" value="A"> 
+                                        C. 避免重複計算                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2677][]" value="B"> 
+                                        D. 提高程式執行效率                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 18. 在課本裝配線排程（Assembly-line scheduling）中，
+</p><pre>進入裝配線 1 需時間 e1 = 2分  離開時間：x1 = 3,
+進入裝配線 2 需時間 e2 = 4分  離開時間：x2 = 2,
+從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 2, 3, 1, 3, 4]
+從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 1, 2, 2, 1]
+各站點處理時間  (共 1 2 3 4 5 6 站點) 
+線路 1：[7, 9, 3, 4, 8, 4]分
+線路 2：[8, 5, 6, 4, 5, 7]分
+
+請問到 完成組裝的最少時間是多少分
+</pre><p></p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="radio" name="answers[2660]" value="D"> 
+                                        A. 40                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2660]" value="A"> 
+                                        B. 35                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2660]" value="C"> 
+                                        C. 52                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2660]" value="B"> 
+                                        D. 38                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 19. 在動態規劃中，通常透過什麼方式儲存子問題的解以提升效能？</p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="radio" name="answers[2653]" value="A"> 
+                                        A. 記憶化                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2653]" value="D"> 
+                                        B. 網路傳輸                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2653]" value="C"> 
+                                        C. 硬碟儲存                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2653]" value="B"> 
+                                        D. 立即丟棄                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 20. 在課本裝配線排程（Assembly-line scheduling）中，
+</p><pre>進入裝配線 1 需時間 e1 = 2分  離開時間：x1 = 3,
+進入裝配線 2 需時間 e2 = 4分  離開時間：x2 = 2,
+從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 2, 3, 1, 3, 4]
+從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 1, 2, 2, 1]
+
+各站點處理時間  (共 1 2 3 4 5 6 站點) 
+線路 1：[7, 9, 3, 4, 8, 4]分
+線路 2：[8, 5, 6, 4, 5, 7]分
+
+請問到 站點 2 的最少時間是多少
+</pre><p></p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="radio" name="answers[2651]" value="C"> 
+                                        A. 18                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2651]" value="D"> 
+                                        B. 20                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2651]" value="A"> 
+                                        C. 12                                    </label>
+                                                                    <label>
+                                        <input type="radio" name="answers[2651]" value="B"> 
+                                        D. 16                                    </label>
+                                                    </div>
+                </div>
+<div class="question-block">
+                    <p class="question-text">妖獸 21. 選出那些包括在動態規劃演算法開發的四個步驟裡的項目</p>
+                    <div class="options">
+                                                            <label>
+                                        <input type="checkbox" name="answers[2668][]" value="D"> 
+                                        A. 建構最佳解                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2668][]" value="A"> 
+                                        B. 刻畫最佳解結構                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2668][]" value="B"> 
+                                        C. 遞迴定義最佳解值                                    </label>
+                                                                    <label>
+                                        <input type="checkbox" name="answers[2668][]" value="C"> 
+                                        D. 由下而上計算數值                                    </label>
+                                                    </div>
+                </div></form></body></html>

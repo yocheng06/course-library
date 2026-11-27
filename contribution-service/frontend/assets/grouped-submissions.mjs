@@ -84,6 +84,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
   }
   function save(groups=queue){localStorage.setItem(key,JSON.stringify({version:1,groups}));}
   const locked = group => Boolean(group?.result || group?.inboxDraft && group.attempted);
+  const practiceSkippedNumbers=group=>Array.isArray(group.importSkippedQuestions)?[...new Set(group.importSkippedQuestions.filter(issue=>Number.isSafeInteger(issue?.number)&&issue.number>0).map(issue=>issue.number))]:[];
   function missingAnswerCount(group){return group.payload.questions.filter(q=>!String(q.answer||'').trim()).length;}
   function missingAnswerLabel(group) {
     const positions = group.payload.questions.flatMap((question,index)=>String(question.answer || '').trim() ? [] : [index + 1]);
@@ -154,8 +155,8 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
       if(index===(complete?2:queue.length?1:0))step.setAttribute('aria-current','step');else step.removeAttribute('aria-current');
     });
     list.innerHTML=queue.map((group,index)=>{
-      const missing=missingAnswerCount(group),counts=groupImportCounts(group),expand=!group.result && missing>0;
-      return `<details data-group-index="${index}" ${expand?'open':''}><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`:'待送出'}${group.htmlImport?` <span data-answer-count> · ${missingAnswerLabel(group)}</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}</summary><div data-group-body data-ready="${expand?'true':'false'}">${expand?groupBody(group,index):''}</div>${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+esc(group.result.id):group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，未新增投稿。'}</p>${replacedQuestionSummary(group.result)}${publishedLinks(group.result,group.payload.course)}`:''}<div data-similar></div><p data-error role="status"></p></details>`;
+      const missing=missingAnswerCount(group),counts=groupImportCounts(group),skippedPractice=practiceSkippedNumbers(group),expand=!group.result && missing>0;
+      return `<details data-group-index="${index}" ${expand?'open':''}><summary>${esc(COURSE_UNITS[group.payload.course].name)}／${esc(unitLabel(group.payload.course,group.payload.unit,group.payload.unitTitle))} · ${counts.total} 題 · ${group.result?`已完成 · 新增 ${counts.added} · 待核對 ${counts.review} · 重複 ${counts.duplicates}`:'待送出'}${group.htmlImport?` <span data-answer-count> · ${missingAnswerLabel(group)}</span>`:''}${!group.result&&group.skippedCount?`（已略過同批重複 ${group.skippedCount} 題）`:''}${skippedPractice.length?` · 已跳過原第 ${skippedPractice.join('、')} 題`:''}</summary><div data-group-body data-ready="${expand?'true':'false'}">${expand?groupBody(group,index):''}</div>${group.result?`<p>本批共 ${counts.total} 題，已新增 ${counts.added} 題，待核對 ${counts.review} 題（已收錄），重複略過 ${counts.duplicates} 題。${group.result.id?'收據：'+esc(group.result.id):group.result.status==='replaced_only'?'更新已完成，舊版可在題庫管理還原。':'全部已收錄，未新增投稿。'}</p>${replacedQuestionSummary(group.result)}${publishedLinks(group.result,group.payload.course)}`:''}<div data-similar></div><p data-error role="status"></p></details>`;
     }).join('');
     updateSummary();refreshSendButton();
     if(complete){
@@ -176,7 +177,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
         const htmlImport=group.htmlImport===true;
         const summary=group.answerImportSummary;
         const answerImportSummary=summary&&Number.isSafeInteger(summary.matchedQuestionCount)&&summary.matchedQuestionCount>=0&&Number.isSafeInteger(summary.totalQuestionCount)&&summary.totalQuestionCount>=0?{matchedQuestionCount:summary.matchedQuestionCount,totalQuestionCount:summary.totalQuestionCount}:null;
-        return {payload:normalizeBatch(group.payload,{allowMissingAnswers:htmlImport}),requestId:group.requestId,result:group.result?.id || ['duplicates_only','replaced_only'].includes(group.result?.status)?group.result:null,skippedCount:Number(group.skippedCount)||0,...(htmlImport?{htmlImport:true}:{}),...(answerImportSummary?{answerImportSummary}:{}),...(group.inboxDraft===true?{inboxDraft:true,attempted:group.attempted===true}:{})};
+        return {payload:normalizeBatch(group.payload,{allowMissingAnswers:htmlImport}),requestId:group.requestId,result:group.result?.id || ['duplicates_only','replaced_only'].includes(group.result?.status)?group.result:null,skippedCount:Number(group.skippedCount)||0,...(htmlImport?{htmlImport:true}:{}),...(answerImportSummary?{answerImportSummary}:{}),...(Array.isArray(group.importSkippedQuestions)?{importSkippedQuestions:group.importSkippedQuestions.filter(issue=>Number.isSafeInteger(issue?.number)&&issue.number>0).slice(0,2000)}:{}),...(group.inboxDraft===true?{inboxDraft:true,attempted:group.attempted===true}:{})};
       });
     }
   }catch(error){message('分組草稿無法讀取，原始資料未刪除。請先下載備份後重新匯入。',true);}
@@ -299,7 +300,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
       const old=queue;queue=next;try{save();}catch{queue=old;throw new Error('無法保存修改，原預覽仍保留。');}
       consent.checked=false;render();status.textContent='資料已套用，請重新核對後再公開。';
     },
-    async importFiles(files, imageFiles=[]){
+    async importFiles(files, imageFiles=[], parserOptions={}){
       if(busy)throw new Error('請等待分組投稿完成。');
       if(reading)throw new Error('請等待檔案讀取完成。');
       const selected=Array.from(files||[]);
@@ -312,13 +313,15 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
         const names=selected.map(file=>file.name);
         const contents=await Promise.all(selected.map(file=>file.text()));
         const parsed=selected.length===1
-          ? await parseImport(contents[0],names[0],imageFiles)
-          : await parseImport(contents,names,imageFiles);
+          ? await parseImport(contents[0],names[0],imageFiles,parserOptions)
+          : await parseImport(contents,names,imageFiles,parserOptions);
+        const importSkippedQuestions=Array.isArray(parsed?.__skippedPracticeQuestions)?parsed.__skippedPracticeQuestions.filter(issue=>Number.isSafeInteger(issue?.number)&&issue.number>0):[];
         const restored=parsed?.version===1 && Array.isArray(parsed.groups) && parsed.groups.every(g=>g.payload && g.requestId);
         const htmlImport=parsed?.__htmlQuestionImport===true;
         const importContext=metadata();
         const targetUnit=importContext.targetUnit || null;
         const groups=restored?parsed.groups.map(g=>({...g,payload:normalizeBatch(g.payload,{allowMissingAnswers:g.htmlImport===true})})):groupImport(parsed,importContext,names.join(' + '),{allowMissingAnswers:htmlImport,targetUnit});
+        if(importSkippedQuestions.length)groups.forEach(group=>{group.importSkippedQuestions=importSkippedQuestions;});
         if(parsed?.__answerImportSummary)groups.forEach(group=>{group.answerImportSummary=parsed.__answerImportSummary;});
         const next=groups.map(g=>({...g,requestId:g.requestId||crypto.randomUUID()}));
         if(!next.length)throw new Error('沒有可匯入的題目。');
@@ -336,6 +339,7 @@ export function setupGroupedSubmissions({parseImport,metadata,onReceipt,message,
         status.textContent=answerSummary
           ?'已匯入 '+questionCount+' 題；答案檔自動配對 '+answerSummary.matchedQuestionCount+'/'+answerSummary.totalQuestionCount+' 題，解析留白。'+(missing?'尚有 '+missing+' 題需補正解並核對。':'請展開預覽核對後送出。')+' 尚未送出。'
           :missing?'已匯入 '+questionCount+' 題；'+missing+' 題尚缺正解，請補上並核對。解析可留白。尚未送出。':'已分為 '+queue.length+' 批，解析可留白；請展開每組預覽後再送出。';
+        if(importSkippedQuestions.length)status.textContent += ' 已依你的選擇跳過原第 '+importSkippedQuestions.map(issue=>issue.number).join('、')+' 題（缺少作答欄位），未將這些題目加入投稿。';
         panel.scrollIntoView({block:'start'});
         return queue.map(group=>group.payload);
       }finally{reading=false;refreshSendButton();}

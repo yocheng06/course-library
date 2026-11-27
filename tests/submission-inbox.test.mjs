@@ -280,3 +280,25 @@ test('file-first import asks for missing scope, retries with confirmed metadata,
  draft=JSON.parse(store.getItem('course-library-grouped-submissions-v1'));assert.equal(draft.groups[0].payload.unit,'L6');
  assert.equal(ui.requests.filter(r=>r.opts?.method==='POST').length,0);
 });
+
+
+test('missing-input question is skipped only after an explicit action; twenty paired questions survive reload without posting',async()=>{
+ const s=storage(),ui=await page(s);
+ const raw=await readFile(new URL('fixtures/practice-missing-input-14.html',import.meta.url),'utf8');
+ const results=await readFile(new URL('fixtures/practice-missing-input-14-results.html',import.meta.url),'utf8');
+ const file=(name,text)=>({name,size:text.length,text:async()=>text});
+ ui.$('bothHtmlFiles').files=[file('results.html',results),file('questions.html',raw)];ui.fire(ui.$('bothHtmlFiles'),'change');
+ for(let i=0;i<8;i++)await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(s.getItem('course-library-grouped-submissions-v1'),null);
+ assert.equal(ui.$('importIssuesPanel').hidden,false);assert.match(ui.$('importIssuesPanel').textContent,/原第 14 題/);
+ const button=ui.$('skipInvalidPracticeQuestions');assert.match(button.textContent,/其他 20 題/);
+ assert(!ui.requests.some(r=>r.opts?.method==='POST'));
+ ui.fire(button,'click');for(let i=0;i<8;i++)await new Promise(resolve=>setImmediate(resolve));
+ const groups=JSON.parse(s.getItem('course-library-grouped-submissions-v1')).groups;
+ assert.equal(groups.length,1);assert.equal(groups[0].payload.questions.length,20);assert.equal(groups[0].importSkippedQuestions[0].number,14);
+ assert.equal(groups[0].payload.questions[13].answer,'A、B、C、D');
+ assert.match(ui.document.querySelector('[data-import-status]').textContent,/跳過原第 14 題/);
+ assert.equal(ui.$('importIssuesPanel').hidden,true);assert.equal(ui.document.querySelector('[data-send]').disabled,true);
+ assert(!ui.requests.some(r=>r.opts?.method==='POST'));
+ const reloaded=await page(s);assert.match(reloaded.document.querySelector('.group-preview summary').textContent,/已跳過原第 14 題/);
+});

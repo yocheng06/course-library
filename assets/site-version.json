@@ -1,4 +1,4 @@
 {
-  "version": "2026.11.27-unit-english-1",
-  "description": "管理單元可編輯中英文名稱，閱讀頁同步套用英文標題"
+  "version": "2026.11.27-import-skip-1",
+  "description": "投稿可跳過缺少作答欄位的題目，並支援單元中英文名稱管理"
 }

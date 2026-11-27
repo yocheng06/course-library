@@ -2,7 +2,7 @@ import {publishedLinks,confirmPublication} from "./submission-feedback.mjs?v=con
 const normalizeBatch=(input,options={})=>normalizeBatchBase(input,{...options,allowConflictingVersions:true});
 const uniqueQuestions=(course,unit,questions,onDuplicate)=>uniqueQuestionsBase(course,unit,questions,onDuplicate,{allowConflictingVersions:true});
 import {createUnitCatalog} from './unit-catalog.mjs?v=admin-units-20261103';
-import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=workflow-clarity-20261125';
+import {setupGroupedSubmissions} from './grouped-submissions.mjs?v=skip-question-20261127';
 import {
   COURSE_UNITS,
   normalizeUnit,
@@ -29,7 +29,7 @@ const $ = (id) => document.getElementById(id),
 let selectedImportImageFiles = [];
 let retryImportFiles = [], importScopeChosen = false, manualImportBackup = null, importMetadata = null;
 let selectedQuestionHtml = null, selectedAnswerHtml = null, importBusy = false, draftSaveTimer;
-let pairPreviewReady = false;
+let pairPreviewReady = false, retryImportOptions = {};
 let questions = [],
   images = [],
   editIndex = -1,
@@ -462,7 +462,7 @@ async function imageFileDataUrl(file, questionNumber) {
     binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
   return `data:${type};base64,${btoa(binary)}`;
 }
-async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
+async function parseCoursePracticeHtml(doc, raw, name, imageFiles = [], options = {}) {
   const form = doc.querySelector("#practice-quiz-form,#challenge-quiz-form,#quiz-form");
   if (!form) return null;
   const challenge = form.id === "challenge-quiz-form";
@@ -515,17 +515,27 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
     const shared = block.querySelector('.group-stem');
     return children.map(block => ({block,shared}));
   });
-  for (const {block,shared} of blocks) {
-    if (block.closest("template") || hidden(block)) continue;
-    const responseInputs = [...block.querySelectorAll("input")].filter((input) =>
-      input.type === "radio" || input.type === "checkbox" ||
-      (input.type === "text" && input.classList.contains("text-answer")),
-    );
-    // This site's v_user_answer field is a bot-check decoy, not a course question.
-    if (responseInputs.some((input) => input.name === "v_user_answer")) continue;
-    if (!responseInputs.length) throw new Error(`第 ${questions.length + 1} 個題目區塊的作答欄位無法辨識，沒有匯入任何題目。`);
-    const questionNumber = questions.length + 1,
-      questionImages = [];
+  const candidates = blocks.filter(({block}) => !block.closest('template') && !hidden(block)).map(entry => ({
+    ...entry,responseInputs:[...entry.block.querySelectorAll('input')].filter(input =>
+      input.type === 'radio' || input.type === 'checkbox' || (input.type === 'text' && input.classList.contains('text-answer'))),
+  })).filter(entry => !entry.responseInputs.some(input => input.name === 'v_user_answer'))
+    .map((entry,index) => ({...entry,questionNumber:index+1}));
+  const selectedSkips = options.skipPracticeQuestions || [];
+  const issueFor = ({block,questionNumber}) => ({fileName:name,number:questionNumber,
+    stem:cleanQuestionStem(staticHtmlText(block)),reason:'沒有可辨識的作答欄位'});
+  const missing = candidates.filter(entry => !entry.responseInputs.length &&
+    !selectedSkips.some(skip => skip.fileName === name && skip.number === entry.questionNumber));
+  if (missing.length) {
+    const error = new Error(`第 ${missing.map(entry=>entry.questionNumber).join('、')} 個題目區塊的作答欄位無法辨識，沒有匯入任何題目。`);
+    error.code = 'practice_questions_without_inputs';
+    error.practiceImportIssues = missing.map(issueFor);
+    error.availableQuestionCount = candidates.filter(entry=>entry.responseInputs.length).length;
+    throw error;
+  }
+  const skipped = candidates.filter(entry=>!entry.responseInputs.length).map(issueFor);
+  for (const {block,shared,responseInputs,questionNumber} of candidates) {
+    if (!responseInputs.length) continue;
+    const questionImages = [];
     for (const image of [...(shared?.querySelectorAll("img") || []),...block.querySelectorAll("img")]) {
       if (hidden(image)) continue;
       const source = image.getAttribute("src") || "";
@@ -559,7 +569,7 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
     let localStem = cleanQuestionStem(staticHtmlText(promptCopy));
     if (challenge) localStem = localStem.replace(/^\d+[.．、]\s+/u,'');
     localStem = localStem.replace(/\uE000course-pre-(\d+)\uE001/g,(_,index) => '\n\n' + preformatted[Number(index)] + '\n\n').trim();
-    if (!localStem) throw new Error(`第 ${questions.length + 1} 題缺少題幹，沒有匯入任何題目。`);
+    if (!localStem) throw new Error(`第 ${questionNumber} 題缺少題幹，沒有匯入任何題目。`);
     const sharedCopy = shared?.cloneNode(true);
     for (const table of sharedCopy?.querySelectorAll('table') || []) {
       const rows = [...table.querySelectorAll('tr')].map(row => [...row.children]
@@ -571,7 +581,7 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
     const stem = context ? context + '\n\n' + localStem : localStem;
     const types = new Set(responseInputs.map((input) => input.type));
     if (types.size !== 1 || !["radio", "checkbox", "text"].includes([...types][0]))
-      throw new Error(`第 ${questions.length + 1} 題的題型無法辨識，沒有匯入任何題目。`);
+      throw new Error(`第 ${questionNumber} 題的題型無法辨識，沒有匯入任何題目。`);
     const inputType = [...types][0];
     let options = [];
     if (inputType === "radio" || inputType === "checkbox") {
@@ -580,7 +590,7 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
         .map((label) => cleanText(label.textContent).replace(/^[A-H][.、．:：)）]\s*/i, ""))
         .filter(Boolean);
       if (options.length !== responseInputs.length || options.length < 2 || options.length > 8)
-        throw new Error(`第 ${questions.length + 1} 題的選項格式無法辨識，沒有匯入任何題目。`);
+        throw new Error(`第 ${questionNumber} 題的選項格式無法辨識，沒有匯入任何題目。`);
     }
     questions.push({
       category,
@@ -597,6 +607,7 @@ async function parseCoursePracticeHtml(doc, raw, name, imageFiles = []) {
   const hostname = (() => { try { return new URL(sources[0].url).hostname; } catch { return "來源網站"; } })();
   return {
     __htmlQuestionImport: true,
+    __skippedPracticeQuestions: skipped,
     course,
     unit,
     title,
@@ -781,7 +792,7 @@ function combineCoursePracticeHtml(questionImport, resultImport) {
   };
 }
 
-async function parseCoursePracticeHtmlPair(rawFiles, names, imageFiles = []) {
+async function parseCoursePracticeHtmlPair(rawFiles, names, imageFiles = [], options = {}) {
   if (rawFiles.length !== 2 || !Array.isArray(names) || names.length !== 2)
     throw new Error("題目和答案分成兩份時，請一次選取剛好兩個 HTML 檔。");
   if (names.some((name) => !/\.html?$/i.test(name)))
@@ -801,6 +812,7 @@ async function parseCoursePracticeHtmlPair(rawFiles, names, imageFiles = []) {
       rawFiles[index],
       names[index],
       imageFiles,
+      options,
     );
     if (question) {
       if (questionImport) throw new Error("找到兩份題目頁；請只選一份題目 HTML。");
@@ -812,9 +824,9 @@ async function parseCoursePracticeHtmlPair(rawFiles, names, imageFiles = []) {
   return combineCoursePracticeHtml(questionImport, resultImport);
 }
 
-async function parseImport(raw, name, imageFiles = []) {
+async function parseImport(raw, name, imageFiles = [], options = {}) {
   if (Array.isArray(raw))
-    return parseCoursePracticeHtmlPair(raw, name, imageFiles);
+    return parseCoursePracticeHtmlPair(raw, name, imageFiles, options);
   if (/\.json$/i.test(name)) return JSON.parse(raw);
   const doc = new DOMParser().parseFromString(raw, "text/html");
   if (parseCoursePracticeResultsHtml(doc))
@@ -827,7 +839,7 @@ async function parseImport(raw, name, imageFiles = []) {
     if(!block)throw new Error('缺少單元題目：'+unit.id);
     return {course:'os',unit:unit.id,questions:JSON.parse(block.textContent)};
   });
-  const practice = await parseCoursePracticeHtml(doc, raw, name, imageFiles);
+  const practice = await parseCoursePracticeHtml(doc, raw, name, imageFiles, options);
   if (practice) return practice;
   for (const script of doc.querySelectorAll("script")) {
     const source = script.textContent,
@@ -894,6 +906,7 @@ function setSubmissionMode(mode) {
   $("submissionMetadata").hidden = importing && !document.querySelector(".group-preview [data-group-index]");
   $("batchHeading").textContent=importing?'選取要分享的題目':'這份題庫';
   form.hidden = importing;
+  if (!importing) importIssuesPanel.hidden = true;
   $("draftHeading").closest("section").hidden = importing;
   const grouped = document.querySelector(".group-preview");
   if (grouped) grouped.hidden = !importing || grouped.dataset.hasGroups !== 'true';
@@ -913,8 +926,10 @@ function updatePairStatus() {
     selectedQuestionHtml && selectedAnswerHtml ? "兩份檔案已選齊，可重新產生預覽。" : "請先選取題目及交卷結果兩份 HTML。";
 }
 function resetImportSelection() {
+  importIssuesPanel.hidden = true;
   selectedQuestionHtml = selectedAnswerHtml = null;
   retryImportFiles = [];
+  retryImportOptions = {};
   selectedImportImageFiles = [];
   importScopeChosen = false;
   pairPreviewReady = false;
@@ -937,6 +952,7 @@ for (const [buttonId, inputId, kind] of [["chooseQuestionHtml", "questionHtmlFil
       $("retryMetadataImport").hidden = true;
       $("submissionImageHelp").hidden = true;
       pairPreviewReady = false;
+      importIssuesPanel.hidden = true;
       if (kind === "question") selectedQuestionHtml = file;
       else selectedAnswerHtml = file;
     }
@@ -947,15 +963,42 @@ for (const [buttonId, inputId, kind] of [["chooseQuestionHtml", "questionHtmlFil
 }
 $("showHtmlImport").addEventListener("click", () => setSubmissionMode("import"));
 $("showManualEntry").addEventListener("click", () => setSubmissionMode("manual"));
-async function previewImport(files) {
+const importIssuesPanel = document.createElement('section');
+importIssuesPanel.id = 'importIssuesPanel';
+importIssuesPanel.className = 'panel';
+importIssuesPanel.hidden = true;
+$('message').after(importIssuesPanel);
+function showPracticeImportIssues(error, files, parserOptions) {
+  importIssuesPanel.replaceChildren();
+  const heading = document.createElement('h3');heading.textContent = '有題目缺少作答欄位';
+  const help = document.createElement('p');help.textContent = '可跳過下列題目，繼續產生其他題目的投稿預覽；尚未送出。';
+  const list = document.createElement('ul');
+  for (const issue of error.practiceImportIssues) {
+    const row = document.createElement('li');row.textContent = `原第 ${issue.number} 題：${issue.stem.slice(0,200)}（${issue.reason}）`;list.append(row);
+  }
+  importIssuesPanel.append(heading,help,list);
+  if (error.availableQuestionCount > 0) {
+    const button = document.createElement('button');button.type = 'button';button.className = 'button secondary';button.id = 'skipInvalidPracticeQuestions';
+    button.textContent = `跳過這 ${error.practiceImportIssues.length} 題，匯入其他 ${error.availableQuestionCount} 題`;
+    button.addEventListener('click', () => {
+      if (importBusy) return;
+      void previewImport(files,{...parserOptions,skipPracticeQuestions:[...(parserOptions.skipPracticeQuestions || []),...error.practiceImportIssues.map(({fileName,number})=>({fileName,number}))]});
+    });
+    importIssuesPanel.append(button);
+  }
+  importIssuesPanel.hidden = false;
+}
+async function previewImport(files, parserOptions = {}) {
   if (importBusy) return;
   message("");
+  importIssuesPanel.hidden = true;
   retryImportFiles=Array.from(files);
+  retryImportOptions=parserOptions;
   pairPreviewReady = false;
   importBusy = true;
   updatePairStatus();
   try {
-    const groups=await groupedSubmissions.importFiles(files, selectedImportImageFiles);
+    const groups=await groupedSubmissions.importFiles(files, selectedImportImageFiles, parserOptions);
     if(!groups?.length){
       resetImportSelection();
       setSubmissionMode("import");
@@ -973,6 +1016,13 @@ async function previewImport(files) {
     pairPreviewReady = files.length === 2;
     setSubmissionMode("import");
   } catch(error) {
+    if (error.code === 'practice_questions_without_inputs') {
+      $('submissionImageHelp').hidden = true;
+      $('submissionMetadata').hidden = false;$('retryMetadataImport').hidden = true;$('applyImportMetadata').hidden = true;
+      showPracticeImportIssues(error,Array.from(files),parserOptions);
+      message('檔案中有題目缺少作答欄位；請查看下方清單，選擇是否跳過。',true);
+      return;
+    }
     const missingImage=/題圖|圖片/.test(error.message);
     $("submissionImageHelp").hidden=!missingImage;
     if(missingImage)$("importImageStatus").textContent=error.message;
@@ -1011,7 +1061,7 @@ function selectImportImages(event) {
     : "沒有找到 PNG、JPEG 或 WebP 題圖；可選取題目 HTML 同名的「_files」資料夾。";
   event.target.value = "";
   if(supported.length && retryImportFiles.length && !importBusy) {
-    void previewImport(retryImportFiles.slice());
+    void previewImport(retryImportFiles.slice(), retryImportOptions);
   }
 }
 $("importImages").addEventListener("change", selectImportImages);
@@ -1275,7 +1325,7 @@ $("unit").addEventListener('change',()=>{importScopeChosen=true;});
 $("course").addEventListener('change',()=>{importScopeChosen=true;});
 $("retryMetadataImport").addEventListener('click',()=>{
   importScopeChosen=true;
-  if(retryImportFiles.length)void previewImport(retryImportFiles.slice());
+  if(retryImportFiles.length)void previewImport(retryImportFiles.slice(), retryImportOptions);
 });
 $("applyImportMetadata").addEventListener('click',()=>{
   try{groupedSubmissions.updateMetadata(metadata());importMetadata=metadata();$("detectedScope").textContent='資料已套用至預覽，請核對後再公開。';}catch(error){message(error.message,true);}
