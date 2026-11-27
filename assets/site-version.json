@@ -1,4 +1,4 @@
 {
-  "version": "2026.11.27-algorithms-l10-1",
-  "description": "演算法 L10 共 54 題解析與主題整理，保留原題及答案並明列計算差異"
+  "version": "2026.11.27-numeric-slots-1",
+  "description": "多格數字填空逐格驗證，保留答案原文、順序與單格限制"
 }

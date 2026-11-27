@@ -752,6 +752,10 @@ function remapAnswer(question, entry) {
       const values = answer.split(/\s*[,_]\s*/);
       return { answer: values.join(sequenceSeparator), signature: JSON.stringify(values) };
     }
+    const count = fillBlankCount(question.stem);
+    const parts = count > 1 ? fillAnswerParts(entry.answer,count) : null;
+    if (count > 1 && !parts) return null;
+    const answerValues = parts || [entry.answer.trim()];
     if (
       hint &&
       (/[\p{Script=Han}]/u.test(entry.answer) ||
@@ -760,7 +764,7 @@ function remapAnswer(question, entry) {
         (/(?:大寫英文|uppercase\s+English|English\s+uppercase)/i.test(hint) &&
           /[a-z]/.test(entry.answer)) ||
         (/請用數字回答/.test(hint) &&
-          !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(entry.answer.trim())) ||
+          !answerValues.every(value => /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(value))) ||
         (/(?:單字間(?:請)?留-|單字間(?:請)?用-連接|字母間(?:請)?用-|以連字號連接單字|需要做字母連接的兩個文字用-|connecting\s+words\s+with\s+hyphens)/i.test(hint) && /[\s_]/.test(entry.answer)) ||
         (/one\s+space\s+between\s+letters/i.test(hint) && /\s{2,}/.test(entry.answer)) ||
         (/connect\s+related\s+letters\s+with\s+a\s+hyphen/i.test(hint) && !/^[A-Za-z]+(?:-[A-Za-z]+)*(?: [A-Za-z]+(?:-[A-Za-z]+)*)*$/.test(entry.answer.trim())) ||
@@ -768,9 +772,6 @@ function remapAnswer(question, entry) {
         (/不可用lg/.test(hint) && /\blg/.test(entry.answer)))
     )
       return null;
-    const count = fillBlankCount(question.stem);
-    const parts = count > 1 ? fillAnswerParts(entry.answer,count) : null;
-    if (count > 1 && !parts) return null;
     return { answer: entry.answer, signature: parts ? JSON.stringify(parts.map(normalizeText)) : normalizeText(entry.answer) };
   }
   const key = entry.options.length &&

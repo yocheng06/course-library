@@ -11,7 +11,7 @@ import {
   applyBuiltinOverrides,
   MAX_TEXT,
   normalizeText,
-} from "./batch-model.mjs?v=numeric-sequence-format-20261122";
+} from "./batch-model.mjs?v=numeric-slots-20261127";
 import { parseBatchInput } from "./batch-import.mjs?v=quiz-course-transfer-20261125";
 import { setupBatchImport } from "./batch-import-ui.mjs?v=quiz-course-transfer-20261125";
 import {checkResponse,responseKey} from './batch-response.mjs?v=response-check-20261125';
