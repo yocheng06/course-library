@@ -773,7 +773,7 @@ test("recognized answer hints validate the actual bank answer and never change i
   assert.notEqual(normalizeText("n^(log_b(a))"), normalizeText("N^(log_b(a))"));
 });
 
-test("user's labelled OS batch recovers question 21 and returns all 13 answers with the pasted choice order", async () => {
+test("user's labelled OS batch keeps answers in pasted order and reviews the changed question version", async () => {
   const text = await readFile(
     new URL("./fixtures/batch-os-labelled.txt", import.meta.url),
     "utf8",
@@ -806,7 +806,12 @@ test("user's labelled OS batch recovers question 21 and returns all 13 answers w
   const rows = matchQuestions(questions, buildIndex(data.entries), {
     course: "os",
   });
-  assert(rows.every((r) => r.status === "matched"));
+  // basics-42 now has a different set of choices in the public bank. Keep
+  // the older pasted version for review instead of borrowing its former answer.
+  assert(rows.slice(0, 4).every((r) => r.status === "matched"));
+  assert.equal(rows[4].status, "review");
+  assert.match(rows[4].reason, /選項不同/);
+  assert(rows.slice(5).every((r) => r.status === "matched"));
   assert.deepEqual(
     rows.map((r) =>
       r.question.options.length
@@ -818,7 +823,7 @@ test("user's labelled OS batch recovers question 21 and returns all 13 answers w
       "C",
       "B",
       "timer",
-      "AC",
+      "",
       "BC",
       "C",
       "ABCD",
