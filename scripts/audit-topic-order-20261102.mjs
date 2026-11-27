@@ -17,17 +17,22 @@ export async function loadCourse(course,{live,linkedQuestion='',ordering=true}={
  return {window,document,config:window.courseLearning,scrolledQuestions,respond:data=>respond({ok:true,headers:{get:()=>new Date().toUTCString()},json:async()=>data})};
 }
 export function orderingIssues(entries,tools,course){
- const seen=new Set(),types=new Map();let previous='';const issues=[];
+ const seen=new Set(),types=new Map(),premises=new Set(),minimumTypes=new Map(),topicTypes=new Map();let previous='',previousPremise='';const issues=[];
+ for(const entry of entries){const label=tools.topic(entry.q,course,entry.unitId).label,group=entry.unitId+'/'+label+'/'+(tools.premiseKey?.(entry.q)??entry.id);minimumTypes.set(group,Math.min(minimumTypes.get(group)??2,tools.typeRank(entry.q)));}
  for(const entry of entries){
   const {label}=tools.topic(entry.q,course,entry.unitId),key=entry.unitId+'/'+label,rank=tools.typeRank(entry.q);
   if(key!==previous&&seen.has(key))issues.push({id:entry.id,reason:'topic-interleaved',topic:label});
-  if((types.get(key)??-1)>rank)issues.push({id:entry.id,reason:'type-reversed',topic:label});
-  seen.add(key);types.set(key,rank);previous=key;
+  const premise=tools.premiseKey?.(entry.q),group=key+'/'+(premise??entry.id);
+  if(group!==previousPremise&&premises.has(group))issues.push({id:entry.id,reason:'premise-interleaved',topic:label});
+  if(group!==previousPremise&&(topicTypes.get(key)??-1)>minimumTypes.get(group))issues.push({id:entry.id,reason:'premise-group-type-reversed',topic:label});
+  if((types.get(group)??-1)>rank)issues.push({id:entry.id,reason:'type-reversed-within-premise',topic:label});
+  topicTypes.set(key,minimumTypes.get(group));
+  seen.add(key);premises.add(group);types.set(group,rank);previous=key;previousPremise=group;
  }
  return issues;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
- const reports=[];let markdown='# 全站主題與題型排序檢查\n\n規則：單元 → 同主題 → 單選 → 多選 → 填空。同主題同題型保留原有相對順序；挖寶原本的情境排序只在同題型內作次序依據。新投稿每次同步後自動套用。\n\n';
+ const reports=[];let markdown='# 全站主題與題型排序檢查\n\n規則：單元 → 同主題 → 相同前提的版本相鄰 → 組內單選、多選、填空。條件不同不併組；同組同題型保留原有相對順序。新投稿每次同步後自動套用。\n\n';
  for(const course of ['os','algorithms']){
   const live=JSON.parse(await read(`content/${course}-public-topic-order-20261102.json`));
   const before=await loadCourse(course,{live,ordering:false}),old=before.config.examEntries(true);

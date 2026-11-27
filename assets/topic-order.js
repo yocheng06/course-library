@@ -1,4 +1,4 @@
-/* Topic first, then actual answer type. Source question objects and IDs stay intact. */
+/* Topic, identical premise, then actual answer type. Source questions stay intact. */
 (() => {
  'use strict';
  const catalogs={
@@ -63,10 +63,36 @@
   const copy={...question,category:label};views.set(question,{label,question:copy});return copy;
  }
  function typeRank(q){const type=window.courseQuestionTools.answerType(q);return type==='單選題'?0:type==='多選題'?1:2;}
+ const normalizePremise=text=>String(text??'').normalize('NFC').replace(/\[__\d+__\]|_{3,}/g,'____').replace(/\s+/g,' ').trim();
+ function premiseKey(q){
+  const text=String(q.stem||q.q||'').trim();if(!text)return null;
+  let premise=normalizePremise(text);
+  // Only this explicit template separates calculation inputs from requested outputs.
+  // Never drop numbers, operators, order of keys, coefficients or extra conditions.
+  const query=/請問陣列\s*A\[0\]\s*-\s*A\[(\d+)\]\s*的內容哪些正確/.exec(text);
+  if(/^考慮將鍵值\s+[\d、,，\s]+插入/.test(text)&&query){
+   const size=Number(text.match(/m\s*=\s*(\d+)/)?.[1]),lines=text.slice(query.index+query[0].length).trim().split(/\n/).map(s=>s.trim());
+   const indices=(lines[0]?.match(/\d+/g)??[]).map(Number),tail=lines.slice(2).join('\n').trim();
+   const cellsOnly=/^(?:A\[\d+\]\s*=\s*(?:_{3,}|\[__\d+__\])\s*)+$/.test(tail);
+   const failuresOnly=/^無法藉此公式找到合法位置\s*的數\s*\(先填小的值再填大的值\)\s*_{3,}\s+_{3,}\s*$/.test(tail);
+   if(Number.isInteger(size)&&size>0&&size<=101&&Number(query[1])===size-1&&indices.length===size&&indices.every((n,i)=>n===i)&&/^\|[|\s]*$/.test(lines[1]??'')&&(!tail||cellsOnly||failuresOnly)){
+    premise='hash-input:'+normalizePremise(text.slice(0,query.index).replace(/c_([12])\b/g,'c$1')).replace(/\s*([=+*(),，、\[\]−-])\s*/g,'$1');
+   }
+  }
+  // An image, note or other supplied context may hold an additional condition.
+  return JSON.stringify([premise,q.images??[],q.image??null,q.imageUrl??null,q.note??'',q.missingContext??null]);
+ }
  function sort(entries,course,unitRank,legacyRank=entry=>entry.i??0){
   const decorated=entries.map((entry,index)=>({entry,index,topic:topic(entry.q,course,entry.unit.id),type:typeRank(entry.q),unit:unitRank(entry),legacy:legacyRank(entry)}));
   decorated.sort((a,b)=>a.unit-b.unit||a.topic.rank-b.topic.rank||(a.topic.label===b.topic.label?0:a.topic.label.localeCompare(b.topic.label,'zh-Hant'))||a.type-b.type||a.legacy-b.legacy||a.index-b.index);
+  const groups=new Map();
+  decorated.forEach((item,position)=>{
+   const premise=premiseKey(item.entry.q),key=JSON.stringify([item.entry.unit.id,item.topic.label,premise]);
+   if(premise!==null&&!groups.has(key))groups.set(key,position);
+   item.anchor=premise===null?position:groups.get(key);
+  });
+  decorated.sort((a,b)=>a.anchor-b.anchor||a.type-b.type||a.legacy-b.legacy||a.index-b.index);
   const numbers=new Map();return decorated.map(({entry,topic})=>{entry.topicLabel=topic.label;const n=(numbers.get(entry.unit.id)??0)+1;numbers.set(entry.unit.id,n);entry.displayNumber=n;return entry;});
  }
- (typeof window==='undefined'?globalThis:window).courseTopicOrder={topic,view,typeRank,sort,catalogs};
+ (typeof window==='undefined'?globalThis:window).courseTopicOrder={topic,view,typeRank,premiseKey,sort,catalogs};
 })();

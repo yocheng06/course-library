@@ -1,4 +1,4 @@
 {
-  "version": "2026.11.27-hash-fold-1",
-  "description": "雜湊解析精簡：保留觀念與答案說明，完整文字計算預設收起"
+  "version": "2026.11.27-premise-order-1",
+  "description": "同主題下，相同前提的版本相鄰，組內單選、多選、填空"
 }

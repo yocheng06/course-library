@@ -29,7 +29,7 @@
 | --- | --- | --- |
 | 課程頁 | `assets/os-learning.js`、`assets/algorithms-learning.js` | 單元切換、卡片、搜尋範圍、練習及對外共用介面 `window.courseLearning` |
 | 題目共用邏輯 | `assets/question-tools.js`、`assets/choice-answers.js` | 題型、答案對應、搜尋、卡片更新、選項隨機排列與語言篩選 |
-| 主題排序 | `assets/topic-order.js` | 同主題集中，再依單選、多選、填空排列；保留 ID |
+| 主題排序 | `assets/topic-order.js` | 同主題集中，相同前提的版本相鄰，組內單選、多選、填空；保留原題及 ID |
 | 載入與同步 | `assets/course-bootstrap.js`、`assets/sync-summary.js` | 快照／快取、API 同步、同步前後差異、已確認刪除更新 |
 | 單元目錄 | `assets/unit-catalog.mjs`、`assets/unit-catalog-snapshot.mjs` | 初始完整單元目錄及背景更新，供投稿／查題等頁面使用 |
 | 練習與學習資料 | `assets/practice-feedback.js`、`assets/practice-progress.js`、`assets/learning-tools.js` | 作答核對、本輪統計、待複習、清除與復原、備份 |
