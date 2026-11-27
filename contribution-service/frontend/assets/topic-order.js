@@ -17,6 +17,7 @@
   'algorithms/L5':['核心概念','Pivot 與 Partition','遞迴與複雜度','特性與優化'],
   'algorithms/L6':['線性排序與穩定性','比較排序與決策樹','計數排序','基數排序','桶排序'],
   'algorithms/L8':["集合與實作比較","堆疊","佇列","鏈結串列基礎","雙向鏈結串列","鏈結串列操作","環狀串列與哨兵","動態配置與垃圾回收"],
+  'algorithms/L10':['動態規劃基礎','裝配線排程','矩陣鏈乘法','最長共同子序列','0/1 背包問題'],
   'algorithms/L9':['雜湊基本觀念與應用','雜湊函數與設計','負載因子與效能','碰撞處理與鏈結法','開放定址法','線性探測','二次探測','雙重雜湊','全域雜湊與完全雜湊'],
   'algorithms/L7':['順序統計量與中位數','最小值與最大值','第二小元素','Partition 分割操作','Randomized-Select','確定性 Select 與中位數的中位數']
  };
@@ -27,6 +28,7 @@
  const generic=new Set(['','其他','課程觀念','HTML 匯入','作業系統基礎','作業系統架構','程序與 IPC','執行緒與多執行緒','CPU 排程','L6 · CPU 排程','L8 · 死結','死結','記憶體管理','基礎與漸進分析','LMS 精確格式','堆積、堆積排序與優先佇列','排序演算法','排序基礎','中位數與順序統計量']);
  // Rules are used only for generic import categories, never to replace a custom topic.
  const rules={
+  'algorithms/L10':[[/裝配線|assembly.line/i,1],[/矩陣|MATRIX_CHAIN/i,2],[/最長共同|LCS|longest.common.subsequence/i,3],[/背包|knapsack|水果/i,4]],
   'os/basics':[[/kernel.*data.structur|核心.*資料結構/i,12],[/cloud|雲端/i,15],[/virtuali|虛擬化/i,14],[/cluster|叢集/i,7],[/multiprocess|多處理器|對稱.*非對稱/i,6],[/interrupt|中斷|timer|計時器/i,3],[/bootstrap|boot|開機/i,2],[/cache|storage|儲存|位元|byte|register|暫存器/i,4],[/\bI\/O\b|DMA|裝置|device/i,5],[/protection|security|dual.mode|安全|保護|模式|權限|user.id|group.id/i,11],[/memory|記憶體/i,10],[/multiprogram|timeshar|多程式|分時/i,8],[/process|程序|行程/i,9],[/distributed|network|LAN|WAN|MAN|PAN|peer|分散|網路/i,13],[/real.time|即時/i,16],[/open.source|開源|原始碼/i,17],[/component|組成|硬體|hardware/i,1]],
   'os/architecture':[[/Android|iOS|Dalvik|Cocoa|Aqua|Mac OS X.*GUI/i,5],[/FreeBSD|shell.*fork|shell.*exec|UNIX.*結構|multitasking.*Unix|UNIX kernel/i,6],[/boot|開機|bootstrap|firmware|韌體|crash|dump|損毀|DTrace|profil|效能|tuning|instrument|system.generat/i,4],[/system.call|系統呼叫|API|Win32|POSIX|printf|參數.*傳遞/i,2],[/microkernel|微核心|monolithic|hybrid|混合|分層|layer|module|模組|結構|design|設計|mechanism|policy/i,3],[/CLI|GUI|command.line|shell|interface|使用者介面|system.program|系統程式|指令行|指令列|命令列/i,0],[/service|服務|檔案|資源|protection|protect|保護|security|驗證|Accounting|account management/i,1]],
   'os/process':[[/Mach|LPC|Windows.*IPC/i,12],[/RPC|remote.procedure|遠端程序|stubs?|XDR|XDL/i,11],[/pipe|socket|管道|通訊.*端點/i,10],[/direct.communication|indirect.communication|直接通訊|間接通訊|mailbox|信箱/i,8],[/blocking|non.blocking|rendezvous|阻塞|訊息.*容量|零容量|buffer.*capacit|訊息傳遞/i,9],[/CPU.bound|I\/O.bound|密集|bound.process/i,4],[/fork|exec\(|exit\(|wait\(|parent|child|父程序|子程序|孤兒|殭屍|orphan|zombie|程序.*(?:建立|創建|終止)/i,5],[/PCB|control.block|context.switch|上下文|回傳位址|register|暫存器|堆疊|stack/i,1],[/state|狀態|running|ready|waiting|terminated/i,2],[/schedul|queue|排程|佇列|swapping/i,3],[/cooperat|合作/i,6],[/mobile|browser|Chrome|行動|瀏覽器/i,13],[/IPC|communicat|通訊|shared.memory|共享記憶體/i,7]],
@@ -50,7 +52,7 @@
   const names=catalogs[key]??[],alias=aliases[key]?.[raw];let label=alias||raw;
   if(!alias&&generic.has(raw)){
    const found=rules[key]?.find(([pattern])=>pattern.test(stem));
-   const fallback={'os/basics':0,'os/architecture':1,'os/process':0,'os/threads':0,'os/scheduling':0,'os/treasure':6,'os/synchronization':4,'os/deadlocks':0,'os/L9':3,'algorithms/L2':0,'algorithms/L3':0,'algorithms/L4':0,'algorithms/L5':0,'algorithms/L6':0,'algorithms/L7':0};
+   const fallback={'os/basics':0,'os/architecture':1,'os/process':0,'os/threads':0,'os/scheduling':0,'os/treasure':6,'os/synchronization':4,'os/deadlocks':0,'os/L9':3,'algorithms/L2':0,'algorithms/L3':0,'algorithms/L4':0,'algorithms/L5':0,'algorithms/L6':0,'algorithms/L7':0,'algorithms/L10':0};
    label=names[found?.[1]??fallback[key]]||raw||'其他主題';
   }
   const result={label,rank:names.includes(label)?names.indexOf(label):names.length};cache.set(question,{key,raw,stem,result});return result;

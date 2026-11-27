@@ -79,3 +79,5 @@ flowchart LR
 共同編輯、21 題解析與歷史備份保留：見 [2026-11-26 更新及備份操作](docs/updates/2026-11-26-edit-backup.md)。
 
 投稿 HTML 可明確跳過缺少作答欄位的題目，其餘題目仍按內容配對正解：見 [匯入跳過操作說明](docs/updates/2026-11-27-import-skip.md)。
+
+演算法 L10 的 54 題逐題解析、主題分類及答案差異：見 [L10 整理與核算記錄](docs/updates/2026-11-27-algorithms-l10.md)。

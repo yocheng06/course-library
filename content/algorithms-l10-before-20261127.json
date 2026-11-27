@@ -1,0 +1,1262 @@
+{
+  "schema": 1,
+  "course": "algorithms",
+  "unit": "L10",
+  "capturedAt": "2026-11-27T04:38:34.764305+00:00",
+  "unitSetting": {
+    "id": "L10",
+    "title": "排程",
+    "en": "Scheduling",
+    "order": 9
+  },
+  "questions": [
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-1",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-1",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "下列何者是動態規劃的問題特性？",
+        "opts": [
+          "唯一解",
+          "最佳子結構",
+          "必須是線性",
+          "不能遞迴"
+        ],
+        "a": "B",
+        "ex": "",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-10",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-10",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "最長共同子序列（Longest Common Subsequence, LCS） \n\n已知S1 = ABCBDAB S2 = BDCABA,請用可課本教的動態規劃演算法技巧找出S1、S2的最長共同子字串\n\n\n  j   0   1   2   3   4   5   6\ni         B   D   C   A   B   A\n0   |   |   |   |   |   |   |   | \n1A  |   |   |   |   |   |   |   | \n2B  |   |   |   |   |   |   |   | \n3C  |   |   |   |   |   |   |   | \n4B  |   |   |   |   |   |   |   | \n5D  |   |   |   |   |   |   |   | \n6A  |   |   |   |   |   |   |   | \n7B  |   |   |   |   |   |   |   | \n\n請完成 LCS 計算並回答\n\n根據課本的 回溯矩陣 最後輸出的 字串是 ____________    格式 : ABCD",
+        "opts": [],
+        "a": "BCBA",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-11",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-11",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "在課本裝配線排程（Assembly-line scheduling）中， \n\n進入裝配線 1 需時間 e1 = 2分  離開時間：x1 = 3,\n進入裝配線 2 需時間 e2 = 4分  離開時間：x2 = 2,\n從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 2, 3, 1, 3, 4]\n從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 1, 2, 2, 1]\n各站點處理時間  (共 1 2 3 4 5 6 站點) \n線路 1：[7, 9, 3, 4, 8, 4]分\n線路 2：[8, 5, 6, 4, 5, 7]分\n\n請問到 完成組裝的最少時間是多少分",
+        "opts": [
+          "52",
+          "38",
+          "35",
+          "40"
+        ],
+        "a": "B",
+        "ex": "",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-12",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-12",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "裝配線排程的輸出結果通常為？",
+        "opts": [
+          "最小總花費",
+          "各階段的處理時間",
+          "各站點的最佳路線",
+          "最終產品品質"
+        ],
+        "a": "A、C",
+        "ex": "",
+        "choiceKey": "AC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-13",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-13",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "矩陣相乘 的動態規劃計算 選出正確的項目 \n\nA is a 3x3 Matrix, \nB is a 3x2 Matrix, \nC is a 2x2 Matrix, \nD is a 2x3 Matrix, \nE is a 3x4 Matrix, \n\nm 矩陣\n\n|(1)|(2)|(3)|(4)|(5)|\n|(6)|(7)|(8)|(9)|\n|(10)|(11)|(12)|\n|(13)|(14)|\n|(15)|\n\n\ns 矩陣\n\n|(a)|(b)|(c)|(d)|\n|(e)|(f)|(g)|\n|(h)|(i)|\n|(j)|",
+        "opts": [
+          "最佳括號化順序((AB)C)(DE)",
+          "最佳括號化順序(AB)((CD)E)",
+          "計算 ABCDE 的最少乘法次數為 87",
+          "計算 ABCDE 的最少乘法次數為 78"
+        ],
+        "a": "A、B、D",
+        "ex": "",
+        "choiceKey": "ABD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-14",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-14",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "矩陣相乘 的動態規劃計算 選出正確的項目 \n\nA is a 3x2 Matrix, \nB is a 2x2 Matrix, \nC is a 2x3 Matrix, \nD is a 3x4 Matrix, \n\nm 矩陣\n|(1)|(2)|(3)|\n|(6)|(7)|\n|(10)|\n\ns 矩陣\n|(a)|(b)|(c)|\n|(e)|(f)|\n|(h)|\n\n請回答 \n(1)  ____________   \n(2)  ____________   \n(10)  ____________   \n(請用數字回答)",
+        "opts": [],
+        "a": "60/36/12",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-15",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-15",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "下列有關最佳子結構，正確的是？",
+        "opts": [
+          "問題的最優解包含子問題的最優解",
+          "所有問題都具備此特性",
+          "是動態規劃的基本前提",
+          "可透過局部優化達到全局最優"
+        ],
+        "a": "A、C、D",
+        "ex": "",
+        "choiceKey": "ACD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-16",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-16",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "在課本裝配線排程（Assembly-line scheduling）中， \n\n進入裝配線 1 需時間 e1 = 2分  離開時間：x1 = 3,\n進入裝配線 2 需時間 e2 = 4分  離開時間：x2 = 2,\n從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 2, 3, 1, 3, 4]\n從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 1, 2, 2, 1]\n各站點處理時間  (共 1 2 3 4 5 6 站點) \n線路 1：[7, 9, 3, 4, 8, 4]分\n線路 2：[8, 5, 6, 4, 5, 7]分\n\n請問到 站點 6 的最少時間是多少",
+        "opts": [
+          "30",
+          "38",
+          "35",
+          "37"
+        ],
+        "a": "C",
+        "ex": "",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-17",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-17",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "矩陣相乘 的動態規劃計算 選出正確的項目 \n\nA is a 3x3 Matrix, \nB is a 3x2 Matrix, \nC is a 2x2 Matrix, \nD is a 2x3 Matrix, \nE is a 3x4 Matrix, \n\nm 矩陣\n\n|(1)|(2)|(3)|(4)|(5)|\n|(6)|(7)|(8)|(9)|\n|(10)|(11)|(12)|\n|(13)|(14)|\n|(15)|\n\n\ns 矩陣\n\n|(a)|(b)|(c)|(d)|\n|(e)|(f)|(g)|\n|(h)|(i)|\n|(j)|",
+        "opts": [
+          "BCD最少乘法次數36",
+          "ABC最少乘法次數30",
+          "BCDE最少乘法次數60",
+          "CDE最少乘法次數36"
+        ],
+        "a": "B、C、D",
+        "ex": "",
+        "choiceKey": "BCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-18",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-18",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "在課本裝配線排程（Assembly-line scheduling）中， \n\n進入裝配線 1 需時間 e1 = 3分  離開時間：x1 = 2,\n進入裝配線 2 需時間 e2 = 2分  離開時間：x2 = 4,\n從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 4, 2, 3]\n從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 5, 1]\n\n\n各站點處理時間  (共 1 2 3 4 站點) \n線路 1：[5, 8, 4, 7]分\n線路 2：[7, 3, 9, 4]分\n\n請問到 最終出廠總時間最少是多少 ____________  (請用數字回答)",
+        "opts": [],
+        "a": "29",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-19",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-19",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "最長共同子序列（Longest Common Subsequence, LCS） \n\n已知S1 = ABCBDAB S2 = BDCABA,請用可課本教的動態規劃演算法技巧找出S1、S2的最長共同子字串\n\n\n  j   0   1   2   3   4   5   6\ni         B   D   C   A   B   A\n0   |   |   |   |   |   |   |   | \n1A  |   |   |   |   |   |   |   | \n2B  |   |   |   |   |   |   |   | \n3C  |   |   |   |   |   |   |   | \n4B  |   |   |   |   |   |   |   | \n5D  |   |   |   |   |   |   |   | \n6A  |   |   |   |   |   |   |   | \n7B  |   |   |   |   |   |   |   | \n\n請完成 LCS 計算並回答\n\n[3,4]    ____________  (請用數字)  箭頭   ____________       左上 請填 LU  上 請填 U 左請填 L\n[4,6]    ____________  (請用數字)  箭頭   ____________  \n[7,6]    ____________  (請用數字)  箭頭   ____________",
+        "opts": [],
+        "a": "2/L/3/L/4/U",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-2",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-2",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "在課本裝配線排程（Assembly-line scheduling）中， \n\n進入裝配線 1 需時間 e1 = 2分  離開時間：x1 = 4,\n進入裝配線 2 需時間 e2 = 3分  離開時間：x2 = 2,\n從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 2, 4, 3]\n從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 3, 1, 5]\n\n\n各站點處理時間  (共 1 2 3 4 站點) \n線路 1：[6, 3, 8, 2]分\n線路 2：[4, 7, 2, 6]分\n\n請問到 最終出廠總時間最少是多少 ____________  (請用數字回答)\n最佳路徑為 ____________  (格式 1,S11,S22,S13,S24)    \n第一個1表示先進線路1若是進線路2請寫2, sxy 表示 X線的y站點 S11 表示1線的1站點",
+        "opts": [],
+        "a": "22/1,S11,S12,S13,S14",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-20",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-20",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "最長共同子序列（Longest Common Subsequence, LCS） \n\n已知S1 = ABCBDAB S2 = BDCABA,請用可課本教的動態規劃演算法技巧找出S1、S2的最長共同子字串\n\n\n  j   0   1   2   3   4   5   6\ni         B   D   C   A   B   A\n0   |   |   |   |   |   |   |   | \n1A  |   |   |   |   |   |   |   | \n2B  |   |   |   |   |   |   |   | \n3C  |   |   |   |   |   |   |   | \n4B  |   |   |   |   |   |   |   | \n5D  |   |   |   |   |   |   |   | \n6A  |   |   |   |   |   |   |   | \n7B  |   |   |   |   |   |   |   | \n\n請完成 LCS 計算並回答\n\n請完成 LCS 計算並回答\n\n[3,3]    ____________  (請用數字)  箭頭   ____________       左上 請填 LU  上 請填 U 左請填 L\n[4,4]    ____________  (請用數字)  箭頭   ____________  \n[6,6]    ____________  (請用數字)  箭頭   ____________",
+        "opts": [],
+        "a": "2/LU/2/U/4/LU",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-21",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-21",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "下列哪些問題適用動態規劃求解？",
+        "opts": [
+          "0/1 背包問題",
+          "快速排序",
+          "矩陣鏈乘法",
+          "最長共同子序列"
+        ],
+        "a": "A、C、D",
+        "ex": "",
+        "choiceKey": "ACD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-3",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-3",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "動態規劃的核心精神是將問題分解為？",
+        "opts": [
+          "隨機問題",
+          "獨立問題",
+          "無限問題",
+          "重疊子問題"
+        ],
+        "a": "D",
+        "ex": "",
+        "choiceKey": "D",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-4",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-4",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "矩陣相乘 的動態規劃計算 選出正確的項目 \n\nA is a 2x4 Matrix, \nB is a 4x3 Matrix, \nC is a 3x2 Matrix, \nD is a 2x5 Matrix, \n\nm 矩陣\n|(1)|(2)|(3)|\n|(4)|(5)|\n|(6)|\n\ns 矩陣\n|(a)|(b)|(c)|\n|(d)|(e)|\n|(f)|\n\n請回答 \n(ABC)結合方式  ____________   格式 EX (A(BC))\n(ABCD)結合方式  ____________   格式 EX (A(B(CD))",
+        "opts": [],
+        "a": "((AB)C)/(((AB)C)D)",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-5",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-5",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "動態規劃的計算方式通常可以分為？",
+        "opts": [
+          "只由上而下",
+          "只由下而上",
+          "隨機計算",
+          "由下而上與由上而下"
+        ],
+        "a": "D",
+        "ex": "",
+        "choiceKey": "D",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-6",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-6",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "動態規劃中的 '表格填寫'（filling a table）屬於哪個步驟？",
+        "opts": [
+          "定義遞迴",
+          "計算最佳解數值",
+          "建構解",
+          "刻畫結構"
+        ],
+        "a": "B",
+        "ex": "",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-7",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-7",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "裝配線排程問題的關鍵輸入包含？",
+        "opts": [
+          "每站組裝時間",
+          "線間轉換時間",
+          "首站進入時間",
+          "末站離開時間"
+        ],
+        "a": "A、B、C、D",
+        "ex": "",
+        "choiceKey": "ABCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-8",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-8",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "動態規劃的自底向上（bottom-up）策略是指？",
+        "opts": [
+          "遞迴解題",
+          "隨機解題",
+          "先解大問題",
+          "先解出小問題再合併"
+        ],
+        "a": "D",
+        "ex": "",
+        "choiceKey": "D",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-9",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-5a05cd8b-4425-4743-a483-f74d60393be1-9",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "最長共同子序列（LCS）結果的回溯路徑（PRINT_LCS）虛擬碼 \n\nPRINT_LCS(b, X, i, j)\n1  if i = 0 or j = 0\n2       then return\n3  if b[i, j] = \"↖\"\n4       then PRINT_LCS(b, X, i-1, j-1)\n5            _____C_____\n6  else if b[i, j] = \"↑\"\n7       then _____B_____\n8  else PRINT_LCS(b, X, i, j-1)\n\n 選出正確的",
+        "opts": [
+          "C 處 PRINT_LCS(b, X, i-1, j)",
+          "C 處 print xi",
+          "B 處 PRINT_LCS(b, X, i+1, j-1)",
+          "B 處 PRINT_LCS(b, X, i-1, j)"
+        ],
+        "a": "B、D",
+        "ex": "",
+        "choiceKey": "BD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "雜湊"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-1",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-1",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "以下水果編號、單價與重量 \n\nNO\tNAME\tWEIGHT\tVALUE\n0\t李子\t4KG\tNT4500\n1\t蘋果\t5KG\tNT5700\n2\t橘子\t2KG\tNT2250\n3\t草莓\t1KG\tNT1100\n4\t甜瓜\t6KG\tNT6700\n\n有一個小偷的背包負重最多可達8公斤，小偷希望在背包中裝入負重範圍內最高總價之物品。注意，水果不能切割。  ____________  (請用數字回答)\n最後取的水果是那些 ____________   填編號 由小到大 格式  : 012",
+        "opts": [],
+        "a": "9050/123",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-10",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-10",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "矩陣相乘 的動態規劃計算 選出正確的項目 \n\nA is a 3x3 Matrix, \nB is a 3x2 Matrix, \nC is a 2x2 Matrix, \nD is a 2x3 Matrix, \nE is a 3x4 Matrix, \n\nm 矩陣\n\n|(1)|(2)|(3)|(4)|(5)|\n|(6)|(7)|(8)|(9)|\n|(10)|(11)|(12)|\n|(13)|(14)|\n|(15)|\n\n\ns 矩陣\n\n|(a)|(b)|(c)|(d)|\n|(e)|(f)|(g)|\n|(h)|(i)|\n|(j)|",
+        "opts": [
+          "切割成((BC)(DE))：最少乘法次數66",
+          "切割成 (A(BCD))最少乘法次數57",
+          "切割成 ((AB)(CD))最少乘法次數48",
+          "切割成(B(CDE))最少乘法次數60"
+        ],
+        "a": "B、C、D",
+        "ex": "",
+        "choiceKey": "BCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-11",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-11",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "課本的裝配線排程問題中，每個裝配線有幾裝配線跟幾個工作站？",
+        "opts": [
+          "n線2站",
+          "2線n站",
+          "n線n站",
+          "2線2站"
+        ],
+        "a": "B",
+        "ex": "",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-12",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-12",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "動態規劃與貪婪演算法（Greedy Algorithm）的差異？",
+        "opts": [
+          "貪婪演算法考慮所有選項",
+          "動態規劃考慮所有選項",
+          "動態規劃不可遞迴",
+          "兩者完全相同"
+        ],
+        "a": "B",
+        "ex": "",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-13",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-13",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "動態規劃求解步驟的第一步是刻畫最佳解 ____________ (請用小寫英文回答)",
+        "opts": [],
+        "a": "structure",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-14",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-14",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "動態規劃中的 '記憶化'（Memoization）優點？",
+        "opts": [
+          "完全取消遞迴",
+          "避免重複計算",
+          "提高程式執行效率",
+          "簡化遞迴邏輯"
+        ],
+        "a": "B、C、D",
+        "ex": "",
+        "choiceKey": "BCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-15",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-15",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "動態規劃求解過程的最後一個步驟通常是？",
+        "opts": [
+          "初始化變數",
+          "刪除子問題",
+          "定義遞迴關係",
+          "建構最佳解"
+        ],
+        "a": "D",
+        "ex": "",
+        "choiceKey": "D",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-16",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-16",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "動態規劃演算法設計時，表格的順序應？",
+        "opts": [
+          "滿足遞迴依賴關係",
+          "可由使用者任意決定",
+          "無強制規定",
+          "由小規模問題到大規模問題"
+        ],
+        "a": "A、D",
+        "ex": "",
+        "choiceKey": "AD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-2",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-2",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "動態規劃與分治法（Divide and Conquer）的主要差異在於？",
+        "opts": [
+          "子問題是否重疊",
+          "編碼難度",
+          "執行速度",
+          "空間需求"
+        ],
+        "a": "A",
+        "ex": "",
+        "choiceKey": "A",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-3",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-3",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "在課本裝配線排程（Assembly-line scheduling）中， \n\n進入裝配線 1 需時間 e1 = 2分  離開時間：x1 = 3,\n進入裝配線 2 需時間 e2 = 3分  離開時間：x2 = 2,\n從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 3, 1, 4]\n從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 5, 2]\n\n\n各站點處理時間  (共 1 2 3 4 站點) \n線路 1：[4, 2, 6, 3]分\n線路 2：[2, 7, 1, 5]分\n\n請問到 用正常的算法找到最終最少出廠路線 若是選這個算法算完的另一個 時機是多少  ____________  (請用數字回答)\n(例如 算完後最少時間是由1線 離開 那此時你算完的線2 離開是多少時間)\n算到站點4的最小值為 ____________",
+        "opts": [],
+        "a": "18/15",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-4",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-4",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "若一個問題不具備最佳子結構，則？",
+        "opts": [
+          "可以用動態規劃",
+          "必須使用雜湊",
+          "需要改用圖論",
+          "無法用動態規劃"
+        ],
+        "a": "D",
+        "ex": "",
+        "choiceKey": "D",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-5",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-5",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "動態規劃中，'由下而上' 計算的優點？",
+        "opts": [
+          "避免遞迴函數呼叫的 Overhead",
+          "適用於所有問題",
+          "執行順序較明確",
+          "容易實現為迭代形式"
+        ],
+        "a": "A、C、D",
+        "ex": "",
+        "choiceKey": "ACD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-6",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-6",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "動態規劃解決問題的條件是？",
+        "opts": [
+          "具有最佳子結構",
+          "子問題獨立",
+          "子問題重疊",
+          "問題可無限遞迴"
+        ],
+        "a": "A、C",
+        "ex": "",
+        "choiceKey": "AC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-7",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-7",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "矩陣相乘 的動態規劃計算 選出正確的項目 \n\nA is a 3x3 Matrix, \nB is a 3x2 Matrix, \nC is a 2x2 Matrix, \nD is a 2x3 Matrix, \nE is a 3x4 Matrix, \n\nm 矩陣\n\n|(1)|(2)|(3)|(4)|(5)|\n|(6)|(7)|(8)|(9)|\n|(10)|(11)|(12)|\n|(13)|(14)|\n|(15)|\n\n\ns 矩陣\n\n|(a)|(b)|(c)|(d)|\n|(e)|(f)|(g)|\n|(h)|(i)|\n|(j)|",
+        "opts": [
+          "切割成 ((ABCD)E)最少乘法次數為96",
+          "切割成 ((ABC)(DE))最少乘法次數為89",
+          "切割成 ((ABCD)E)最少乘法次數為84",
+          "切割成 ((AB)(CDE))最少乘法次數為87"
+        ],
+        "a": "A、C",
+        "ex": "",
+        "choiceKey": "AC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-8",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-8",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "動態規劃（Dynamic Programming）通常應用於哪類問題？",
+        "opts": [
+          "圖形掃描",
+          "排序問題",
+          "最佳化問題",
+          "線性搜尋"
+        ],
+        "a": "C",
+        "ex": "",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-9",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-9",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "矩陣相乘 的動態規劃計算 選出正確的項目 \n\nA is a 3x2 Matrix, \nB is a 2x2 Matrix, \nC is a 2x3 Matrix, \nD is a 3x4 Matrix, \n\nm 矩陣\n|(1)|(2)|(3)|\n|(6)|(7)|\n|(10)|\n\ns 矩陣\n|(a)|(b)|(c)|\n|(e)|(f)|\n|(h)|\n\n請回答 \n(6)  ____________   (請用數字回答)\n(7)  ____________   (請用數字回答)\n已知最少次數的相乘 之矩陣 結合 (AB) 一定要先做  ____________    寫出相乘的結合式子\nEX ((A((BC)D)))",
+        "opts": [],
+        "a": "30/12/((AB)(CD))",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-1",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-1",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "MATRIX_CHAIN_ORDER(p)\n1  n <- length[p] - 1\n2  for i <- 1 to n\n3       do m[i, i] <- 0\n4  for ____1____\n5       do for ____2____\n6            do j <- i + l - 1\n7               m[i, j] <- ∞\n8               for ____3____\n9                    do q <- m[i, k] + m[k + 1, j] + p_{i-1} * p_k * p_j\n10                       if q < m[i, j]\n11                            then m[i, j] <- q\n12                                 s[i, j] <- k\n13 return m and s\n\n 選出正確的",
+        "opts": [
+          "2 處 i <- 1 to n - l + 1",
+          "時間複雜度 O(n^3)",
+          "3 處 k <- i to j - 1",
+          "1 處 l <- 2 to n"
+        ],
+        "a": "A、B、C、D",
+        "ex": "",
+        "choiceKey": "ABCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-2",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-2",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "在課本裝配線排程（Assembly-line scheduling）中， \n\n進入裝配線 1 需時間 e1 = 2分  離開時間：x1 = 3,\n進入裝配線 2 需時間 e2 = 3分  離開時間：x2 = 2,\n從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 3, 1, 4]\n從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 5, 2]\n\n\n各站點處理時間  (共 1 2 3 4 站點) \n線路 1：[4, 2, 6, 3]分\n線路 2：[2, 7, 1, 5]分\n\n請問到 算到站點2時間最少是多少 ____________  (請用數字回答)\n請問到 算到站點3時間最少是多少 ____________",
+        "opts": [],
+        "a": "8/10",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-3",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-3",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "最長共同子序列（Longest Common Subsequence, LCS）虛擬碼 \n\nLCS_LENGTH(X, Y)\n1  m <- length[X]\n2  n <- length[Y]\n3  for i <- 1 to m\n4       do c[i, 0] <- 0\n5  for j <- 1 to n\n6       do c[0, j] <- 0\n7  for i <- 1 to m\n8       do for j <- 1 to n\n9            do if x_i = y_j\n10                 then c[i, j] <- __AAA__\n11                      b[i, j] <- \"↖\"\n12                 else if c[i-1, j] >= __BBB__\n13                      then c[i, j] <- c[i-1, j]\n14                           b[i, j] <- \"↑\"\n15                      else c[i, j] <- __CCC__\n16                           b[i, j] <- \"←\"\n17 return __DDD__\n\n 選出正確的",
+        "opts": [
+          "AAA 是 c[i, j-1]",
+          "DDD 是 c[i-1, j-1] + 1",
+          "BBB 是 c[i-1, j]",
+          "CCC 是 c[i, j-1]"
+        ],
+        "a": "C、D",
+        "ex": "",
+        "choiceKey": "CD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-4",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-4",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "動態規劃的核心是將問題分解為 ____________ 子問題 (請用小寫英文回答)",
+        "opts": [],
+        "a": "overlapping",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-5",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-5",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "矩陣相乘 的動態規劃計算 選出正確的項目 \n\nA is a 2x4 Matrix, \nB is a 4x3 Matrix, \nC is a 3x2 Matrix, \nD is a 2x5 Matrix, \n\nm 矩陣\n|(1)|(2)|(3)|\n|(4)|(5)|\n|(6)|\n\ns 矩陣\n|(a)|(b)|(c)|\n|(d)|(e)|\n|(f)|\n\n請回答 \n(1)  ____________   \n(2)  ____________   \n(3)  ____________   \n(請用數字回答)",
+        "opts": [],
+        "a": "56/64/30",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-1",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-1",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "在課本裝配線排程（Assembly-line scheduling）中， \n\n進入裝配線 1 需時間 e1 = 2分  離開時間：x1 = 3,\n進入裝配線 2 需時間 e2 = 4分  離開時間：x2 = 2,\n從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 2, 3, 1, 3, 4]\n從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 1, 2, 2, 1]\n\n各站點處理時間  (共 1 2 3 4 5 6 站點) \n線路 1：[7, 9, 3, 4, 8, 4]分\n線路 2：[8, 5, 6, 4, 5, 7]分\n\n請問到 站點 2 的最少時間是多少",
+        "opts": [
+          "18",
+          "16",
+          "20",
+          "12"
+        ],
+        "a": "B",
+        "ex": "",
+        "choiceKey": "B",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-2",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-2",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "最長共同子序列（Longest Common Subsequence, LCS） \n\n已知S1 = ABAZDC S2 = BACZDBA,請用可課本教的動態規劃演算法技巧找出S1、S2的最長共同子字串\n\n\n  j   0   1   2   3   4   5   6   7\ni         B   A   C   Z   D   B   A\n0   |   |   |   |   |   |   |   |   | \n1A  |   |   |   |   |   |   |   |   | \n2B  |   |   |   |   |   |   |   |   | \n3A  |   |   |   |   |   |   |   |   | \n4Z  |   |   |   |   |   |   |   |   | \n5D  |   |   |   |   |   |   |   |   | \n6C  |   |   |   |   |   |   |   |   | \n\n請完成 LCS 計算並回答\n\n根據課本的 回溯矩陣 最後輸出的 字串是 ____________    格式 : ABCD",
+        "opts": [],
+        "a": "ABZD",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-3",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-3",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "在課本裝配線排程（Assembly-line scheduling）中， \n\n進入裝配線 1 需時間 e1 = 3分  離開時間：x1 = 2,\n進入裝配線 2 需時間 e2 = 2分  離開時間：x2 = 4,\n從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 4, 2, 3]\n從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 5, 1]\n\n\n各站點處理時間  (共 1 2 3 4 站點) \n線路 1：[5, 8, 4, 7]分\n線路 2：[7, 3, 9, 4]分\n\n請問到 站點 4 的最少時間是多少",
+        "opts": [
+          "29",
+          "30",
+          "27",
+          "25"
+        ],
+        "a": "D",
+        "ex": "",
+        "choiceKey": "D",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-4",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-4",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "動態規劃通常應用於 ____________ 問題 (請用小寫英文回答)",
+        "opts": [],
+        "a": "optimization",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-5",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-5",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "最長共同子序列（Longest Common Subsequence, LCS）虛擬碼 \n\nLCS_LENGTH(X, Y)\n1  m <- length[X]\n2  n <- length[Y]\n3  for i <- 1 to m\n4       do c[i, 0] <- 0\n5  for j <- 1 to n\n6       do c[0, j] <- 0\n7  for i <- 1 to m\n8       do for j <- 1 to n\n9            do if x_i = y_j\n10                 then c[i, j] <- __AAA__\n11                      b[i, j] <- \"↖\"\n12                 else if c[i-1, j] >= __BBB__\n13                      then c[i, j] <- c[i-1, j]\n14                           b[i, j] <- \"↑\"\n15                      else c[i, j] <- __CCC__\n16                           b[i, j] <- \"←\"\n17 return __DDD__\n\n 選出正確的",
+        "opts": [
+          "AAA 是 c[i-1, j-1] + 1",
+          "CCC 是 c[i, j-1]",
+          "DDD 是 b",
+          "BBB 是 c[i, j-1]"
+        ],
+        "a": "A、B、D",
+        "ex": "",
+        "choiceKey": "ABD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-6",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-6",
+        "category": "HTML 匯入",
+        "type": "填空題",
+        "q": "完成 最長共同子序列（Longest Common Subsequence, LCS）虛擬碼 \n\nLCS_LENGTH(X, Y)\n1  m <- length[X]\n2  n <- length[Y]\n3  for i <- 1 to m\n4       do c[i, 0] <- 0\n5  for j <- 1 to n\n6       do c[0, j] <- 0\n7  for i <- 1 to m\n8       do for j <- 1 to n\n9            do if x_i = y_j\n10                 then c[i, j] <-  ____________ \n11                      b[i, j] <- \"↖\"\n12                 else if c[i-1, j] >= c[i, j-1]\n13                      then c[i, j] <- c[i-1, j]\n14                           b[i, j] <- \"↑\"\n15                      else c[i, j] <-  ____________ \n16                           b[i, j] <- \"←\"\n17 return c and b\n\n 答案中都不留空白",
+        "opts": [],
+        "a": "c[i-1,j-1]+1/c[i,j-1]",
+        "ex": "",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-7",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-7",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "動態規劃演算法開發的第一步是？",
+        "opts": [
+          "刻畫最佳解結構",
+          "輸出結果",
+          "定義遞迴值",
+          "計算數值"
+        ],
+        "a": "A",
+        "ex": "",
+        "choiceKey": "A",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "作業系統基礎"
+      }
+    },
+    {
+      "id": "community-edbe8d66-db58-49cd-bda7-2b4fdd85323f-1",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-edbe8d66-db58-49cd-bda7-2b4fdd85323f-1",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "動態規劃中，儲存表格的方式有？",
+        "opts": [
+          "鏈結串列",
+          "雜湊表",
+          "樹",
+          "陣列"
+        ],
+        "a": "B、D",
+        "ex": "",
+        "choiceKey": "BD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "排程"
+      }
+    },
+    {
+      "id": "community-edbe8d66-db58-49cd-bda7-2b4fdd85323f-2",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-edbe8d66-db58-49cd-bda7-2b4fdd85323f-2",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "在動態規劃中，通常透過什麼方式儲存子問題的解以提升效能？",
+        "opts": [
+          "記憶化",
+          "網路傳輸",
+          "硬碟儲存",
+          "立即丟棄"
+        ],
+        "a": "A",
+        "ex": "",
+        "choiceKey": "A",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "排程"
+      }
+    },
+    {
+      "id": "community-edbe8d66-db58-49cd-bda7-2b4fdd85323f-3",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-edbe8d66-db58-49cd-bda7-2b4fdd85323f-3",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "選出那些包括在動態規劃演算法開發的四個步驟裡的項目",
+        "opts": [
+          "建構最佳解",
+          "刻畫最佳解結構",
+          "遞迴定義最佳解值",
+          "由下而上計算數值"
+        ],
+        "a": "A、B、C、D",
+        "ex": "",
+        "choiceKey": "ABCD",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "排程"
+      }
+    },
+    {
+      "id": "community-112c8eca-c416-42c6-b7e0-e7ff5f246c01-1",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-112c8eca-c416-42c6-b7e0-e7ff5f246c01-1",
+        "category": "HTML 匯入",
+        "type": "多選題",
+        "q": "MATRIX_CHAIN_ORDER(p)\n1  n <- length[p] - 1\n2  for i <- 1 to n\n3       do m[i, i] <- 0\n4  for ____1____\n5       do for ____2____\n6            do j <- i + l - 1\n7               m[i, j] <- ∞\n8               for ____3____\n9                    do q <- m[i, k] + m[k + 1, j] + p_{i-1} * p_k * p_j\n10                       if q < m[i, j]\n11                            then m[i, j] <- q\n12                                 s[i, j] <- k\n13 return m and s\n\n 選出正確的",
+        "opts": [
+          "3 處 k <- i to j + 1",
+          "時間複雜度 O(n^3)",
+          "1 處 l <- 2 to n",
+          "2 處 i <- 1 to n - l - 1"
+        ],
+        "a": "B、C",
+        "ex": "",
+        "choiceKey": "BC",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "排程"
+      }
+    },
+    {
+      "id": "community-112c8eca-c416-42c6-b7e0-e7ff5f246c01-2",
+      "revision": 1,
+      "question": {
+        "bookmarkId": "community-112c8eca-c416-42c6-b7e0-e7ff5f246c01-2",
+        "category": "HTML 匯入",
+        "type": "單選題",
+        "q": "在課本裝配線排程（Assembly-line scheduling）中， \n\n進入裝配線 1 需時間 e1 = 3分  離開時間：x1 = 2,\n進入裝配線 2 需時間 e2 = 2分  離開時間：x2 = 4,\n從線路 1 換到線路 2 的時間（t1 代表從線路 1 的 j-1 站換到線路 2 的 j 站：t1 = [-, 4, 2, 3]\n從線路 2 換到線路 1 的時間（t2 代表從線路 2 的 j-1 站換到線路 1 的 j 站：t2 = [-, 2, 5, 1]\n\n\n各站點處理時間  (共 1 2 3 4 站點) \n線路 1：[5, 8, 4, 7]分\n線路 2：[7, 3, 9, 4]分\n\n請問到 站點 2 的最少時間是多少",
+        "opts": [
+          "20",
+          "15",
+          "12",
+          "21"
+        ],
+        "a": "C",
+        "ex": "",
+        "choiceKey": "C",
+        "imageKeys": [],
+        "answerProvided": true,
+        "images": [],
+        "warn": false,
+        "exact": false,
+        "unitTitle": "排程"
+      }
+    }
+  ]
+}
