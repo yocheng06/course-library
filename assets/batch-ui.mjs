@@ -1,4 +1,5 @@
 import "./question-sync.js?v=consistency-20261126";
+import {choiceAnswerMarkup} from './batch-answer.mjs?v=choice-columns-20261127';
 import './sync-summary.js?v=flow-clarity-20261103';
 import {createUnitCatalog} from './unit-catalog.mjs?v=admin-units-20261103';
 import {comparisonMarkup,mismatchLabel} from './question-comparison.mjs?v=workflow-improvements-20261102';
@@ -392,11 +393,9 @@ function combineCourseMatches(questions) {
   });
 }
 function bankAnswer(row) {
-  if (row.choiceKey?.length > 1) {
-    return row.question.options
-      .filter(({ label }) => row.choiceKey.includes(label))
-      .map(({ label, text }) => esc(label + ". " + text))
-      .join("<br>");
+  if (row.choiceKey?.length) {
+    const markup=choiceAnswerMarkup(row.question.options,row.choiceKey);
+    if(markup)return markup;
   }
   return esc(row.answer || "尚無可確認答案");
 }
@@ -408,7 +407,7 @@ function renderAnswer(row) {
     const option=row.question.options.find(o=>o.label===label);
     return label+'. '+(option?.text || '');
   }).join('\n') : response?.values.map((value,i)=>`${response.values.length>1?'第 '+(i+1)+' 格：':''}${value || '未填'}`).join('\n');
-  return `<strong>${esc(check.label)}</strong><p>你的答案：<br>${esc(yours || '未作答').replace(/\n/g,'<br>')}</p><p>題庫答案：<br>${bankAnswer(row)}</p>`+
+  return `<strong>${esc(check.label)}</strong><p>你的答案：<br>${esc(yours || '未作答').replace(/\n/g,'<br>')}</p><div class="checked-bank-answer">題庫答案：${bankAnswer(row)}</div>`+
     (check.slots.length>1?check.slots.map((slot,i)=>`<p>第 ${i+1} 格：${slot.same?'符合':!slot.value?'未填':'文字不同'}；題庫：${esc(slot.answer)}</p>`).join(''):'');
 }
 function renderResults() {

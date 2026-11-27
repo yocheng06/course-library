@@ -97,6 +97,17 @@ test("automatic lookup uses the HTML course, then searches both courses for a fi
   assert.ok(rows[1].querySelector('a[href="algorithms.html?question=alg-only"]'));
 });
 
+test('multi-choice answer rows separate labels from ABCDE content without changing copied answers',async()=>{
+ const options=['其他敘述','最佳括號化順序(AB)((CD)E)','計算 ABCDE 的最少乘法次數為 78','最佳括號化順序((AB)C)(DE)'];
+ const title='矩陣鏈乘法的正確敘述為何？';
+ const local=structuredClone(base);local.entries=[toLibraryQuestion('os','scheduling',{id:'matrix-choice-layout',stem:title,options,answer:'B、C、D',type:'多選題'},true)];
+ const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>local}:response());
+ ui.$('batchText').value='1. '+title+'\n'+options.map((text,i)=>String.fromCharCode(65+i)+'. '+text).join('\n');ui.fire('batchForm','submit');
+ assert.deepEqual([...ui.$('resultRows').querySelectorAll('.batch-choice-label')].map(n=>n.textContent),['B.','C.','D.']);
+ assert.deepEqual([...ui.$('resultRows').querySelectorAll('.batch-choice-content')].map(n=>n.textContent),options.slice(1));
+ ui.fire('copyAnswers','click');await tick();const copied=ui.copied.at(-1);for(const text of options.slice(1))assert(copied.includes(text));assert(!copied.includes('<span'));
+});
+
 test('the Solaris bilingual option version remains searchable when public sync is unavailable',async()=>{
   const realBank=JSON.parse(await readFile(new URL('../assets/batch-library.json',import.meta.url),'utf8'));
   const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>realBank}:{ok:false});
@@ -105,8 +116,9 @@ test('the Solaris bilingual option version remains searchable when public sync i
   assert.match(ui.$('resultCount').textContent,/已收錄 1・待同步 0/);
   assert.match(ui.$('resultRows').textContent,/A\. 時程共享.*B\. 互動式.*C\. 即時.*D\. 系統/);
   const answer = ui.$('resultRows').querySelector('.answer-text');
-  assert.equal(answer.querySelectorAll('br').length, 3);
-  assert.match(answer.innerHTML, /<br>C\. 即時/);
+  assert.equal(answer.querySelectorAll('.batch-choice-answer').length, 4);
+  assert.equal(answer.querySelectorAll('.batch-choice-label')[2].textContent,'C.');
+  assert.equal(answer.querySelectorAll('.batch-choice-content')[2].textContent,'即時(Real time)');
   assert.ok(ui.$('resultRows').querySelector('a[href="os.html?question=os6-091"]'));
 });
 

@@ -1,4 +1,4 @@
 {
-  "version": "2026.11.27-l10-completion-1",
-  "description": "演算法 L10 動態規劃共 60 題解析與主題排序，保留原答案"
+  "version": "2026.11.27-choice-columns-1",
+  "description": "答案總表選項代號固定欄位，長答案續行對齊內容"
 }

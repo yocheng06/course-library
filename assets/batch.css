@@ -453,6 +453,12 @@ button:disabled {
     margin-bottom: 6px;
   }
 }
+.batch-choice-answers{display:grid;gap:0.4em;min-width:0}
+.batch-choice-answer{display:grid;grid-template-columns:1.6em minmax(0,1fr);column-gap:0.25em;align-items:start;line-height:1.55}
+.batch-choice-label{font-weight:750;white-space:nowrap}
+.batch-choice-content{min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.checked-bank-answer{margin:1em 0}
+.checked-bank-answer>.batch-choice-answers{margin-top:0.3em}
 @media print {
   .contribution-nav,
   #batchForm,
