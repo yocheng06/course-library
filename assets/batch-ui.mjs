@@ -12,9 +12,7 @@ import {
   applyBuiltinOverrides,
   MAX_TEXT,
   normalizeText,
-  fillBlankCount,
-  fillAnswerParts,
-} from "./batch-model.mjs?v=slot-copy-20261127";
+} from "./batch-model.mjs?v=numeric-slots-20261127";
 import { parseBatchInput } from "./batch-import.mjs?v=quiz-course-transfer-20261125";
 import { setupBatchImport } from "./batch-import-ui.mjs?v=quiz-course-transfer-20261125";
 import {checkResponse,responseKey} from './batch-response.mjs?v=response-check-20261125';
@@ -110,9 +108,6 @@ function markChanged() {
   $("courseMismatch").hidden = !courseSuggestion || stale || loading;
   $("switchCourse").disabled = stale || loading || !index;
   $("copyAnswers").disabled = stale || loading || !index || !results.length;
-  $("resultRows").querySelectorAll('.copy-row-answer').forEach(button => {
-    button.disabled = stale || loading || !index;
-  });
   const unmatchedCount = results.filter((r) => r.status === "unmatched").length;
   if (transferButton) {
     transferButton.disabled = stale || loading || !index || !snapshotCoverage || !unmatchedCount || !!courseSuggestion;
@@ -408,12 +403,6 @@ function bankAnswer(row) {
     const markup=choiceAnswerMarkup(row.question.options,row.choiceKey);
     if(markup)return markup;
   }
-  if (row.status === 'matched' && row.answer) {
-    const count=fillBlankCount(row.question.stem);
-    const parts=count ? fillAnswerParts(row.answer,count) : null;
-    const values=parts || [row.answer];
-    return `<div class="batch-fill-answer"><div class="batch-fill-slots">${values.map((value,i)=>`<button type="button" class="copy-row-answer copy-fill-slot" data-answer="${esc(value)}" aria-label="複製第 ${esc(row.question.number)} 題${parts ? `第 ${i+1} 格` : '完整'}答案：${esc(value)}">${parts ? `<span class="fill-slot-number" aria-hidden="true">${i+1}</span>` : ''}<span class="batch-fill-value">${esc(value)}</span><span class="fill-copy-indicator" aria-hidden="true">⧉</span></button>`).join('')}</div><button type="button" class="copy-row-answer copy-whole-answer" data-answer="${esc(row.answer)}" aria-label="複製第 ${esc(row.question.number)} 題完整答案">複製整題</button></div>`;
-  }
   return esc(row.answer || "尚無可確認答案");
 }
 function renderAnswer(row) {
@@ -534,7 +523,6 @@ async function copy(text) {
     $("copyFallback").hidden = true;
     $("copyHelp").hidden = true;
     message("已複製，可直接貼到 AI 或筆記。");
-    return true;
   } catch {
     $("copyFallback").value = text;
     $("copyFallback").hidden = false;
@@ -542,25 +530,8 @@ async function copy(text) {
     $("copyFallback").focus();
     $("copyFallback").select();
     message("請複製已選取的文字。");
-    return false;
   }
 }
-$("resultRows").addEventListener('click', async event => {
-  const button = event.target.closest?.('.copy-row-answer');
-  if (!button || button.disabled || isStale() || loading || !index) return;
-  $("resultRows").querySelectorAll('.copy-row-answer').forEach(other => {
-    const indicator=other.querySelector('.fill-copy-indicator');
-    if(indicator)indicator.textContent='⧉';
-    else other.textContent = '複製整題';
-    other.classList.remove('is-copied');
-  });
-  if (await copy(button.dataset.answer)) {
-    const indicator=button.querySelector('.fill-copy-indicator');
-    if(indicator)indicator.textContent='✓';
-    else button.textContent = '已複製';
-    button.classList.add('is-copied');
-  }
-});
 $("copyAnswers").addEventListener("click", () => {
   if (isStale() || loading || !index) return;
   const text =

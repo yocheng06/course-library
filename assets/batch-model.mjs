@@ -632,7 +632,7 @@ function blanklessStem(value, allowMissing = false) {
     normalized.slice(slot.index + slot[0].length)
   );
 }
-export function fillBlankCount(value) {
+function fillBlankCount(value) {
   return [
     ...normalizeStem(value).matchAll(
       /___|(?<![A-Za-z0-9_])\[\d+\](?![A-Za-z0-9_])/gu,
@@ -667,7 +667,7 @@ function splitTopLevelAnswer(text, separator) {
   parts.push(text.slice(start).trim());
   return parts;
 }
-export function fillAnswerParts(answer, count) {
+function fillAnswerParts(answer, count) {
   if (typeof answer !== "string" || !answer.trim()) return null;
   if (count <= 1) return [answer.trim()];
   const text = normalizeUnicode(answer).trim();
