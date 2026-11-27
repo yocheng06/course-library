@@ -1,6 +1,6 @@
 {
-  "version": "2026.11.27-l9-review-1",
-  "description": "演算法 L9 雜湊表 60 題解析與九主題排序",
+  "version": "2026.11.27-hash-steps-1",
+  "description": "雜湊表逐步演示：碰撞、插入、回上一步及完成結果",
   "snapshots": {
     "os": {
       "generatedAt": "2026-11-26T15:27:54.206598Z"

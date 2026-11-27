@@ -238,7 +238,7 @@
   function explanationText(question) { return window.courseExplanationContent?.text(question)??String(question.explanation??question.ex??''); }
   function explanationMarkup(question, format = escape) {
     const text = explanationText(question);
-    return text.split(/\n\s*\n/).filter(Boolean).map(block => {
+    return (window.courseHashProbing?.markup(question)||'') + text.split(/\n\s*\n/).filter(Boolean).map(block => {
       const section = block.match(/^(核心觀念|解題步驟|判讀步驟|適用條件|選項判讀)：\s*([\s\S]*)$/);
       return section ? `<div class="explanation-section"><strong>${escape(section[1])}</strong><p>${mathMarkup(section[2], format)}</p></div>` : `<p>${mathMarkup(block, format)}</p>`;
     }).join('');

@@ -1,0 +1,24 @@
+.hash-walkthrough { margin:16px 0 24px; padding:18px; border:1px solid var(--line,#c7b9c0); border-radius:12px; background:var(--surface,#fff); color:var(--ink,#312d31); min-width:0; max-width:100%; box-sizing:border-box; }
+.hash-walkthrough h4 { margin:0 0 12px; font-size:1.05em; }
+.hash-walkthrough p { margin:10px 0; }
+.hash-formula { font-family:ui-monospace,monospace; overflow-wrap:anywhere; }
+.hash-hint,.hash-progress,.hash-counter { color:var(--muted,#706970); font-size:.9em; }
+.hash-controls { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0; }
+.hash-controls button { font:inherit; cursor:pointer; padding:9px 12px; border:1px solid var(--line,#c7b9c0); border-radius:8px; background:var(--surface,#fff); color:var(--ink,#312d31); min-height:44px; }
+.hash-controls button:disabled { opacity:.5; cursor:default; }
+.hash-controls button:focus-visible,.hash-scroll:focus-visible { outline:3px solid var(--ink,#312d31); outline-offset:2px; }
+.hash-status { padding:12px; border-left:4px solid var(--ink,#312d31); background:var(--tint,#f3ecef); line-height:1.8; }
+.hash-keys { display:flex; flex-wrap:wrap; gap:6px; list-style:none; padding:0; margin:8px 0; }
+.hash-keys li { padding:5px 10px; border:2px solid transparent; border-radius:8px; background:var(--tint,#f3ecef); }
+.hash-keys .hash-current-key { border-color:var(--ink,#312d31); font-weight:700; }
+.hash-scroll { overflow-x:auto; max-width:100%; margin:14px 0; padding-bottom:6px; }
+.hash-walkthrough table { width:100%; border-collapse:collapse; font-size:.9em; }
+.hash-walkthrough caption { text-align:left; padding:6px 0; font-weight:600; }
+.hash-walkthrough th,.hash-walkthrough td { border:1px solid var(--line,#c7b9c0); text-align:center; padding:10px; white-space:nowrap; min-width:44px; vertical-align:middle; }
+.hash-walkthrough thead { background:var(--tint,#f3ecef); }
+.hash-empty { color:var(--muted,#706970); }
+.hash-insert { background:var(--tint,#f3ecef); box-shadow:inset 0 -4px var(--ink,#312d31); font-weight:700; }
+.hash-collision { outline:2px dashed var(--ink,#312d31); outline-offset:-3px; font-weight:700; }
+.hash-cell-note { display:block; margin-top:4px; font-size:.75em; }
+@media(max-width:600px) { .hash-walkthrough { padding:12px; } .hash-walkthrough th,.hash-walkthrough td { padding:9px 7px; } }
+@media print { .hash-controls { display:none; } }
