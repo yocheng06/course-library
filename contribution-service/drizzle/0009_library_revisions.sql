@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS library_revisions (course TEXT PRIMARY KEY, revision INTEGER NOT NULL DEFAULT 1, generation TEXT NOT NULL DEFAULT (lower(hex(randomblob(16)))));
+INSERT INTO library_revisions(course,revision) VALUES ('os',1),('algorithms',1) ON CONFLICT(course) DO NOTHING;
+CREATE TRIGGER IF NOT EXISTS library_revision_public_questions_insert AFTER INSERT ON public_questions BEGIN UPDATE library_revisions SET revision=revision+1 WHERE course = NEW.course; END;
+CREATE TRIGGER IF NOT EXISTS library_revision_public_questions_update AFTER UPDATE ON public_questions BEGIN UPDATE library_revisions SET revision=revision+1 WHERE course IN (OLD.course,NEW.course); END;
+CREATE TRIGGER IF NOT EXISTS library_revision_public_questions_delete AFTER DELETE ON public_questions BEGIN UPDATE library_revisions SET revision=revision+1 WHERE course = OLD.course; END;
+CREATE TRIGGER IF NOT EXISTS library_revision_builtin_question_edits_insert AFTER INSERT ON builtin_question_edits BEGIN UPDATE library_revisions SET revision=revision+1 WHERE course = NEW.course; END;
+CREATE TRIGGER IF NOT EXISTS library_revision_builtin_question_edits_update AFTER UPDATE ON builtin_question_edits BEGIN UPDATE library_revisions SET revision=revision+1 WHERE course IN (OLD.course,NEW.course); END;
+CREATE TRIGGER IF NOT EXISTS library_revision_builtin_question_edits_delete AFTER DELETE ON builtin_question_edits BEGIN UPDATE library_revisions SET revision=revision+1 WHERE course = OLD.course; END;
+CREATE TRIGGER IF NOT EXISTS library_revision_unit_settings_insert AFTER INSERT ON unit_settings BEGIN UPDATE library_revisions SET revision=revision+1 WHERE course = NEW.course; END;
+CREATE TRIGGER IF NOT EXISTS library_revision_unit_settings_update AFTER UPDATE ON unit_settings BEGIN UPDATE library_revisions SET revision=revision+1 WHERE course IN (OLD.course,NEW.course); END;
+CREATE TRIGGER IF NOT EXISTS library_revision_unit_settings_delete AFTER DELETE ON unit_settings BEGIN UPDATE library_revisions SET revision=revision+1 WHERE course = OLD.course; END;

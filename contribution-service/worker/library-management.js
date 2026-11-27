@@ -206,12 +206,7 @@ async function managementImportDetail(request,env,id){
   return json({item});
 }
 async function publicLibraryEtag(env, course) {
-  const [p,b,units] = await Promise.all([
-    env.DB.prepare('SELECT COUNT(*) AS n,COALESCE(SUM(revision),0) AS revisions,COALESCE(MAX(COALESCE(updated_at,created_at)),0) AS updated FROM public_questions WHERE course=?').bind(course).first(),
-    env.DB.prepare('SELECT COUNT(*) AS n,COALESCE(SUM(revision),0) AS revisions,COALESCE(MAX(created_at),0) AS updated FROM builtin_question_edits WHERE course=?').bind(course).first(),
-    unitConfiguration(env,course),
-  ]);
-  return '"' + await hash(JSON.stringify([LIBRARY_BUILD_REVISION,course,p,b,units.revision])) + '"';
+  return libraryRevisionEtag(env,course);
 }
 
 // Unit presentation settings are independent of question IDs and answer revisions.

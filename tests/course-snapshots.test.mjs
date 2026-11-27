@@ -47,6 +47,13 @@ function cache(h,data,generatedAt=new Date(Date.now()+1000).toISOString()) {
   h.storage.set(key(h.course),JSON.stringify({schema:1,course:h.course,generatedAt,data}));
 }
 
+for(const course of ['os','algorithms'])test(course+' read cooldown keeps loaded questions usable and does not repeatedly retry',async()=>{
+ const h=await page(course);h.boot();const before=h.config.examEntries(true).length;
+ h.pending.shift()({ok:false,status:429,headers:{get:name=>name==='retry-after'?'60':null}});await tick();
+ assert.match(h.notice(),/讀取過於頻繁.*60 秒/);assert.equal(h.config.examEntries(true).length,before);
+ h.fire('.api-notice button');await tick();assert.equal(h.pending.length,0);
+});
+
 test('both HTML pages contain the exact committed public snapshot and a safe JSON script',async()=>{
   for(const course of ['os','algorithms']){
     const h=await page(course);

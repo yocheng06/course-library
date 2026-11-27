@@ -2247,11 +2247,39 @@ test('community editor preserves translation, option translations and notes thro
  assert.equal(history.data.items[0].data.translation,translation);assert.equal(history.data.items[0].data.note,'題目備註保留');
 });
 
+test('traffic and official usage status is owner-only and missing analytics never appears as zero usage',async()=>{
+ const env=await setup();
+ assert.equal((await call(env,'/api/manage/traffic')).response.status,401);
+ const ownerStatus=await call(env,'/api/manage/traffic',{reviewer:true});assert.equal(ownerStatus.response.status,200);
+ assert.equal(ownerStatus.data.usage.state,'unconfigured');assert.equal(ownerStatus.data.usage.values,undefined);
+ assert(!JSON.stringify(ownerStatus.data).includes(env.RATE_HASH_KEY));
+});
+
+test('full library responses reuse bodies but visitor blocks and direct database edits immediately take effect',async()=>{
+ const env=await setup(),queries=[],prepare=env.DB.prepare;
+ env.DB.prepare=function(sql){queries.push(sql);return prepare.call(this,sql);};
+ env.LIBRARY_ASSETS={fetch:async()=>new Response('asset')};
+ const first=await call(env,'/api/questions?course=os');assert.equal(first.response.status,200);
+ const fullReads=()=>queries.filter(sql=>sql.includes('SELECT unit,data FROM public_questions WHERE course=? AND is_published=1')).length;
+ const count=fullReads(),oldTag=first.response.headers.get('etag');
+ assert.equal((await call(env,'/api/questions?course=os')).response.status,200);assert.equal(fullReads(),count);
+ env.sql.prepare('INSERT INTO library_blocks(kind,target,created_at,expires_at) VALUES (?,?,?,?)').run('ip','127.0.0.1',Date.now(),Date.now()+60000);
+ assert.equal((await call(env,'/api/questions?course=os')).response.status,403);
+ env.sql.exec("DELETE FROM library_blocks;INSERT INTO unit_settings(course,revision,data,updated_at) VALUES ('os',1,'[]',1) ON CONFLICT(course) DO UPDATE SET revision=revision+1");
+ const changed=await call(env,'/api/questions?course=os');assert.equal(changed.response.status,200);assert.notEqual(changed.response.headers.get('etag'),oldTag);assert.equal(fullReads(),count+1);
+});
+
+test('read throttling rejects abusive GET before any D1 operation and supplies a visible cooldown header',async()=>{
+ const env={DB:{prepare(){throw Error('must not query D1')}},LIBRARY_ASSETS:{},RATE_HASH_KEY:'test',LIBRARY_READ_LIMITER:{limit:async()=>({success:false})}};
+ const response=await worker.fetch(new Request(origin+'/api/questions?course=os',{headers:{origin:'https://yocheng06.github.io',cookie:'__Host-course-visitor=11111111-1111-4111-8111-111111111111','cf-connecting-ip':'203.0.113.1'}}),env);
+ assert.equal(response.status,429);assert.equal(response.headers.get('retry-after'),'60');assert.match(response.headers.get('access-control-expose-headers'),/Retry-After/);assert.match((await response.json()).error,/60 秒/);
+});
+
 test('public conditional synchronization responds 304 only for the current content revision including edits and removals',async()=>{
  const env=await setup();
  const conditional=etag=>worker.fetch(new Request(origin+'/api/questions?course=os',{headers:{origin:'https://yocheng06.github.io',...(etag?{'if-none-match':etag}:{})}}),env);
  const first=await conditional(),etag=first.headers.get('etag');assert.match(etag,/^"[0-9a-f]{64}"$/);
- assert.equal(first.headers.get('access-control-expose-headers'),'ETag');
+ assert.match(first.headers.get('access-control-expose-headers'),/\bETag\b/);
  assert.equal((await conditional(etag)).status,304);
  const row=(await call(env,'/api/manage/library/item?course=os&source=builtin&id=basics-1',{reviewer:true})).data.item;
  const endpoint='/api/manage/builtin-questions/os/basics-1';

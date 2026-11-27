@@ -245,7 +245,7 @@
   if (source === 'builtin' && linkedId && !interacted) config.openQuestionById?.(linkedId);
   document.documentElement.dataset.questionReady = 'true';
   let latestData = initial?.data || null;
-  let mutationVersion = 0;
+  let mutationVersion = 0, readRetryAt = 0;
   let latestEtag = /^(?:W\/)?".*"$/.test(initial?.etag || '') ? initial.etag : null;
   window.addEventListener('course-question-deleted', event => {
     const {course,id,unit,question} = event.detail || {};
@@ -264,6 +264,7 @@
     try { localStorage.setItem(cacheKey, JSON.stringify({schema:1,course:config.course,generatedAt:new Date().toISOString(),data:next,etag:null})); } catch {}
   });
   async function sync() {
+    if(Date.now()<readRetryAt)return;
     if (syncing) { syncAgain = true; return; }
     if (location.protocol === 'file:') {
       showNotice(`目前顯示${sourceLabel()}；開啟公開網站可同步最新修改及下架狀態。`);
@@ -285,6 +286,7 @@
         headers:latestEtag ? {'If-None-Match':latestEtag} : {}
       });
       const unchanged = response.status === 304 && latestData;
+      if(response.status===429){const seconds=Math.max(1,Math.min(300,Number(response.headers?.get('retry-after'))||60));readRetryAt=Date.now()+seconds*1000;throw new Error('read-cooldown');}
       if (!unchanged && !response.ok) throw new Error('unavailable');
       const data = unchanged ? latestData : await response.json();
       if (!validData(data)) throw new Error('Invalid public snapshot');
@@ -303,9 +305,9 @@
         notice = null;
       }
       document.documentElement.dataset.questionSync='synced';
-    } catch {
+    } catch (error) {
       document.documentElement.dataset.questionSync='failed';
-      showNotice(`暫時無法同步，仍可使用${sourceLabel()}；尚未確認最新修改及下架狀態。`,true);
+      showNotice(error.message==='read-cooldown'?`讀取過於頻繁，請 ${Math.ceil((readRetryAt-Date.now())/1000)} 秒後再同步。仍可使用${sourceLabel()}；尚未確認最新修改及下架狀態。`:`暫時無法同步，仍可使用${sourceLabel()}；尚未確認最新修改及下架狀態。`,true);
     } finally {
       syncing = false;
       if (syncAgain) { syncAgain = false; sync(); }

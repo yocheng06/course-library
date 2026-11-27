@@ -4,9 +4,56 @@
   "main": "dist/cloudflare/index.mjs",
   "compatibility_date": "2026-11-17",
   "workers_dev": true,
-  "assets": {"directory": "./dist/cloudflare/library-assets", "binding": "LIBRARY_ASSETS", "run_worker_first": true, "html_handling": "none", "not_found_handling": "none"},
-  "triggers": {"crons": ["17 3 * * *"]},
-  "vars": {"PUBLIC_ORIGIN": "https://course-library-submissions.YOUR-SUBDOMAIN.workers.dev"},
-  "build": {"command": "node scripts/build.mjs && node scripts/build-cloudflare.mjs --origin https://course-library-submissions.YOUR-SUBDOMAIN.workers.dev --protected-library"},
-  "d1_databases": [{"binding": "DB", "database_name": "course-library", "database_id": "REPLACE_WITH_NEW_DATABASE_ID", "migrations_dir": "drizzle"}]
+  "assets": {
+    "directory": "./dist/cloudflare/library-assets",
+    "binding": "LIBRARY_ASSETS",
+    "run_worker_first": true,
+    "html_handling": "none",
+    "not_found_handling": "none"
+  },
+  "triggers": {
+    "crons": [
+      "17 3 * * *"
+    ]
+  },
+  "vars": {
+    "PUBLIC_ORIGIN": "https://course-library-submissions.YOUR-SUBDOMAIN.workers.dev"
+  },
+  "build": {
+    "command": "node scripts/build.mjs && node scripts/build-cloudflare.mjs --origin https://course-library-submissions.YOUR-SUBDOMAIN.workers.dev --protected-library"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "course-library",
+      "database_id": "REPLACE_WITH_NEW_DATABASE_ID",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "LIBRARY_READ_LIMITER",
+      "namespace_id": "9006101",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    },
+    {
+      "name": "LIBRARY_RESOURCE_LIMITER",
+      "namespace_id": "9006102",
+      "simple": {
+        "limit": 600,
+        "period": 60
+      }
+    },
+    {
+      "name": "LIBRARY_NETWORK_LIMITER",
+      "namespace_id": "9006103",
+      "simple": {
+        "limit": 6000,
+        "period": 60
+      }
+    }
+  ]
 }

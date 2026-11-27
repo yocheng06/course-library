@@ -20,6 +20,7 @@ for (const entry of DUPLICATE_CATALOG) {
 /* BACKUP_VERIFICATION */
 /* EDIT_MODERATION */
 /* VISITOR_ACCESS */
+/* LIBRARY_DELIVERY */
 const SITE_ORIGIN =
   "https://course-library-submissions-yocheng06.yocheng06.chatgpt.site";
 const LIBRARY_ORIGIN = "https://yocheng06.github.io";
@@ -1903,6 +1904,7 @@ async function correction(request, env, url, id) {
 async function route(request, env) {
   const url = new URL(request.url),
     path = url.pathname;
+  await enforceReadTraffic(request,env,url);
   if (request.method === "OPTIONS") {
     if (!origins.has(request.headers.get("origin")))
       throw new HttpError(403, "不允許此來源。");
@@ -1991,6 +1993,10 @@ async function route(request, env) {
     await ensureReviewedContent(env);
     return json({backupRestore:await backupRestoreStatus(env),checkedAt:new Date().toISOString(),build:{version:BUILD_META.version,sourceHash:BUILD_META.sourceHash,builtAt:BUILD_META.builtAt},snapshots:BUILD_META.snapshots,api:{os:await publicLibraryEtag(env,'os'),algorithms:await publicLibraryEtag(env,'algorithms')}});
   }
+  if(path==='/api/manage/traffic'&&request.method==='GET'){
+    await owner(request,env);
+    return json(await libraryTrafficStatus(env));
+  }
   if (path === '/api/manage/units' && ['GET','POST'].includes(request.method)) return manageUnits(request,env,url);
   if (path === '/api/manage/health' && request.method === 'GET') return managementHealth(request,env,url);
   if (path === '/api/manage/library' && request.method === 'GET') return listManagementLibrary(request,env,url);
@@ -2057,9 +2063,7 @@ async function route(request, env) {
     const course = url.searchParams.get("course");
     if (!COURSE_UNITS[course]) throw new HttpError(400, "請指定科目。");
     await ensureReviewedContent(env);
-    const etag = await publicLibraryEtag(env,course);
-    if ((request.headers.get('if-none-match') || '').split(',').some((value) => value.trim() === etag || value.trim() === 'W/' + etag || value.trim() === '*'))
-      return new Response(null,{status:304,headers:{etag,'cache-control':'no-cache'}});
+    return serveCachedLibrary(request,env,course,async etag=>{
     const result = await env.DB.prepare(
       "SELECT unit,data FROM public_questions WHERE course=? AND is_published=1 ORDER BY created_at,id",
     )
@@ -2088,6 +2092,7 @@ async function route(request, env) {
     response.headers.set('etag',etag);
     response.headers.set('cache-control','no-cache');
     return response;
+    });
   }
   if (
     (match =
@@ -2140,6 +2145,7 @@ export default {
         },
         error.status || 500,
       );
+      if(Number.isInteger(error.details?.retryAfter)&&error.details.retryAfter>0&&error.details.retryAfter<=3600)response.headers.set('retry-after',String(error.details.retryAfter));
     }
     const headers = new Headers(response.headers);
     if (!headers.has('content-security-policy')) headers.set('content-security-policy',"default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; connect-src 'self' https://yocheng06.github.io; font-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'; object-src 'none'; upgrade-insecure-requests");
@@ -2152,7 +2158,7 @@ export default {
     if (origins.has(origin)) {
       headers.set("access-control-allow-origin", origin);
       headers.set("vary", "Origin");
-      headers.set("access-control-expose-headers", "ETag");
+      headers.set("access-control-expose-headers", "ETag, Retry-After");
     }
     return new Response(response.body, { status: response.status, headers });
   },

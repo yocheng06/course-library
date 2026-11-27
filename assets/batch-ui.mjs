@@ -129,11 +129,13 @@ let snapshotCoverage = false;
 let snapshotUnit = "all";
 let restoreUnit = null;
 const publicFlights = new Map(), publicData = new Map(), publicEtags = new Map(), syncedAt = new Map(), syncFailures = new Set();
+const readRetryAt=new Map();
 const publicDates = new Map();
 let baseLibrary, basePromise;
 function libraryStatus() {
   const course = $("course").value;
   if (course === "auto") {
+    if(!publicFlights.size&&[...readRetryAt.values()].some(time=>Date.now()<time)){$('libraryStatus').textContent='讀取過於頻繁，請稍候 60 秒再同步。目前可用已載入題庫比對；尚未確認最新修改及下架狀態。';$('libraryStatus').dataset.syncState='failed';return;}
     $("libraryStatus").textContent = publicFlights.size
       ? "正在同步這次查詢所需的題庫。"
       : "查詢時會依題目判斷科目，並比對全部單元。";
@@ -147,6 +149,8 @@ function libraryStatus() {
     `${names[course]}：${count} 題可供比對。` +
     (publicFlights.has(course)
       ? "正在確認最新變更，現在可先使用已載入題庫。"
+      : Date.now()<(readRetryAt.get(course)||0)
+        ? '讀取過於頻繁，請稍候 60 秒再同步；已載入題庫仍可使用，尚未確認最新修改及下架狀態。'
       : syncFailures.has(course)
         ? "同步失敗，"+(invalidPublicData[course]?"線上題庫資料不完整；":"")+(publicData.has(course)?"目前使用已保存的公開題庫版本":"目前僅比對隨站內建版本")+"；尚未確認最新修改及下架狀態。請按「重新同步題庫」重試。"
       : coverage[course]
@@ -261,6 +265,7 @@ async function getBaseLibrary() {
 async function loadLibrary(course = $("course").value, force = false) {
   if (course === "auto") return Promise.all(courses.map(name => loadLibrary(name, force)));
   if (publicFlights.has(course)) return publicFlights.get(course);
+  if(index&&Date.now()<(readRetryAt.get(course)||0)){libraryStatus();return;}
   if (!force && coverage[course] && Date.now() - syncedAt.get(course) < 60000) return;
   restorePublicCache(course);
   const requestStamp = window.courseQuestionSync?.stamp(course);
@@ -278,6 +283,7 @@ async function loadLibrary(course = $("course").value, force = false) {
       headers:requestedEtag ? {"If-None-Match":requestedEtag} : {},
     }).then(async response => {
       if (response.status === 304 && requestedEtag && requestedData) return {data:requestedData,etag:requestedEtag};
+      if(response.status===429){const seconds=Math.max(1,Math.min(300,Number(response.headers?.get?.('retry-after'))||60));readRetryAt.set(course,Date.now()+seconds*1000);throw Error('read-cooldown');}
       if (!response.ok) throw Error("public");
       const data = await response.json();
       if (!Array.isArray(data.questions) || !Array.isArray(data.overrides || [])) throw Error("public-data");
@@ -320,7 +326,7 @@ async function loadLibrary(course = $("course").value, force = false) {
       coverage[course] = true;
       publicDates.set(course, Date.now());
       syncChanges.set(course,globalThis.courseSyncSummary.describe(before,globalThis.courseSyncSummary.snapshot(index.entries.filter(entry=>entry.course===course))));
-      syncFailures.delete(course);syncedAt.set(course,Date.now());
+      syncFailures.delete(course);readRetryAt.delete(course);syncedAt.set(course,Date.now());
       try { localStorage.setItem(publicCacheKey(course), JSON.stringify({schema:1,course,generatedAt:new Date().toISOString(),data,etag})); } catch {}
       if (changed && results.length) $("staleNotice").textContent = "題庫比對資料已更新，請重新比對。下方保留的是上一批結果。";
     } catch (error) {

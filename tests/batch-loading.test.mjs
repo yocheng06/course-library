@@ -55,6 +55,13 @@ async function page(fetch, {storage = new Map(), automatic = false} = {}) {
   return { $, fire, copied, context };
 }
 
+test('lookup cooldown preserves the available index and avoids repeated public reads',async()=>{
+ let reads=0;
+ const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>base}:(reads++,{ok:false,status:429,headers:{get:()=> '60'}}));
+ await tick();await tick();assert.match(ui.$('libraryStatus').textContent,/讀取過於頻繁/);assert.equal(ui.$('compare').disabled,false);
+ const previous=reads;ui.fire('reloadLibrary','click');await tick();assert.equal(reads,previous);
+});
+
 test("automatic lookup uses the HTML course, then searches both courses for a file without course information", async () => {
   const algoStem = "演算法的查詢測試題";
   const bank = {...base, entries: [...base.entries,

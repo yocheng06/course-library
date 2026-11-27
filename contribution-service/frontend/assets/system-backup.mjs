@@ -66,13 +66,39 @@ export async function verifyPackage(raw){
   if(duplicate(pack.data.questions,q=>q.id)||duplicate(pack.data.submissions,q=>q.id))errors.push('題目或投稿 ID 重複');
   return {ok:!errors.length,errors,questions:pack.data.questions.length,builtins:pack.data.builtinQuestions.length,history:pack.data.history.length,images:seen.size,createdAt:pack.createdAt,plan:['先在獨立測試資料庫還原資料與歷史','依 reference／url 對照還原圖片並校驗 SHA-256','檢查單元設定、題數與公開／已移除狀態','測試通過後才安排正式切換']};
 }
+export function usageBannerText(status){
+ const usage=status?.usage;
+ if(usage?.state==='unavailable')return usage.message;
+ if(usage?.state!=='ready'||!usage.warnings?.length)return '';
+ return '今日用量提醒：'+usage.warnings.map(row=>row.label+'已達免費額度 '+row.percent+'%').join('；')+'。資料可能延遲，請至 Cloudflare 確認。';
+}
+export function renderTrafficStatus(container,data){
+ container.replaceChildren();
+ const add=(tag,text)=>{const el=document.createElement(tag);el.textContent=text;container.append(el);return el;};
+ add('h3','流量保護與用量');
+ if(!data){add('p','暫時無法檢查流量保護與官方用量。');return;}
+ add('p',data.readLimit?.configured?'高頻讀取保護已設定：每個瀏覽器每分鐘最多讀取整份題庫 60 次；共用網路採較寬鬆的總上限。異常時短暫冷卻，不會自動永久封鎖。':'目前使用單節點備援限制；Cloudflare 分散式讀取限制尚未設定。');
+ add('p','換題、展開解析及逐步演示在本機進行，不計入讀取限制。'+(data.cache?.message||''));
+ const usage=data.usage;
+ if(usage?.state==='ready'){
+  add('p','今日帳號用量（UTC 日界線；台灣時間每天上午 8 點重設）');
+  for(const [key,name] of [['requests','Workers 請求'],['rowsRead','D1 讀取列數'],['rowsWritten','D1 寫入列數']])add('p',name+'：'+Number(usage.values[key]).toLocaleString('zh-TW'));
+  const banner=usageBannerText(data);if(banner){const warning=add('p',banner);warning.className='warning';warning.setAttribute('role','status');}
+  add('p','方案：'+(usage.plan==='free'?'免費；80% 起提醒，95% 起加強警示':usage.plan==='paid'?'付費；未套用免費額度門檻':'尚未指定；暫不計算免費額度百分比'));
+  add('p','檢查時間：'+new Date(usage.checkedAt).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'})+'；最多每 5 分鐘更新一次。');
+ }
+ add('p',usage?.message||'官方額度提醒尚未啟用。');
+ const link=add('a','開啟 Cloudflare 查看帳號用量');link.href='https://dash.cloudflare.com/';link.target='_blank';link.rel='noopener noreferrer';
+ add('p','提醒只在管理頁顯示，目前未設定電子郵件或推播通知。');
+}
 export function setupSystemPanel({container,api,downloadJSON,userId='owner'}){
   const recordKey='course-library.owner-backup.v1.'+userId;
-  container.innerHTML='<h2>版本、同步與備份</h2><button type="button" class="plain" data-system-refresh>重新檢查</button><dl data-system-facts></dl><h3>完整管理備份</h3><p>包含題目、修改歷史、單元設定與實際題圖；不含管理密碼、金鑰與個人學習紀錄。下載後可在此檢查完整性及復原步驟。</p><button type="button" class="plain" data-system-export>建立完整備份（含題圖）</button><button type="button" class="plain" data-system-check>檢查備份與復原準備</button><input type="file" accept=".json,application/json" hidden><p data-system-status role="status" aria-live="polite"></p><pre data-system-report></pre>';
+  container.innerHTML='<h2>版本、流量與備份</h2><button type="button" class="plain" data-system-refresh>重新檢查</button><dl data-system-facts></dl><h3>完整管理備份</h3><p>包含題目、修改歷史、單元設定與實際題圖；不含管理密碼、金鑰與個人學習紀錄。下載後可在此檢查完整性及復原步驟。</p><button type="button" class="plain" data-system-export>建立完整備份（含題圖）</button><button type="button" class="plain" data-system-check>檢查備份與復原準備</button><input type="file" accept=".json,application/json" hidden><p data-system-status role="status" aria-live="polite"></p><pre data-system-report></pre>';
   const find=s=>container.querySelector(s),status=find('[data-system-status]'),facts=find('[data-system-facts]');let busy=false;
   const fact=(label,value)=>{const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;facts.append(dt,dd);};
   async function show(){facts.replaceChildren();status.textContent='正在檢查版本與 API…';
-    const results=await Promise.allSettled([api('/api/manage/system'),fetch('/course-library/assets/site-version.json',{cache:'no-store',signal:AbortSignal.timeout(8000)}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();})]);
+    const results=await Promise.allSettled([api('/api/manage/system'),fetch('/course-library/assets/site-version.json',{cache:'no-store',signal:AbortSignal.timeout(8000)}).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json();}),api('/api/manage/traffic')]);
+    let traffic=find('[data-system-traffic]');if(!traffic){traffic=document.createElement('section');traffic.dataset.systemTraffic='';facts.after(traffic);}renderTrafficStatus(traffic,results[2].status==='fulfilled'?results[2].value:null);
     const server=results[0].status==='fulfilled'?results[0].value:null,site=results[1].status==='fulfilled'?results[1].value:null;
     fact('主站版本',site?.version||'無法取得主站版本');fact('主站提交版本',site?.sourceRevision||'未提供（可能為分支式發布）');fact('API 版本',server?.build?.version||'無法連線');fact('API 建置指紋',server?.build?.sourceHash||'未提供');
     fact('獨立還原驗證',server?.backupRestore?.configured ? server.backupRestore.ok===true ? '通過 · '+server.backupRestore.checkedAt : server.backupRestore.ok===false ? '未通過 · '+server.backupRestore.checkedAt : '尚未執行' : '尚未設定');

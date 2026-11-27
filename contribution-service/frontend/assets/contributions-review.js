@@ -2,7 +2,7 @@ import {setupVisitorAccess} from './visitor-access.mjs?v=device-info-20261127';
 import {setupEditModeration} from './edit-moderation.mjs?v=public-edit-rollback-20261120';
 import {setupManagementMenu} from './management-menu.mjs?v=menu-position-20261118';
 import {setupAdminSecurity} from './admin-security.mjs?v=security-20261118';
-import {setupSystemPanel} from './system-backup.mjs?v=improvements-20261104';
+import {setupSystemPanel,usageBannerText} from './system-backup.mjs?v=traffic-protection-20261127';
 import {setupUnitManager} from './unit-manager.mjs?v=unit-english-20261127';
 import {setupLibraryHealth} from './library-health.mjs?v=admin-workflow-20261103';
 import { api, message, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
@@ -129,6 +129,8 @@ async function start() {
       });
     }
     await showView(currentView);
+    // One owner-only check after login; no visitor polling or extra database counter writes.
+    void api('/api/manage/traffic').then(data=>{const notice=$('trafficNotice');if(notice){notice.textContent=usageBannerText(data);notice.hidden=!notice.textContent;}}).catch(()=>{const notice=$('trafficNotice');if(notice){notice.textContent='暫時無法檢查官方用量，請至「版本、流量與用量」重新檢查。';notice.hidden=false;}});
     if(['imports','health','units','system','security','moderation','visitors'].includes(currentView))void library.refresh();
   } catch (error) {
     $('authStatus').hidden = false;

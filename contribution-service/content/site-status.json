@@ -1,6 +1,6 @@
 {
-  "version": "2026.11.27-premise-order-1",
-  "description": "同主題下，相同前提的版本相鄰，組內單選、多選、填空",
+  "version": "2026.11.27-read-protection-1",
+  "description": "異常讀取冷卻、題庫版本快取與管理者官方用量提醒",
   "snapshots": {
     "os": {
       "generatedAt": "2026-11-27T12:30:23.982Z"

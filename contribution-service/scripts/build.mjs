@@ -151,6 +151,8 @@ const editModeration=await readFile(resolve(root,'worker/edit-moderation.js'),'u
 worker=worker.replace('/* EDIT_MODERATION */',()=>editModeration);
 const visitorAccess=await readFile(resolve(root,'worker/visitor-access.js'),'utf8');
 worker=worker.replace('/* VISITOR_ACCESS */',()=>visitorAccess);
+const libraryDelivery=await readFile(resolve(root,'worker/library-delivery.js'),'utf8');
+worker=worker.replace('/* LIBRARY_DELIVERY */',()=>libraryDelivery);
 const searchModel=(await readFile(resolve(root,"worker/batch-model.js"),"utf8")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
 worker=worker.replace("/* BUILTIN_MANAGEMENT */",()=>"const builtinSearch=(()=>{"+searchModel+";return {choiceAliases,choiceCombinations,questionStemVersions,expandLibraryQuestion,buildIndex,matchQuestion,normalizeText,normalizeStem,sameOptions};})();\n"+builtinManagement);
 worker=worker.replace("/* LIBRARY_MANAGEMENT */",()=>readLibraryManagement);
