@@ -235,6 +235,7 @@ function managedUnitLabel(course,id,title){
   return base?.match(/^L\d+/)?.[0] ? base.match(/^L\d+/)[0]+' · '+title : id==='treasure'?title:id+' · '+title;
 }
 async function publicUnitCatalog(env,course,includeHidden=false){
+  const english={os:{basics:'OS FUNDAMENTALS',architecture:'OS STRUCTURES',process:'PROCESSES & IPC',threads:'THREADS & MULTITHREADING',scheduling:'CPU SCHEDULING',treasure:'TREASURE HUNT',synchronization:'PROCESS SYNCHRONIZATION',deadlocks:'DEADLOCKS',L9:'MEMORY MANAGEMENT'},algorithms:{L2:'ALGORITHM FUNDAMENTALS',L3:'RECURRENCE RELATIONS',L4:'HEAP & PRIORITY QUEUE',L5:'QUICK SORT',L6:'SORTING ALGORITHMS',L7:'MEDIANS & ORDER STATISTICS'}};
   const config=await unitConfiguration(env,course);
   const units=new Map(Object.entries(COURSE_UNITS[course].units).map(([id,label])=>[id,{id,title:label.replace(/^L\d+ · /,''),label,order:id==='treasure'?6.5:Number(label.match(/^L(\d+)/)?.[1]||99)}]));
   const rows=await env.DB.prepare("SELECT unit,MIN(json_extract(data,'$.unitTitle')) AS title FROM public_questions WHERE course=?"+(includeHidden?'':' AND is_published=1')+' GROUP BY unit').bind(course).all();
@@ -243,7 +244,7 @@ async function publicUnitCatalog(env,course,includeHidden=false){
     units.set(row.unit,{id:row.unit,title:label.replace(/^L\d+ · /,''),label,order:Number(row.unit.slice(1))||99});
   }
   for(const item of config.settings)units.set(item.id,{...units.get(item.id),...item,label:managedUnitLabel(course,item.id,item.title),managed:true});
-  return {revision:config.revision,units:[...units.values()].sort((a,b)=>a.order-b.order||a.id.localeCompare(b.id))};
+  return {revision:config.revision,units:[...units.values()].map(unit=>({...unit,en:typeof unit.en==='string'?unit.en:(english[course][unit.id]||'COMMUNITY QUESTIONS')})).sort((a,b)=>a.order-b.order||a.id.localeCompare(b.id))};
 }
 async function manageUnits(request,env,url){
   const actor=await owner(request,env),course=url.searchParams.get('course')||'os';
@@ -255,7 +256,9 @@ async function manageUnits(request,env,url){
   const ids=new Set(current.units.map(u=>u.id)),seen=new Set();
   const next=body.units.map((row,index)=>{
     if(!row||typeof row.id!=='string'||(!ids.has(row.id)&&(!/^L[1-9]\d?$/.test(row.id)||normalizeUnit(course,row.id)!==row.id))||seen.has(row.id)||typeof row.title!=='string'||!row.title.trim()||row.title.trim().length>60)throw new HttpError(400,'單元名稱或編號不正確。');
-    seen.add(row.id);return {id:row.id,title:row.title.trim(),order:index+1};
+    if(row.en!==undefined&&(typeof row.en!=='string'||row.en.trim().length>100||/[\r\n\x00-\x1f]/.test(row.en)))throw new HttpError(400,'英文名稱請使用單行文字，最多 100 字。');
+    const en=row.en===undefined?(current.units.find(unit=>unit.id===row.id)?.en||'COMMUNITY QUESTIONS'):row.en.trim();
+    seen.add(row.id);return {id:row.id,title:row.title.trim(),en,order:index+1};
   });
   if([...ids].some(id=>!seen.has(id)))throw new HttpError(400,'請保留所有既有單元，不能更換其編號或刪除。');
   await env.DB.prepare('INSERT OR IGNORE INTO unit_settings(course,revision,data,updated_at) VALUES(?,0,?,0)').bind(course,'[]').run();

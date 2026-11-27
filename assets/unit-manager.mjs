@@ -7,7 +7,7 @@ export function setupUnitManager({container,onChanged=()=>{}}){
  function unitCode(unit){return unit.id==='treasure'?'特別單元':unit.label?.match(/^L\d+/)?.[0]||COURSE_UNITS[loaded]?.units[unit.id]?.match(/^L\d+/)?.[0]||unit.id;}
  function status(text){$('[data-unit-status]').textContent=text;}
  function render(){
-  $('[data-unit-rows]').innerHTML=rows.map((u,i)=>`<div class="unit-settings-row" data-unit-row="${esc(u.id)}" role="listitem"><button type="button" class="button secondary unit-drag-handle" data-unit-drag="${esc(u.id)}" aria-label="拖曳排序：${esc(u.title)}，也可用上下方向鍵">拖曳</button><span>${esc(unitCode(u))}${u.isNew?' · 尚未儲存':''}</span><label>單元名稱<input data-unit-title="${i}" value="${esc(u.title)}" maxlength="60" required></label><button class="button secondary" type="button" data-unit-up="${i}" ${i===0?'disabled':''} aria-label="上移 ${esc(u.title)}">上移</button><button class="button secondary" type="button" data-unit-down="${i}" ${i===rows.length-1?'disabled':''} aria-label="下移 ${esc(u.title)}">下移</button></div>`).join('');
+  $('[data-unit-rows]').innerHTML=rows.map((u,i)=>`<div class="unit-settings-row" data-unit-row="${esc(u.id)}" role="listitem"><button type="button" class="button secondary unit-drag-handle" data-unit-drag="${esc(u.id)}" aria-label="拖曳排序：${esc(u.title)}，也可用上下方向鍵">拖曳</button><span>${esc(unitCode(u))}${u.isNew?' · 尚未儲存':''}</span><div class="unit-name-fields"><label>中文名稱<input data-unit-title="${i}" value="${esc(u.title)}" maxlength="60" required></label><label>英文名稱（選填）<input data-unit-en="${i}" value="${esc(u.en??'')}" maxlength="100" placeholder="例如：HASH TABLES"></label><small class="muted">英文顯示在側邊單元卡片及頁面標題區；清空並儲存可隱藏。</small></div><button class="button secondary" type="button" data-unit-up="${i}" ${i===0?'disabled':''} aria-label="上移 ${esc(u.title)}">上移</button><button class="button secondary" type="button" data-unit-down="${i}" ${i===rows.length-1?'disabled':''} aria-label="下移 ${esc(u.title)}">下移</button></div>`).join('');
   $('[data-unit-save]').disabled=busy||!dirty;
   $('[data-unit-add]').disabled=busy||!loaded;
   container.querySelectorAll('[data-unit-drag]').forEach(node=>node.disabled=busy||!loaded);
@@ -80,7 +80,7 @@ export function setupUnitManager({container,onChanged=()=>{}}){
   if(rows.some(u=>u.id===existing)){status('這個單元編號已存在，請直接修改原單元或使用其他編號。');return;}
   rows.push({id,title,label:id+' · '+title,order:rows.length+1,isNew:true});dirty=true;render();$('[data-unit-new]').hidden=true;status('已加入新單元「'+title+'」，尚未儲存。可調整順序後按下方儲存。');
  });
- container.addEventListener('input',event=>{const node=event.target.closest('[data-unit-title]');if(!node||busy)return;rows[Number(node.dataset.unitTitle)].title=node.value;dirty=true;$('[data-unit-save]').disabled=false;});
+ container.addEventListener('input',event=>{const node=event.target.closest('[data-unit-title],[data-unit-en]');if(!node||busy)return;const english=node.hasAttribute('data-unit-en');rows[Number(english?node.dataset.unitEn:node.dataset.unitTitle)][english?'en':'title']=node.value;dirty=true;$('[data-unit-save]').disabled=false;});
  container.addEventListener('change',event=>{if(event.target.matches('[data-unit-course]')){if(dirty&&!confirm('尚有未儲存的單元設定，確定切換科目？')){event.target.value=loaded;return;}show({refresh:true});}});
  container.addEventListener('click',async event=>{
   const button=event.target.closest('button');if(!button||busy||drag)return;
@@ -95,7 +95,7 @@ export function setupUnitManager({container,onChanged=()=>{}}){
   if(!button.hasAttribute('data-unit-save'))return;
   if(rows.some(u=>!u.title.trim())){status('請填寫每個單元的名稱。');return;}
   busy=true;container.querySelectorAll('button,input,select').forEach(n=>n.disabled=true);status('正在儲存…');
-  try{const data=await api('/api/manage/units?course='+encodeURIComponent(loaded),{method:'POST',body:JSON.stringify({revision,units:rows.map(({id,title})=>({id,title}))})});rows=data.units;revision=data.revision;dirty=false;status('單元名稱與順序已儲存。公開頁面同步後會更新；舊設定已保留於管理備份。');onChanged();}
+  try{const data=await api('/api/manage/units?course='+encodeURIComponent(loaded),{method:'POST',body:JSON.stringify({revision,units:rows.map(({id,title,en})=>({id,title,...(en!==undefined?{en}: {})}))})});rows=data.units;revision=data.revision;dirty=false;status('中英文名稱與順序已儲存。公開頁面同步後會更新；舊設定已保留於管理備份。');onChanged();}
   catch(error){status(error.message+' 尚未儲存的設定仍保留。');}
   finally{busy=false;container.querySelectorAll('input,select,button').forEach(n=>n.disabled=false);render();}
  });

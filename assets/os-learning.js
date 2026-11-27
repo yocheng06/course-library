@@ -386,7 +386,7 @@ window.courseLearning={
   examUnitLabel:()=>UNITS[active].label,
   setUnitMetadata(rows){
     if(!Array.isArray(rows))return;
-    for(const row of rows){const unit=UNITS.find(u=>u.id===row.id);if(!unit)continue;if(row.managed&&typeof row.title==='string')unit.label=row.title.slice(0,60);if(Number.isFinite(row.order))managedUnitOrder.set(row.id,row.order);}
+    for(const row of rows){const unit=UNITS.find(u=>u.id===row.id);if(!unit)continue;if(row.managed&&typeof row.title==='string')unit.label=row.title.slice(0,60);if(row.managed&&typeof row.en==='string')unit.en=row.en.slice(0,100);if(Number.isFinite(row.order))managedUnitOrder.set(row.id,row.order);}
     refreshUnitNavigation();
   },
   mergeCommunityQuestions, openQuestionById, course:'os',toolbar:document.querySelector('.toolbar'),sidebar:document.querySelector('.sidebar'),list:$('cards'),

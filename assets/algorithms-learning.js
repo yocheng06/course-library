@@ -177,7 +177,7 @@ window.courseLearning={
  setUnitMetadata(rows){
   if(!Array.isArray(rows))return;
   const order=new Map(rows.filter(r=>Number.isFinite(r.order)).map(r=>[r.id,r.order]));
-  for(const row of rows)if(meta[row.id]&&row.managed&&typeof row.title==='string'){meta[row.id].title=row.title.slice(0,60);meta[row.id].short=row.title.slice(0,60);}
+  for(const row of rows)if(meta[row.id]&&row.managed&&typeof row.title==='string'){meta[row.id].title=row.title.slice(0,60);meta[row.id].short=row.title.slice(0,60);if(typeof row.en==='string')meta[row.id].en=row.en.slice(0,100);}
   COURSES.sort((a,b)=>(order.get(a.id)??Number(a.id.slice(1)))-(order.get(b.id)??Number(b.id.slice(1))));setupLesson(true);
  },
  mergeCommunityQuestions, openQuestionById,

@@ -122,6 +122,29 @@ for(const course of ['os','algorithms'])test(course+' reader applies managed uni
  assert.deepEqual(h.window.courseLearning.scopeIds(),original);
 });
 
+test('unit English names survive editing, reordering, save and reload; blank removes the subtitle',async()=>{
+ const ui=dom();let units=[{id:'L2',title:'基礎',en:'FUNDAMENTALS'},{id:'L3',title:'遞迴',en:'RECURRENCE'}],payload;
+ globalThis.fetch=async(raw,opts={})=>{if(opts.method==='POST'){payload=JSON.parse(opts.body);units=payload.units;return Response.json({revision:2,units});}return Response.json({revision:1,units});};
+ const manager=setupUnitManager({container:ui.$('unitWorkspace')});await manager.show();
+ const english=ui.document.querySelector('[data-unit-en="1"]');assert.equal(english.value,'RECURRENCE');english.value='RECURRENCE RELATIONS';ui.fire(english,'input');
+ ui.document.querySelector('[data-unit-up="1"]').click();ui.document.querySelector('[data-unit-save]').click();
+ await waitFor(()=>payload&&ui.document.querySelector('[data-unit-save]').disabled);
+ assert.equal(payload.units[0].id,'L3');assert.equal(payload.units[0].en,'RECURRENCE RELATIONS');assert.equal(payload.units[1].en,'FUNDAMENTALS');
+ await manager.show({refresh:true});assert.equal(ui.document.querySelector('[data-unit-en="0"]').value,'RECURRENCE RELATIONS');
+ const blank=ui.document.querySelector('[data-unit-en="0"]');blank.value='';ui.fire(blank,'input');ui.document.querySelector('[data-unit-save]').click();await waitFor(()=>payload.units[0].en==='');
+});
+
+for(const [course,id] of [['os','basics'],['os','L9'],['algorithms','L2'],['algorithms','L9']])test(course+' '+id+' reader applies and clears managed English names without modifying questions',async()=>{
+ const h=await loadCourse(course),contents=()=>JSON.stringify(h.config.examEntries(true).map(({id,q})=>({id,q})).sort((a,b)=>a.id.localeCompare(b.id))),before=contents();
+ h.config.setUnitMetadata([{id,title:'測試單元',en:'CUSTOM ENGLISH TITLE',managed:true,order:1}]);
+ assert.match(h.document.querySelector('.sidebar').textContent,/CUSTOM ENGLISH TITLE/);
+ h.config.setUnitMetadata([{id,title:'測試單元',en:'',managed:true,order:1}]);
+ assert.doesNotMatch(h.document.querySelector('.sidebar').textContent,/CUSTOM ENGLISH TITLE/);
+ h.config.setUnitMetadata([{id,title:'測試單元',en:'<img src=x onerror=alert(1)>',managed:true,order:1}]);
+ assert.equal(h.document.querySelector('.sidebar .unit-en img'),null);
+ assert.equal(contents(),before);
+});
+
 test('history highlights changed text and keeps imported markup inert',async()=>{
  const ui=dom(),row=bank(1)[0],base=server([row]),fetchBase=globalThis.fetch;
  globalThis.fetch=async(raw,opts)=>{

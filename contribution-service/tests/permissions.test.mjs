@@ -2549,6 +2549,22 @@ test('unit settings are owner-only, revision-protected, audited, and synchronize
  assert.equal(env.sql.prepare('SELECT count(*) AS n FROM builtin_question_edits').get().n,0);
 });
 
+for(const course of ['os','algorithms'])test(course+' unit English metadata persists, preserves omitted values, allows clearing and rejects invalid names',async()=>{
+ const env=await setup(),path='/api/manage/units?course='+course;
+ let current=(await call(env,path,{reviewer:true})).data;
+ const id=current.units[0].id;
+ const post=async(en,omit=false)=>{
+  const units=current.units.map(u=>({id:u.id,title:u.title,...(u.id===id&&!omit?{en}: {})}));
+  return call(env,path,{reviewer:true,method:'POST',body:{revision:current.revision,units}});
+ };
+ let saved=await post('CUSTOM ENGLISH');assert.equal(saved.response.status,200);current=saved.data;
+ assert.equal(current.units.find(u=>u.id===id).en,'CUSTOM ENGLISH');
+ const published=(await call(env,'/api/questions?course='+course)).data;assert.equal(published.units.find(u=>u.id===id).en,'CUSTOM ENGLISH');
+ saved=await post(undefined,true);assert.equal(saved.response.status,200);current=saved.data;assert.equal(current.units.find(u=>u.id===id).en,'CUSTOM ENGLISH');
+ for(const invalid of ['x'.repeat(101),'first\nsecond',null])assert.equal((await post(invalid)).response.status,400);
+ saved=await post('');assert.equal(saved.response.status,200);assert.equal(saved.data.units.find(u=>u.id===id).en,'');
+});
+
 test('owner can move a community question between existing units while preserving the original history and public-edit boundary',async()=>{
  const env=await setup(),p=payload();const posted=await call(env,'/api/submissions',{method:'POST',body:p});assert.equal(posted.response.status,201);
  const row=(await call(env,'/api/questions?course=os')).data.questions[0],id=row.question.id;
