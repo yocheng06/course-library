@@ -14,7 +14,7 @@
       rel="stylesheet"
       href="assets/contributions.css?v=workflow-improvements-20261102"
     />
-    <link rel="stylesheet" href="assets/batch.css?v=choice-columns-20261127" />
+    <link rel="stylesheet" href="assets/batch.css?v=lookup-guidance-20261127" />
     <link
       rel="stylesheet"
       href="assets/ui-consistency.css?v=flow-clarity-20261103"
@@ -82,15 +82,13 @@
           <div id="batchImageHelp" hidden><p>這份題目需要圖片，請選取下載時附帶的同名 _files 資料夾；補圖後會自動重新查題。</p><button id="chooseBatchImageFolder" class="button secondary" type="button">選取題圖資料夾（選填）</button>
           <input id="batchImageFolder" type="file" webkitdirectory multiple hidden aria-label="選取 HTML 附帶的圖片資料夾">
           <p class="muted">圖片與題幹、選項符合才帶入答案；圖片只在這台裝置讀取，每張限 1 MB。</p></div>
-          <p id="importHelp" class="muted">
-            預設自動判斷科目、比對全部單元。選檔會取代目前文字並查答案。
-            支援 TXT／Markdown、JSON、CSV／TSV、HTML，可一次選多個檔案。合計最多
-            30 題、20 MB；完整下載的 HTML 也可匯入，檔案在這台裝置讀取。
-          </p>
-          <p class="muted input-help">
-            支援 AI 常見排版、Markdown
-            表格及不同欄位名稱；找不到題幹欄時可手動對應，不必重寫檔案。
-          </p>
+          <p id="importHelp" class="muted">自動判斷科目並查詢全部單元；選檔會取代目前文字。</p>
+          <details id="importLimits" class="import-limits">
+            <summary>支援格式與限制</summary>
+            <p>支援 TXT／Markdown、JSON、CSV／TSV、HTML，可一次選多個檔案。合計最多 30 題、20 MB；完整下載的 HTML 也可匯入。</p>
+            <p>支援 AI 常見排版、Markdown 表格及不同欄位名稱；找不到題幹欄時，可手動對應，不必重寫檔案。</p>
+            <p>檔案只在這台裝置讀取；內附的答案、解析不會當成查題答案。</p>
+          </details>
           <p id="importStatus" role="status" aria-live="polite"></p>
         </div>
         <section
@@ -175,10 +173,7 @@
           </div>
         </section>
         <label for="batchText">題幹與選項</label>
-        <p id="formatHint" class="muted input-help">
-          保留題號與完整選項；填空題只需題幹。也可直接貼上 JSON、CSV／TSV 或
-          HTML，系統會辨識格式。檔案內附的答案、解析不會當成查題答案。
-        </p>
+        <p id="formatHint" class="muted input-help">保留完整題幹與選項；填空題只需題幹。</p>
         <textarea
           id="batchText"
           rows="8"
@@ -313,8 +308,7 @@ D. 巨集排程器
           </div>
         </div>
         <p class="muted result-help">
-          未收錄表示本次沒有可直接使用的完整版本，可能已有相似題；展開可查看差異。未收錄題目可轉入投稿草稿，補上答案後投稿，解析可留白；已收錄題目不會轉入。
-          選項代號依你貼上的版本對應；其他單元已收錄會另外標示。重要成立條件會隨答案顯示並一起複製，展開每題可核對原題。
+          答案依本次選項順序對應；未確認的題目會顯示原因與處理按鈕。重要成立條件會隨答案一起複製。
         </p>
         <div
           class="table-scroll"
@@ -355,7 +349,7 @@ D. 巨集排程器
     <script src="assets/contributions-config.js?v=orange06-20261118"></script>
     <script
       type="module"
-      src="assets/batch-ui.mjs?v=read-protection-20261127"
+      src="assets/batch-ui.mjs?v=lookup-guidance-20261127"
     ></script>
   </body>
 </html>

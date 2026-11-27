@@ -1,5 +1,6 @@
 import "./question-sync.js?v=consistency-20261126";
 import {choiceAnswerMarkup} from './batch-answer.mjs?v=choice-columns-20261127';
+import {resultNextStep} from './batch-next-step.mjs?v=lookup-guidance-20261127';
 import './sync-summary.js?v=flow-clarity-20261103';
 import {createUnitCatalog} from './unit-catalog.mjs?v=admin-units-20261103';
 import {comparisonMarkup,mismatchLabel} from './question-comparison.mjs?v=workflow-improvements-20261102';
@@ -108,6 +109,7 @@ function markChanged() {
   $("courseMismatch").hidden = !courseSuggestion || stale || loading;
   $("switchCourse").disabled = stale || loading || !index;
   $("copyAnswers").disabled = stale || loading || !index || !results.length;
+  $("resultRows").querySelectorAll('[data-next-action]').forEach(button=>{button.disabled=stale||loading||!index;});
   const unmatchedCount = results.filter((r) => r.status === "unmatched").length;
   if (transferButton) {
     transferButton.disabled = stale || loading || !index || !snapshotCoverage || !unmatchedCount || !!courseSuggestion;
@@ -433,8 +435,42 @@ function renderResults() {
         `<tr><th scope="row">${esc(row.question.number)}</th><td class="answer-text">${renderAnswer(row)}${row.conditions?.length ? `<p class="answer-condition"><strong>成立條件</strong><br>${row.conditions.map(esc).join("<br>")}</p>` : ""}</td><td><span class="result-badge ${row.status}">${esc(statusLabel(row))}</span></td><td><details class="question-detail"><summary>${esc(row.question.stem.slice(0, 90) || "缺少題幹")}</summary><p>${esc(row.question.stem)}</p>${row.question.options.length ? "<ul>" + row.question.options.map((o) => `<li>${esc(o.label)}. ${esc(o.text)}</li>`).join("") + "</ul>" : ""}<p>${esc(row.reason)}</p>${candidateComparison(row)}${row.references.length ? '<ul class="source-links">' + row.references.map((ref) => `<li><a href="${sourceURL(ref)}" target="_blank" rel="noopener">${esc(names[ref.course])}・${esc(ref.id)}・開啟${row.status === "matched" ? "收錄" : "候選"}原題 ↗</a>${ref.candidateAnswer!==undefined?`<p>此版本答案：${esc(ref.candidateAnswer||"尚未提供")}</p>`:""}</li>`).join("") + "</ul>" : ""}</details></td></tr>`,
     )
     .join("");
+  for(const [position, row] of shown.entries()) {
+    const step=resultNextStep(row,{coverage:snapshotCoverage,unit:snapshotUnit,otherCourse:!!courseSuggestion});
+    if(!step)continue;
+    const cell=$("resultRows").children[position].lastElementChild;
+    const guide=document.createElement('div');guide.className='result-next-step';
+    guide.innerHTML=`<strong>${esc(step.title)}</strong><p>${esc(step.hint)}</p><button type="button" class="button secondary" data-next-action="${step.action}" data-result-index="${results.indexOf(row)}">${esc(step.label)}</button>`;
+    guide.querySelector('button').disabled=isStale()||loading||!index;
+    cell.prepend(guide);
+  }
   $("emptyResults").hidden = shown.length > 0;
 }
+$("resultRows").addEventListener('click',async event=>{
+  const button=event.target.closest?.('[data-next-action]');
+  if(!button||button.disabled||loading||!index||isStale())return;
+  const row=results[Number(button.dataset.resultIndex)];
+  if(!row||row.status==='matched')return;
+  const action=resultNextStep(row,{coverage:snapshotCoverage,unit:snapshotUnit,otherCourse:!!courseSuggestion})?.action;
+  if(action==='retry')return refreshLibrary();
+  if(action==='expand')return $("expandScope").click();
+  if(action==='switch')return $("switchCourse").click();
+  if(action==='images')return $("chooseBatchImageFolder").click();
+  if(action==='edit') {$("batchText").focus();$("batchText").scrollIntoView({block:'center'});return;}
+  if(action==='compare') {
+    const details=button.closest('td').querySelector('.question-detail');
+    if(details){details.open=true;const comparison=details.querySelector('.candidate-comparison');if(comparison){comparison.open=true;comparison.scrollIntoView({block:'nearest'});}}
+    return;
+  }
+  if(action==='draft') {
+    const course=snapshotCourse||$("transferCourse").value;
+    if(!Object.hasOwn(names,course)) {$("transferCourseStep").hidden=false;$("transferCourse").focus();message('請先選擇這題的投稿科目，再按「補答案並投稿」。');return;}
+    try {
+      stageUnmatched([row],{course,unit:snapshotUnit},localStorage);
+      location.href=window.courseTheme?.href('submit.html#pendingHeading')||'submit.html#pendingHeading';
+    } catch(error) {message(`未能轉入投稿草稿：${error.message}。題目仍保留。`,true);}
+  }
+});
 const incompleteCoverage = "部分公開題庫尚未完成同步，目前使用可取得的題庫版本。尚未找到答案的題目會標示為待同步。";
 async function compare({waitForManualSync = false, forceSync = false} = {}) {
   const selected = scope();

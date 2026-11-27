@@ -48,6 +48,11 @@ body[data-course="os"] .button.secondary {
 .import-tools {
   margin: 8px 0 18px;
 }
+.import-limits { margin: 8px 0 12px; }
+.import-limits summary { color:var(--accent); cursor:pointer; }
+.result-next-step { margin:0 0 12px; white-space:normal; }
+.result-next-step p { margin:4px 0 8px; font-size:14px; }
+.result-next-step .button { max-width:100%; white-space:normal; }
 .batch-file-picker {
   display: flex;
   flex-wrap: wrap;

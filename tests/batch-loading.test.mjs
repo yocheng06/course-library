@@ -62,6 +62,40 @@ test('lookup cooldown preserves the available index and avoids repeated public r
  const previous=reads;ui.fire('reloadLibrary','click');await tick();assert.equal(reads,previous);
 });
 
+test('missing result stages only the chosen question and stale actions remain blocked',async()=>{
+ const storage=new Map();
+ const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>base}:response(),{storage});
+ ui.$('batchText').value='1. 未收錄測試甲 ____________\n\n2. 未收錄測試乙 ____________';
+ ui.fire('batchForm','submit');
+ let button=ui.$('resultRows').querySelector('[data-next-action="draft"]');assert(button);
+ ui.$('batchText').value+='\n changed';ui.fire('batchText','input');assert(button.disabled);
+ button.dispatchEvent(new ui.context.Event('click',{bubbles:true}));assert.equal(storage.get('course-library.submission-inbox.v1'),undefined);
+ ui.$('batchText').value='1. 未收錄測試甲 ____________\n\n2. 未收錄測試乙 ____________';ui.fire('batchForm','submit');
+ button=ui.$('resultRows').querySelector('[data-next-action="draft"]');button.dispatchEvent(new ui.context.Event('click',{bubbles:true}));await tick();
+ const queue=JSON.parse(storage.get('course-library.submission-inbox.v1'));assert.equal(queue.items.length,1);assert.match(queue.items[0].stem,/測試甲/);
+ assert.equal(queue.items[0].answer,'');assert.match(ui.context.location.href,/submit.html#pendingHeading/);
+});
+
+test('version guidance opens side-by-side comparison and leaves candidate answers unapplied',async()=>{
+ const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>base}:response());
+ ui.$('batchText').value=`1. ${stem}\nA. 短程排程器\nB. 另一個選項`;ui.fire('batchForm','submit');
+ const button=ui.$('resultRows').querySelector('[data-next-action="compare"]');assert(button);assert.match(button.textContent,/選項/);
+ button.dispatchEvent(new ui.context.Event('click',{bubbles:true}));
+ assert.equal(ui.$('resultRows').querySelector('.question-detail').open,true);
+ assert.equal(ui.$('resultRows').querySelector('.candidate-comparison').open,true);
+ assert.match(ui.$('resultRows').querySelector('.answer-text').textContent,/尚無可確認答案/);
+});
+
+test('failed synchronization offers retry rather than suggesting an unconfirmed missing question',async()=>{
+ let ready=false;
+ const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>base}:ready?response():{ok:false});
+ ui.$('batchText').value='1. 未收錄測試 ____________';ui.fire('batchForm','submit');
+ const button=ui.$('resultRows').querySelector('[data-next-action="retry"]');assert(button);
+ assert.equal(ui.$('resultRows').querySelector('[data-next-action="draft"]'),null);
+ ready=true;button.dispatchEvent(new ui.context.Event('click',{bubbles:true}));for(let i=0;i<8;i++)await tick();
+ assert(ui.$('resultRows').querySelector('[data-next-action="draft"]'));
+});
+
 test("automatic lookup uses the HTML course, then searches both courses for a file without course information", async () => {
   const algoStem = "演算法的查詢測試題";
   const bank = {...base, entries: [...base.entries,

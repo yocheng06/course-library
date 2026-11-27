@@ -6,7 +6,7 @@ import {setupSystemPanel,usageBannerText} from './system-backup.mjs?v=traffic-pr
 import {setupUnitManager} from './unit-manager.mjs?v=unit-english-20261127';
 import {setupLibraryHealth} from './library-health.mjs?v=admin-workflow-20261103';
 import { api, message, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
-import { setupLibraryManager } from './library-manager.mjs?v=management-workflow-20261125';
+import { setupLibraryManager } from './library-manager.mjs?v=direct-links-20261127-management-workflow-20261125';
 import { setupImportRecords } from './import-records.mjs?v=management-workflow-20261125';
 
 const $ = id => document.getElementById(id);

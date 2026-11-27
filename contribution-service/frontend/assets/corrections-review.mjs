@@ -35,7 +35,7 @@ async function load(append=false){
     for(const row of result.items){
       entries.set(row.id,row);const q=row.snapshot;
       const page=row.course==='os'?'os.html':'algorithms.html';
-      const url='https://yocheng06.github.io/course-library/'+page+'?question='+encodeURIComponent(row.question_id);
+      const url='https://course-library-submissions.orange06.workers.dev/course-library/'+page+'?question='+encodeURIComponent(row.question_id);
       panel.querySelector('[data-list]').insertAdjacentHTML('beforeend',`<article class="draft-card" data-correction-id="${esc(row.id)}"><h3>${esc(row.question_id)} · ${esc(row.course)}</h3><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">開啟題目</a><p>${esc(q.stem ?? q.q ?? '')}</p><p>回報時顯示的答案（供核對）：${esc(q.reportedAnswer || '未附，請開啟題目核對')}</p><h4>問題說明</h4><p style="white-space:pre-wrap">${esc(row.detail)}</p><h4>建議與來源</h4><p style="white-space:pre-wrap">${esc(row.suggestion || '未提供')}</p><p>回報編號：${esc(row.id)} · ${esc(new Date(row.created_at).toLocaleString('zh-TW'))}</p><label>處理說明（必填）<textarea maxlength="2000" rows="3">${esc(row.note)}</textarea></label><div class="actions"><button type="button" class="button secondary" data-edit-question>編輯這道題目</button><button type="button" class="button secondary" data-decision="confirmed">確認需更正</button><button type="button" class="button" data-decision="resolved">標為已處理</button><button type="button" class="text-button" data-decision="rejected">不採納</button></div></article>`);
     }
     cursor=result.nextCursor;panel.querySelector('[data-more]').hidden=!cursor;status(entries.size?`已載入 ${entries.size} 筆勘誤。`:'此狀態沒有勘誤。');
