@@ -1,4 +1,4 @@
 {
-  "version": "2026.11.27-choice-columns-1",
-  "description": "答案總表選項代號固定欄位，長答案續行對齊內容"
+  "version": "2026.11.27-device-info-1",
+  "description": "訪客設備分類與型號限制說明、Android 明確型號辨識"
 }

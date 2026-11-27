@@ -66,7 +66,11 @@ function visitorDevice(headers) {
 
   // Only retain a model that the Android browser explicitly supplied.
   const modelHint = device.startsWith('Android') ? headers.get('sec-ch-ua-model') : null;
-  const model = modelHint?.match(/^"([\p{L}\p{N} ._()+/-]{2,80})"$/u)?.[1].trim() || '';
+  const suppliedModel=modelHint?.match(/^"([\p{L}\p{N} ._()+/-]{2,80})"$/u)?.[1].trim() || '';
+  // Older Android browsers can include an explicit model before Build/ in UA.
+  // Never treat reduced UA's generic K or locale/wv markers as a phone model.
+  const uaModel=device.startsWith('Android')?ua.match(/Android\s+[\d.]+;\s*(?:[a-z]{2}[-_][A-Z]{2};\s*)?([\p{L}\p{N} ._()+-]{2,80}?)\s+Build\//u)?.[1].trim()||'':'';
+  const model=[suppliedModel,uaModel].find(value=>value&&!/^(?:K|Mobile|Android|wv|unknown|generic)$/i.test(value))||'';
   return { device, browserName, model };
 }
 

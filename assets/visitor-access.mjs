@@ -8,6 +8,15 @@ const timestamp = time => new Date(time).toLocaleString('zh-TW');
 const browserCode = (browser, length = 8) => browser.slice(0, length).toUpperCase();
 const modelNames = new Map([['SM-S9260', 'Galaxy S24+'], ['SM-S926B', 'Galaxy S24+']]);
 const modelLabel = model => modelNames.has(model.toUpperCase()) ? `${modelNames.get(model.toUpperCase())}（${model}）` : model;
+export function visitorDeviceInfo(visitor){
+ const device=visitor.device||'',model=visitor.model||'';
+ const phone=/iPhone|Android 手機/.test(device),tablet=/iPad/.test(device);
+ const computer=/^(Windows|macOS|ChromeOS|Linux)(?:\b|$)/.test(device);
+ const type=phone?'手機':tablet?'平板':computer?'電腦瀏覽模式':device?'其他／未確定類型':'無法辨識';
+ const modelText=model?modelLabel(model):computer?'未提供（一般網頁無法取得電腦品牌與型號）':/iPhone/.test(device)?'iPhone（瀏覽器未提供確切世代）':/iPad/.test(device)?'iPad（瀏覽器未提供確切世代）':'瀏覽器未提供確切型號';
+ const note=computer?'無法僅憑 Windows 或 macOS 區分桌上型電腦、筆電，也不能得知品牌。':/iPhone|iPad/.test(device)?'目前只能辨識裝置系列，不能據此判定第幾代。':!model?(/^Android/.test(device)?'部分 Android 瀏覽器會在後續造訪時補送型號；已知型號會保留。':'此瀏覽器未提供可用型號，無法判斷品牌或確切設備。'):'';
+ return {type,modelText,note,summary:[type,device,visitor.browser_name,model?modelLabel(model):''].filter(Boolean).join(' · ')};
+}
 const historyLabels = {block:'已封鎖', extend:'已延長', unblock:'已解除', expire:'自動到期'};
 const periodLabels = {0:'近 30 天', 1:'近 1 小時', 24:'近 24 小時', 168:'近 7 天'};
 const pageNames = {
@@ -157,7 +166,8 @@ export function setupVisitorAccess({container, api}) {
       const status = [browserBlock && '瀏覽器已封鎖', blockedIPs > 0 && `${blockedIPs} 個 IP 已封鎖`].filter(Boolean).join('、');
       const canBlock = !browserBlock || blockedIPs < ips.length;
       const {latest} = visitor;
-      const deviceLabel = [latest.device, latest.browser_name].filter(Boolean).join(' · ');
+      const deviceInfo=visitorDeviceInfo(latest);
+      const deviceLabel = deviceInfo.summary;
       return `<li class="visitor-row">
         <div>
           <strong>${esc(latest.nickname || '瀏覽器')} <code>${esc(visitor.code)}</code></strong>
@@ -166,7 +176,11 @@ export function setupVisitorAccess({container, api}) {
           <details>
             <summary>查看連線資料（${ips.length} 個 IP）</summary>
             <p>完整瀏覽器代號 <code>${esc(visitor.browser)}</code></p>
-            <p>設備型號 ${esc(modelLabel(latest.model || '') || '瀏覽器未提供')}</p>
+            <p>設備類型 ${esc(deviceInfo.type)}</p>
+            <p>系統 ${esc(latest.device || '瀏覽器未提供')} · 瀏覽器 ${esc(latest.browser_name || '未辨識')}</p>
+            <p>設備型號 ${esc(deviceInfo.modelText)}</p>
+            ${deviceInfo.note?`<p class="muted">${esc(deviceInfo.note)}</p>`:''}
+            <p class="muted">以上依瀏覽器回報，不能保證是實際硬體或同一個人。可用「命名」自行註記，例如「自己的筆電」。</p>
             <ul>${visitor.connections.map(connection => `<li>${esc(connection.ip || '無 IP 資料')} · 最後出現 ${esc(timestamp(connection.last_at))}</li>`).join('')}</ul>
           </details>
         </div>

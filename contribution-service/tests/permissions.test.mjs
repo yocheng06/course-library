@@ -2757,6 +2757,23 @@ test('anonymous edits publish by default and only the owner can undo the audited
   assert.equal(env.sql.prepare('SELECT COUNT(*) AS total FROM question_history WHERE question_id=?').get(communityId).total,2);
 });
 
+test('Android models may come from explicit headers or legacy UA, while reduced placeholders and desktop hints are not hardware',async()=>{
+ const env=await setup();env.LIBRARY_ASSETS={fetch:async()=>new Response('library',{headers:{'content-type':'text/html'}})};
+ const cases=[
+  {device:'Android 手機',expected:'SM-S9260',ua:'Mozilla/5.0 (Linux; Android 14; SM-S9260 Build/UP1A) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36'},
+  {device:'Android 手機',expected:'Pixel 8',ua:'Mozilla/5.0 (Linux; Android 14; en-US; Pixel 8 Build/AP1A) AppleWebKit/537.36 Chrome/120.0.0.0 Mobile Safari/537.36'},
+  {device:'Android 手機',expected:'',ua:'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 Chrome/143.0.0.0 Mobile Safari/537.36'},
+  {device:'Windows',expected:'',ua:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/143.0.0.0 Safari/537.36',model:'"SM-S9260"'},
+  {device:'Android 手機',expected:'',ua:'Mozilla/5.0 (Linux; Android 10; unknown Build/test) AppleWebKit/537.36 Chrome/143.0.0.0 Mobile Safari/537.36'},
+ ];
+ for(const [index,c] of cases.entries()){
+  const ip='192.0.2.'+(100+index),headers={'CF-Connecting-IP':ip,'user-agent':c.ua,...(c.model?{'sec-ch-ua-model':c.model}:{})};
+  const response=await worker.fetch(new Request(origin+'/course-library/',{headers}),env);assert.equal(response.status,200);
+  const visitors=(await call(env,'/api/manage/visitor-access',{reviewer:true})).data.visitors,row=visitors.find(v=>v.ip===ip);
+  assert.equal(row.device,c.device);assert.equal(row.model,c.expected);
+ }
+});
+
 test('the controlled library logs visits privately and enforces IP and browser blocks before fetching content', async()=>{
   const env=await setup();
   const reads=[];

@@ -1,7 +1,16 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {parseHTML} from 'linkedom';
-import {setupVisitorAccess} from '../assets/visitor-access.mjs';
+import {setupVisitorAccess,visitorDeviceInfo} from '../assets/visitor-access.mjs';
+
+test('device summaries distinguish known series from unavailable computer models without inventing hardware',()=>{
+ const windows=visitorDeviceInfo({device:'Windows',browser_name:'Chrome',model:''});
+ assert.equal(windows.type,'電腦瀏覽模式');assert.match(windows.summary,/Windows.*Chrome/);assert.match(windows.modelText,/無法取得電腦品牌/);assert.match(windows.note,/無法.*區分.*筆電/);
+ const iphone=visitorDeviceInfo({device:'iPhone',browser_name:'Safari',model:''});assert.equal(iphone.type,'手機');assert.match(iphone.modelText,/未提供確切世代/);assert.doesNotMatch(iphone.modelText,/iPhone \d+/);
+ const ipad=visitorDeviceInfo({device:'iPad'});assert.equal(ipad.type,'平板');
+ const android=visitorDeviceInfo({device:'Android 手機',browser_name:'Chrome',model:'SM-S9260'});assert.match(android.summary,/Galaxy S24\+/);assert.equal(android.type,'手機');
+ assert.equal(visitorDeviceInfo({}).type,'無法辨識');
+});
 
 test('filters recent visits and uses the selected record to block, extend and unblock', async () => {
   const {document, window} = parseHTML('<section id="visitors"></section>');
