@@ -99,7 +99,7 @@ test("automatic lookup uses the HTML course, then searches both courses for a fi
   assert.ok(rows[0].querySelector('a[href="os.html?question=os-test"]'));
   assert.ok(rows[0].querySelector('a[href="algorithms.html?question=alg-conflict"]'));
   assert.match(rows[1].textContent,/theta/);
-  assert.equal(rows[1].querySelector(".answer-text").textContent,"theta");
+  assert.equal(rows[1].querySelector(".batch-fill-value").textContent,"theta");
   assert.doesNotMatch(rows[1].textContent,/收錄來源/);
   assert.ok(rows[1].querySelector('a[href="algorithms.html?question=alg-only"]'));
 });
@@ -113,6 +113,32 @@ test('multi-choice answer rows separate labels from ABCDE content without changi
  assert.deepEqual([...ui.$('resultRows').querySelectorAll('.batch-choice-label')].map(n=>n.textContent),['B.','C.','D.']);
  assert.deepEqual([...ui.$('resultRows').querySelectorAll('.batch-choice-content')].map(n=>n.textContent),options.slice(1));
  ui.fire('copyAnswers','click');await tick();const copied=ui.copied.at(-1);for(const text of options.slice(1))assert(copied.includes(text));assert(!copied.includes('<span'));
+});
+
+test('fill answers copy exact original text per row and block stale copies',async()=>{
+ const answers=['22/1,S11,S12,S13,S14','2/L/3/L/3/LU','3n/2-2'];
+ const entries=answers.map((answer,i)=>toLibraryQuestion('os','scheduling',{id:'fill-copy-'+i,type:'填空題',stem:'複製測試 '+i+' ____________',options:[],answer},true));
+ const ui=await page(async url=>String(url).startsWith('assets/')?{ok:true,json:async()=>({...base,entries})}:response());
+ ui.$('batchText').value=answers.map((_,i)=>`${i+1}. 【填空題】複製測試 ${i} ____________`).join('\n\n');
+ ui.fire('batchForm','submit');
+ const buttons=[...ui.$('resultRows').querySelectorAll('.copy-row-answer')];
+ assert.equal(buttons.length,3);
+ assert.deepEqual([...ui.$('resultRows').querySelectorAll('.batch-fill-value')].map(el=>el.textContent),answers);
+ for(let i=0;i<buttons.length;i++){
+   buttons[i].dispatchEvent(new ui.context.Event('click',{bubbles:true})); await tick();
+   assert.equal(ui.copied.at(-1),answers[i]);assert.equal(buttons[i].textContent,'已複製');
+ }
+ ui.$('batchText').value+='\n changed';ui.fire('batchText','input');
+ assert(buttons.every(button=>button.disabled));
+ buttons[0].dispatchEvent(new ui.context.Event('click',{bubbles:true}));await tick();
+ assert.equal(ui.copied.length,3);
+ ui.fire('batchForm','submit');
+ const fresh=ui.$('resultRows').querySelector('.copy-row-answer');
+ ui.context.navigator.clipboard.writeText=async()=>{throw new Error('denied');};
+ let selected=false;ui.$('copyFallback').select=()=>{selected=true;};
+ fresh.dispatchEvent(new ui.context.Event('click',{bubbles:true}));await tick();
+ assert.equal(ui.$('copyFallback').hidden,false);assert.equal(ui.$('copyFallback').value,answers[0]);assert(selected);
+ assert.equal(fresh.textContent,'複製整題');
 });
 
 test('the Solaris bilingual option version remains searchable when public sync is unavailable',async()=>{
@@ -136,7 +162,7 @@ test('the L7 paired-comparison fill question matches its recorded answer without
   ui.fire('batchForm','submit');
   await tick();
   assert.match(ui.$('resultCount').textContent,/已收錄 1・待同步 0/);
-  assert.equal(ui.$('resultRows').querySelector('.answer-text').textContent,'3n/2');
+  assert.equal(ui.$('resultRows').querySelector('.batch-fill-value').textContent,'3n/2');
   assert.ok(ui.$('resultRows').querySelector('a[href="algorithms.html?question=L7-2514"]'));
   assert.equal(ui.$('coverageNotice').hidden,false);
 });

@@ -108,6 +108,9 @@ function markChanged() {
   $("courseMismatch").hidden = !courseSuggestion || stale || loading;
   $("switchCourse").disabled = stale || loading || !index;
   $("copyAnswers").disabled = stale || loading || !index || !results.length;
+  $("resultRows").querySelectorAll('.copy-row-answer').forEach(button => {
+    button.disabled = stale || loading || !index;
+  });
   const unmatchedCount = results.filter((r) => r.status === "unmatched").length;
   if (transferButton) {
     transferButton.disabled = stale || loading || !index || !snapshotCoverage || !unmatchedCount || !!courseSuggestion;
@@ -403,6 +406,9 @@ function bankAnswer(row) {
     const markup=choiceAnswerMarkup(row.question.options,row.choiceKey);
     if(markup)return markup;
   }
+  if (row.status === 'matched' && row.answer) {
+    return `<div class="batch-fill-answer"><span class="batch-fill-value">${esc(row.answer)}</span><button type="button" class="copy-row-answer" data-answer="${esc(row.answer)}" aria-label="複製第 ${esc(row.question.number)} 題完整答案">複製整題</button></div>`;
+  }
   return esc(row.answer || "尚無可確認答案");
 }
 function renderAnswer(row) {
@@ -523,6 +529,7 @@ async function copy(text) {
     $("copyFallback").hidden = true;
     $("copyHelp").hidden = true;
     message("已複製，可直接貼到 AI 或筆記。");
+    return true;
   } catch {
     $("copyFallback").value = text;
     $("copyFallback").hidden = false;
@@ -530,8 +537,17 @@ async function copy(text) {
     $("copyFallback").focus();
     $("copyFallback").select();
     message("請複製已選取的文字。");
+    return false;
   }
 }
+$("resultRows").addEventListener('click', async event => {
+  const button = event.target.closest?.('.copy-row-answer');
+  if (!button || button.disabled || isStale() || loading || !index) return;
+  $("resultRows").querySelectorAll('.copy-row-answer').forEach(other => {
+    other.textContent = '複製整題';
+  });
+  if (await copy(button.dataset.answer)) button.textContent = '已複製';
+});
 $("copyAnswers").addEventListener("click", () => {
   if (isStale() || loading || !index) return;
   const text =

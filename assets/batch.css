@@ -276,6 +276,36 @@ th:nth-child(3) {
   white-space: pre-wrap;
   font-weight: 650;
 }
+.batch-fill-answer {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  min-width: 0;
+}
+.batch-fill-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.copy-row-answer {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  color: var(--accent);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.copy-row-answer:hover:not(:disabled) { filter: brightness(0.96); }
+.copy-row-answer:disabled { opacity: 0.5; cursor: default; }
+@media (pointer: coarse) {
+  .copy-row-answer { min-height: 44px; min-width: 44px; }
+}
 .answer-condition {
   margin: 10px 0 0;
   padding: 10px;
