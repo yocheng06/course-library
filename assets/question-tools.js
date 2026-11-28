@@ -242,7 +242,7 @@
       const section = block.match(/^(核心觀念|解題步驟|判讀步驟|適用條件|選項判讀)：\s*([\s\S]*)$/);
       return section ? `<div class="explanation-section"><strong>${escape(section[1])}</strong><p>${mathMarkup(section[2], format)}</p></div>` : `<p>${mathMarkup(block, format)}</p>`;
     }).join('');
-    return window.courseHashProbing?.explanation(question,text,render) ?? render(text);
+    return window.courseAssemblyLine?.explanation(question,text,render) ?? window.courseHashProbing?.explanation(question,text,render) ?? render(text);
   }
   function qualityReasons(question, course) {
     if(question.submissionReview?.status==='pending')return ['投稿版本待核對'];

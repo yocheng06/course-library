@@ -1,0 +1,652 @@
+{
+  "date": "2026-11-28",
+  "course": "algorithms",
+  "unit": "L10",
+  "liveRevision": "8d7f1a6cda032be8d2dbcb2711791789057d9f69b24b72b6831c56766a489940",
+  "total": 60,
+  "walkthroughCount": 11,
+  "orderingRule": "topic, same verified input, single/multiple/fill within a group; different conditions retained separately",
+  "orderingIssues": [],
+  "sourceFieldsChanged": 0,
+  "groups": [
+    {
+      "input": {
+        "entry": [
+          2,
+          4
+        ],
+        "exit": [
+          3,
+          2
+        ],
+        "processing": [
+          [
+            7,
+            9,
+            3,
+            4,
+            8,
+            4
+          ],
+          [
+            8,
+            5,
+            6,
+            4,
+            5,
+            7
+          ]
+        ],
+        "transfer": [
+          [
+            null,
+            2,
+            3,
+            1,
+            3,
+            4
+          ],
+          [
+            null,
+            2,
+            1,
+            2,
+            2,
+            1
+          ]
+        ]
+      },
+      "questions": [
+        {
+          "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-11",
+          "displayNumber": 25,
+          "type": "單選題",
+          "query": {
+            "kind": "exit"
+          }
+        },
+        {
+          "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-16",
+          "displayNumber": 26,
+          "type": "單選題",
+          "query": {
+            "kind": "station",
+            "station": 6
+          }
+        },
+        {
+          "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-1",
+          "displayNumber": 27,
+          "type": "單選題",
+          "query": {
+            "kind": "station",
+            "station": 2
+          }
+        },
+        {
+          "id": "community-17ae29c9-8137-4dfa-a3df-b9f177bc0554-1",
+          "displayNumber": 28,
+          "type": "單選題",
+          "query": {
+            "kind": "station",
+            "station": 4
+          }
+        }
+      ],
+      "minimum": 38
+    },
+    {
+      "input": {
+        "entry": [
+          3,
+          2
+        ],
+        "exit": [
+          2,
+          4
+        ],
+        "processing": [
+          [
+            5,
+            8,
+            4,
+            7
+          ],
+          [
+            7,
+            3,
+            9,
+            4
+          ]
+        ],
+        "transfer": [
+          [
+            null,
+            4,
+            2,
+            3
+          ],
+          [
+            null,
+            2,
+            5,
+            1
+          ]
+        ]
+      },
+      "questions": [
+        {
+          "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-3",
+          "displayNumber": 31,
+          "type": "單選題",
+          "query": {
+            "kind": "station",
+            "station": 4
+          }
+        },
+        {
+          "id": "community-112c8eca-c416-42c6-b7e0-e7ff5f246c01-2",
+          "displayNumber": 32,
+          "type": "單選題",
+          "query": {
+            "kind": "station",
+            "station": 2
+          }
+        },
+        {
+          "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-18",
+          "displayNumber": 33,
+          "type": "填空題",
+          "query": {
+            "kind": "exit"
+          }
+        }
+      ],
+      "minimum": 29
+    },
+    {
+      "input": {
+        "entry": [
+          2,
+          3
+        ],
+        "exit": [
+          4,
+          2
+        ],
+        "processing": [
+          [
+            6,
+            3,
+            8,
+            2
+          ],
+          [
+            4,
+            7,
+            2,
+            6
+          ]
+        ],
+        "transfer": [
+          [
+            null,
+            2,
+            4,
+            3
+          ],
+          [
+            null,
+            3,
+            1,
+            5
+          ]
+        ]
+      },
+      "questions": [
+        {
+          "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-2",
+          "displayNumber": 36,
+          "type": "填空題",
+          "query": {
+            "kind": "route"
+          }
+        }
+      ],
+      "minimum": 24
+    },
+    {
+      "input": {
+        "entry": [
+          2,
+          3
+        ],
+        "exit": [
+          3,
+          2
+        ],
+        "processing": [
+          [
+            4,
+            2,
+            6,
+            3
+          ],
+          [
+            2,
+            7,
+            1,
+            5
+          ]
+        ],
+        "transfer": [
+          [
+            null,
+            3,
+            1,
+            4
+          ],
+          [
+            null,
+            2,
+            5,
+            2
+          ]
+        ]
+      },
+      "questions": [
+        {
+          "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-3",
+          "displayNumber": 37,
+          "type": "填空題",
+          "query": {
+            "kind": "other-exit"
+          }
+        },
+        {
+          "id": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-2",
+          "displayNumber": 38,
+          "type": "填空題",
+          "query": {
+            "kind": "stations",
+            "stations": [
+              2,
+              3
+            ]
+          }
+        },
+        {
+          "id": "community-21c6ff20-a210-4f58-b3e9-ec6229f8575a-1",
+          "displayNumber": 39,
+          "type": "填空題",
+          "query": {
+            "kind": "route"
+          }
+        }
+      ],
+      "minimum": 17
+    }
+  ],
+  "order": [
+    {
+      "number": 1,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-1",
+      "topic": "動態規劃基礎",
+      "type": "單選題"
+    },
+    {
+      "number": 2,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-3",
+      "topic": "動態規劃基礎",
+      "type": "單選題"
+    },
+    {
+      "number": 3,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-5",
+      "topic": "動態規劃基礎",
+      "type": "單選題"
+    },
+    {
+      "number": 4,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-6",
+      "topic": "動態規劃基礎",
+      "type": "單選題"
+    },
+    {
+      "number": 5,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-8",
+      "topic": "動態規劃基礎",
+      "type": "單選題"
+    },
+    {
+      "number": 6,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-12",
+      "topic": "動態規劃基礎",
+      "type": "單選題"
+    },
+    {
+      "number": 7,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-15",
+      "topic": "動態規劃基礎",
+      "type": "單選題"
+    },
+    {
+      "number": 8,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-2",
+      "topic": "動態規劃基礎",
+      "type": "單選題"
+    },
+    {
+      "number": 9,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-4",
+      "topic": "動態規劃基礎",
+      "type": "單選題"
+    },
+    {
+      "number": 10,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-8",
+      "topic": "動態規劃基礎",
+      "type": "單選題"
+    },
+    {
+      "number": 11,
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-7",
+      "topic": "動態規劃基礎",
+      "type": "單選題"
+    },
+    {
+      "number": 12,
+      "id": "community-edbe8d66-db58-49cd-bda7-2b4fdd85323f-2",
+      "topic": "動態規劃基礎",
+      "type": "單選題"
+    },
+    {
+      "number": 13,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-15",
+      "topic": "動態規劃基礎",
+      "type": "多選題"
+    },
+    {
+      "number": 14,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-21",
+      "topic": "動態規劃基礎",
+      "type": "多選題"
+    },
+    {
+      "number": 15,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-14",
+      "topic": "動態規劃基礎",
+      "type": "多選題"
+    },
+    {
+      "number": 16,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-16",
+      "topic": "動態規劃基礎",
+      "type": "多選題"
+    },
+    {
+      "number": 17,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-5",
+      "topic": "動態規劃基礎",
+      "type": "多選題"
+    },
+    {
+      "number": 18,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-6",
+      "topic": "動態規劃基礎",
+      "type": "多選題"
+    },
+    {
+      "number": 19,
+      "id": "community-edbe8d66-db58-49cd-bda7-2b4fdd85323f-1",
+      "topic": "動態規劃基礎",
+      "type": "多選題"
+    },
+    {
+      "number": 20,
+      "id": "community-edbe8d66-db58-49cd-bda7-2b4fdd85323f-3",
+      "topic": "動態規劃基礎",
+      "type": "多選題"
+    },
+    {
+      "number": 21,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-13",
+      "topic": "動態規劃基礎",
+      "type": "填空題"
+    },
+    {
+      "number": 22,
+      "id": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-4",
+      "topic": "動態規劃基礎",
+      "type": "填空題"
+    },
+    {
+      "number": 23,
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-4",
+      "topic": "動態規劃基礎",
+      "type": "填空題"
+    },
+    {
+      "number": 24,
+      "id": "community-17ae29c9-8137-4dfa-a3df-b9f177bc0554-2",
+      "topic": "動態規劃基礎",
+      "type": "填空題"
+    },
+    {
+      "number": 25,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-11",
+      "topic": "裝配線排程",
+      "type": "單選題"
+    },
+    {
+      "number": 26,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-16",
+      "topic": "裝配線排程",
+      "type": "單選題"
+    },
+    {
+      "number": 27,
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-1",
+      "topic": "裝配線排程",
+      "type": "單選題"
+    },
+    {
+      "number": 28,
+      "id": "community-17ae29c9-8137-4dfa-a3df-b9f177bc0554-1",
+      "topic": "裝配線排程",
+      "type": "單選題"
+    },
+    {
+      "number": 29,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-11",
+      "topic": "裝配線排程",
+      "type": "單選題"
+    },
+    {
+      "number": 30,
+      "id": "community-d2c1f4b3-8d56-47e6-8797-6a55631c4c5e-2",
+      "topic": "裝配線排程",
+      "type": "單選題"
+    },
+    {
+      "number": 31,
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-3",
+      "topic": "裝配線排程",
+      "type": "單選題"
+    },
+    {
+      "number": 32,
+      "id": "community-112c8eca-c416-42c6-b7e0-e7ff5f246c01-2",
+      "topic": "裝配線排程",
+      "type": "單選題"
+    },
+    {
+      "number": 33,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-18",
+      "topic": "裝配線排程",
+      "type": "填空題"
+    },
+    {
+      "number": 34,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-12",
+      "topic": "裝配線排程",
+      "type": "多選題"
+    },
+    {
+      "number": 35,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-7",
+      "topic": "裝配線排程",
+      "type": "多選題"
+    },
+    {
+      "number": 36,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-2",
+      "topic": "裝配線排程",
+      "type": "填空題"
+    },
+    {
+      "number": 37,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-3",
+      "topic": "裝配線排程",
+      "type": "填空題"
+    },
+    {
+      "number": 38,
+      "id": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-2",
+      "topic": "裝配線排程",
+      "type": "填空題"
+    },
+    {
+      "number": 39,
+      "id": "community-21c6ff20-a210-4f58-b3e9-ec6229f8575a-1",
+      "topic": "裝配線排程",
+      "type": "填空題"
+    },
+    {
+      "number": 40,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-13",
+      "topic": "矩陣鏈乘法",
+      "type": "多選題"
+    },
+    {
+      "number": 41,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-17",
+      "topic": "矩陣鏈乘法",
+      "type": "多選題"
+    },
+    {
+      "number": 42,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-10",
+      "topic": "矩陣鏈乘法",
+      "type": "多選題"
+    },
+    {
+      "number": 43,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-7",
+      "topic": "矩陣鏈乘法",
+      "type": "多選題"
+    },
+    {
+      "number": 44,
+      "id": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-1",
+      "topic": "矩陣鏈乘法",
+      "type": "多選題"
+    },
+    {
+      "number": 45,
+      "id": "community-112c8eca-c416-42c6-b7e0-e7ff5f246c01-1",
+      "topic": "矩陣鏈乘法",
+      "type": "多選題"
+    },
+    {
+      "number": 46,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-14",
+      "topic": "矩陣鏈乘法",
+      "type": "填空題"
+    },
+    {
+      "number": 47,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-4",
+      "topic": "矩陣鏈乘法",
+      "type": "填空題"
+    },
+    {
+      "number": 48,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-9",
+      "topic": "矩陣鏈乘法",
+      "type": "填空題"
+    },
+    {
+      "number": 49,
+      "id": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-5",
+      "topic": "矩陣鏈乘法",
+      "type": "填空題"
+    },
+    {
+      "number": 50,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-9",
+      "topic": "最長共同子序列",
+      "type": "多選題"
+    },
+    {
+      "number": 51,
+      "id": "community-d2c1f4b3-8d56-47e6-8797-6a55631c4c5e-1",
+      "topic": "最長共同子序列",
+      "type": "多選題"
+    },
+    {
+      "number": 52,
+      "id": "community-52a19fe5-8a32-4734-840e-173bbe40bad2-3",
+      "topic": "最長共同子序列",
+      "type": "多選題"
+    },
+    {
+      "number": 53,
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-5",
+      "topic": "最長共同子序列",
+      "type": "多選題"
+    },
+    {
+      "number": 54,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-10",
+      "topic": "最長共同子序列",
+      "type": "填空題"
+    },
+    {
+      "number": 55,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-19",
+      "topic": "最長共同子序列",
+      "type": "填空題"
+    },
+    {
+      "number": 56,
+      "id": "community-5a05cd8b-4425-4743-a483-f74d60393be1-20",
+      "topic": "最長共同子序列",
+      "type": "填空題"
+    },
+    {
+      "number": 57,
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-2",
+      "topic": "最長共同子序列",
+      "type": "填空題"
+    },
+    {
+      "number": 58,
+      "id": "community-1ca3ea75-24e6-406c-baab-2a7223fe1656-1",
+      "topic": "最長共同子序列",
+      "type": "填空題"
+    },
+    {
+      "number": 59,
+      "id": "community-64f54cd7-c065-4d37-82cb-4be34cfcf764-6",
+      "topic": "最長共同子序列",
+      "type": "填空題"
+    },
+    {
+      "number": 60,
+      "id": "community-ffd02832-e5a8-410a-8302-46edaf2c5e64-1",
+      "topic": "0/1 背包問題",
+      "type": "填空題"
+    }
+  ]
+}

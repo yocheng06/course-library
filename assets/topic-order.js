@@ -67,6 +67,19 @@
  function premiseKey(q){
   const text=String(q.stem||q.q||'').trim();if(!text)return null;
   let premise=normalizePremise(text);
+  const assembly=window.courseAssemblyLine?.parse(q);
+  if(assembly){const {query,...input}=assembly;premise='assembly-input:'+JSON.stringify(input);}
+  // The full input table stays in the key. Only recognized requests for output
+  // cells or a final sequence are removed; extra constraints keep a separate key.
+  if(/^最長共同子序列/.test(text)&&/已知S1\s*=/.test(text)){
+   const marker=/請完成\s*LCS\s*計算並回答/.exec(text);
+   const tail=marker&&text.slice(marker.index+marker[0].length).replace(/請完成\s*LCS\s*計算並回答/g,'').trim();
+   if(marker&&(/^根據課本的\s*回溯矩陣\s*最後輸出的\s*字串是\s*_{3,}\s*格式\s*[:：]\s*ABCD$/.test(tail)||/^(?:\s*\[\d+,\d+\]\s*_{3,}\s*\(請用數字\)\s*箭頭\s*_{3,}\s*(?:左上\s*請填\s*LU\s*上\s*請填\s*U\s*左請填\s*L)?\s*)+$/.test(tail)))premise='lcs-input:'+normalizePremise(text.slice(0,marker.index));
+  }
+  if(/^矩陣相乘/.test(text)){
+   const marker=/請回答/.exec(text),tail=marker&&text.slice(marker.index+marker[0].length).trim();
+   if(marker&&/^(?:\s*\(\d+\)\s*_{3,}\s*)+\(請用數字回答\)$/.test(tail))premise='matrix-input:'+normalizePremise(text.slice(0,marker.index));
+  }
   // Only this explicit template separates calculation inputs from requested outputs.
   // Never drop numbers, operators, order of keys, coefficients or extra conditions.
   const query=/請問陣列\s*A\[0\]\s*-\s*A\[(\d+)\]\s*的內容哪些正確/.exec(text);
@@ -88,7 +101,7 @@
   const ordered=[],byUnit=new Map();
   for(const item of decorated){const id=item.entry.unit.id;if(!byUnit.has(id))byUnit.set(id,[]);byUnit.get(id).push(item);}
   for(const [unitId,items]of byUnit){
-   if(course==='os'&&['synchronization','deadlocks','L9'].includes(unitId)){
+   if(course==='os'&&['synchronization','deadlocks','L9'].includes(unitId)||course==='algorithms'&&unitId==='L10'){
     const blocks=new Map();
     items.forEach((item,position)=>{
      const premise=premiseKey(item.entry.q),key=premise===null?item:JSON.stringify([item.topic.label,premise]);
