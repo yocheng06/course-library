@@ -1,16 +1,14 @@
 import {setupVisitorAccess} from './visitor-access.mjs?v=device-info-20261127';
 import {setupEditModeration} from './edit-moderation.mjs?v=public-edit-rollback-20261120';
-import {setupManagementMenu} from './management-menu.mjs?v=menu-position-20261118';
 import {setupAdminSecurity} from './admin-security.mjs?v=security-20261118';
 import {setupSystemPanel,usageBannerText} from './system-backup.mjs?v=traffic-protection-20261127';
 import {setupUnitManager} from './unit-manager.mjs?v=unit-english-20261127';
-import {setupLibraryHealth} from './library-health.mjs?v=admin-workflow-20261103';
+import {setupLibraryHealth} from './library-health.mjs?v=admin-workspace-20261128';
 import { api, message, downloadJSON } from './contributions-ui.js?v=treasure-unit-20261030';
-import { setupLibraryManager } from './library-manager.mjs?v=direct-links-20261127-management-workflow-20261125';
+import { setupLibraryManager } from './library-manager.mjs?v=admin-workspace-20261128';
 import { setupImportRecords } from './import-records.mjs?v=management-workflow-20261125';
 
 const $ = id => document.getElementById(id);
-setupManagementMenu(document.querySelector('.management-tools'));
 const origin = window.courseContributions.apiOrigin;
 let library = null, health = null, units = null, system = null, security = null;
 let imports = null, moderation = null, visitorAccess = null;
@@ -22,18 +20,36 @@ let lastQuestionView = 'all';
 const questionViews = new Set(['all','pending','modified','deleted']);
 
 function setActiveView(view) {
+  if (library?.closeEditor() === false) return false;
   currentView = view;
   const browsingQuestions = questionViews.has(view);
+  const needsAttention = view === 'health' || view === 'pending';
+  const section = browsingQuestions || view === 'health' ? 'questions' : ['system','security','moderation'].includes(view) ? 'settings' : view;
+  const headings = {
+    questions:['題目管理','先選科目與單元，再搜尋或點選題目編輯。'],
+    imports:['匯入紀錄','按匯入批次查看題目與處理結果。'],
+    units:['課程與單元','調整單元名稱、英文副標題與顯示順序。'],
+    visitors:['訪客與封鎖','查看訪客，管理瀏覽器與 IP 的存取。'],
+    settings:['系統設定','管理備份、用量、修改防護與帳號安全。'],
+  };
+  const [title,hint] = headings[section] || headings.questions;
+  $('managementViewTitle').textContent=title;
+  $('managementViewHint').textContent=hint;
   if (browsingQuestions) {
     lastQuestionView = view;
     if (userId) try { localStorage.setItem('course-library.manager-view.v1.' + userId, view); } catch {}
   }
   for (const button of document.querySelectorAll('[data-view]')) {
-    button.setAttribute('aria-current', button.dataset.view === view ? 'page' : 'false');
+    const selected = button.dataset.section ? button.dataset.section === section : button.closest('#managementNav') && button.dataset.view === 'health' ? needsAttention : button.dataset.view === view;
+    button.setAttribute('aria-current', selected ? 'page' : 'false');
   }
   for (const id of ['managementSearch', 'libraryWorkspace']) $(id).hidden = !browsingQuestions;
-  $('managementNav').hidden = !browsingQuestions && view!=='imports';
-  $('returnToQuestions').hidden = browsingQuestions || view==='imports';
+  $('managementNav').hidden = section !== 'questions';
+  $('managementTaskNav').hidden = !needsAttention;
+  $('managementSettingsNav').hidden = section !== 'settings';
+  $('managementDownloads').hidden = section !== 'settings';
+  $('returnToQuestions').hidden = true;
+  $('managementSearch').closest('.management-toolbar').hidden = !['questions','settings'].includes(section);
   $('systemWorkspace').hidden = view !== 'system';
   $('securityWorkspace').hidden = view !== 'security';
   $('moderationWorkspace').hidden = view !== 'moderation';
@@ -44,16 +60,17 @@ function setActiveView(view) {
   $('unitWorkspace').hidden = view !== 'units';
   $('healthWorkspace').hidden = view !== 'health';
   $('importWorkspace').hidden = view !== 'imports';
+  return true;
 }
 async function showView(view = currentView, { refresh = false } = {}) {
   if (!library || !imports) return;
-  setActiveView(view);
+  if (!setActiveView(view)) return;
   if(view==='security')await security.show();
   else if(view==='moderation')await moderation.show();
   else if(view==='visitors')await visitorAccess.show();
   else if(view==='system')await system.show();
   else if(view==='units') await units.show({refresh});
-  else if(view==='health') await health.show({refresh});
+  else if(view==='health') await health.show({refresh,course:$('libraryCourse')?.value,unit:$('libraryUnit')?.value});
   else if (view === 'imports') await imports.show({ refresh });
   else await library.show(view, { refresh });
 }
@@ -112,7 +129,7 @@ async function start() {
         const saved = localStorage.getItem('course-library.manager-view.v1.' + userId);
         if (questionViews.has(saved)) lastQuestionView = saved;
       } catch {}
-      if (!requestedSecurity) currentView = lastQuestionView;
+      if (!requestedSecurity) currentView = 'all';
       library = setupLibraryManager({
         userId,
         onChanged: () => { health?.invalidate();if (currentView==='health')return health.show({refresh:true});if (imports && currentView === 'imports') return imports.show({ refresh: true }); },

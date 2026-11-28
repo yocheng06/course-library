@@ -230,3 +230,34 @@ test('cancelled bulk confirmation makes no writes, and changed revisions must be
  const ui=dom(),rows=reviewBank(1),s=reviewServer(rows,{stale:()=>true}),manager=setupLibraryManager();await manager.show('pending');ui.$('librarySelectVisible').checked=true;ui.fire(ui.$('librarySelectVisible'),'change');globalThis.confirm=()=>false;ui.$('libraryResolveSelected').click();await tick();assert.equal(s.posts.length,0);assert.equal(rows[0].pendingReview,true);
  globalThis.confirm=()=>true;ui.$('libraryResolveSelected').click();await waitFor(()=>!ui.$('libraryRetry').hidden);assert.equal(s.posts.length,0);assert.match(ui.$('libraryError').textContent,/狀態已變更/);assert.match(ui.$('librarySelectedCount').textContent,/已選 1 題/);assert.equal(rows[0].question.answer,'A');
 });
+
+test('desktop side editor preserves drafts when moving between filtered questions and highlights the current row',async()=>{
+ const store=storage(),ui=dom(store),rows=bank(2);server(rows);
+ ui.window.matchMedia=()=>({matches:true});
+ const dialog=ui.$('questionDialog');let modalCalls=0;
+ dialog.show=()=>dialog.open=true;dialog.showModal=()=>{modalCalls++;dialog.open=true;};
+ dialog.close=()=>{dialog.open=false;ui.fire(dialog,'close');};
+ const manager=setupLibraryManager();await manager.show('all');
+ ui.document.querySelector('[data-open]').click();await waitFor(()=>ui.$('managedQuestionForm'));
+ assert.equal(modalCalls,0);assert(ui.document.body.classList.contains('manager-editor-open'));
+ assert.equal(ui.document.querySelector('.is-editing').dataset.row,rows[0].key);
+ assert.equal(ui.document.querySelector('[data-adjacent="-1"]').disabled,true);
+ const form=ui.$('managedQuestionForm');Object.defineProperty(form,'elements',{value:{namedItem:name=>form.querySelector(`[name="${name}"]`)}});
+ form.elements.namedItem('explanation').value='尚未送出的解析草稿';ui.fire(form,'input');
+ ui.document.querySelector('[data-adjacent="1"]').click();await waitFor(()=>ui.$('questionDialogTitle')?.textContent==='題目 1');
+ assert.match(store.getItem('course-library.manager-drafts.v2.'),/尚未送出的解析草稿/);
+ assert.equal(ui.document.querySelector('.is-editing').dataset.row,rows[1].key);
+ assert.equal(ui.document.querySelector('[data-adjacent="1"]').disabled,true);
+ assert.equal(manager.closeEditor(),true);assert.equal(dialog.open,false);
+ assert.equal(ui.document.querySelector('.is-editing'),null);assert.equal(ui.document.body.classList.contains('manager-editor-open'),false);
+});
+
+test('phone uses modal editor and ordinary published rows do not repeat source and ID in the list',async()=>{
+ const ui=dom(),rows=bank(1);rows[0].hasHistory=false;server(rows);ui.window.matchMedia=()=>({matches:false});
+ let modalCalls=0;ui.$('questionDialog').showModal=()=>{modalCalls++;ui.$('questionDialog').open=true;};
+ const manager=setupLibraryManager();await manager.show('all');
+ assert.equal(ui.document.querySelector('.question-row-meta'),null);
+ assert.equal(ui.document.querySelector('.state-badge').hidden,true);
+ ui.document.querySelector('[data-open]').click();await waitFor(()=>ui.$('managedQuestionForm'));
+ assert.equal(modalCalls,1);assert.match(ui.$('questionDialog').textContent,/q0/);
+});

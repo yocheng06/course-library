@@ -403,3 +403,95 @@ html[data-theme=dark] .state-badge.pending {
   .import-record-filters {grid-template-columns:repeat(2,minmax(0,1fr))}
   .import-filter-actions {grid-column:1/-1}
 }
+/* Management workspace: five destinations, contextual filters, persistent editing pane. */
+.management-page {--editor-width:min(660px,46vw)}
+.contribution-page.management-page {width:calc(100% - 40px);max-width:1600px}
+.management-shell {display:grid;grid-template-columns:180px minmax(0,1fr);gap:28px;margin-top:24px;align-items:start}
+.management-primary {display:flex;flex-direction:column;gap:6px;position:sticky;top:20px;padding:10px;border:1px solid var(--line);border-radius:14px;background:var(--card,#fff)}
+.management-primary button {font:inherit;text-align:left;border:0;background:transparent;color:var(--ink);border-radius:8px;padding:12px;min-height:46px;cursor:pointer}
+.management-primary button:hover {background:var(--soft)}
+.management-primary button[aria-current=page] {background:var(--soft);color:var(--accent);font-weight:700;box-shadow:inset 3px 0 var(--accent)}
+.management-primary .management-signout {border-top:1px solid var(--line);margin-top:12px;border-radius:0;color:var(--muted);font-size:14px}
+.management-content {min-width:0}
+.management-workspace-heading {margin-bottom:18px}
+.management-workspace-heading h2 {margin:0;font-size:24px}
+.management-workspace-heading p {margin:6px 0 0;color:var(--muted);font-size:14px}
+.management-page .management-toolbar {display:flex;flex-direction:column;gap:14px;margin:0 0 18px;padding:18px}
+.management-page .management-toolbar[hidden],.management-page [hidden] {display:none!important}
+#managementSearch,#managementNav,#managementTaskNav,#managementSettingsNav {width:100%;box-sizing:border-box}
+#librarySearch {grid-template-columns:minmax(110px,.7fr) minmax(150px,1fr) minmax(180px,1.5fr) auto;gap:12px}
+#librarySearch label {min-width:0}
+#librarySearch input,#librarySearch select {width:100%;box-sizing:border-box}
+#managementNav,#managementTaskNav,#managementSettingsNav {display:flex;flex-wrap:wrap;gap:6px;border:0;padding:0}
+#managementNav {order:-1;border-bottom:1px solid var(--line);padding-bottom:12px}
+.management-tabs button {font:inherit;border:1px solid transparent;background:transparent;color:var(--muted);padding:9px 12px;border-radius:8px;min-height:42px;cursor:pointer}
+.management-tabs button:hover {background:var(--soft)}
+.management-tabs button[aria-current=page] {background:var(--soft);color:var(--accent);font-weight:650}
+#managementNav .question-view[aria-current=page] {background:var(--soft);color:var(--accent)}
+#managementTaskNav {border-top:1px solid var(--line);padding-top:12px}
+.management-page .library-table th:nth-child(1) {width:44px}
+.management-page .library-table th:nth-child(2) {width:auto}
+.management-page .library-table th:nth-child(3) {width:90px}
+.management-page .library-table th:nth-child(4) {width:90px}
+.library-table .question-title {-webkit-line-clamp:2;font-weight:600;font-size:15px}
+.library-table td {padding:14px 12px}
+.library-table .is-editing {background:var(--soft);box-shadow:inset 3px 0 var(--accent)}
+.library-table .question-unit {font-size:12px;margin-top:7px}
+.management-downloads {margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:12px}
+.management-downloads summary {cursor:pointer;color:var(--accent)}
+.management-downloads .actions {display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.editor-adjacent {display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 22px;border-bottom:1px solid var(--line)}
+.editor-adjacent span {font-size:12px;color:var(--muted)}
+.editor-adjacent .button {padding:7px 10px;font-size:13px}
+.question-dialog .editor-header {padding:16px 22px 10px}
+.question-dialog .editor-header h2 {font-size:17px}
+.question-dialog .editor-footer {gap:10px;padding:12px 22px}
+.question-dialog .editor-scroll {padding:18px 22px}
+.question-dialog .editor-secondary-actions {gap:8px}
+.question-dialog .editor-footer .button {padding:9px 12px}
+.question-dialog .editor-tabs {padding-inline:22px}
+.management-page button:focus-visible,.question-dialog button:focus-visible {outline:3px solid var(--accent);outline-offset:3px}
+@media(min-width:1200px) {
+  body.manager-editor-open .management-page {padding-right:min(680px,calc(46vw + 20px));box-sizing:border-box;max-width:none}
+  body.manager-editor-open .management-shell {grid-template-columns:150px minmax(0,1fr);gap:18px}
+  body.manager-editor-open #librarySearch {grid-template-columns:1fr 1fr}
+  body.manager-editor-open #librarySearch .library-query {grid-column:1}
+  .question-dialog {position:fixed;inset:12px 12px 12px auto;margin:0;width:min(660px,46vw);height:calc(100dvh - 24px);max-height:none;box-sizing:border-box;border-radius:14px;box-shadow:-8px 0 32px #0002}
+  .question-dialog:modal::backdrop {background:transparent}
+}
+@media(max-width:1199px) {
+  .management-shell {grid-template-columns:1fr;gap:18px}
+  .management-primary {position:static;display:flex;flex-direction:row;flex-wrap:wrap;gap:4px;padding:8px}
+  .management-primary button {flex:1 1 auto;text-align:center;padding:10px;font-size:14px}
+  .management-primary button[aria-current=page] {box-shadow:inset 0 -3px var(--accent)}
+  .management-primary .management-signout {border:0;margin:0;flex:0 0 auto}
+}
+@media(max-width:760px) {
+  .contribution-page.management-page {width:calc(100% - 24px);margin-top:18px}
+  .management-page .page-heading h1 {font-size:24px}
+  .management-workspace-heading h2 {font-size:21px}
+  .management-primary {display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .management-primary button {font-size:13px;padding:9px 5px}
+  .management-page .management-toolbar {padding:14px}
+  #librarySearch {grid-template-columns:1fr 1fr}
+  #librarySearch .library-query {grid-column:1}
+  #librarySearch>button {grid-column:2}
+  .management-toolbar #managementSearch {grid-row:auto}
+  #managementNav .question-view {font-size:13px;padding:8px}
+  .question-dialog {position:fixed;inset:0;margin:0;width:100%;max-width:100%;height:100dvh;max-height:100dvh;border-radius:0;box-sizing:border-box}
+  .question-dialog .editor-header,.question-dialog .editor-scroll {padding-inline:16px}
+  .question-dialog .editor-header h2 {font-size:16px;max-height:4.8em}
+  .question-dialog .editor-header>[data-close] {padding:8px;font-size:13px}
+  .question-dialog .editor-footer {padding:10px 16px}
+  .question-dialog #saveQuestion {width:100%;order:-1}
+  .editor-adjacent {padding-inline:16px}
+}
+/* Reset older form placement rules before laying out the new search flow. */
+#librarySearch>label {grid-column:auto;grid-row:auto}
+#librarySearch>button {grid-row:auto}
+@media(max-width:760px) {
+ #librarySearch>label:nth-of-type(1) {grid-column:1;grid-row:1}
+ #librarySearch>label:nth-of-type(2) {grid-column:2;grid-row:1}
+ #librarySearch>.library-query {grid-column:1;grid-row:2}
+ #librarySearch>button {grid-column:2;grid-row:2}
+}

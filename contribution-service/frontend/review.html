@@ -8,7 +8,7 @@
     <link rel="icon" href="assets/icons/course-mascot.png?v=transparent-20261120" />
     <link rel="stylesheet" href="assets/contributions.css?v=workflow-improvements-20261102" />
     <link rel="stylesheet" href="assets/theme.css?v=integrated-management-20261029" />
-    <link rel="stylesheet" href="assets/management.css?v=unit-english-20261127" />
+    <link rel="stylesheet" href="assets/management.css?v=admin-workspace-20261128" />
     <script src="assets/theme.js?v=orange06-20261118" defer></script>
   </head>
   <body>
@@ -24,9 +24,8 @@
     <main id="main" class="contribution-page management-page">
       <div class="page-heading">
         <div>
-          <span class="eyebrow">管理者專區</span>
-          <h1>題庫管理</h1>
-          <p>搜尋所有題目、查看修改前後內容，或還原已移除的題目。</p>
+          <h1>管理者專區</h1>
+          <p>找題、整理單元與管理網站。</p>
         </div>
       </div>
 
@@ -52,36 +51,34 @@
       </section>
 
       <section id="managementArea" hidden aria-label="管理題庫">
-        <div id="managementTabs" class="management-toolbar panel">
+        <div id="managementTabs" class="management-shell">
+          <nav class="management-primary" aria-label="管理者專區">
+            <button type="button" data-section="questions" data-view="all" aria-current="page">題目管理</button>
+            <button type="button" data-section="imports" data-view="imports">匯入紀錄</button>
+            <button type="button" data-section="units" data-view="units">課程與單元</button>
+            <button type="button" data-section="visitors" data-view="visitors">訪客與封鎖</button>
+            <button type="button" data-section="settings" data-view="system">系統設定</button>
+            <button type="button" class="text-button management-signout" id="signOut">登出</button>
+          </nav>
+          <div class="management-content">
+          <header class="management-workspace-heading"><h2 id="managementViewTitle">題目管理</h2><p id="managementViewHint">先選科目與單元，再搜尋或點選題目編輯。</p></header>
+          <div class="management-toolbar panel">
           <div id="managementSearch"></div>
           <button type="button" class="button secondary" id="returnToQuestions" hidden>返回題目清單</button>
-          <details class="management-tools">
-            <summary class="text-button">工具與設定</summary>
-            <div class="management-tool-menu">
-              <div class="management-tool-group" role="group" aria-labelledby="organizeTools">
-                <h2 id="organizeTools">整理題庫</h2>
-                <button type="button" class="text-button" data-view="units">管理單元</button>
-                <button type="button" class="text-button" data-view="health">題庫健檢</button>
-                <button type="button" class="text-button" id="exportQuestionDrafts">下載題目編輯草稿</button>
-                <button type="button" class="text-button" id="exportImportDrafts">下載匯入紀錄草稿</button>
-              </div>
-              <div class="management-tool-group" role="group" aria-labelledby="siteTools">
-                <h2 id="siteTools">站台設定</h2>
-                <button type="button" class="text-button" id="exportBackup">完整備份與檢查</button>
-                <button type="button" class="text-button" data-view="system">版本、流量與用量</button>
-                <button type="button" class="text-button" data-view="visitors">訪客與封鎖</button>
-                <button type="button" class="text-button" data-view="moderation">改題安全</button>
-                <button type="button" class="text-button" data-view="security">帳號安全</button>
-                <button type="button" class="text-button" id="signOut">登出</button>
-              </div>
-            </div>
-          </details>
           <nav id="managementNav" class="management-tabs" aria-label="題庫管理導覽">
             <button type="button" class="question-view" data-view="all" aria-current="page">全部題目 <span class="count-badge" data-count="all">—</span></button>
-            <button type="button" class="question-view" data-view="pending" aria-current="false">待核對 <span class="count-badge" data-count="pending">—</span></button>
+            <button type="button" class="question-view" data-view="health" aria-current="false">需要處理</button>
             <button type="button" class="question-view" data-view="modified" aria-current="false">最近修改 <span class="count-badge" data-count="modified">—</span></button>
             <button type="button" class="question-view" data-view="deleted" aria-current="false">已移除 <span class="count-badge" data-count="deleted">—</span></button>
-            <button type="button" class="question-view" data-view="imports" aria-current="false">匯入紀錄</button>
+          </nav>
+          <nav id="managementTaskNav" class="management-tabs" aria-label="需要處理的題目" hidden>
+            <button type="button" data-view="health">資料完整性</button>
+            <button type="button" data-view="pending">投稿待核對 <span class="count-badge" data-count="pending">—</span></button>
+          </nav>
+          <nav id="managementSettingsNav" class="management-tabs" aria-label="系統設定" hidden>
+            <button type="button" data-view="system">備份與用量</button>
+            <button type="button" data-view="moderation">修改紀錄與防護</button>
+            <button type="button" data-view="security">帳號安全</button>
           </nav>
         </div>
         <p id="trafficNotice" class="warning" role="status" aria-live="polite" hidden></p>
@@ -91,15 +88,21 @@
         <section id="moderationWorkspace" class="panel" hidden aria-label="改題安全"></section>
         <section id="securityWorkspace" class="panel" hidden aria-label="帳號安全"></section>
         <section id="systemWorkspace" class="panel" hidden aria-label="版本與完整備份"></section>
-        <section id="healthWorkspace" hidden aria-label="題庫健檢"></section>
+        <section id="healthWorkspace" hidden aria-label="資料完整性"></section>
         <section id="importWorkspace" class="import-records" hidden aria-label="匯入紀錄管理"></section>
+        <details id="managementDownloads" class="management-downloads" hidden>
+          <summary>草稿下載與完整備份</summary>
+          <div class="actions"><button type="button" class="button secondary" id="exportQuestionDrafts">下載題目編輯草稿</button><button type="button" class="button secondary" id="exportImportDrafts">下載匯入紀錄草稿</button><button type="button" class="button secondary" id="exportBackup">完整備份與檢查</button></div>
+        </details>
+          </div>
+        </div>
       </section>
       <p id="message" class="message" role="status" aria-live="polite" tabindex="-1"></p>
     </main>
 
     <dialog id="questionDialog" class="question-dialog" aria-labelledby="questionDialogTitle"></dialog>
     <script src="assets/contributions-config.js?v=orange06-20261118"></script>
-    <script type="module" src="assets/contributions-review.js?v=direct-links-20261127"></script>
+    <script type="module" src="assets/contributions-review.js?v=admin-workspace-20261128"></script>
     <noscript>請開啟 JavaScript 使用題庫管理功能。</noscript>
   </body>
 </html>

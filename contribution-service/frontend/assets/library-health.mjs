@@ -23,7 +23,7 @@ export function analyzeLibrary(items) {
 
 export function setupLibraryHealth({container,openItem,onChanged=()=>{}}) {
   let rows=[],visible=25,stamp=0,loadedCourse='',imageResults=new Map(),checking=false,complete=true;
-  container.innerHTML=`<div class="library-heading"><div><h2>題庫健檢</h2><p>只檢查資料完整性與版本差異，不判定老師答案對錯、不自動刪題。疑似重複可能是不同選項版本。</p></div><button type="button" class="button secondary" data-health-refresh>重新檢查題庫</button></div><div class="library-filters"><label>科目<select data-health-course>${Object.entries(COURSE_UNITS).map(([id,c])=>`<option value="${id}">${esc(c.name)}</option>`).join('')}</select></label><label>單元<select data-health-unit><option value="">全部單元</option></select></label><label>問題類型<select data-health-filter><option value="all">全部問題</option>${['缺解析','缺答案','答案無法對應選項','疑似重複','圖片無法確認'].map(n=>`<option>${n}</option>`).join('')}</select></label><button type="button" class="button secondary" data-health-images>檢查題圖連結</button><button type="button" class="button secondary" data-health-stop hidden>停止檢查圖片</button></div><p data-health-status role="status" aria-live="polite"></p><div data-health-rows></div><button type="button" class="button secondary" data-health-more hidden>載入更多</button>`;
+  container.innerHTML=`<div class="library-heading"><div><h2>資料完整性</h2><p>選擇要補齊的內容，再點「編輯此題」。相似題只供比對，可能是不同版本。</p></div><button type="button" class="button secondary" data-health-refresh>重新檢查</button></div><div class="library-filters"><label>科目<select data-health-course>${Object.entries(COURSE_UNITS).map(([id,c])=>`<option value="${id}">${esc(c.name)}</option>`).join('')}</select></label><label>單元<select data-health-unit><option value="">全部單元</option></select></label><label>處理原因<select data-health-filter><option value="all">全部問題</option>${['缺解析','缺答案','答案無法對應選項','疑似重複','圖片無法確認'].map(n=>`<option>${n}</option>`).join('')}</select></label><button type="button" class="button secondary" data-health-images>檢查題圖連結</button><button type="button" class="button secondary" data-health-stop hidden>停止檢查圖片</button></div><p data-health-status role="status" aria-live="polite"></p><div data-health-rows></div><button type="button" class="button secondary" data-health-more hidden>載入更多</button>`;
   const $=sel=>container.querySelector(sel);
   function matching(){return rows.filter(r=>(!$('[data-health-unit]').value||r.unit===$('[data-health-unit]').value)&&(r.issues.length||imageResults.get(r.id)==='無法確認')).filter(r=>$('[data-health-filter]').value==='all'||($('[data-health-filter]').value==='圖片無法確認'?imageResults.get(r.id)==='無法確認':r.issues.includes($('[data-health-filter]').value)));}
   function render(){
@@ -34,16 +34,17 @@ export function setupLibraryHealth({container,openItem,onChanged=()=>{}}) {
     $('[data-health-stop]').hidden=!checking;
     $('[data-health-status]').textContent=`${complete?'':'題目超過單次上限，目前只顯示部分投稿。'}已檢查 ${rows.length} 題 · ${counts}。本篩選符合 ${list.length} 題，顯示 ${Math.min(visible,list.length)} 題。題圖已檢查 ${imageResults.size} 題、無法確認 ${[...imageResults.values()].filter(v=>v==='無法確認').length} 題${checking?'（檢查中）':''}。`;
   }
-  async function show({refresh=false}={}){
+  async function show({refresh=false,course:requestedCourse,unit:requestedUnit}={}){
+    if(requestedCourse&&COURSE_UNITS[requestedCourse])$('[data-health-course]').value=requestedCourse;
     const course=$('[data-health-course]').value;
-    if(!refresh&&loadedCourse===course){render();return;}
+    if(!refresh&&loadedCourse===course){if(requestedUnit!==undefined&&[...$('[data-health-unit]').options].some(o=>o.value===requestedUnit))$('[data-health-unit]').value=requestedUnit;render();return;}
     const request=++stamp;checking=false;$('[data-health-images]').disabled=false;
     $('[data-health-status]').textContent='正在檢查最新題庫；原有清單仍可查看…';$('[data-health-refresh]').disabled=true;
     try{
       const data=await api('/api/manage/health?course='+encodeURIComponent(course));if(request!==stamp)return;
       rows=analyzeLibrary(data.items);complete=data.complete!==false;loadedCourse=course;imageResults.clear();visible=25;
-      const units=[...new Map(rows.map(r=>[r.unit,r.unitTitle||''])).entries()];
-      $('[data-health-unit]').innerHTML='<option value="">全部單元</option>'+units.map(([id,title])=>`<option value="${esc(id)}">${esc(unitLabel(course,id,title))}</option>`).join('');render();
+      const units=[...new Map(rows.map(r=>[r.unit,r.unitLabel||unitLabel(course,r.unit,r.unitTitle)])).entries()];
+      $('[data-health-unit]').innerHTML='<option value="">全部單元</option>'+units.map(([id,title])=>`<option value="${esc(id)}">${esc(title)}</option>`).join('');if(requestedUnit!==undefined&&units.some(([id])=>id===requestedUnit))$('[data-health-unit]').value=requestedUnit;render();
     }catch(error){if(request===stamp)$('[data-health-status]').textContent='檢查未完成：'+error.message+'。已載入的清單仍保留，可按重新檢查重試。';}
     finally{if(request===stamp)$('[data-health-refresh]').disabled=false;}
   }
