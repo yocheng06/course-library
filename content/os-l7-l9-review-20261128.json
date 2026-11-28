@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-28",
+  "course": "os",
+  "status": "published to Cloudflare; live assets verified",
+  "deployment": {
+    "versionId": "f90a4dc9-a92e-4c91-808b-3e032d18279b",
+    "url": "https://course-library-submissions.orange06.workers.dev/course-library/os.html",
+    "verifiedAssets": ["os.html", "assets/os-content-explanations.json", "assets/topic-order.js"]
+  },
+  "topicAndTypeRule": "Group by topic; order single choice, multiple choice, then fill-in; keep same-premise variants adjacent and order them by question type.",
+  "units": {
+    "L7": {
+      "reviewed": 173,
+      "baseActive": 135,
+      "communitySnapshotRows": 38,
+      "knownAliasRowsSkipped": 0,
+      "deletedByOverrides": 2,
+      "missingExplanationsFilled": 8,
+      "improvedExistingExplanation": "os7-009",
+      "categoriesCorrected": 8,
+      "missingOrInvalidExplanationsAfter": 0
+    },
+    "L8": {
+      "reviewed": 180,
+      "baseActive": 130,
+      "communitySnapshotRows": 81,
+      "knownAliasRowsSkipped": 31,
+      "deletedByOverrides": 4,
+      "blankExplanationsFilled": 8,
+      "placeholderExplanationsRewritten": 5,
+      "categoriesCorrected": 4,
+      "missingOrInvalidExplanationsAfter": 0
+    },
+    "L9": {
+      "reviewed": 141,
+      "baseActive": 0,
+      "communitySnapshotRows": 141,
+      "knownAliasRowsSkipped": 0,
+      "deletedByOverrides": 0,
+      "missingExplanationsFilled": 64,
+      "categoriesCorrected": 64,
+      "missingOrInvalidExplanationsAfter": 0,
+      "identityAudit": {
+        "exact": 118,
+        "onlyBlankMarkersRemoved": 23
+      }
+    }
+  },
+  "orderingAudit": {
+    "L7": {
+      "uncataloguedTopics": 0,
+      "topicOrderRegressions": 0,
+      "topicTypeRegressions": 0,
+      "noncontiguousSamePremiseGroups": 0,
+      "typeOrderErrorsWithinVariants": 0
+    },
+    "L8": {
+      "uncataloguedTopics": 0,
+      "topicOrderRegressions": 0,
+      "topicTypeRegressions": 0,
+      "noncontiguousSamePremiseGroups": 0,
+      "typeOrderErrorsWithinVariants": 0
+    },
+    "L9": {
+      "uncataloguedTopics": 0,
+      "topicOrderRegressions": 0,
+      "topicTypeRegressions": 0,
+      "noncontiguousSamePremiseGroups": 0,
+      "typeOrderErrorsWithinVariants": 0
+    }
+  },
+  "sourceStemsOptionsAnswersChanged": 0,
+  "preserved": [
+    "question stems",
+    "options",
+    "answers",
+    "question IDs",
+    "other units"
+  ]
+}

@@ -47,7 +47,7 @@
  };
  const cache=new WeakMap(),views=new WeakMap();
  function topic(question,course,unit){
-  const key=course+'/'+unit,raw=String(((course==='os'&&['synchronization','L9'].includes(unit)||course==='algorithms'&&unit==='L8')?(typeof window==='object'?window:globalThis).courseExplanationContent?.category(question):null)??question.category??'').trim(),stem=String(question.stem??question.q??'');
+  const key=course+'/'+unit,raw=String(((course==='os'&&['synchronization','deadlocks','L9'].includes(unit)||course==='algorithms'&&unit==='L8')?(typeof window==='object'?window:globalThis).courseExplanationContent?.category(question):null)??question.category??'').trim(),stem=String(question.stem??question.q??'');
   const old=cache.get(question);if(old?.key===key&&old.raw===raw&&old.stem===stem)return old.result;
   const names=catalogs[key]??[],alias=aliases[key]?.[raw];let label=alias||raw;
   if(!alias&&generic.has(raw)){
@@ -85,14 +85,36 @@
  function sort(entries,course,unitRank,legacyRank=entry=>entry.i??0){
   const decorated=entries.map((entry,index)=>({entry,index,topic:topic(entry.q,course,entry.unit.id),type:typeRank(entry.q),unit:unitRank(entry),legacy:legacyRank(entry)}));
   decorated.sort((a,b)=>a.unit-b.unit||a.topic.rank-b.topic.rank||(a.topic.label===b.topic.label?0:a.topic.label.localeCompare(b.topic.label,'zh-Hant'))||a.type-b.type||a.legacy-b.legacy||a.index-b.index);
-  const groups=new Map();
-  decorated.forEach((item,position)=>{
-   const premise=premiseKey(item.entry.q),key=JSON.stringify([item.entry.unit.id,item.topic.label,premise]);
-   if(premise!==null&&!groups.has(key))groups.set(key,position);
-   item.anchor=premise===null?position:groups.get(key);
-  });
-  decorated.sort((a,b)=>a.anchor-b.anchor||a.type-b.type||a.legacy-b.legacy||a.index-b.index);
-  const numbers=new Map();return decorated.map(({entry,topic})=>{entry.topicLabel=topic.label;const n=(numbers.get(entry.unit.id)??0)+1;numbers.set(entry.unit.id,n);entry.displayNumber=n;return entry;});
+  const ordered=[],byUnit=new Map();
+  for(const item of decorated){const id=item.entry.unit.id;if(!byUnit.has(id))byUnit.set(id,[]);byUnit.get(id).push(item);}
+  for(const [unitId,items]of byUnit){
+   if(course==='os'&&['synchronization','deadlocks','L9'].includes(unitId)){
+    const blocks=new Map();
+    items.forEach((item,position)=>{
+     const premise=premiseKey(item.entry.q),key=premise===null?item:JSON.stringify([item.topic.label,premise]);
+     if(!blocks.has(key))blocks.set(key,{items:[],topic:item.topic,firstPosition:position});
+     blocks.get(key).items.push(item);
+    });
+    const grouped=[...blocks.values()];
+    for(const block of grouped){
+     block.items.sort((a,b)=>a.type-b.type||a.legacy-b.legacy||a.index-b.index);
+     block.minType=Math.min(...block.items.map(item=>item.type));
+     block.maxType=Math.max(...block.items.map(item=>item.type));
+    }
+    grouped.sort((a,b)=>a.topic.rank-b.topic.rank||(a.topic.label===b.topic.label?0:a.topic.label.localeCompare(b.topic.label,'zh-Hant'))||a.minType-b.minType||a.maxType-b.maxType||a.firstPosition-b.firstPosition);
+    ordered.push(...grouped.flatMap(block=>block.items));
+   }else{
+    const groups=new Map();
+    items.forEach((item,position)=>{
+     const premise=premiseKey(item.entry.q),key=JSON.stringify([item.entry.unit.id,item.topic.label,premise]);
+     if(premise!==null&&!groups.has(key))groups.set(key,position);
+     item.anchor=premise===null?position:groups.get(key);
+    });
+    items.sort((a,b)=>a.anchor-b.anchor||a.type-b.type||a.legacy-b.legacy||a.index-b.index);
+    ordered.push(...items);
+   }
+  }
+  const numbers=new Map();return ordered.map(({entry,topic})=>{entry.topicLabel=topic.label;const n=(numbers.get(entry.unit.id)??0)+1;numbers.set(entry.unit.id,n);entry.displayNumber=n;return entry;});
  }
  (typeof window==='undefined'?globalThis:window).courseTopicOrder={topic,view,typeRank,premiseKey,sort,catalogs};
 })();

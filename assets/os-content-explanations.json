@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "course": "os",
-  "date": "2026-11-18",
+  "date": "2026-11-28",
   "questions": {
     "basics-1": {
       "versions": [
@@ -3759,6 +3759,12 @@
           "sourceExplanation": "記憶體保護避免一個使用者程序任意讀寫其他程序或作業系統的記憶體，維持彼此隔離與正確執行。CPU 時脈速度不是記憶體保護目標，所以選 B、C、D。",
           "category": "記憶體保護",
           "explanation": "記憶體保護像替各程序劃出可使用的房間：一個程序不能任意修改其他程序或核心的資料。它能防止越界寫入破壞執行結果，支援程序之間隔離，也保護作業系統。\n\n因此「程序互不影響」「作業系統不受使用者程序影響」及「確保程式正確運作」符合目標。這裡的正確運作指防止非法記憶體存取干擾，並不保證程式沒有邏輯錯誤；提高 CPU 時脈則與此保護機制無關。"
+        },
+        {
+          "identity": "[\"多選題\",\"哪些是記憶體保護 (Protection of Memory) 的目標？\",[\"提高 CPU 的時脈速度\",\"確保程式執行的正確性\",\"確保使用者程序之間互不影響\",\"確保作業系統不受使用者程序影響\"],\"B、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "記憶體保護像替各程序劃出可使用的房間：一個程序不能任意修改其他程序或核心的資料。它能防止越界寫入破壞執行結果，支援程序之間隔離，也保護作業系統。\n\n因此「程序互不影響」「作業系統不受使用者程序影響」及「確保程式正確運作」符合目標。這裡的正確運作指防止非法記憶體存取干擾，並不保證程式沒有邏輯錯誤；提高 CPU 時脈則與此保護機制無關。",
+          "category": "記憶體保護"
         }
       ]
     },
@@ -3769,6 +3775,12 @@
           "sourceExplanation": "可用邏輯位址須滿足 0 ≤ address < limit。base 代表程序實體區域起點，通過界限檢查後再加上 address；所以選 B、D。",
           "category": "記憶體保護",
           "explanation": "先檢查邏輯位址，再加上基底：合法條件是 0 ≤ logical address < limit，通過後 physical address = base + logical address。\n\n例如 limit = 100，從 0 起算只有 0～99 共 100 個位置，所以等於 limit 已越界，不能使用 ≤ limit。Base 是實體起點，不能拿邏輯位址是否小於 base 來判定合法；負位址也不在此範圍內。"
+        },
+        {
+          "identity": "[\"多選題\",\"In memory protection, which conditions are jointly checked using the Base Register and Limit Register?\",[\"Logical address < Base Register\",\"Logical address < Limit Register\",\"Logical address ≤ Limit Register\",\"Logical address ≥ 0\"],\"B、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "先檢查邏輯位址，再加上基底：合法條件是 0 ≤ logical address < limit，通過後 physical address = base + logical address。\n\n例如 limit = 100，從 0 起算只有 0～99 共 100 個位置，所以等於 limit 已越界，不能使用 ≤ limit。Base 是實體起點，不能拿邏輯位址是否小於 base 來判定合法；負位址也不在此範圍內。",
+          "category": "記憶體保護"
         }
       ]
     },
@@ -3779,6 +3791,12 @@
           "sourceExplanation": "合法的邏輯位址必須同時滿足大於或等於 0、且小於 limit。base 是程序可用實體記憶體範圍的起點，通過檢查後再以 base + 邏輯位址得到實體位址，所以選 A、D。",
           "category": "記憶體保護",
           "explanation": "先檢查邏輯位址，再加上基底：合法條件是 0 ≤ logical address < limit，通過後 physical address = base + logical address。\n\n例如 limit = 100，從 0 起算只有 0～99 共 100 個位置，所以等於 limit 已越界，不能使用 ≤ limit。Base 是實體起點，不能拿邏輯位址是否小於 base 來判定合法；負位址也不在此範圍內。"
+        },
+        {
+          "identity": "[\"多選題\",\"記憶體保護機制中，基底暫存器 (Base Register) 和限制暫存器 (Limit Register) 共同用來檢查哪些條件？\",[\"邏輯地址 < 限制暫存器\",\"邏輯地址 < 基底暫存器\",\"邏輯地址 ≤ 限制暫存器\",\"邏輯地址 ≥ 0\"],\"A、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "先檢查邏輯位址，再加上基底：合法條件是 0 ≤ logical address < limit，通過後 physical address = base + logical address。\n\n例如 limit = 100，從 0 起算只有 0～99 共 100 個位置，所以等於 limit 已越界，不能使用 ≤ limit。Base 是實體起點，不能拿邏輯位址是否小於 base 來判定合法；負位址也不在此範圍內。",
+          "category": "記憶體保護"
         }
       ]
     },
@@ -3789,6 +3807,12 @@
           "sourceExplanation": "若編譯時已知道程式會放在哪個記憶體位置，編譯器可直接產生固定實體位置的 absolute code。若位置要等載入時才決定，才需要 relocatable code，因此選 B。",
           "category": "位址繫結",
           "explanation": "編譯時若已知道程式的實體放置位置，就可產生 absolute code（絕對程式碼），把相關位址固定下來。\n\n例如編譯時假定起點是 1000，某資料就直接使用 1040；若之後改放到 3000，這個固定位置便不再適用，通常須重新編譯。Relocatable code 是位置留待後續調整的版本，dynamic／virtual 並不是此階段對應的程式碼類型。"
+        },
+        {
+          "identity": "[\"單選題\",\"如果地址綁定在編譯時發生，則程式碼將生成為什麼類型？\",[\"虛擬程式碼 (Virtual Code)\",\"絕對程式碼 (Absolute Code)\",\"可重定位程式碼 (Relocatable Code)\",\"動態程式碼 (Dynamic Code)\"],\"B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "編譯時若已知道程式的實體放置位置，就可產生 absolute code（絕對程式碼），把相關位址固定下來。\n\n例如編譯時假定起點是 1000，某資料就直接使用 1040；若之後改放到 3000，這個固定位置便不再適用，通常須重新編譯。Relocatable code 是位置留待後續調整的版本，dynamic／virtual 並不是此階段對應的程式碼類型。",
+          "category": "位址繫結"
         }
       ]
     },
@@ -3799,6 +3823,12 @@
           "sourceExplanation": "執行時繫結由 MMU 在每次位址轉換時把程式使用的邏輯位址映到目前的實體位置，因此程序可在執行中搬移，但程式碼必須可重定位。這三項對應 A、B、C；absolute code 會固定位置，故 D 不對。",
           "category": "位址繫結",
           "explanation": "執行時繫結把邏輯位址到實體位址的轉換交給 MMU，在存取當下依目前映射決定位置。程序可在執行期間搬移，位址映射與程式內容也必須允許重定位。\n\n可想成程式一直使用同一組房間編號，由管理員更新它實際對應哪棟樓。「MMU 處理轉換」「允許搬移」「可重定位」符合此模型；生成固定實體位址的 absolute code 則與這種彈性相衝突。"
+        },
+        {
+          "identity": "[\"多選題\",\"執行時地址綁定 (Execution Time Address Binding) 具有哪些特性？\",[\"程式碼必須是可重定位的\",\"地址轉換由 MMU 處理\",\"允許程序在執行期間移動\",\"生成絕對程式碼\"],\"A、B、C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "執行時繫結把邏輯位址到實體位址的轉換交給 MMU，在存取當下依目前映射決定位置。程序可在執行期間搬移，位址映射與程式內容也必須允許重定位。\n\n可想成程式一直使用同一組房間編號，由管理員更新它實際對應哪棟樓。「MMU 處理轉換」「允許搬移」「可重定位」符合此模型；生成固定實體位址的 absolute code 則與這種彈性相衝突。",
+          "category": "位址繫結"
         }
       ]
     },
@@ -3809,6 +3839,12 @@
           "sourceExplanation": "在分頁中，分配單位是整個 page/frame；若資料用不到最後一頁的全部空間，浪費留在分配區塊內，稱為 internal fragmentation，選 A。",
           "category": "連續配置與碎片",
           "explanation": "內部碎片是「已分配區塊裡面」沒用到的空間。分頁以固定大小頁框配置，程序最後一頁往往無法填滿。\n\n例如頁面 4 KB、資料共 10 KB，要配置 3 頁共 12 KB，最後剩 2 KB，即 internal fragmentation。總空閒量足夠卻不相鄰描述的是外部碎片；純分段採可變大小段，典型問題是外部碎片。Swapping 是搬出／載回，dynamic linking 是連結方式；stack overflow 與 memory leak 也不是區塊尾端浪費的名稱。填空填 internal。"
+        },
+        {
+          "identity": "[\"單選題\",\"在分頁中，當分配給程序的一塊記憶體大於所需時，造成的浪費稱為？\",[\"內部碎片 (Internal Fragmentation)\",\"外部碎片 (External Fragmentation)\",\"堆疊溢位 (Stack Overflow)\",\"記憶體流失 (Memory Leakage)\"],\"A\",[]]",
+          "sourceExplanation": "",
+          "explanation": "內部碎片是「已分配區塊裡面」沒用到的空間。分頁以固定大小頁框配置，程序最後一頁往往無法填滿。\n\n例如頁面 4 KB、資料共 10 KB，要配置 3 頁共 12 KB，最後剩 2 KB，即 internal fragmentation。總空閒量足夠卻不相鄰描述的是外部碎片；純分段採可變大小段，典型問題是外部碎片。Swapping 是搬出／載回，dynamic linking 是連結方式；stack overflow 與 memory leak 也不是區塊尾端浪費的名稱。填空填 internal。",
+          "category": "連續配置與碎片"
         }
       ]
     },
@@ -3819,6 +3855,12 @@
           "sourceExplanation": "分頁讓同一程序的 pages 放進不相鄰的 frames，因此不必尋找一整塊連續空間，可消除外部碎片（A、D）。最後一頁仍可能有未用滿的空間，所以分頁不會消除內部碎片；答案為 A、D。",
           "category": "連續配置與碎片",
           "explanation": "先把程序切成等大的 pages，再把每頁放到任一可用 frame，頁表負責記錄對應。因此程序在實體記憶體中可以不連續，也不用再找到一整塊大空洞，能消除這種配置的外部碎片。\n\n例如 3 頁資料可分放 frame 2、8、15。最後一頁仍可能用不滿，故不能選「消除內部碎片」。分頁確實可搭配逐頁權限，但「簡化記憶體保護」不是這題問的解除連續空間限制的直接效果。"
+        },
+        {
+          "identity": "[\"多選題\",\"How does the Paging mechanism solve the problems associated with contiguous memory allocation?\",[\"Allows a program to be non-contiguous in memory\",\"Eliminates internal fragmentation\",\"Simplifies memory protection\",\"Eliminates external fragmentation\"],\"A、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "先把程序切成等大的 pages，再把每頁放到任一可用 frame，頁表負責記錄對應。因此程序在實體記憶體中可以不連續，也不用再找到一整塊大空洞，能消除這種配置的外部碎片。\n\n例如 3 頁資料可分放 frame 2、8、15。最後一頁仍可能用不滿，故不能選「消除內部碎片」。分頁確實可搭配逐頁權限，但「簡化記憶體保護」不是這題問的解除連續空間限制的直接效果。",
+          "category": "連續配置與碎片"
         }
       ]
     },
@@ -3829,6 +3871,12 @@
           "sourceExplanation": "內部碎片發生在已分配給程序的區塊內：區塊比實際需求大，剩餘部分無法拿給其他程序用。分頁以固定大小頁框配置，最後一頁常留下少量空間，因此 C、D 正確。",
           "category": "連續配置與碎片",
           "explanation": "內部碎片是「已分配區塊裡面」沒用到的空間。分頁以固定大小頁框配置，程序最後一頁往往無法填滿。\n\n例如頁面 4 KB、資料共 10 KB，要配置 3 頁共 12 KB，最後剩 2 KB，即 internal fragmentation。總空閒量足夠卻不相鄰描述的是外部碎片；純分段採可變大小段，典型問題是外部碎片。Swapping 是搬出／載回，dynamic linking 是連結方式；stack overflow 與 memory leak 也不是區塊尾端浪費的名稱。填空填 internal。"
+        },
+        {
+          "identity": "[\"多選題\",\"Regarding Internal Fragmentation, which statements are correct?\",[\"Occurs in the Segmentation mechanism\",\"Total available space is sufficient but not contiguous\",\"Is caused by the allocated block being larger than the process requires\",\"Occurs in the Paging mechanism\"],\"C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "內部碎片是「已分配區塊裡面」沒用到的空間。分頁以固定大小頁框配置，程序最後一頁往往無法填滿。\n\n例如頁面 4 KB、資料共 10 KB，要配置 3 頁共 12 KB，最後剩 2 KB，即 internal fragmentation。總空閒量足夠卻不相鄰描述的是外部碎片；純分段採可變大小段，典型問題是外部碎片。Swapping 是搬出／載回，dynamic linking 是連結方式；stack overflow 與 memory leak 也不是區塊尾端浪費的名稱。填空填 internal。",
+          "category": "連續配置與碎片"
         }
       ]
     },
@@ -3839,6 +3887,12 @@
           "sourceExplanation": "處理外部碎片可用 compaction 把分散空間合併，或改採 paging，不再要求程序佔用一塊連續實體空間。Segmentation 與 first-fit 本身仍可能留下外部碎片，所以依題庫選 A、D。",
           "category": "連續配置與碎片",
           "explanation": "處理外部碎片有兩個思路：compaction 搬移已用區塊，把分散空洞合併；paging 改用等大頁框配置，讓程序不必占一整塊連續空間。\n\n例如 3 KB 與 5 KB 空洞經壓縮可合成 8 KB。First-fit 只決定先挑哪個洞，仍會留下零散空間；純 segmentation 的段也需各自連續，仍可能有外部碎片。壓縮需要支援執行時重定位，且有搬移成本；填空填 compaction。"
+        },
+        {
+          "identity": "[\"多選題\",\"哪些策略可用於處理連續記憶體分配中的外部碎片？\",[\"分頁 (Paging)\",\"分段 (Segmentation)\",\"首次適配 (First-fit)\",\"壓縮 (Compaction)\"],\"A、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "處理外部碎片有兩個思路：compaction 搬移已用區塊，把分散空洞合併；paging 改用等大頁框配置，讓程序不必占一整塊連續空間。\n\n例如 3 KB 與 5 KB 空洞經壓縮可合成 8 KB。First-fit 只決定先挑哪個洞，仍會留下零散空間；純 segmentation 的段也需各自連續，仍可能有外部碎片。壓縮需要支援執行時重定位，且有搬移成本；填空填 compaction。",
+          "category": "連續配置與碎片"
         }
       ]
     },
@@ -3849,6 +3903,12 @@
           "sourceExplanation": "Paging 允許一個程序的頁分散放在多個 frame，因此不必找到足夠大的連續區塊，能消除外部碎片。它仍可能有最後一頁未用滿造成的內部碎片，故 B、D 正確。",
           "category": "連續配置與碎片",
           "explanation": "先把程序切成等大的 pages，再把每頁放到任一可用 frame，頁表負責記錄對應。因此程序在實體記憶體中可以不連續，也不用再找到一整塊大空洞，能消除這種配置的外部碎片。\n\n例如 3 頁資料可分放 frame 2、8、15。最後一頁仍可能用不滿，故不能選「消除內部碎片」。分頁確實可搭配逐頁權限，但「簡化記憶體保護」不是這題問的解除連續空間限制的直接效果。"
+        },
+        {
+          "identity": "[\"多選題\",\"分頁 (Paging) 機制如何解決連續記憶體分配帶來的問題？\",[\"消除內部碎片\",\"消除外部碎片\",\"簡化記憶體保護\",\"允許程序在記憶體中不連續\"],\"B、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "先把程序切成等大的 pages，再把每頁放到任一可用 frame，頁表負責記錄對應。因此程序在實體記憶體中可以不連續，也不用再找到一整塊大空洞，能消除這種配置的外部碎片。\n\n例如 3 頁資料可分放 frame 2、8、15。最後一頁仍可能用不滿，故不能選「消除內部碎片」。分頁確實可搭配逐頁權限，但「簡化記憶體保護」不是這題問的解除連續空間限制的直接效果。",
+          "category": "連續配置與碎片"
         }
       ]
     },
@@ -3859,6 +3919,12 @@
           "sourceExplanation": "內部碎片是已分配區塊內沒用到的空間；外部碎片是多個空閒小洞散落在區塊之間。Logical 與 virtual fragmentation 不是此題採用的標準分類，所以選 B、D。",
           "category": "連續配置與碎片",
           "explanation": "碎片分成 internal 與 external。Internal 是已分配區塊內沒用滿，例如拿到 8 KB 只用 6 KB；external 是空閒空間散在區塊之間，例如兩個 4 KB 空洞不能滿足連續 6 KB 要求。\n\n前者關注「區塊裡面」，後者關注「區塊外面」。Logical fragmentation、virtual fragmentation 不是這組記憶體配置的標準二分名稱。不同連續配置方法可能有不同碎片問題，不能只靠「連續」就判定只有其中一種。"
+        },
+        {
+          "identity": "[\"多選題\",\"In contiguous memory allocation, which of the following are types of memory fragmentation?\",[\"Logical Fragmentation\",\"Internal Fragmentation\",\"Virtual Fragmentation\",\"External Fragmentation\"],\"B、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "碎片分成 internal 與 external。Internal 是已分配區塊內沒用滿，例如拿到 8 KB 只用 6 KB；external 是空閒空間散在區塊之間，例如兩個 4 KB 空洞不能滿足連續 6 KB 要求。\n\n前者關注「區塊裡面」，後者關注「區塊外面」。Logical fragmentation、virtual fragmentation 不是這組記憶體配置的標準二分名稱。不同連續配置方法可能有不同碎片問題，不能只靠「連續」就判定只有其中一種。",
+          "category": "連續配置與碎片"
         }
       ]
     },
@@ -3869,6 +3935,12 @@
           "sourceExplanation": "Hierarchical Paging、Paging、Segmentation 都能讓位址空間不必由單一連續實體區塊承載。Contiguous Allocation 顧名思義仍要求連續區域，因此選 A、C、D。",
           "category": "非連續配置方式",
           "explanation": "Paging 把程序切成等大頁，各頁可放到不相鄰的 frame；hierarchical paging 在此基礎上把頁表分層；segmentation 則讓不同邏輯段分別配置，因此這三者都不要求整個程序占一塊連續實體區域。\n\n例如程式碼段與資料段可放在不同位置。注意純分段通常仍要求「每個段內」連續；Contiguous Allocation 則要求程序使用連續區域，和題目要找的類型相反。"
+        },
+        {
+          "identity": "[\"多選題\",\"Which are techniques for Non-contiguous Memory Allocation?\",[\"Hierarchical Paging\",\"Contiguous Allocation\",\"Paging\",\"Segmentation\"],\"A、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Paging 把程序切成等大頁，各頁可放到不相鄰的 frame；hierarchical paging 在此基礎上把頁表分層；segmentation 則讓不同邏輯段分別配置，因此這三者都不要求整個程序占一塊連續實體區域。\n\n例如程式碼段與資料段可放在不同位置。注意純分段通常仍要求「每個段內」連續；Contiguous Allocation 則要求程序使用連續區域，和題目要找的類型相反。",
+          "category": "非連續配置方式"
         }
       ]
     },
@@ -3879,6 +3951,12 @@
           "sourceExplanation": "邏輯位址中的 page number 用來查頁表，找到對應的 frame number；page offset 則原樣保留，用來定位頁面內的位元組。因此索引頁表的是 page number，選 A。",
           "category": "分頁與 TLB",
           "explanation": "邏輯位址分為 page number（頁號）和 page offset（頁內偏移）。頁號用來查頁表、找 frame；偏移用來選該頁內的位元組，轉譯前後保持相同。\n\n例如頁面 1024 bytes、邏輯位址 2500：2500 = 2 × 1024 + 452，所以頁號為 2、偏移為 452。若頁表說第 2 頁在 frame 7，實體位址就是 7 × 1024 + 452 = 7620。Frame number 是查表結果，base address 是表或區域起點，都不是輸入頁表的邏輯頁索引。"
+        },
+        {
+          "identity": "[\"單選題\",\"In paging, which part of the logical address is used as an index into the page table?\",[\"Page Number\",\"Frame Number\",\"Page Offset\",\"Base Address\"],\"A\",[]]",
+          "sourceExplanation": "",
+          "explanation": "邏輯位址分為 page number（頁號）和 page offset（頁內偏移）。頁號用來查頁表、找 frame；偏移用來選該頁內的位元組，轉譯前後保持相同。\n\n例如頁面 1024 bytes、邏輯位址 2500：2500 = 2 × 1024 + 452，所以頁號為 2、偏移為 452。若頁表說第 2 頁在 frame 7，實體位址就是 7 × 1024 + 452 = 7620。Frame number 是查表結果，base address 是表或區域起點，都不是輸入頁表的邏輯頁索引。",
+          "category": "分頁與 TLB"
         }
       ]
     },
@@ -3889,6 +3967,12 @@
           "sourceExplanation": "倒置頁表通常以全系統的實體框架為列，每個框架只需一個表項，並標記目前的程序與虛擬頁。這是選項 B 的特徵。",
           "category": "頁表結構",
           "explanation": "倒置頁表（inverted page table）以實體 frame 為單位，每個框架對應一個表項，記錄占用它的程序 ID 與虛擬頁號。\n\n例如 RAM 只有 1000 個 frames，就依這 1000 個實體位置建表，而不用替每個程序所有可能的虛擬頁各建一項，能降低頁表空間需求。代價是查找要比對程序與頁號，未必更快。外部碎片是分配單位與連續性造成的問題，不是倒置表帶來的獨有改進；分層／雜湊是其他表組織方式。兩空依序填 inverted／frame。"
+        },
+        {
+          "identity": "[\"單選題\",\"哪個頁表結構在整個系統中只有一個頁表，且每個條目對應一個物理幀？\",[\"分層分頁 (Hierarchical Paging)\",\"倒置頁表 (Inverted Page Table)\",\"二級頁表 (Two-level Page Table)\",\"雜湊頁表 (Hashed Page Table)\"],\"B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "倒置頁表（inverted page table）以實體 frame 為單位，每個框架對應一個表項，記錄占用它的程序 ID 與虛擬頁號。\n\n例如 RAM 只有 1000 個 frames，就依這 1000 個實體位置建表，而不用替每個程序所有可能的虛擬頁各建一項，能降低頁表空間需求。代價是查找要比對程序與頁號，未必更快。外部碎片是分配單位與連續性造成的問題，不是倒置表帶來的獨有改進；分層／雜湊是其他表組織方式。兩空依序填 inverted／frame。",
+          "category": "頁表結構"
         }
       ]
     },
@@ -3899,6 +3983,12 @@
           "sourceExplanation": "分層分頁把大型頁表再切成多層，讓頁表本身可分頁，也能較彈性地表示大型虛擬位址空間。位址會拆成多個頁表索引與頁內 offset，所以 A、B、C 正確。",
           "category": "頁表結構",
           "explanation": "Hierarchical paging（分層分頁）把大型頁表本身分頁，透過上層索引找到下層頁表，再由下層項目找到資料 frame。沒有使用到的位址區域可不配置對應的下層表。\n\n兩級例子是：外層頁號 → 內層頁號 → 頁內偏移。因此它適合表示大型、稀疏的虛擬空間，位址也會拆成多個部分；不是只靠一張平鋪表、不是把整張表放 TLB，也不是改成 segmentation。填空填 paging。"
+        },
+        {
+          "identity": "[\"多選題\",\"哪些是分層分頁 (Hierarchical Paging) 的特點？\",[\"用來處理大的虛擬地址空間\",\"允許頁表本身被分頁\",\"邏輯地址被分為多個部分 (例如：兩個頁號和一個偏移量)\",\"只需要一個單一的頁表\"],\"A、B、C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Hierarchical paging（分層分頁）把大型頁表本身分頁，透過上層索引找到下層頁表，再由下層項目找到資料 frame。沒有使用到的位址區域可不配置對應的下層表。\n\n兩級例子是：外層頁號 → 內層頁號 → 頁內偏移。因此它適合表示大型、稀疏的虛擬空間，位址也會拆成多個部分；不是只靠一張平鋪表、不是把整張表放 TLB，也不是改成 segmentation。填空填 paging。",
+          "category": "頁表結構"
         }
       ]
     },
@@ -3909,6 +3999,12 @@
           "sourceExplanation": "分層分頁為大型虛擬位址空間拆出多層頁表索引，也能讓頁表本身被分頁。位址包含多層索引和頁內 offset，不是只靠一張單一頁表，因此選 A、C、D。",
           "category": "頁表結構",
           "explanation": "Hierarchical paging（分層分頁）把大型頁表本身分頁，透過上層索引找到下層頁表，再由下層項目找到資料 frame。沒有使用到的位址區域可不配置對應的下層表。\n\n兩級例子是：外層頁號 → 內層頁號 → 頁內偏移。因此它適合表示大型、稀疏的虛擬空間，位址也會拆成多個部分；不是只靠一張平鋪表、不是把整張表放 TLB，也不是改成 segmentation。填空填 paging。"
+        },
+        {
+          "identity": "[\"多選題\",\"What are the characteristics of Hierarchical Paging?\",[\"Used to handle large virtual address spaces\",\"Requires only a single page table\",\"Allows the page table itself to be paged\",\"The logical address is divided into multiple parts (e.g., two page numbers and an offset)\"],\"A、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Hierarchical paging（分層分頁）把大型頁表本身分頁，透過上層索引找到下層頁表，再由下層項目找到資料 frame。沒有使用到的位址區域可不配置對應的下層表。\n\n兩級例子是：外層頁號 → 內層頁號 → 頁內偏移。因此它適合表示大型、稀疏的虛擬空間，位址也會拆成多個部分；不是只靠一張平鋪表、不是把整張表放 TLB，也不是改成 segmentation。填空填 paging。",
+          "category": "頁表結構"
         }
       ]
     },
@@ -3919,6 +4015,12 @@
           "sourceExplanation": "PTE 通常包含實體 frame number、valid/invalid 狀態與存取保護資訊。Process ID 常放在 TLB 的位址空間識別欄位，而不是每個一般頁表項目都必須有，所以選 B、C、D。",
           "category": "頁表結構",
           "explanation": "一般每程序頁表中的 PTE 需要 frame number 來決定資料所在位置，protection bits 來限制讀／寫／執行，並有 valid-invalid 等狀態位元來判斷映射是否有效。\n\n轉譯時先查出表項，檢查有效性與權限，再組合 frame 和偏移。Process ID 通常由目前選用哪個程序頁表判定，不需每個一般 PTE 都再寫一次；倒置頁表或帶標籤 TLB 則可能另外保存程序識別資訊。"
+        },
+        {
+          "identity": "[\"多選題\",\"In paging address translation, which information is typically included in a Page Table Entry?\",[\"Process ID\",\"Frame Number\",\"Protection Bits\",\"Valid/Invalid Bit\"],\"B、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "一般每程序頁表中的 PTE 需要 frame number 來決定資料所在位置，protection bits 來限制讀／寫／執行，並有 valid-invalid 等狀態位元來判斷映射是否有效。\n\n轉譯時先查出表項，檢查有效性與權限，再組合 frame 和偏移。Process ID 通常由目前選用哪個程序頁表判定，不需每個一般 PTE 都再寫一次；倒置頁表或帶標籤 TLB 則可能另外保存程序識別資訊。",
+          "category": "頁表結構"
         }
       ]
     },
@@ -3929,6 +4031,12 @@
           "sourceExplanation": "倒置頁表把資料列按實體 frame 建立；一列代表一個實體框架，並記錄佔用它的程序與虛擬頁號。這比每個程序各自保存一整張頁表省空間，但查找時未必比一般頁表快，因此選 C、D。",
           "category": "頁表結構",
           "explanation": "倒置頁表（inverted page table）以實體 frame 為單位，每個框架對應一個表項，記錄占用它的程序 ID 與虛擬頁號。\n\n例如 RAM 只有 1000 個 frames，就依這 1000 個實體位置建表，而不用替每個程序所有可能的虛擬頁各建一項，能降低頁表空間需求。代價是查找要比對程序與頁號，未必更快。外部碎片是分配單位與連續性造成的問題，不是倒置表帶來的獨有改進；分層／雜湊是其他表組織方式。兩空依序填 inverted／frame。"
+        },
+        {
+          "identity": "[\"多選題\",\"Compared to traditional page tables, what are the main advantages of an Inverted Page Table?\",[\"Solves the external fragmentation problem\",\"Address translation is faster\",\"Each entry corresponds to a physical frame\",\"Reduces the memory space required for the page table per process\"],\"C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "倒置頁表（inverted page table）以實體 frame 為單位，每個框架對應一個表項，記錄占用它的程序 ID 與虛擬頁號。\n\n例如 RAM 只有 1000 個 frames，就依這 1000 個實體位置建表，而不用替每個程序所有可能的虛擬頁各建一項，能降低頁表空間需求。代價是查找要比對程序與頁號，未必更快。外部碎片是分配單位與連續性造成的問題，不是倒置表帶來的獨有改進；分層／雜湊是其他表組織方式。兩空依序填 inverted／frame。",
+          "category": "頁表結構"
         }
       ]
     },
@@ -3939,6 +4047,12 @@
           "sourceExplanation": "分段的邏輯位址由 Segment 與 Offset 組成。段表把 segment 對應到實體起點並提供 limit；offset 指出段內位置，因此答案選 C。",
           "category": "分段",
           "explanation": "分段位址由 segment number（段號）與 offset（段內偏移）組成。先用段號選段表項，檢查 0 ≤ offset < limit，再計算 physical address = base + offset。\n\n例如第 2 段 base = 5000、limit = 600，offset = 120 合法，得到實體位址 5120；offset = 600 則越界。Page／frame 是分頁用語；base／limit 是表中描述段的位置與大小，不是程式輸入的這對邏輯位址。填空依序填 segment number／offset。"
+        },
+        {
+          "identity": "[\"單選題\",\"分段 (Segmentation) 記憶體管理中，程式的邏輯地址由哪兩部分組成？\",[\"Page & Offset\",\"Frame & Offset\",\"Segment & Offset\",\"Base & Limit\"],\"C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "分段位址由 segment number（段號）與 offset（段內偏移）組成。先用段號選段表項，檢查 0 ≤ offset < limit，再計算 physical address = base + offset。\n\n例如第 2 段 base = 5000、limit = 600，offset = 120 合法，得到實體位址 5120；offset = 600 則越界。Page／frame 是分頁用語；base／limit 是表中描述段的位置與大小，不是程式輸入的這對邏輯位址。填空依序填 segment number／offset。",
+          "category": "分段"
         }
       ]
     },
@@ -3949,6 +4063,12 @@
           "sourceExplanation": "分段把程式看成多個邏輯區塊，例如程式碼、資料與堆疊。邏輯位址由 segment 與 offset 組成；頁號／框架號則屬分頁用語，因此選 D。",
           "category": "分段",
           "explanation": "分段位址由 segment number（段號）與 offset（段內偏移）組成。先用段號選段表項，檢查 0 ≤ offset < limit，再計算 physical address = base + offset。\n\n例如第 2 段 base = 5000、limit = 600，offset = 120 合法，得到實體位址 5120；offset = 600 則越界。Page／frame 是分頁用語；base／limit 是表中描述段的位置與大小，不是程式輸入的這對邏輯位址。填空依序填 segment number／offset。"
+        },
+        {
+          "identity": "[\"單選題\",\"In Segmentation memory management, which two parts compose the program's logical address?\",[\"Page & Offset\",\"Frame & Offset\",\"Base & Limit\",\"Segment & Offset\"],\"D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "分段位址由 segment number（段號）與 offset（段內偏移）組成。先用段號選段表項，檢查 0 ≤ offset < limit，再計算 physical address = base + offset。\n\n例如第 2 段 base = 5000、limit = 600，offset = 120 合法，得到實體位址 5120；offset = 600 則越界。Page／frame 是分頁用語；base／limit 是表中描述段的位置與大小，不是程式輸入的這對邏輯位址。填空依序填 segment number／offset。",
+          "category": "分段"
         }
       ]
     },
@@ -3959,6 +4079,12 @@
           "sourceExplanation": "動態連結可把共享程式庫的解析延到執行時；需要呼叫時，stub 協助找到常式。執行檔不必重複內含整份共享程式庫，多個程序也能共用同一份常式。內部碎片屬於記憶體配置問題，因此 A、B、C 正確。",
           "category": "載入、交換與連結",
           "explanation": "動態連結讓執行檔不必各自複製完整程式庫內容，多個程序也能共享可重入、唯讀的程式庫程式碼，因此可縮小執行檔並節省重複載入的空間。\n\n本題還採按需解析／載入的情境，常式可在需要時才載入；實際系統也可能啟動時就載入相依程式庫，故這不是所有動態連結的必然行為。內部碎片來自配置單位沒有用滿，改用動態連結無法保證消除它。"
+        },
+        {
+          "identity": "[\"多選題\",\"動態連結 (Dynamic Linking) 相較於靜態連結有哪些優勢？\",[\"常式僅在需要時才載入\",\"程式執行檔較小\",\"允許多個程序共享同一個庫\",\"消除內部碎片\"],\"A、B、C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "動態連結讓執行檔不必各自複製完整程式庫內容，多個程序也能共享可重入、唯讀的程式庫程式碼，因此可縮小執行檔並節省重複載入的空間。\n\n本題還採按需解析／載入的情境，常式可在需要時才載入；實際系統也可能啟動時就載入相依程式庫，故這不是所有動態連結的必然行為。內部碎片來自配置單位沒有用滿，改用動態連結無法保證消除它。",
+          "category": "載入、交換與連結"
         }
       ]
     },
@@ -3969,6 +4095,12 @@
           "sourceExplanation": "stub 是放在呼叫位置的小段替代程式碼。執行時，它定位並載入所需的程式庫常式，接著將呼叫導向該常式的位址；答案是 stub。",
           "category": "載入、交換與連結",
           "explanation": "Stub 是替真正程式庫常式暫時站位的一小段程式碼。第一次呼叫時，它協助找到目標常式的位址，必要時請載入器載入，再讓後續呼叫直接導向該常式。\n\n可想成櫃台先幫你找到服務人員，之後知道位置就直接前往。Buffer 是資料緩衝區，frame 是分頁的實體區塊，block 是泛稱區塊，都不是這種呼叫代理程式。填 stub。這個「以替代碼定位常式」的描述通常屬動態連結，即使題幹使用動態載入用語，也應依其行為辨識。"
+        },
+        {
+          "identity": "[\"填空題\",\"動態載入使用一個稱為的代碼片段來定位和載入所需的庫常式，並在載入後用常式的地址替換它。 (請用小寫英文回答)\",[],\"stub\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Stub 是替真正程式庫常式暫時站位的一小段程式碼。第一次呼叫時，它協助找到目標常式的位址，必要時請載入器載入，再讓後續呼叫直接導向該常式。\n\n可想成櫃台先幫你找到服務人員，之後知道位置就直接前往。Buffer 是資料緩衝區，frame 是分頁的實體區塊，block 是泛稱區塊，都不是這種呼叫代理程式。填 stub。這個「以替代碼定位常式」的描述通常屬動態連結，即使題幹使用動態載入用語，也應依其行為辨識。",
+          "category": "載入、交換與連結"
         }
       ]
     },
@@ -3979,6 +4111,12 @@
           "sourceExplanation": "ARM 的 TLB 組織由處理器實作決定，可能採 L1／L2 等多層快取，因此不能概括成只有一層（A）。本題採用的 ARM 題庫模型列出 4 KB／16 KB 頁面、小頁面的兩級頁表，以及 1 MB section／16 MB supersection 這組大型映射（題庫以 sections 概括），所以選 B、C、D。",
           "category": "架構案例：ARM／Intel",
           "explanation": "本題選取支援 4 KB／16 KB 頁面、較小頁面的兩級查表，以及 1 MB／16 MB 大型映射這三段描述；「只有單一級 TLB」不成立，TLB 可依處理器實作分成指令／資料或多級。\n\n需分清版本：這組敘述混合了不同 ARM 格式。舊式 short-descriptor 的 1 MB 稱 section、16 MB 稱 supersection，小頁查表使用兩級；AArch64 支援 4／16／64 KB 粒度，但不能把所有這些特性直接視為同一種固定頁表格式。理解每個名詞的條件，才能避免記成所有 ARM 通用的規則。"
+        },
+        {
+          "identity": "[\"多選題\",\"In the ARM Architecture paging, which statements are correct?\",[\"Uses only a single level of TLB\",\"Supports 4 KB and 16 KB pages\",\"Uses two-level paging for smaller pages\",\"1 MB and 16 MB pages are termed sections\"],\"B、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "本題選取支援 4 KB／16 KB 頁面、較小頁面的兩級查表，以及 1 MB／16 MB 大型映射這三段描述；「只有單一級 TLB」不成立，TLB 可依處理器實作分成指令／資料或多級。\n\n需分清版本：這組敘述混合了不同 ARM 格式。舊式 short-descriptor 的 1 MB 稱 section、16 MB 稱 supersection，小頁查表使用兩級；AArch64 支援 4／16／64 KB 粒度，但不能把所有這些特性直接視為同一種固定頁表格式。理解每個名詞的條件，才能避免記成所有 ARM 通用的規則。",
+          "category": "架構案例：ARM／Intel"
         }
       ]
     },
@@ -3989,6 +4127,12 @@
           "sourceExplanation": "本題採四級 x86-64 分頁模式：四個頁表索引各使用 9 位，加上 12 位頁內偏移，形成 48 位元線性位址；常見頁面大小為 4 KB、2 MB、1 GB。長模式分頁需要 PAE，因此「不支援 PAE」不正確，選 A、B、C。",
           "category": "架構案例：ARM／Intel",
           "explanation": "以四級 x86-64 分頁與 4 KB 頁面計算：每級索引 9 位，共 4 × 9 = 36 位；頁內偏移 12 位，所以線性位址轉譯合計 36 + 12 = 48 位。常見映射大小包括 4 KB、2 MB 與 1 GB；長模式分頁需要啟用 PAE，不能選不支援 PAE。\n\n48 是此四級模型的答案，不等於 x86-64 永遠只能使用 48 位；支援五級分頁的系統可用 57 位線性位址。虛擬位址寬度與實體位址寬度也應分開。填空填 48。"
+        },
+        {
+          "identity": "[\"多選題\",\"關於 Intel x86-64 架構的分頁，哪些敘述是正確的？\",[\"使用四級分頁層次結構\",\"實際僅實作 48 位元地址空間\",\"頁面大小包括 4 KB, 2 MB, 和 1 GB\",\"不支持頁地址擴展 (PAE)\"],\"A、B、C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "以四級 x86-64 分頁與 4 KB 頁面計算：每級索引 9 位，共 4 × 9 = 36 位；頁內偏移 12 位，所以線性位址轉譯合計 36 + 12 = 48 位。常見映射大小包括 4 KB、2 MB 與 1 GB；長模式分頁需要啟用 PAE，不能選不支援 PAE。\n\n48 是此四級模型的答案，不等於 x86-64 永遠只能使用 48 位；支援五級分頁的系統可用 57 位線性位址。虛擬位址寬度與實體位址寬度也應分開。填空填 48。",
+          "category": "架構案例：ARM／Intel"
         }
       ]
     },
@@ -3999,6 +4143,12 @@
           "sourceExplanation": "本題的 ARM 題庫把大型映射歸在 section 類型：1 MB 是 section，16 MB 是 supersection；題庫列出的 4 KB／16 KB 頁面與小頁面兩級查表也符合 C、D。TLB 組織可依處理器實作採多層快取，因此「僅使用單一層 TLB」不成立，答案為 A、C、D。",
           "category": "架構案例：ARM／Intel",
           "explanation": "本題選取支援 4 KB／16 KB 頁面、較小頁面的兩級查表，以及 1 MB／16 MB 大型映射這三段描述；「只有單一級 TLB」不成立，TLB 可依處理器實作分成指令／資料或多級。\n\n需分清版本：這組敘述混合了不同 ARM 格式。舊式 short-descriptor 的 1 MB 稱 section、16 MB 稱 supersection，小頁查表使用兩級；AArch64 支援 4／16／64 KB 粒度，但不能把所有這些特性直接視為同一種固定頁表格式。理解每個名詞的條件，才能避免記成所有 ARM 通用的規則。"
+        },
+        {
+          "identity": "[\"多選題\",\"在 ARM 架構 的分頁中，哪些是正確的？\",[\"1 MB 和 16 MB 的頁面被稱為區段 (sections)\",\"僅使用單一級別的 TLB\",\"支援 4 KB 和 16 KB 的頁面\",\"對於較小的頁面使用兩級分頁\"],\"A、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "本題選取支援 4 KB／16 KB 頁面、較小頁面的兩級查表，以及 1 MB／16 MB 大型映射這三段描述；「只有單一級 TLB」不成立，TLB 可依處理器實作分成指令／資料或多級。\n\n需分清版本：這組敘述混合了不同 ARM 格式。舊式 short-descriptor 的 1 MB 稱 section、16 MB 稱 supersection，小頁查表使用兩級；AArch64 支援 4／16／64 KB 粒度，但不能把所有這些特性直接視為同一種固定頁表格式。理解每個名詞的條件，才能避免記成所有 ARM 通用的規則。",
+          "category": "架構案例：ARM／Intel"
         }
       ]
     },
@@ -4019,6 +4169,12 @@
           "sourceExplanation": "答案 sections 是本題對 ARM 大型映射的教材用語。short-descriptor 格式中，1 MB 映射稱 section，16 MB 映射稱 supersection；兩者屬於題目所指的大型區塊映射。",
           "category": "架構案例：ARM／Intel",
           "explanation": "填 sections。題幹用 sections 概括舊式 ARM 的大型區塊映射；精確區分是 1 MB 稱 section、16 MB 稱 supersection。\n\n因為 16 MB = 16 × 1 MB，可把 supersection 理解為更大的映射單位。這些大型映射讓一筆描述可涵蓋較大連續區域，減少細碎的頁表項目；但它們屬特定 ARM 描述格式，不能直接套用到所有 AArch64 的 page／block 命名。"
+        },
+        {
+          "identity": "[\"填空題\",\"ARM 架構將 1 MB 和 16 MB 頁面稱為。 (請用小寫英文回答)\",[],\"sections\",[]]",
+          "sourceExplanation": "",
+          "explanation": "填 sections。題幹用 sections 概括舊式 ARM 的大型區塊映射；精確區分是 1 MB 稱 section、16 MB 稱 supersection。\n\n因為 16 MB = 16 × 1 MB，可把 supersection 理解為更大的映射單位。這些大型映射讓一筆描述可涵蓋較大連續區域，減少細碎的頁表項目；但它們屬特定 ARM 描述格式，不能直接套用到所有 AArch64 的 page／block 命名。",
+          "category": "架構案例：ARM／Intel"
         }
       ]
     },
@@ -4029,6 +4185,12 @@
           "sourceExplanation": "PAE 是 Intel 為 32 位元架構擴大可管理實體位址範圍的技術；答案填 pae。它擴充的是實體位址能力，程式本身仍受 32 位元虛擬位址限制。",
           "category": "架構案例：ARM／Intel",
           "explanation": "PAE 擴大的是可使用的實體位址範圍。32 位元位址共有 2^32 bytes，也就是 4 GiB；支援 PAE 的系統可用較寬的實體位址管理超過此容量的 RAM。\n\n這不會讓每個 32 位元程序自動得到超過 4 GiB 的線性位址空間，單一程序要使用更多資料仍須配合作業系統提供的映射方式。Dynamic loading 是按需載入，inverted page table 是表結構，address binding 是建立位址對應，都不是這項實體位址擴充技術。填空填 pae。"
+        },
+        {
+          "identity": "[\"填空題\",\"允許 32 位元應用程式存取超過 4GB 物理記憶體空間的 Intel 技術是。 (請用小寫英文回答)\",[],\"pae\",[]]",
+          "sourceExplanation": "",
+          "explanation": "PAE 擴大的是可使用的實體位址範圍。32 位元位址共有 2^32 bytes，也就是 4 GiB；支援 PAE 的系統可用較寬的實體位址管理超過此容量的 RAM。\n\n這不會讓每個 32 位元程序自動得到超過 4 GiB 的線性位址空間，單一程序要使用更多資料仍須配合作業系統提供的映射方式。Dynamic loading 是按需載入，inverted page table 是表結構，address binding 是建立位址對應，都不是這項實體位址擴充技術。填空填 pae。",
+          "category": "架構案例：ARM／Intel"
         }
       ]
     },
@@ -4039,6 +4201,12 @@
           "sourceExplanation": "答案 sections 是本題對 ARM 大型映射的教材用語。short-descriptor 格式中，1 MB 映射稱 section，16 MB 映射稱 supersection；兩者屬於題目所指的大型區塊映射。",
           "category": "架構案例：ARM／Intel",
           "explanation": "填 sections。題幹用 sections 概括舊式 ARM 的大型區塊映射；精確區分是 1 MB 稱 section、16 MB 稱 supersection。\n\n因為 16 MB = 16 × 1 MB，可把 supersection 理解為更大的映射單位。這些大型映射讓一筆描述可涵蓋較大連續區域，減少細碎的頁表項目；但它們屬特定 ARM 描述格式，不能直接套用到所有 AArch64 的 page／block 命名。"
+        },
+        {
+          "identity": "[\"填空題\",\"The ARM architecture refers to 1 MB and 16 MB pages as . (Please answer in English lowercase)\",[],\"sections\",[]]",
+          "sourceExplanation": "",
+          "explanation": "填 sections。題幹用 sections 概括舊式 ARM 的大型區塊映射；精確區分是 1 MB 稱 section、16 MB 稱 supersection。\n\n因為 16 MB = 16 × 1 MB，可把 supersection 理解為更大的映射單位。這些大型映射讓一筆描述可涵蓋較大連續區域，減少細碎的頁表項目；但它們屬特定 ARM 描述格式，不能直接套用到所有 AArch64 的 page／block 命名。",
+          "category": "架構案例：ARM／Intel"
         }
       ]
     },
@@ -4948,6 +5116,12 @@
           "identity": "[\"填空題\",\"In the Dining Philosophers Problem, each philosopher spends their life alternating between _________ and _________.(Please answer in lowercase English)\",[],\"thinking、eating\",[]]",
           "sourceExplanation": "哲學家在思考（thinking）與進食（eating）之間交替，每人要取得左右兩根筷子才能吃。",
           "explanation": "依序填 thinking、eating。每位哲學家的抽象生活週期是思考、申請兩根筷子、進食、放下筷子，再回到思考。同步協定只需管取得與歸還資源，思考本身可各自進行。兩人相鄰時不能一起使用同一根筷子，但不相鄰者可以同時進食。",
+          "category": "Dining Philosophers"
+        },
+        {
+          "identity": "[\"填空題\",\"在哲學家進餐問題中，每個哲學家會交替地進行 _________ 和 _________ 的動作。（請用小寫英文回答）\",[],\"thinking、eating\",[]]",
+          "sourceExplanation": "哲學家在思考（thinking）與進食（eating）之間交替，每人要取得左右兩根筷子才能吃。",
+          "explanation": "哲學家平常思考（thinking）；想進食（eating）時，必須同時取得左右兩根筷子。吃完後放下筷子，再回到思考。只拿到一根筷子仍不能吃；若每人都先拿一根再等另一根，就可能形成死結。",
           "category": "Dining Philosophers"
         }
       ]
@@ -6069,6 +6243,12 @@
           "sourceExplanation": "base 指程序可用實體記憶體範圍的起點；limit 指允許的範圍長度。硬體先檢查邏輯位址界限，再把 base 加上邏輯位址，防止程序存取範圍以外的記憶體。",
           "category": "記憶體保護",
           "explanation": "依序填 base／limit。Base（基底）表示可用實體區域的起點，Limit（限制）表示區域長度。\n\n例如 base = 4000、limit = 500，邏輯位址 120 小於 500，故可轉為實體位址 4120；邏輯位址 500 已越界。記成「base 決定從哪裡開始，limit 決定有多大」，不要把 limit 誤當成最後一個實體位址。"
+        },
+        {
+          "identity": "[\"填空題\",\"Memory protection is implemented by a pair of registers: the register holds the smallest legal physical address, and the register specifies the size of the program's address range. (Please answer in English lowercase, one space between letters)\",[],\"base/limit\",[]]",
+          "sourceExplanation": "",
+          "explanation": "依序填 base／limit。Base（基底）表示可用實體區域的起點，Limit（限制）表示區域長度。\n\n例如 base = 4000、limit = 500，邏輯位址 120 小於 500，故可轉為實體位址 4120；邏輯位址 500 已越界。記成「base 決定從哪裡開始，limit 決定有多大」，不要把 limit 誤當成最後一個實體位址。",
+          "category": "記憶體保護"
         }
       ]
     },
@@ -6079,6 +6259,12 @@
           "sourceExplanation": "頁表中的 valid/invalid 位元標記頁面對該程序是否有效。valid 頁可依頁表轉換；invalid 頁被存取時會引發例外，阻止程序越界讀寫，因此答案是 valid-invalid。",
           "category": "記憶體保護",
           "explanation": "Valid-invalid 位元用來判斷某個頁面是否屬於程序可合法使用的位址範圍，主要目的為記憶體保護。\n\n存取時先取得頁表項目，再檢查有效性與權限；合法才繼續轉譯，非法則觸發例外交由作業系統處理。這個位元本身不負責快取資料、控制 I/O 或建立共享。注意有效性與「頁面目前是否在 RAM」可能由不同欄位表示，不能把所有 invalid 都解讀為讀磁碟即可解決。填空使用 valid-invalid。"
+        },
+        {
+          "identity": "[\"填空題\",\"在分頁中，頁表中的位元用於指示對應的頁面是合法還是非法的，從而提供記憶體保護。 (請用小寫英文回答 字母間用-)\",[],\"valid-invalid\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Valid-invalid 位元用來判斷某個頁面是否屬於程序可合法使用的位址範圍，主要目的為記憶體保護。\n\n存取時先取得頁表項目，再檢查有效性與權限；合法才繼續轉譯，非法則觸發例外交由作業系統處理。這個位元本身不負責快取資料、控制 I/O 或建立共享。注意有效性與「頁面目前是否在 RAM」可能由不同欄位表示，不能把所有 invalid 都解讀為讀磁碟即可解決。填空使用 valid-invalid。",
+          "category": "記憶體保護"
         }
       ]
     },
@@ -6119,6 +6305,12 @@
           "sourceExplanation": "載入時繫結會等載入程式知道實際放置位置後，才把可重定位位址調整成實體位置；因此編譯器必須提供 relocatable code。",
           "category": "位址繫結",
           "explanation": "載入時才知道程式要放在哪個實體起點，因此編譯器必須先產生 relocatable code（可重定位程式碼）。載入器確定起點後，才能調整需要重定位的位址。\n\n例如程式內某資料位於起點後 40 位元組，載入到 1000 時對應 1040，改載到 3000 時則是 3040。Absolute code 已固定位置，不適合這種需求；static／dynamic 描述其他特性，virtual code 也不是這組繫結階段使用的標準對應名稱。填空填 relocatable。"
+        },
+        {
+          "identity": "[\"單選題\",\"Load Time address binding typically requires the compiler to generate which type of code?\",[\"Static Code\",\"Absolute Code\",\"Virtual Code\",\"Relocatable Code\"],\"D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "載入時才知道程式要放在哪個實體起點，因此編譯器必須先產生 relocatable code（可重定位程式碼）。載入器確定起點後，才能調整需要重定位的位址。\n\n例如程式內某資料位於起點後 40 位元組，載入到 1000 時對應 1040，改載到 3000 時則是 3040。Absolute code 已固定位置，不適合這種需求；static／dynamic 描述其他特性，virtual code 也不是這組繫結階段使用的標準對應名稱。填空填 relocatable。",
+          "category": "位址繫結"
         }
       ]
     },
@@ -6129,6 +6321,12 @@
           "sourceExplanation": "載入時繫結在程式載入時決定實體位置，所以編譯器先產生可重定位程式碼，讓載入器能套用實際起點。答案是 relocatable。",
           "category": "位址繫結",
           "explanation": "載入時才知道程式要放在哪個實體起點，因此編譯器必須先產生 relocatable code（可重定位程式碼）。載入器確定起點後，才能調整需要重定位的位址。\n\n例如程式內某資料位於起點後 40 位元組，載入到 1000 時對應 1040，改載到 3000 時則是 3040。Absolute code 已固定位置，不適合這種需求；static／dynamic 描述其他特性，virtual code 也不是這組繫結階段使用的標準對應名稱。填空填 relocatable。"
+        },
+        {
+          "identity": "[\"單選題\",\"載入時間 (Load Time) 地址綁定通常需要編譯器產生哪種程式碼？\",[\"可重定位程式碼 (Relocatable Code)\",\"絕對程式碼 (Absolute Code)\",\"靜態程式碼 (Static Code)\",\"虛擬程式碼 (Virtual Code)\"],\"A\",[]]",
+          "sourceExplanation": "",
+          "explanation": "載入時才知道程式要放在哪個實體起點，因此編譯器必須先產生 relocatable code（可重定位程式碼）。載入器確定起點後，才能調整需要重定位的位址。\n\n例如程式內某資料位於起點後 40 位元組，載入到 1000 時對應 1040，改載到 3000 時則是 3040。Absolute code 已固定位置，不適合這種需求；static／dynamic 描述其他特性，virtual code 也不是這組繫結階段使用的標準對應名稱。填空填 relocatable。",
+          "category": "位址繫結"
         }
       ]
     },
@@ -6169,6 +6367,12 @@
           "sourceExplanation": "載入時繫結在載入階段才知道程式實際位置，故最後的實體位址在載入時確定；編譯器先產生可調整位置的 relocatable code。若還要在執行中搬移，則需執行時繫結與位址轉換硬體。",
           "category": "位址繫結",
           "explanation": "載入時繫結的流程是：編譯器先留下可重定位位址 → 載入器選定實體起點 → 修正位址並開始執行。因此「產生可重定位程式碼」「最後實體位址在載入時確定」成立。\n\n單就這種繫結而言，不必靠 MMU 在每次存取時重新定位；這不代表整個作業系統沒有 MMU 或不需要任何保護硬體。若執行中還要任意搬移，須採執行時繫結，因此「執行時可搬移」不屬此階段特性。"
+        },
+        {
+          "identity": "[\"多選題\",\"載入時間 (Load Time) 地址綁定具有哪些特性？\",[\"不需要 MMU 的硬體支持\",\"程式在執行時可以被移動\",\"程式的最終物理地址在載入時確定\",\"編譯器產生可重定位程式碼\"],\"A、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "載入時繫結的流程是：編譯器先留下可重定位位址 → 載入器選定實體起點 → 修正位址並開始執行。因此「產生可重定位程式碼」「最後實體位址在載入時確定」成立。\n\n單就這種繫結而言，不必靠 MMU 在每次存取時重新定位；這不代表整個作業系統沒有 MMU 或不需要任何保護硬體。若執行中還要任意搬移，須採執行時繫結，因此「執行時可搬移」不屬此階段特性。",
+          "category": "位址繫結"
         }
       ]
     },
@@ -6199,6 +6403,12 @@
           "sourceExplanation": "要讓程序執行期間可以搬到不同位置，位址轉換就必須延後到 execution time；MMU 才能依目前的實際位置完成映射。",
           "category": "位址繫結",
           "explanation": "題幹關鍵是「執行期間仍可搬移」。程序目前在某個實體位置，搬移後相同邏輯位址必須指向新位置，因此要等每次執行存取時才完成映射，也就是 execution time。\n\n例如邏輯位址 20 原先映到 1020，搬移後可改映到 3020，程式仍使用 20。Compile time 與 load time 都太早固定位置；linking time 處理模組與符號的連接，無法單靠它支援持續搬移。填空填 execution。"
+        },
+        {
+          "identity": "[\"填空題\",\"如果程序在執行期間可以從記憶體的一個位置移動到另一個位置，則地址綁定必須推遲到時間。 (請用小寫英文回答)\",[],\"execution\",[]]",
+          "sourceExplanation": "",
+          "explanation": "題幹關鍵是「執行期間仍可搬移」。程序目前在某個實體位置，搬移後相同邏輯位址必須指向新位置，因此要等每次執行存取時才完成映射，也就是 execution time。\n\n例如邏輯位址 20 原先映到 1020，搬移後可改映到 3020，程式仍使用 20。Compile time 與 load time 都太早固定位置；linking time 處理模組與符號的連接，無法單靠它支援持續搬移。填空填 execution。",
+          "category": "位址繫結"
         }
       ]
     },
@@ -6209,6 +6419,12 @@
           "sourceExplanation": "程序若能在執行期間搬移，實體位置就不能在編譯時固定；位址綁定必須延後到 execution time，由 MMU 依當下映射轉換。",
           "category": "位址繫結",
           "explanation": "題幹關鍵是「執行期間仍可搬移」。程序目前在某個實體位置，搬移後相同邏輯位址必須指向新位置，因此要等每次執行存取時才完成映射，也就是 execution time。\n\n例如邏輯位址 20 原先映到 1020，搬移後可改映到 3020，程式仍使用 20。Compile time 與 load time 都太早固定位置；linking time 處理模組與符號的連接，無法單靠它支援持續搬移。填空填 execution。"
+        },
+        {
+          "identity": "[\"填空題\",\"If a process can be moved from one memory location to another during execution, address binding must be delayed until time. (Please answer in English lowercase)\",[],\"execution\",[]]",
+          "sourceExplanation": "",
+          "explanation": "題幹關鍵是「執行期間仍可搬移」。程序目前在某個實體位置，搬移後相同邏輯位址必須指向新位置，因此要等每次執行存取時才完成映射，也就是 execution time。\n\n例如邏輯位址 20 原先映到 1020，搬移後可改映到 3020，程式仍使用 20。Compile time 與 load time 都太早固定位置；linking time 處理模組與符號的連接，無法單靠它支援持續搬移。填空填 execution。",
+          "category": "位址繫結"
         }
       ]
     },
@@ -6219,6 +6435,12 @@
           "sourceExplanation": "載入器要等程式實際放置位置確定後才能完成載入時繫結，所以編譯器必須輸出 relocatable code，而不是已固定位置的 absolute code。",
           "category": "位址繫結",
           "explanation": "載入時才知道程式要放在哪個實體起點，因此編譯器必須先產生 relocatable code（可重定位程式碼）。載入器確定起點後，才能調整需要重定位的位址。\n\n例如程式內某資料位於起點後 40 位元組，載入到 1000 時對應 1040，改載到 3000 時則是 3040。Absolute code 已固定位置，不適合這種需求；static／dynamic 描述其他特性，virtual code 也不是這組繫結階段使用的標準對應名稱。填空填 relocatable。"
+        },
+        {
+          "identity": "[\"填空題\",\"Load Time address binding requires the compiler to generate code. (Please answer in English lowercase)\",[],\"relocatable\",[]]",
+          "sourceExplanation": "",
+          "explanation": "載入時才知道程式要放在哪個實體起點，因此編譯器必須先產生 relocatable code（可重定位程式碼）。載入器確定起點後，才能調整需要重定位的位址。\n\n例如程式內某資料位於起點後 40 位元組，載入到 1000 時對應 1040，改載到 3000 時則是 3040。Absolute code 已固定位置，不適合這種需求；static／dynamic 描述其他特性，virtual code 也不是這組繫結階段使用的標準對應名稱。填空填 relocatable。",
+          "category": "位址繫結"
         }
       ]
     },
@@ -6229,6 +6451,12 @@
           "sourceExplanation": "外部碎片常見於要求連續區塊的配置方式：空閒總量雖足夠，但散落各處。Paging 將程序拆成可放在不同 frame 的頁，因而避開這個連續空間要求。",
           "category": "連續配置與碎片",
           "explanation": "外部碎片指可用空間散在已配置區塊之間，總量足夠卻湊不成要求的連續區域，常見於連續記憶體配置。\n\n例如三個空洞分別有 3、4、3 KB，合計 10 KB，仍放不下需要連續 8 KB 的程序。分頁允許分散到各頁框，避免此連續空間限制；雜湊頁表與倒置頁表則是頁表組織方式。若題幹已寫 fragmentation，空格只填 external。"
+        },
+        {
+          "identity": "[\"單選題\",\"外部碎片 是哪種記憶體分配技術的主要缺點？\",[\"連續記憶體分配 (Contiguous Allocation)\",\"倒置頁表 (Inverted Page Table)\",\"分頁 (Paging)\",\"雜湊頁表 (Hashed Page Table)\"],\"A\",[]]",
+          "sourceExplanation": "",
+          "explanation": "外部碎片指可用空間散在已配置區塊之間，總量足夠卻湊不成要求的連續區域，常見於連續記憶體配置。\n\n例如三個空洞分別有 3、4、3 KB，合計 10 KB，仍放不下需要連續 8 KB 的程序。分頁允許分散到各頁框，避免此連續空間限制；雜湊頁表與倒置頁表則是頁表組織方式。若題幹已寫 fragmentation，空格只填 external。",
+          "category": "連續配置與碎片"
         }
       ]
     },
@@ -6319,6 +6547,12 @@
           "sourceExplanation": "外部碎片是空閒記憶體總量看似足夠，卻分散成多個小洞，找不到一塊足夠大的連續區域。答案 external 指這種「外部空間分散」的狀況。",
           "category": "連續配置與碎片",
           "explanation": "外部碎片指可用空間散在已配置區塊之間，總量足夠卻湊不成要求的連續區域，常見於連續記憶體配置。\n\n例如三個空洞分別有 3、4、3 KB，合計 10 KB，仍放不下需要連續 8 KB 的程序。分頁允許分散到各頁框，避免此連續空間限制；雜湊頁表與倒置頁表則是頁表組織方式。若題幹已寫 fragmentation，空格只填 external。"
+        },
+        {
+          "identity": "[\"填空題\",\"The main problem with contiguous memory allocation is fragmentation, where total available space is sufficient but not contiguous. (Please answer in English lowercase)\",[],\"external\",[]]",
+          "sourceExplanation": "",
+          "explanation": "外部碎片指可用空間散在已配置區塊之間，總量足夠卻湊不成要求的連續區域，常見於連續記憶體配置。\n\n例如三個空洞分別有 3、4、3 KB，合計 10 KB，仍放不下需要連續 8 KB 的程序。分頁允許分散到各頁框，避免此連續空間限制；雜湊頁表與倒置頁表則是頁表組織方式。若題幹已寫 fragmentation，空格只填 external。",
+          "category": "連續配置與碎片"
         }
       ]
     },
@@ -6329,6 +6563,12 @@
           "sourceExplanation": "當空閒空間分散成小洞時，compaction 會搬移程序，把洞合併成較大的連續區域。它需要可搬移程序並有搬移成本；若使用分頁則通常不必靠壓縮解決外部碎片。",
           "category": "連續配置與碎片",
           "explanation": "處理外部碎片有兩個思路：compaction 搬移已用區塊，把分散空洞合併；paging 改用等大頁框配置，讓程序不必占一整塊連續空間。\n\n例如 3 KB 與 5 KB 空洞經壓縮可合成 8 KB。First-fit 只決定先挑哪個洞，仍會留下零散空間；純 segmentation 的段也需各自連續，仍可能有外部碎片。壓縮需要支援執行時重定位，且有搬移成本；填空填 compaction。"
+        },
+        {
+          "identity": "[\"填空題\",\"In Contiguous Memory Allocation, if a sufficiently large contiguous space cannot be found, must be performed to eliminate external fragmentation. (Please answer in English lowercase)\",[],\"compaction\",[]]",
+          "sourceExplanation": "",
+          "explanation": "處理外部碎片有兩個思路：compaction 搬移已用區塊，把分散空洞合併；paging 改用等大頁框配置，讓程序不必占一整塊連續空間。\n\n例如 3 KB 與 5 KB 空洞經壓縮可合成 8 KB。First-fit 只決定先挑哪個洞，仍會留下零散空間；純 segmentation 的段也需各自連續，仍可能有外部碎片。壓縮需要支援執行時重定位，且有搬移成本；填空填 compaction。",
+          "category": "連續配置與碎片"
         }
       ]
     },
@@ -6339,6 +6579,12 @@
           "sourceExplanation": "Compaction（壓縮）會搬移已配置區塊，把零散空閒區合併成較大的連續空間，藉此減少外部碎片。它需要支援重定位，也會耗費搬移時間。",
           "category": "連續配置與碎片",
           "explanation": "處理外部碎片有兩個思路：compaction 搬移已用區塊，把分散空洞合併；paging 改用等大頁框配置，讓程序不必占一整塊連續空間。\n\n例如 3 KB 與 5 KB 空洞經壓縮可合成 8 KB。First-fit 只決定先挑哪個洞，仍會留下零散空間；純 segmentation 的段也需各自連續，仍可能有外部碎片。壓縮需要支援執行時重定位，且有搬移成本；填空填 compaction。"
+        },
+        {
+          "identity": "[\"填空題\",\"在連續記憶體分配中，若無法找到足夠大的連續空間，則需要執行來消除外部碎片。 (請用小寫英文回答)\",[],\"compaction\",[]]",
+          "sourceExplanation": "",
+          "explanation": "處理外部碎片有兩個思路：compaction 搬移已用區塊，把分散空洞合併；paging 改用等大頁框配置，讓程序不必占一整塊連續空間。\n\n例如 3 KB 與 5 KB 空洞經壓縮可合成 8 KB。First-fit 只決定先挑哪個洞，仍會留下零散空間；純 segmentation 的段也需各自連續，仍可能有外部碎片。壓縮需要支援執行時重定位，且有搬移成本；填空填 compaction。",
+          "category": "連續配置與碎片"
         }
       ]
     },
@@ -6349,6 +6595,12 @@
           "sourceExplanation": "總空閒空間足夠、卻分散成多個小洞而找不到連續區塊，稱為 external fragmentation（外部碎片）；依題目格式填 external。",
           "category": "連續配置與碎片",
           "explanation": "外部碎片指可用空間散在已配置區塊之間，總量足夠卻湊不成要求的連續區域，常見於連續記憶體配置。\n\n例如三個空洞分別有 3、4、3 KB，合計 10 KB，仍放不下需要連續 8 KB 的程序。分頁允許分散到各頁框，避免此連續空間限制；雜湊頁表與倒置頁表則是頁表組織方式。若題幹已寫 fragmentation，空格只填 external。"
+        },
+        {
+          "identity": "[\"填空題\",\"連續記憶體分配的主要問題是碎片，即總可用空間足夠，但不是連續的。 (請用小寫英文回答)\",[],\"external\",[]]",
+          "sourceExplanation": "",
+          "explanation": "外部碎片指可用空間散在已配置區塊之間，總量足夠卻湊不成要求的連續區域，常見於連續記憶體配置。\n\n例如三個空洞分別有 3、4、3 KB，合計 10 KB，仍放不下需要連續 8 KB 的程序。分頁允許分散到各頁框，避免此連續空間限制；雜湊頁表與倒置頁表則是頁表組織方式。若題幹已寫 fragmentation，空格只填 external。",
+          "category": "連續配置與碎片"
         }
       ]
     },
@@ -6359,6 +6611,12 @@
           "sourceExplanation": "分頁把程序切成固定大小的頁，最後一頁若用不滿，浪費會留在已分配的頁框內，稱為 internal fragmentation（內部碎片）。它不是不同空閒區塊散落在記憶體中的 external fragmentation。",
           "category": "連續配置與碎片",
           "explanation": "內部碎片是「已分配區塊裡面」沒用到的空間。分頁以固定大小頁框配置，程序最後一頁往往無法填滿。\n\n例如頁面 4 KB、資料共 10 KB，要配置 3 頁共 12 KB，最後剩 2 KB，即 internal fragmentation。總空閒量足夠卻不相鄰描述的是外部碎片；純分段採可變大小段，典型問題是外部碎片。Swapping 是搬出／載回，dynamic linking 是連結方式；stack overflow 與 memory leak 也不是區塊尾端浪費的名稱。填空填 internal。"
+        },
+        {
+          "identity": "[\"填空題\",\"The unused space resulting from an allocated block being larger than the process requires in paging is called fragmentation. (Please answer in English lowercase)\",[],\"internal\",[]]",
+          "sourceExplanation": "",
+          "explanation": "內部碎片是「已分配區塊裡面」沒用到的空間。分頁以固定大小頁框配置，程序最後一頁往往無法填滿。\n\n例如頁面 4 KB、資料共 10 KB，要配置 3 頁共 12 KB，最後剩 2 KB，即 internal fragmentation。總空閒量足夠卻不相鄰描述的是外部碎片；純分段採可變大小段，典型問題是外部碎片。Swapping 是搬出／載回，dynamic linking 是連結方式；stack overflow 與 memory leak 也不是區塊尾端浪費的名稱。填空填 internal。",
+          "category": "連續配置與碎片"
         }
       ]
     },
@@ -6529,6 +6787,12 @@
           "sourceExplanation": "分頁把虛擬記憶體切成 pages，把實體記憶體切成同樣大小的 frames。頁表負責記錄每個 page 對應到哪個 frame，所以答案是 Frames。",
           "category": "分頁與 TLB",
           "explanation": "邏輯記憶體切成 pages（頁），實體記憶體切成相同大小的 frames（頁框）。先有邏輯頁號，再由頁表找出實體頁框號。\n\n例如邏輯 page 3 可以放在實體 frame 9，兩者容量相等，所以一整頁能完整放入一個頁框。Segments 是可變大小的邏輯段，sectors 通常是儲存裝置的單位。問實體區塊時回答 frames；兩空依序填 pages／frames。"
+        },
+        {
+          "identity": "[\"單選題\",\"In paging, physical memory is divided into fixed-size blocks called:\",[\"Frames\",\"Pages\",\"Segments\",\"Sectors\"],\"A\",[]]",
+          "sourceExplanation": "",
+          "explanation": "邏輯記憶體切成 pages（頁），實體記憶體切成相同大小的 frames（頁框）。先有邏輯頁號，再由頁表找出實體頁框號。\n\n例如邏輯 page 3 可以放在實體 frame 9，兩者容量相等，所以一整頁能完整放入一個頁框。Segments 是可變大小的邏輯段，sectors 通常是儲存裝置的單位。問實體區塊時回答 frames；兩空依序填 pages／frames。",
+          "category": "分頁與 TLB"
         }
       ]
     },
@@ -6539,6 +6803,12 @@
           "sourceExplanation": "TLB（Translation Lookaside Buffer，轉譯後備緩衝區）保存近期頁面轉換結果，讓 MMU 快速取得 frame。它不是整張頁表，也不負責交換或決定頁面大小。",
           "category": "分頁與 TLB",
           "explanation": "TLB（Translation Lookaside Buffer）是位址轉譯的小型高速快取，保存最近用過的虛擬頁到實體 frame 對應。\n\n例如上一個存取已知道第 5 頁在 frame 12，下一次同頁的存取若 TLB 命中，就不必重新走完整頁表。它只快取部分表項，並不保存整張頁表；交換由作業系統處理，頁面大小由架構與設定決定，這些都不是 TLB 的主要用途。填空依要求使用大寫 TLB。"
+        },
+        {
+          "identity": "[\"單選題\",\"What is the main purpose of the Translation Lookaside Buffer (TLB)?\",[\"Perform swapping operations\",\"Store the entire page table\",\"Cache recently used page table entries\",\"Determine page size\"],\"C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "TLB（Translation Lookaside Buffer）是位址轉譯的小型高速快取，保存最近用過的虛擬頁到實體 frame 對應。\n\n例如上一個存取已知道第 5 頁在 frame 12，下一次同頁的存取若 TLB 命中，就不必重新走完整頁表。它只快取部分表項，並不保存整張頁表；交換由作業系統處理，頁面大小由架構與設定決定，這些都不是 TLB 的主要用途。填空依要求使用大寫 TLB。",
+          "category": "分頁與 TLB"
         }
       ]
     },
@@ -6549,6 +6819,12 @@
           "sourceExplanation": "TLB 是存放近期位址轉換結果的小型高速快取。命中時，MMU 可直接取得虛擬頁對應的實體框架，不必每次都到主記憶體逐層查頁表。",
           "category": "分頁與 TLB",
           "explanation": "TLB（Translation Lookaside Buffer）是位址轉譯的小型高速快取，保存最近用過的虛擬頁到實體 frame 對應。\n\n例如上一個存取已知道第 5 頁在 frame 12，下一次同頁的存取若 TLB 命中，就不必重新走完整頁表。它只快取部分表項，並不保存整張頁表；交換由作業系統處理，頁面大小由架構與設定決定，這些都不是 TLB 的主要用途。填空依要求使用大寫 TLB。"
+        },
+        {
+          "identity": "[\"單選題\",\"轉譯後備緩衝區 (TLB) 的主要用途是？\",[\"進行交換操作\",\"快取最近使用的頁表條目\",\"儲存完整頁表\",\"決定分頁大小\"],\"B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "TLB（Translation Lookaside Buffer）是位址轉譯的小型高速快取，保存最近用過的虛擬頁到實體 frame 對應。\n\n例如上一個存取已知道第 5 頁在 frame 12，下一次同頁的存取若 TLB 命中，就不必重新走完整頁表。它只快取部分表項，並不保存整張頁表；交換由作業系統處理，頁面大小由架構與設定決定，這些都不是 TLB 的主要用途。填空依要求使用大寫 TLB。",
+          "category": "分頁與 TLB"
         }
       ]
     },
@@ -6639,6 +6915,12 @@
           "sourceExplanation": "TLB 是 Translation Lookaside Buffer 的縮寫，中文常譯為轉譯後備緩衝區。記住它快取的是近期位址轉換，不是完整頁表。",
           "category": "分頁與 TLB",
           "explanation": "TLB（Translation Lookaside Buffer）是位址轉譯的小型高速快取，保存最近用過的虛擬頁到實體 frame 對應。\n\n例如上一個存取已知道第 5 頁在 frame 12，下一次同頁的存取若 TLB 命中，就不必重新走完整頁表。它只快取部分表項，並不保存整張頁表；交換由作業系統處理，頁面大小由架構與設定決定，這些都不是 TLB 的主要用途。填空依要求使用大寫 TLB。"
+        },
+        {
+          "identity": "[\"填空題\",\"The is a special, fast lookup hardware cache used to speed up page table entry lookups. Please answer using English abbreviations in uppercase.\",[],\"TLB\",[]]",
+          "sourceExplanation": "",
+          "explanation": "TLB（Translation Lookaside Buffer）是位址轉譯的小型高速快取，保存最近用過的虛擬頁到實體 frame 對應。\n\n例如上一個存取已知道第 5 頁在 frame 12，下一次同頁的存取若 TLB 命中，就不必重新走完整頁表。它只快取部分表項，並不保存整張頁表；交換由作業系統處理，頁面大小由架構與設定決定，這些都不是 TLB 的主要用途。填空依要求使用大寫 TLB。",
+          "category": "分頁與 TLB"
         }
       ]
     },
@@ -6649,6 +6931,12 @@
           "sourceExplanation": "CPU 產生邏輯（或虛擬）位址；分頁系統再透過頁表與 MMU 轉成實體位址。依題目留空格式填 logical/physical。",
           "category": "分頁與 TLB",
           "explanation": "依序填 logical／physical。CPU 產生程式看到的 logical address（邏輯位址），MMU 依頁表映射轉成 physical address（實體位址），才能選中 RAM 的位置。\n\n例如邏輯第 2 頁映到 frame 8，轉換時只替換頁號，頁內偏移不變。不同程序可以產生相同邏輯位址，卻各自映到不同實體位置；不要把程式看到的編號與 RAM 實際位置視為同一個值。"
+        },
+        {
+          "identity": "[\"填空題\",\"In paging, the address generated by the CPU is translated into a address. (Please answer in English lowercase)\",[],\"logical/physical\",[]]",
+          "sourceExplanation": "",
+          "explanation": "依序填 logical／physical。CPU 產生程式看到的 logical address（邏輯位址），MMU 依頁表映射轉成 physical address（實體位址），才能選中 RAM 的位置。\n\n例如邏輯第 2 頁映到 frame 8，轉換時只替換頁號，頁內偏移不變。不同程序可以產生相同邏輯位址，卻各自映到不同實體位置；不要把程式看到的編號與 RAM 實際位置視為同一個值。",
+          "category": "分頁與 TLB"
         }
       ]
     },
@@ -6799,6 +7087,12 @@
           "sourceExplanation": "雜湊頁表用虛擬位址中的頁號計算雜湊值，再到對應的桶或鏈結串列比對頁號與程序資訊。找到匹配項目後才能取得實體框架，因此填 lookup。",
           "category": "頁表結構",
           "explanation": "填 lookup（查找）。雜湊頁表先用虛擬頁號計算雜湊值，找到對應桶，再沿該桶的鏈結串列逐項比對完整的頁號與必要識別資訊，找到後取出實體 frame。\n\n因為不同頁號可能得到相同雜湊值，不能只看桶號就直接認定命中；鏈結串列正是用來處理這種碰撞。頁內偏移保持不變，最後和找到的 frame 組成實體位址。"
+        },
+        {
+          "identity": "[\"填空題\",\"To handle excessively large page tables, Hashed Page Tables use the virtual address to perform a into a hash table, with each entry containing a linked list. (Please answer in English lowercase)\",[],\"lookup\",[]]",
+          "sourceExplanation": "",
+          "explanation": "填 lookup（查找）。雜湊頁表先用虛擬頁號計算雜湊值，找到對應桶，再沿該桶的鏈結串列逐項比對完整的頁號與必要識別資訊，找到後取出實體 frame。\n\n因為不同頁號可能得到相同雜湊值，不能只看桶號就直接認定命中；鏈結串列正是用來處理這種碰撞。頁內偏移保持不變，最後和找到的 frame 組成實體位址。",
+          "category": "頁表結構"
         }
       ]
     },
@@ -6809,6 +7103,12 @@
           "sourceExplanation": "倒置頁表以實體 frame 為索引，每筆記錄該 frame 對應的虛擬頁號與程序 ID。答案格式 inverted/frame 分別指倒置頁表與實體框架。",
           "category": "頁表結構",
           "explanation": "倒置頁表（inverted page table）以實體 frame 為單位，每個框架對應一個表項，記錄占用它的程序 ID 與虛擬頁號。\n\n例如 RAM 只有 1000 個 frames，就依這 1000 個實體位置建表，而不用替每個程序所有可能的虛擬頁各建一項，能降低頁表空間需求。代價是查找要比對程序與頁號，未必更快。外部碎片是分配單位與連續性造成的問題，不是倒置表帶來的獨有改進；分層／雜湊是其他表組織方式。兩空依序填 inverted／frame。"
+        },
+        {
+          "identity": "[\"填空題\",\"在頁表中，每個條目對應一個物理，且包含虛擬地址的頁號和擁有該頁的程序 ID。 (請用小寫英文回答)\",[],\"inverted/frame\",[]]",
+          "sourceExplanation": "",
+          "explanation": "倒置頁表（inverted page table）以實體 frame 為單位，每個框架對應一個表項，記錄占用它的程序 ID 與虛擬頁號。\n\n例如 RAM 只有 1000 個 frames，就依這 1000 個實體位置建表，而不用替每個程序所有可能的虛擬頁各建一項，能降低頁表空間需求。代價是查找要比對程序與頁號，未必更快。外部碎片是分配單位與連續性造成的問題，不是倒置表帶來的獨有改進；分層／雜湊是其他表組織方式。兩空依序填 inverted／frame。",
+          "category": "頁表結構"
         }
       ]
     },
@@ -6849,6 +7149,12 @@
           "sourceExplanation": "Segmentation 把程式視為一組有意義的邏輯單元，例如程式碼、資料或堆疊；每段大小可不同。Paging 則按固定大小切分，因此答案是 Segmentation。",
           "category": "分段",
           "explanation": "Segmentation（分段）依程式的邏輯意義切分記憶體，例如程式碼、資料與堆疊，各單元稱 segments，大小可以不同。\n\n像把一本書依章節分開，各章長短不一；paging 則像把內容切成固定張數的紙包。Swapping 描述程序在 RAM 與後備儲存之間搬移；contiguous allocation 描述放置方式，都不是以邏輯單元看待程式的定義。填空使用複數 segments。"
+        },
+        {
+          "identity": "[\"單選題\",\"Which memory management technique views a program as a collection of logical units?\",[\"Paging\",\"Contiguous Allocation\",\"Swapping\",\"Segmentation\"],\"D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Segmentation（分段）依程式的邏輯意義切分記憶體，例如程式碼、資料與堆疊，各單元稱 segments，大小可以不同。\n\n像把一本書依章節分開，各章長短不一；paging 則像把內容切成固定張數的紙包。Swapping 描述程序在 RAM 與後備儲存之間搬移；contiguous allocation 描述放置方式，都不是以邏輯單元看待程式的定義。填空使用複數 segments。",
+          "category": "分段"
         }
       ]
     },
@@ -6859,6 +7165,12 @@
           "sourceExplanation": "Segment Table 的一筆資料描述該段的 base、limit 與保護權限；frame number 是分頁頁表的概念。base 指出段的位置，limit 限制可用範圍，protection bits 控制讀寫或執行。",
           "category": "分段",
           "explanation": "段表的一項要描述「段從哪開始、長多大、允許怎樣存取」，因此包含 base address、limit 與 protection bits。\n\n例如 base = 8000、limit = 300，只讀權限：段內偏移 100 可讀取實體位址 8100，但寫入仍會被拒絕；偏移 300 已超出大小。Frame number 是等大分頁框架的編號，純分段以可變長度區域為單位，不能拿它取代段的起點與界限。"
+        },
+        {
+          "identity": "[\"多選題\",\"In Segmentation memory management, which information is contained in each entry of the Segment Table?\",[\"Frame Number\",\"Base Address\",\"Protection Bits\",\"Limit\"],\"B、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "段表的一項要描述「段從哪開始、長多大、允許怎樣存取」，因此包含 base address、limit 與 protection bits。\n\n例如 base = 8000、limit = 300，只讀權限：段內偏移 100 可讀取實體位址 8100，但寫入仍會被拒絕；偏移 300 已超出大小。Frame number 是等大分頁框架的編號，純分段以可變長度區域為單位，不能拿它取代段的起點與界限。",
+          "category": "分段"
         }
       ]
     },
@@ -6879,6 +7191,12 @@
           "sourceExplanation": "分段的邏輯位址由 segment number 與 offset 組成。segment number 選出段表項目，offset 表示段內位置；硬體會再檢查 offset 是否超過該段 limit。",
           "category": "分段",
           "explanation": "分段位址由 segment number（段號）與 offset（段內偏移）組成。先用段號選段表項，檢查 0 ≤ offset < limit，再計算 physical address = base + offset。\n\n例如第 2 段 base = 5000、limit = 600，offset = 120 合法，得到實體位址 5120；offset = 600 則越界。Page／frame 是分頁用語；base／limit 是表中描述段的位置與大小，不是程式輸入的這對邏輯位址。填空依序填 segment number／offset。"
+        },
+        {
+          "identity": "[\"填空題\",\"在分段中，邏輯地址由號和組成。 (請用小寫英文回答，字母間留一個空白)\",[],\"segment number/offset\",[]]",
+          "sourceExplanation": "",
+          "explanation": "分段位址由 segment number（段號）與 offset（段內偏移）組成。先用段號選段表項，檢查 0 ≤ offset < limit，再計算 physical address = base + offset。\n\n例如第 2 段 base = 5000、limit = 600，offset = 120 合法，得到實體位址 5120；offset = 600 則越界。Page／frame 是分頁用語；base／limit 是表中描述段的位置與大小，不是程式輸入的這對邏輯位址。填空依序填 segment number／offset。",
+          "category": "分段"
         }
       ]
     },
@@ -6889,6 +7207,12 @@
           "sourceExplanation": "分段把程式分成有意義的邏輯單元，例如 code、data、stack；每一單元稱為 segment。分段單位可有不同大小，不像 paging 的頁面固定大小。",
           "category": "分段",
           "explanation": "Segmentation（分段）依程式的邏輯意義切分記憶體，例如程式碼、資料與堆疊，各單元稱 segments，大小可以不同。\n\n像把一本書依章節分開，各章長短不一；paging 則像把內容切成固定張數的紙包。Swapping 描述程序在 RAM 與後備儲存之間搬移；contiguous allocation 描述放置方式，都不是以邏輯單元看待程式的定義。填空使用複數 segments。"
+        },
+        {
+          "identity": "[\"填空題\",\"分段 (Segmentation) 是一種記憶體管理方案，它將記憶體視為一組邏輯單元，稱為。 (請用小寫英文回答)\",[],\"segments\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Segmentation（分段）依程式的邏輯意義切分記憶體，例如程式碼、資料與堆疊，各單元稱 segments，大小可以不同。\n\n像把一本書依章節分開，各章長短不一；paging 則像把內容切成固定張數的紙包。Swapping 描述程序在 RAM 與後備儲存之間搬移；contiguous allocation 描述放置方式，都不是以邏輯單元看待程式的定義。填空使用複數 segments。",
+          "category": "分段"
         }
       ]
     },
@@ -6899,6 +7223,12 @@
           "sourceExplanation": "分段位址用 segment number 選段，再用 offset 定位段內位置。offset 還必須小於該段的 limit，否則會違反段界限；依題目格式填 segment number/offset。",
           "category": "分段",
           "explanation": "分段位址由 segment number（段號）與 offset（段內偏移）組成。先用段號選段表項，檢查 0 ≤ offset < limit，再計算 physical address = base + offset。\n\n例如第 2 段 base = 5000、limit = 600，offset = 120 合法，得到實體位址 5120；offset = 600 則越界。Page／frame 是分頁用語；base／limit 是表中描述段的位置與大小，不是程式輸入的這對邏輯位址。填空依序填 segment number／offset。"
+        },
+        {
+          "identity": "[\"填空題\",\"In segmentation, the logical address consists of the and the . (Please answer in English lowercase, one space between letters)\",[],\"segment number/offset\",[]]",
+          "sourceExplanation": "",
+          "explanation": "分段位址由 segment number（段號）與 offset（段內偏移）組成。先用段號選段表項，檢查 0 ≤ offset < limit，再計算 physical address = base + offset。\n\n例如第 2 段 base = 5000、limit = 600，offset = 120 合法，得到實體位址 5120；offset = 600 則越界。Page／frame 是分頁用語；base／limit 是表中描述段的位置與大小，不是程式輸入的這對邏輯位址。填空依序填 segment number／offset。",
+          "category": "分段"
         }
       ]
     },
@@ -6919,6 +7249,12 @@
           "sourceExplanation": "stub 是動態連結時的替代程式碼。它第一次被呼叫時協助解析共享常式的位置，並把後續呼叫導向該常式；不是 buffer、frame 或一般記憶體區塊。",
           "category": "載入、交換與連結",
           "explanation": "Stub 是替真正程式庫常式暫時站位的一小段程式碼。第一次呼叫時，它協助找到目標常式的位址，必要時請載入器載入，再讓後續呼叫直接導向該常式。\n\n可想成櫃台先幫你找到服務人員，之後知道位置就直接前往。Buffer 是資料緩衝區，frame 是分頁的實體區塊，block 是泛稱區塊，都不是這種呼叫代理程式。填 stub。這個「以替代碼定位常式」的描述通常屬動態連結，即使題幹使用動態載入用語，也應依其行為辨識。"
+        },
+        {
+          "identity": "[\"單選題\",\"The small piece of code used to replace a dynamically linked routine is called a:\",[\"Buffer\",\"Stub\",\"Frame\",\"Block\"],\"B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Stub 是替真正程式庫常式暫時站位的一小段程式碼。第一次呼叫時，它協助找到目標常式的位址，必要時請載入器載入，再讓後續呼叫直接導向該常式。\n\n可想成櫃台先幫你找到服務人員，之後知道位置就直接前往。Buffer 是資料緩衝區，frame 是分頁的實體區塊，block 是泛稱區塊，都不是這種呼叫代理程式。填 stub。這個「以替代碼定位常式」的描述通常屬動態連結，即使題幹使用動態載入用語，也應依其行為辨識。",
+          "category": "載入、交換與連結"
         }
       ]
     },
@@ -6929,6 +7265,12 @@
           "sourceExplanation": "動態載入只在某段常式確實被呼叫時才載入它，未使用的程式碼便不占用常駐記憶體。這能改善記憶體利用率，和 I/O 速度或碎片消除無關。",
           "category": "載入、交換與連結",
           "explanation": "Dynamic loading（動態載入）是在常式真正被呼叫時才把它載入記憶體，未使用的部分先留在磁碟。\n\n例如程式有很大的錯誤處理模組，正常執行時不呼叫它，就不用讓它占 RAM。這能提高記憶體利用率，支援總體較大的程式；但仍須能容納當下要執行的部分。它不會縮小磁碟上原始程式的全部內容、不保證提高 I/O 速度，也無法消除外部碎片。靜態載入則較早載入，靜態連結處理的是模組合併。"
+        },
+        {
+          "identity": "[\"單選題\",\"What is a main advantage of dynamic loading?\",[\"Eliminate external fragmentation\",\"Increase I/O speed\",\"Better memory utilization\",\"Reduce overall program size\"],\"C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Dynamic loading（動態載入）是在常式真正被呼叫時才把它載入記憶體，未使用的部分先留在磁碟。\n\n例如程式有很大的錯誤處理模組，正常執行時不呼叫它，就不用讓它占 RAM。這能提高記憶體利用率，支援總體較大的程式；但仍須能容納當下要執行的部分。它不會縮小磁碟上原始程式的全部內容、不保證提高 I/O 速度，也無法消除外部碎片。靜態載入則較早載入，靜態連結處理的是模組合併。",
+          "category": "載入、交換與連結"
         }
       ]
     },
@@ -6939,6 +7281,12 @@
           "sourceExplanation": "Swapping 暫時把程序從主記憶體移出，通常存放到 backing store，之後再載回記憶體繼續執行。暫存器與快取容量太小，不是整個程序的交換目的地。",
           "category": "載入、交換與連結",
           "explanation": "Swapping 會把暫時不用的程序從主記憶體搬到 backing store（後備儲存），需要時再載回。傳統模型的後備儲存通常是 disk。\n\n例如 RAM 不足時先把等待中的程序換出，讓別的程序使用空間。Registers 與 cache 容量小且用途不同，無法作為整個程序的交換區。Auxiliary memory 是較廣的輔助儲存名稱，backing store 則精確指出供換出／載回使用的角色。兩空依序填 backing store／disk。"
+        },
+        {
+          "identity": "[\"單選題\",\"交換 (Swapping) 機制中，主記憶體中的程序會被移到哪個儲存設備？\",[\"暫存器 (Registers)\",\"後備儲存 (Backing Store)\",\"快取 (Cache)\",\"輔助記憶體 (Auxiliary Memory)\"],\"B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Swapping 會把暫時不用的程序從主記憶體搬到 backing store（後備儲存），需要時再載回。傳統模型的後備儲存通常是 disk。\n\n例如 RAM 不足時先把等待中的程序換出，讓別的程序使用空間。Registers 與 cache 容量小且用途不同，無法作為整個程序的交換區。Auxiliary memory 是較廣的輔助儲存名稱，backing store 則精確指出供換出／載回使用的角色。兩空依序填 backing store／disk。",
+          "category": "載入、交換與連結"
         }
       ]
     },
@@ -6949,6 +7297,12 @@
           "sourceExplanation": "動態連結把程式庫符號的解析延到 execution time，通常由 stub 協助完成第一次呼叫。compile time 是編譯，load time 是載入時，兩者都比動態連結的延後點早。",
           "category": "載入、交換與連結",
           "explanation": "Dynamic linking 把程式庫常式的連接／符號解析延到 execution time（執行時間）。程式開始執行後，可透過 stub 或動態連結器取得目標常式的位置。\n\n編譯時間主要把原始碼翻成機器碼；載入時間是把程式放入記憶體；啟動只是執行初期的一個時點。實際系統可在程式啟動時解析，也可第一次呼叫時才解析，所以本題要選涵蓋這些情況的執行時間。填空填 execution。"
+        },
+        {
+          "identity": "[\"單選題\",\"動態連結 中，將連結推遲到何時進行？\",[\"編譯時間 (Compile Time)\",\"執行時間 (Execution Time)\",\"載入時間 (Load Time)\",\"啟動時間 (Startup Time)\"],\"B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Dynamic linking 把程式庫常式的連接／符號解析延到 execution time（執行時間）。程式開始執行後，可透過 stub 或動態連結器取得目標常式的位置。\n\n編譯時間主要把原始碼翻成機器碼；載入時間是把程式放入記憶體；啟動只是執行初期的一個時點。實際系統可在程式啟動時解析，也可第一次呼叫時才解析，所以本題要選涵蓋這些情況的執行時間。填空填 execution。",
+          "category": "載入、交換與連結"
         }
       ]
     },
@@ -6959,6 +7313,12 @@
           "sourceExplanation": "stub 是呼叫共享程式庫常式時使用的小段替代程式碼。第一次呼叫時，它協助定位或載入目標常式，再把呼叫導向該常式，因此答案是 stub。",
           "category": "載入、交換與連結",
           "explanation": "Stub 是替真正程式庫常式暫時站位的一小段程式碼。第一次呼叫時，它協助找到目標常式的位址，必要時請載入器載入，再讓後續呼叫直接導向該常式。\n\n可想成櫃台先幫你找到服務人員，之後知道位置就直接前往。Buffer 是資料緩衝區，frame 是分頁的實體區塊，block 是泛稱區塊，都不是這種呼叫代理程式。填 stub。這個「以替代碼定位常式」的描述通常屬動態連結，即使題幹使用動態載入用語，也應依其行為辨識。"
+        },
+        {
+          "identity": "[\"單選題\",\"用於替換動態連結常式的代碼片段被稱為？\",[\"Buffer\",\"Frame\",\"Block\",\"Stub\"],\"D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Stub 是替真正程式庫常式暫時站位的一小段程式碼。第一次呼叫時，它協助找到目標常式的位址，必要時請載入器載入，再讓後續呼叫直接導向該常式。\n\n可想成櫃台先幫你找到服務人員，之後知道位置就直接前往。Buffer 是資料緩衝區，frame 是分頁的實體區塊，block 是泛稱區塊，都不是這種呼叫代理程式。填 stub。這個「以替代碼定位常式」的描述通常屬動態連結，即使題幹使用動態載入用語，也應依其行為辨識。",
+          "category": "載入、交換與連結"
         }
       ]
     },
@@ -6969,6 +7329,12 @@
           "sourceExplanation": "一般作業系統的載入流程會先把可執行程式放入主記憶體，CPU 才能取指令並執行。磁碟或輔助記憶體保存檔案，但不是 CPU 直接執行一般程式碼的地方。",
           "category": "載入、交換與連結",
           "explanation": "一般程式要從磁碟載入 main memory（主記憶體），CPU 才能透過記憶體階層取得指令與資料執行。可把磁碟想成保存檔案的倉庫，主記憶體是執行時的工作區。\n\nCache 與 registers 會進一步保存近期指令、資料與運算狀態，但容量與管理角色不同，並非本題從磁碟載入程式的主要目的地。Auxiliary memory 屬輔助儲存，仍是保存資料的地方。"
+        },
+        {
+          "identity": "[\"單選題\",\"程式必須從磁碟載入到何處才能執行？\",[\"暫存器 (Registers)\",\"快取 (Cache)\",\"輔助記憶體 (Auxiliary Memory)\",\"主記憶體 (Main Memory)\"],\"D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "一般程式要從磁碟載入 main memory（主記憶體），CPU 才能透過記憶體階層取得指令與資料執行。可把磁碟想成保存檔案的倉庫，主記憶體是執行時的工作區。\n\nCache 與 registers 會進一步保存近期指令、資料與運算狀態，但容量與管理角色不同，並非本題從磁碟載入程式的主要目的地。Auxiliary memory 屬輔助儲存，仍是保存資料的地方。",
+          "category": "載入、交換與連結"
         }
       ]
     },
@@ -6979,6 +7345,12 @@
           "sourceExplanation": "動態載入只在程式真的呼叫某個常式時才把它載入記憶體；平常不會用到的部分便不必常駐，因此記憶體利用率較好。它不會提升磁碟 I/O 速度，也不是消除外部碎片的配置演算法。",
           "category": "載入、交換與連結",
           "explanation": "Dynamic loading（動態載入）是在常式真正被呼叫時才把它載入記憶體，未使用的部分先留在磁碟。\n\n例如程式有很大的錯誤處理模組，正常執行時不呼叫它，就不用讓它占 RAM。這能提高記憶體利用率，支援總體較大的程式；但仍須能容納當下要執行的部分。它不會縮小磁碟上原始程式的全部內容、不保證提高 I/O 速度，也無法消除外部碎片。靜態載入則較早載入，靜態連結處理的是模組合併。"
+        },
+        {
+          "identity": "[\"單選題\",\"哪個是動態載入的主要優點？\",[\"提高 I/O 速度\",\"消除外部碎片\",\"更好的記憶體利用率\",\"減少程式總體大小\"],\"C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Dynamic loading（動態載入）是在常式真正被呼叫時才把它載入記憶體，未使用的部分先留在磁碟。\n\n例如程式有很大的錯誤處理模組，正常執行時不呼叫它，就不用讓它占 RAM。這能提高記憶體利用率，支援總體較大的程式；但仍須能容納當下要執行的部分。它不會縮小磁碟上原始程式的全部內容、不保證提高 I/O 速度，也無法消除外部碎片。靜態載入則較早載入，靜態連結處理的是模組合併。",
+          "category": "載入、交換與連結"
         }
       ]
     },
@@ -7069,6 +7441,12 @@
           "sourceExplanation": "動態連結把共享常式的符號解析延後到程式執行時；stub 會在呼叫時完成解析或導向已載入的常式。因此答案是 execution。",
           "category": "載入、交換與連結",
           "explanation": "Dynamic linking 把程式庫常式的連接／符號解析延到 execution time（執行時間）。程式開始執行後，可透過 stub 或動態連結器取得目標常式的位置。\n\n編譯時間主要把原始碼翻成機器碼；載入時間是把程式放入記憶體；啟動只是執行初期的一個時點。實際系統可在程式啟動時解析，也可第一次呼叫時才解析，所以本題要選涵蓋這些情況的執行時間。填空填 execution。"
+        },
+        {
+          "identity": "[\"填空題\",\"動態連結中，連結過程被延遲到時間。 (請用小寫英文回答)\",[],\"execution\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Dynamic linking 把程式庫常式的連接／符號解析延到 execution time（執行時間）。程式開始執行後，可透過 stub 或動態連結器取得目標常式的位置。\n\n編譯時間主要把原始碼翻成機器碼；載入時間是把程式放入記憶體；啟動只是執行初期的一個時點。實際系統可在程式啟動時解析，也可第一次呼叫時才解析，所以本題要選涵蓋這些情況的執行時間。填空填 execution。",
+          "category": "載入、交換與連結"
         }
       ]
     },
@@ -7079,6 +7457,12 @@
           "sourceExplanation": "stub 是連結時留下的小段替代程式碼。第一次呼叫時，它找到或載入共享程式庫中的目標常式，之後把呼叫改導向真正的常式；因此答案是 stub。",
           "category": "載入、交換與連結",
           "explanation": "Stub 是替真正程式庫常式暫時站位的一小段程式碼。第一次呼叫時，它協助找到目標常式的位址，必要時請載入器載入，再讓後續呼叫直接導向該常式。\n\n可想成櫃台先幫你找到服務人員，之後知道位置就直接前往。Buffer 是資料緩衝區，frame 是分頁的實體區塊，block 是泛稱區塊，都不是這種呼叫代理程式。填 stub。這個「以替代碼定位常式」的描述通常屬動態連結，即使題幹使用動態載入用語，也應依其行為辨識。"
+        },
+        {
+          "identity": "[\"填空題\",\"Dynamic linking uses a small piece of code called a to locate and load the required library routine, and replaces itself with the routine's address after loading. (Please answer in English lowercase)\",[],\"stub\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Stub 是替真正程式庫常式暫時站位的一小段程式碼。第一次呼叫時，它協助找到目標常式的位址，必要時請載入器載入，再讓後續呼叫直接導向該常式。\n\n可想成櫃台先幫你找到服務人員，之後知道位置就直接前往。Buffer 是資料緩衝區，frame 是分頁的實體區塊，block 是泛稱區塊，都不是這種呼叫代理程式。填 stub。這個「以替代碼定位常式」的描述通常屬動態連結，即使題幹使用動態載入用語，也應依其行為辨識。",
+          "category": "載入、交換與連結"
         }
       ]
     },
@@ -7119,6 +7503,12 @@
           "sourceExplanation": "PAE（Page Address Extension）讓支援它的 32 位元 Intel 系統使用更寬的實體位址，管理超過 4 GB 的實體記憶體。這不表示單一 32 位元程式的虛擬位址空間也自動大於 4 GB。",
           "category": "架構案例：ARM／Intel",
           "explanation": "PAE 擴大的是可使用的實體位址範圍。32 位元位址共有 2^32 bytes，也就是 4 GiB；支援 PAE 的系統可用較寬的實體位址管理超過此容量的 RAM。\n\n這不會讓每個 32 位元程序自動得到超過 4 GiB 的線性位址空間，單一程序要使用更多資料仍須配合作業系統提供的映射方式。Dynamic loading 是按需載入，inverted page table 是表結構，address binding 是建立位址對應，都不是這項實體位址擴充技術。填空填 pae。"
+        },
+        {
+          "identity": "[\"單選題\",\"What technology did Intel develop to extend the physical address space for 32-bit applications beyond 4GB?\",[\"Dynamic Loading\",\"Inverted Page Table\",\"Address Binding\",\"Page Address Extension (PAE)\"],\"D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "PAE 擴大的是可使用的實體位址範圍。32 位元位址共有 2^32 bytes，也就是 4 GiB；支援 PAE 的系統可用較寬的實體位址管理超過此容量的 RAM。\n\n這不會讓每個 32 位元程序自動得到超過 4 GiB 的線性位址空間，單一程序要使用更多資料仍須配合作業系統提供的映射方式。Dynamic loading 是按需載入，inverted page table 是表結構，address binding 是建立位址對應，都不是這項實體位址擴充技術。填空填 pae。",
+          "category": "架構案例：ARM／Intel"
         }
       ]
     },
@@ -7167,7 +7557,8 @@
         {
           "identity": "[\"單選題\",\"What is a common example of a deadlock?\",[\"The Dining Philosophers problem\",\"A process requesting memory\",\"A process waiting for an I/O operation to complete\",\"File locking\"],\"A\",[]]",
           "sourceExplanation": "",
-          "explanation": "哲學家進餐是典型死結範例：若每人都先拿起一支筷子、再等待鄰座手上的另一支，所有人便可能互相等待而無法前進。\n\n只有「請求記憶體」或「等待 I/O」未必形成互等的環，事件完成後仍可能繼續。File locking 若程序以相反順序取得多把鎖，也能造成死結；因此檔案鎖並非不會死結，只是本題選定的典型案例是哲學家進餐，僅憑例子名稱無法證明唯一性。"
+          "explanation": "哲學家進餐是典型死結範例：若每人都先拿起一支筷子、再等待鄰座手上的另一支，所有人便可能互相等待而無法前進。\n\n只有「請求記憶體」或「等待 I/O」未必形成互等的環，事件完成後仍可能繼續。File locking 若程序以相反順序取得多把鎖，也能造成死結；因此檔案鎖並非不會死結，只是本題選定的典型案例是哲學家進餐，僅憑例子名稱無法證明唯一性。",
+          "category": "死結範例"
         }
       ]
     },
@@ -7302,7 +7693,8 @@
         {
           "identity": "[\"單選題\",\"Which problem does the \\\"resource preemption\\\" strategy in deadlock recovery typically need to solve?\",[\"How to select the locked resource\",\"How to select the terminated process\",\"How to select the preempted process\",\"How to select the allocated resource\"],\"C\",[]]",
           "sourceExplanation": "",
-          "explanation": "資源搶佔首先要決定從哪個程序收回資源，也就是選擇被搶佔的犧牲程序。接著還要處理它如何回到可重試的狀態，以及避免同一程序反覆被選中。\n\n例如收回某程序的鎖後，可能需要回滾它尚未完成的工作，再重新執行。這不同於直接選擇終止程序；也不是只看某個資源名稱就足夠，必須考量受影響程序與復原成本。"
+          "explanation": "資源搶佔首先要決定從哪個程序收回資源，也就是選擇被搶佔的犧牲程序。接著還要處理它如何回到可重試的狀態，以及避免同一程序反覆被選中。\n\n例如收回某程序的鎖後，可能需要回滾它尚未完成的工作，再重新執行。這不同於直接選擇終止程序；也不是只看某個資源名稱就足夠，必須考量受影響程序與復原成本。",
+          "category": "死結恢復"
         }
       ]
     },
@@ -7532,6 +7924,205 @@
           "identity": "[\"單選題\",\"當 I/O 操作完成時，硬體裝置會透過什麼機制通知 CPU？\",[\"A. System call\",\"B. Trap\",\"C. Interrupt\",\"D. Polling\"],\"C\",[]]",
           "sourceExplanation": "裝置完成 I/O 後可發出硬體中斷，CPU 暫停目前指令流程，保存必要狀態並進入處理程式。OS 再確認裝置狀態、記錄完成結果，讓等待這次 I/O 的程序重新可執行。\n\n中斷是通知事件；搬運大量資料可由 DMA 負責，兩者可一起使用。",
           "explanation": "裝置完成 I/O 時會用 Interrupt（中斷）通知 CPU。System call 是程式要求作業系統服務的介面；Trap／exception 通常由目前執行的指令引發，例如系統服務請求或錯誤；Polling 則是 CPU 反覆查詢裝置狀態，並非裝置主動通知。大量資料搬運可另外交由 DMA，DMA 與中斷負責的工作不同。"
+        }
+      ]
+    },
+    "community-d3814130-f8f1-4aa0-9fd8-9684cc7dad92-1": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"When a process invokes the x.wait() operation, it is suspended until another process invokes x. ____________ .(Please answer in lowercase English)\",[],\"signal\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Semaphore 的 wait(x) 會先嘗試取得同步資源；若資源不可用，程序就進入等待。等另一個程序呼叫 signal(x) 後，等待中的程序才有機會恢復執行。因此空格是 signal。這裡的 signal 表示通知／釋放，不是再呼叫一次 wait。",
+          "category": "Semaphore"
+        }
+      ]
+    },
+    "community-d3814130-f8f1-4aa0-9fd8-9684cc7dad92-2": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"In the bounded-buffer problem, wait(empty) and wait(mutex) are both used in the ____________ process.(Please answer in lowercase English)\",[],\"producer\",[]]",
+          "sourceExplanation": "",
+          "explanation": "生產者要先確認緩衝區還有空位，所以等待 empty；接著取得 mutex，避免和其他程序同時改動緩衝區。消費者則等待 full，確認至少有一項資料可取。題目問同時使用 wait(empty) 與 wait(mutex) 的程序，因此答案是 producer。",
+          "category": "Bounded-Buffer"
+        }
+      ]
+    },
+    "community-d3814130-f8f1-4aa0-9fd8-9684cc7dad92-3": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"signal(S) 操作的定義是？\",[\"S--;\",\"S++;\",\"while (S > 0) ;\",\"while (S <= 0) ; S--;\"],\"B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "signal(S) 會增加信號量的值，表示可用資源增加或有等待程序能繼續。S-- 會減少計數，屬於 wait 的取得資源方向；while 迴圈則是在忙等，也不是 signal 的定義。",
+          "category": "Semaphore"
+        }
+      ]
+    },
+    "community-d3814130-f8f1-4aa0-9fd8-9684cc7dad92-4": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"哪一個是哲學家進餐問題的解決方案之一？\",[\"使用一個信號量\",\"使用自旋鎖\",\"使用一個監視器\",\"禁用中斷\"],\"C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "監視器可以把筷子狀態與取用規則封裝起來，只有在左右兩根筷子都可用時才允許哲學家進食，並協調等待者。單獨使用一個信號量或自旋鎖只提供同步原語，仍需額外設計完整規則；停用中斷也不是一般多處理器程式可用的解法。",
+          "category": "Dining Philosophers"
+        }
+      ]
+    },
+    "community-84adb18d-2149-4e87-8cdc-cdaff5fa4362-1": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"In the Readers-Writers problem, multiple readers can access the shared dataset at the same time, but how about a writer?\",[\"Can only access when there are no readers or writers\",\"Has priority over readers\",\"Can access at any time\",\"Must compete with other readers\"],\"A\",[]]",
+          "sourceExplanation": "",
+          "explanation": "讀者不修改共享資料，因此多位讀者可以同時讀；寫者會改動資料，必須獨占使用權，開始寫入前要等所有讀者離開，也要等其他寫者完成。寫者優先只是某種政策，不是所有解法都如此；寫者不能任意和讀者同時存取。",
+          "category": "Readers-Writers"
+        }
+      ]
+    },
+    "community-84adb18d-2149-4e87-8cdc-cdaff5fa4362-2": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"A monitor is a high-level abstraction that is an ____________ data type, and its internal variables are only accessible by code within the monitor.(Please answer in lowercase English)\",[],\"abstract\",[]]",
+          "sourceExplanation": "",
+          "explanation": "Monitor 的全名概念是 abstract data type（抽象資料型別）。它把內部資料與同步操作包在一起，外部程序不能直接碰內部變數，只能透過監視器提供的操作使用共享狀態。",
+          "category": "Monitor"
+        }
+      ]
+    },
+    "community-84adb18d-2149-4e87-8cdc-cdaff5fa4362-3": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"A simple semaphore solution to the Dining Philosophers Problem can lead to a ____________ .(Please answer in lowercase English)\",[],\"deadlock\",[]]",
+          "sourceExplanation": "",
+          "explanation": "簡單信號量解法若讓每位哲學家先拿左邊筷子，再等右邊筷子，可能所有人都各拿一根並互相等待。沒有人能拿到第二根，也就沒有人會放下手上的筷子，形成循環等待；這種狀態就是 deadlock。",
+          "category": "Dining Philosophers"
+        }
+      ]
+    },
+    "community-84adb18d-2149-4e87-8cdc-cdaff5fa4362-4": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"What problems can the solution to the Readers-Writers Problem have?\",[\"Starvation\",\"Livelock\",\"Deadlock\",\"Priority inversion\"],\"A、C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "讀者優先政策可能讓寫者一直等新讀者離開，寫者優先政策也可能讓讀者長期等不到，因此可能發生 starvation。若同步程序以不一致的順序持有多把鎖，也可能互相等待而 deadlock。Livelock 與 priority inversion 不是讀者／寫者問題每種解法必然具有的問題。",
+          "category": "Readers-Writers"
+        }
+      ]
+    },
+    "community-870107c5-7c5d-431e-aeab-395ac24c57f5-1": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"Which deadlock handling method is the simplest but can lead to the lowest resource utilization?\",[\"Recovery\",\"Avoidance\",\"Detection\",\"Prevention\"],\"D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "死結預防會用固定規則限制資源取得，破壞死結形成所需條件；這種限制可能讓資源被保留而無法充分使用，所以利用率可能最低。避免法會逐次檢查安全狀態；偵測法先允許分配、之後檢查；恢復法則是在發現死結後處理。"
+        }
+      ]
+    },
+    "community-870107c5-7c5d-431e-aeab-395ac24c57f5-2": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"以下哪些情況可能會導致一個系統從安全狀態進入不安全狀態？\",[\"一個程序在不安全狀態下請求資源\",\"一個程序釋放了一個資源\",\"一個程序請求了一個新資源\",\"一個程序終止了\"],\"C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "安全狀態下，系統至少能找到一種程序完成順序。核准新的資源請求會減少可用資源，可能讓所有完成順序都消失，因此可能把狀態由安全變成不安全。釋放資源或程序終止會增加可用資源；「系統已在不安全狀態」也不是從安全狀態轉變的原因。"
+        }
+      ]
+    },
+    "community-aa4a27e3-5675-4c8a-ac04-0cd199b1c162-1": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"死結預防的一個缺點是可能會導致低 ____________ 。(請用小寫英文回答 單字間留一個空白)\",[],\"resource utilization\",[]]",
+          "sourceExplanation": "",
+          "explanation": "死結預防以限制資源申請方式來打破至少一個必要條件。限制可能令資源閒置或讓程序等待，即使系統仍有其他資源也不能立刻使用，所以降低的是 resource utilization。"
+        }
+      ]
+    },
+    "community-aa4a27e3-5675-4c8a-ac04-0cd199b1c162-2": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"以下哪些是死結避免的主要優點？\",[\"動態檢查狀態\",\"高資源利用率\",\"較低的開銷\",\"保證無死結\"],\"A、B、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "避免法會在核准每次請求前動態檢查分配後是否仍安全，並拒絕會令系統失去安全序列的請求，因此可避免死結，且通常比一律嚴格限制資源取得更有彈性、能提高利用率。低開銷不是必然優點，安全性檢查本身需要計算；題目所列優點是動態檢查、較高利用率與保證不進入死結。"
+        }
+      ]
+    },
+    "community-779bdddf-192c-477b-82c1-77118f21329e-1": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"When a system is in an unsafe state what can happen?\",[\"The system might enter a deadlocked state\",\"An unsatisfied resource request exists\",\"All processes are unable to complete\",\"All resources are locked\"],\"A、B\",[]]",
+          "sourceExplanation": "",
+          "explanation": "不安全狀態代表目前無法保證所有程序都能依某個安全順序完成，但它還不等於死結。系統之後可能進入死結，也可能出現尚未滿足的資源請求；仍可能有部分程序完成，並釋放資源，所以不能推論所有程序都無法完成或所有資源都被鎖住。"
+        }
+      ]
+    },
+    "community-779bdddf-192c-477b-82c1-77118f21329e-2": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"Which of the following are preemptable resources?\",[\"Printer\",\"CPU\",\"Memory\",\"File\"],\"B、C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "CPU 可由排程器停止目前程序並交給另一程序，因此可搶佔；記憶體也能在安全條件下透過換出等方式回收。印表機工作中途被搶走可能留下不完整輸出，檔案操作中途被中斷可能破壞資料或狀態，因此通常不視為可安全搶佔的資源。",
+          "category": "資源類型"
+        }
+      ]
+    },
+    "community-b40afcfc-800e-4f41-9b83-160a48030bd0-1": {
+      "versions": [
+        {
+          "identity": "[\"單選題\",\"Which deadlock recovery method involves aborting one or more deadlocked processes to break the cycle?\",[\"Resource release\",\"Resource termination\",\"Process termination\",\"Resource preemption\"],\"C\",[]]",
+          "sourceExplanation": "",
+          "explanation": "程序終止會停止一個或多個陷入死結的程序，並釋放它們持有的資源，打破等待環。只釋放單一資源、終止資源本身或搶佔資源都不是「中止程序」這個恢復方法。"
+        }
+      ]
+    },
+    "community-558cfd78-5b14-4834-aef8-2ed654e25558-1": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"What elements does a Resource-Allocation Graph include?\",[\"Request edges\",\"Process nodes\",\"Assignment edges\",\"Resource nodes\"],\"A、B、C、D\",[]]",
+          "sourceExplanation": "",
+          "explanation": "資源分配圖把程序與資源型別畫成節點，並用兩種方向的邊表示關係：程序指向資源是請求邊，資源指向程序是分配邊。題列的兩種節點與兩種邊都是圖的基本元素。",
+          "category": "資源分配圖"
+        }
+      ]
+    },
+    "community-ad550da9-ed22-4683-979b-f032e6a4ee26-1": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"In deadlock recovery which factors might influence the choice of a victim process to terminate?\",[\"Process priority\",\"Time the process has been running\",\"Overhead of terminating the process\",\"Number of resources the process has used\"],\"A、B、C、D\",[]]",
+          "sourceExplanation": "無解析",
+          "explanation": "選擇要終止的程序時，系統會衡量其優先權、已執行時間、終止與重新執行的成本，以及它目前占用的資源。這些因素會影響解除死結的代價；不是只看程序是否正在執行。"
+        }
+      ]
+    },
+    "community-ad550da9-ed22-4683-979b-f032e6a4ee26-2": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"死結避免(Deadlock Avoidance)演算法可以確保系統不會進入 ____________ 狀態。(請用小寫英文回答)\",[],\"unsafe\",[]]",
+          "sourceExplanation": "無解析",
+          "explanation": "避免法在每次核准資源前檢查系統是否還有安全序列，只有能保持安全狀態才分配。因此它避免系統進入 unsafe 狀態；unsafe 不等同已發生 deadlock。"
+        }
+      ]
+    },
+    "community-ad550da9-ed22-4683-979b-f032e6a4ee26-3": {
+      "versions": [
+        {
+          "identity": "[\"填空題\",\"Deadlock Prevention can usually be achieved by breaking one of the four necessary conditions for a deadlock. For example by forcing all resources to be shareable you break ____________ .(Please answer in lowercase English, leaving a space between each word)\",[],\"mutual exclusion\",[]]",
+          "sourceExplanation": "1",
+          "explanation": "互斥表示某些資源一次只能由一個程序使用。若資源可安全地同時分享，就不再需要互相排斥，因而破壞 mutual exclusion 這個死結必要條件。不過印表機等資源未必能實際共享。"
+        }
+      ]
+    },
+    "community-75b683e3-febd-4e97-9065-5f358dae04cb-1": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"When do deadlock detection algorithms run?\",[\"When a resource request fails\",\"Periodically\",\"When the system is in a safe state\",\"When the system load reaches a certain threshold\"],\"A、B、D\",[]]",
+          "sourceExplanation": "NO",
+          "explanation": "死結偵測可在資源請求無法核准時啟動，也可定期執行，或在系統負載達到門檻時執行，以平衡偵測延遲與檢查成本。系統處於安全狀態本身不需要啟動死結偵測。"
+        }
+      ]
+    },
+    "community-75b683e3-febd-4e97-9065-5f358dae04cb-2": {
+      "versions": [
+        {
+          "identity": "[\"多選題\",\"What are the disadvantages of Deadlock Prevention?\",[\"It can lead to a decrease in system performance\",\"It can lead to starvation\",\"It is complex to implement\",\"It can lead to low resource utilization\"],\"A、B、D\",[]]",
+          "sourceExplanation": "NO",
+          "explanation": "預防法靠限制資源取得規則來避免必要條件同時成立，代價可能是效能下降、某些程序長期等不到資源，以及資源利用率降低。複雜度會依採用的限制方法而變，不能一概說一定難實作。"
         }
       ]
     }
